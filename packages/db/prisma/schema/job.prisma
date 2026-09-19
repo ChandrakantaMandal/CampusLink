@@ -1,0 +1,56 @@
+model Job {
+  id              String   @id @default(uuid())
+
+  companyId       String
+  company         Company  @relation(fields: [companyId],references: [id],onDelete: Cascade)
+
+  recruiterId     String?
+  recruiter       RecruiterProfile? @relation(fields: [recruiterId],references: [id])
+
+  title           String
+  description     String
+
+  location        String?
+  employmentType  String?
+
+  minCGPA         Float?
+  maxBacklogs     Int?
+
+  requiredDegree  String?
+  requiredBranch  String?
+  graduationYear  Int?
+
+  minExperience   Int?
+  maxExperience   Int?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  skills          JobSkill[]
+  applications    Application[]
+
+  aiAnalyses AIAnalysis[]
+
+  @@index([companyId])
+  @@index([recruiterId])
+  @@index([title])
+}
+
+model JobSkill {
+  id        String   @id @default(uuid())
+
+  jobId     String
+  job       Job      @relation(fields: [jobId],references: [id],onDelete: Cascade)
+
+  skillId   String
+  skill     Skill    @relation(fields: [skillId],references: [id],onDelete: Cascade)
+
+  required  Boolean  @default(true)
+  weight    Float    @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@unique([jobId, skillId])
+  @@index([jobId])
+  @@index([skillId])
+}

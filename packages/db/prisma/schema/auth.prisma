@@ -1,16 +1,33 @@
+enum UserRole {
+  STUDENT
+  RECRUITER
+  ADMIN
+}
+
 model User {
-  id            String    @id
+  id            String  @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+
+  role UserRole @default(STUDENT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+
+  student   StudentProfile?
+  recruiter RecruiterProfile?
+  admin     AdminProfile?
+
+  applications    Application[]
+  aiAnalyses      AIAnalysis[]
+  recommendations Recommendation[]
 
   @@unique([email])
-  @@map("user")
 }
 
 model Session {
@@ -26,7 +43,6 @@ model Session {
 
   @@unique([token])
   @@index([userId])
-  @@map("session")
 }
 
 model Account {
@@ -47,7 +63,6 @@ model Account {
 
   @@unique([providerId, accountId], map: "account_providerId_accountId_uidx")
   @@index([userId])
-  @@map("account")
 }
 
 model Verification {
@@ -59,5 +74,4 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@index([identifier])
-  @@map("verification")
 }

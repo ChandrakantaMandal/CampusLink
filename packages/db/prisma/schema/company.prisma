@@ -1,0 +1,40 @@
+model Company {
+  id          String   @id @default(uuid())
+
+  name        String
+  description String?
+
+  website     String?
+  logoUrl     String?
+
+  industry    String?
+  location    String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recruiters  RecruiterProfile[]
+  jobs        Job[]
+
+  @@index([name])
+  @@index([industry])
+}
+
+model RecruiterProfile {
+  id          String   @id @default(uuid())
+
+  userId      String   @unique
+  user        User     @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  companyId   String
+  company     Company  @relation(fields: [companyId],references: [id],onDelete: Cascade)
+
+  designation String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  jobs        Job[]
+
+  @@index([companyId])
+}
