@@ -2,7 +2,12 @@ import type { Database } from "@HireBridge/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
-import { sendSignupOTP } from "./services/auth.service";
+import {
+  sendPasswordReset,
+  sendSignupOTP,
+  sendWelcomeEmail,
+} from "./services/auth.service";
+
 import { signupOTPPlugin } from "./plugins/signup-otp.plugin";
 
 export type AuthConfig = {
@@ -21,13 +26,13 @@ export function createAuth(
   database: Database,
   desktopOrigins: readonly string[] = [],
 ) {
-   console.log("Google OAuth config:", {
-    clientIdPresent: Boolean(env.GOOGLE_CLIENT_ID),
-    clientIdLength: env.GOOGLE_CLIENT_ID?.length,
-    clientSecretPresent: Boolean(env.GOOGLE_CLIENT_SECRET),
-    clientSecretLength: env.GOOGLE_CLIENT_SECRET?.length,
-    betterAuthUrl: env.BETTER_AUTH_URL,
-  });
+
+  const mailerConfig = {
+    SMTP_USER: env.SMTP_USER,
+    SMTP_PASSWORD: env.SMTP_PASSWORD,
+    EMAIL_FROM: env.EMAIL_FROM,
+  };
+
   return betterAuth({
     database: prismaAdapter(database, {
       provider: "postgresql",
@@ -41,18 +46,15 @@ export function createAuth(
         clientSecret: env.GOOGLE_CLIENT_SECRET,
       },
     },
-
-    plugins: [
-      signupOTPPlugin(database, {
-        SMTP_USER: env.SMTP_USER,
-        SMTP_PASSWORD: env.SMTP_PASSWORD,
-        EMAIL_FROM: env.EMAIL_FROM,
-      }),
-    ],
-
+    plugins: [signupOTPPlugin(database, mailerConfig)],
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
+      sendResetPassword: async ({ user, url }) => {
+        await sendPasswordReset(user.email, url, mailerConfig);
+      },
+
+      resetPasswordTokenExpiresIn: 60 * 60,
     },
 
     emailVerification: {
@@ -64,12 +66,29 @@ export function createAuth(
         create: {
           after: async (user) => {
             if (!user.emailVerified) {
-              await sendSignupOTP(database, user.email, {
-                SMTP_USER: env.SMTP_USER,
-                SMTP_PASSWORD: env.SMTP_PASSWORD,
-                EMAIL_FROM: env.EMAIL_FROM,
-              });
+              await sendSignupOTP(database, user.email, mailerConfig);
             }
+          },
+        },
+      },
+
+      account: {
+        create: {
+          after: async (account) => {
+            if (account.providerId !== "google") {
+              return;
+            }
+
+            const user = await database.user.findUnique({
+              where: {
+                id: account.userId,
+              },
+            });
+
+            if (!user) {
+              return;
+            }
+            await sendWelcomeEmail(user.email, user.name, mailerConfig);
           },
         },
       },

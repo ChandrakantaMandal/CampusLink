@@ -8,15 +8,12 @@ import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
 
-import Loader from "./loader";
-
 export default function SignInForm({
   onSwitchToSignUp,
 }: {
   onSwitchToSignUp: () => void;
 }) {
   const router = useRouter();
-  const { isPending } = authClient.useSession();
 
   const handleGoogleLogin = async () => {
     try {
@@ -29,6 +26,54 @@ export default function SignInForm({
       toast.error("Unable to continue with Google");
     }
   };
+
+  const handleForgotPassword = async (email: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      toast.error("Please enter your email address first");
+      return;
+    }
+
+    const emailValidation = z
+      .email("Invalid email address")
+      .safeParse(normalizedEmail);
+
+    if (!emailValidation.success) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      await authClient.requestPasswordReset(
+        {
+          email: normalizedEmail,
+          redirectTo: "http://localhost:3001/reset-password",
+        },
+        {
+          onSuccess: () => {
+            toast.success(
+              "If an account exists with this email, a password reset link has been sent.",
+            );
+          },
+
+          onError: (error) => {
+            console.error("FORGOT PASSWORD ERROR:", error);
+
+            toast.error(
+              error.error.message ||
+                error.error.statusText ||
+                "Unable to send password reset email",
+            );
+          },
+        },
+      );
+    } catch (error) {
+      console.error("FORGOT PASSWORD ERROR:", error);
+      toast.error("Unable to send password reset email");
+    }
+  };
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -43,8 +88,8 @@ export default function SignInForm({
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
             toast.success("Sign in successful");
+            router.push("/dashboard");
           },
 
           onError: (error) => {
@@ -65,10 +110,6 @@ export default function SignInForm({
       }),
     },
   });
-
-  if (isPending) {
-    return <Loader />;
-  }
 
   return (
     <div className="mx-auto mt-10 w-full max-w-md p-6">
@@ -148,7 +189,19 @@ export default function SignInForm({
         <form.Field name="password">
           {(field) => (
             <div className="space-y-2">
-              <Label htmlFor={field.name}>Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor={field.name}>Password</Label>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleForgotPassword(form.getFieldValue("email"))
+                  }
+                  className="text-sm text-indigo-600 hover:text-indigo-800"
+                >
+                  Forgot password?
+                </button>
+              </div>
 
               <Input
                 id={field.name}

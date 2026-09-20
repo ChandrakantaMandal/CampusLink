@@ -4,16 +4,19 @@ import { APIError, createAuthEndpoint } from "better-auth/api";
 import { setSessionCookie } from "better-auth/cookies";
 import { z } from "zod";
 
-import { resendSignupOTP, verifyEmailOTP } from "../services/auth.service";
+import {
+  resendSignupOTP,
+  verifyEmailOTP,
+} from "../services/auth.service";
 
-//   RATE LIMIT CONFIG
+// RATE LIMIT CONFIG
 const VERIFY_OTP_MAX_REQUESTS = 5;
 const VERIFY_OTP_WINDOW_SECONDS = 10 * 60; // 10 minutes
 
 const RESEND_OTP_MAX_REQUESTS = 3;
 const RESEND_OTP_WINDOW_SECONDS = 10 * 60; // 10 minutes
 
-//   GET CLIENT IP
+// GET CLIENT IP
 function getClientIP(request: Request | undefined): string {
   if (!request) {
     return "unknown";
@@ -34,7 +37,7 @@ function getClientIP(request: Request | undefined): string {
   return "unknown";
 }
 
-//   REDIS RATE LIMITER
+// REDIS RATE LIMITER
 async function checkRateLimit(
   key: string,
   maxRequests: number,
@@ -57,7 +60,7 @@ async function checkRateLimit(
   }
 }
 
-//   PLUGIN
+// PLUGIN
 export function signupOTPPlugin(
   database: Database,
   env: {
@@ -86,7 +89,8 @@ export function signupOTPPlugin(
         async (ctx) => {
           const ip = getClientIP(ctx.request);
 
-          const rateLimitKey = `hirebridge:ratelimit:otp:verify:${ip}`;
+          const rateLimitKey =
+            `hirebridge:ratelimit:otp:verify:${ip}`;
 
           try {
             await checkRateLimit(
@@ -99,20 +103,32 @@ export function signupOTPPlugin(
               throw error;
             }
 
-            console.error("OTP verification rate limiter error:", error);
+            console.error(
+              "OTP verification rate limiter error:",
+              error,
+            );
           }
 
           const { email, otp } = ctx.body;
 
           const normalizedEmail = email.trim().toLowerCase();
-             
           try {
-            await verifyEmailOTP(database, normalizedEmail, otp);
+            await verifyEmailOTP(
+              database,
+              normalizedEmail,
+              otp,
+              env,
+            );
           } catch (error) {
             const message =
-              error instanceof Error ? error.message : "Verification failed";
+              error instanceof Error
+                ? error.message
+                : "Verification failed";
 
-            if (message === "INVALID_OTP" || message === "OTP_EXPIRED") {
+            if (
+              message === "INVALID_OTP" ||
+              message === "OTP_EXPIRED"
+            ) {
               throw new APIError("BAD_REQUEST", {
                 message,
               });
@@ -124,13 +140,26 @@ export function signupOTPPlugin(
               });
             }
 
+            if (message === "EMAIL_ALREADY_VERIFIED") {
+              throw new APIError("BAD_REQUEST", {
+                message: "Email is already verified",
+              });
+            }
+
+            console.error(
+              "OTP verification error:",
+              error,
+            );
+
             throw new APIError("INTERNAL_SERVER_ERROR", {
               message: "Verification failed",
             });
           }
 
           const user =
-            await ctx.context.internalAdapter.findUserByEmail(normalizedEmail);
+            await ctx.context.internalAdapter.findUserByEmail(
+              normalizedEmail,
+            );
 
           if (!user) {
             throw new APIError("NOT_FOUND", {
@@ -138,9 +167,10 @@ export function signupOTPPlugin(
             });
           }
 
-          const session = await ctx.context.internalAdapter.createSession(
-            user.user.id,
-          );
+          const session =
+            await ctx.context.internalAdapter.createSession(
+              user.user.id,
+            );
 
           if (!session) {
             throw new APIError("INTERNAL_SERVER_ERROR", {
@@ -178,7 +208,8 @@ export function signupOTPPlugin(
         async (ctx) => {
           const ip = getClientIP(ctx.request);
 
-          const rateLimitKey = `hirebridge:ratelimit:otp:resend:${ip}`;
+          const rateLimitKey =
+            `hirebridge:ratelimit:otp:resend:${ip}`;
 
           try {
             await checkRateLimit(
@@ -191,7 +222,10 @@ export function signupOTPPlugin(
               throw error;
             }
 
-            console.error("OTP resend rate limiter error:", error);
+            console.error(
+              "OTP resend rate limiter error:",
+              error,
+            );
           }
 
           const { email } = ctx.body;
@@ -199,7 +233,11 @@ export function signupOTPPlugin(
           const normalizedEmail = email.trim().toLowerCase();
 
           try {
-            await resendSignupOTP(database, normalizedEmail, env);
+            await resendSignupOTP(
+              database,
+              normalizedEmail,
+              env,
+            );
 
             return ctx.json({
               success: true,
@@ -207,7 +245,9 @@ export function signupOTPPlugin(
             });
           } catch (error) {
             const message =
-              error instanceof Error ? error.message : "Failed to resend OTP";
+              error instanceof Error
+                ? error.message
+                : "Failed to resend OTP";
 
             if (message === "USER_NOT_FOUND") {
               throw new APIError("NOT_FOUND", {
@@ -222,7 +262,8 @@ export function signupOTPPlugin(
             }
 
             if (message.startsWith("OTP_RESEND_BLOCKED:")) {
-              const minutes = message.split(":")[1] ?? "60";
+              const minutes =
+                message.split(":")[1] ?? "60";
 
               throw new APIError("TOO_MANY_REQUESTS", {
                 message:
@@ -230,6 +271,11 @@ export function signupOTPPlugin(
                   `Try again in ${minutes} minutes.`,
               });
             }
+
+            console.error(
+              "OTP resend error:",
+              error,
+            );
 
             throw new APIError("INTERNAL_SERVER_ERROR", {
               message: "Failed to resend OTP",

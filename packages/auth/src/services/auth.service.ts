@@ -50,6 +50,7 @@ export async function verifyEmailOTP(
   database: Database,
   email: string,
   otp: string,
+  env: SMTPConfig,
 ) {
   const normalizedEmail = email.trim().toLowerCase();
   const normalizedOTP = otp.trim();
@@ -89,6 +90,9 @@ export async function verifyEmailOTP(
       emailVerified: true,
     },
   });
+  const mailer = createMailer(env);
+
+  await mailer.sendWelcome(updatedUser.email, updatedUser.name || "User");
 
   return {
     success: true,
@@ -130,6 +134,38 @@ export async function resendSignupOTP(
   const mailer = createMailer(env);
 
   await mailer.sendVerificationOTP(normalizedEmail, otp);
+
+  return {
+    success: true,
+  };
+}
+
+export async function sendPasswordReset(
+  email: string,
+  resetUrl: string,
+  env: SMTPConfig,
+) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const mailer = createMailer(env);
+
+  await mailer.sendPasswordReset(normalizedEmail, resetUrl);
+
+  return {
+    success: true,
+  };
+}
+
+export async function sendWelcomeEmail(
+  email: string,
+  name: string | null | undefined,
+  env: SMTPConfig,
+) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const mailer = createMailer(env);
+
+  await mailer.sendWelcome(normalizedEmail, name || "User");
 
   return {
     success: true,
