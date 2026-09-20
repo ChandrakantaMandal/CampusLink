@@ -15,6 +15,8 @@ import express from "express";
 import { ENV } from "./env.server";
 import { auth } from "./services";
 
+import { globalLimiter } from "./middleware/rateLimiters";
+
 const app = express();
 
 app.use(
@@ -26,9 +28,11 @@ app.use(
   }),
 );
 
-app.all("/api/auth{/*path}", toNodeHandler(auth));
-
 app.use(express.json());
+
+app.use(globalLimiter);
+
+app.all("/api/auth{/*path}", toNodeHandler(auth));
 
 app.post("/ai", async (req, res) => {
   const { messages = [] } = (req.body || {}) as { messages: UIMessage[] };
@@ -46,8 +50,11 @@ app.post("/ai", async (req, res) => {
   });
 });
 
-app.get("/", (_req, res) => {
-  res.status(200).send("OK");
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Server is healthy",
+  });
 });
 
 app.listen(3000, () => {

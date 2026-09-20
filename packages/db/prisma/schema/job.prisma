@@ -34,6 +34,7 @@ model Job {
   @@index([companyId])
   @@index([recruiterId])
   @@index([title])
+   @@map("job")
 }
 
 model JobSkill {
@@ -53,4 +54,5 @@ model JobSkill {
   @@unique([jobId, skillId])
   @@index([jobId])
   @@index([skillId])
+   @@map("job_skill")
 }

@@ -35,7 +35,7 @@ import { ArrowUpIcon, Loader2, MessageCircleDashedIcon, RotateCwIcon } from "luc
 import { useState, type FormEvent, type KeyboardEvent } from "react";
 import { Streamdown } from "streamdown";
 
-import { ENV } from "../../env";
+import { ENV } from "../../../env";
 
 export default function AIPage() {
   const [input, setInput] = useState("");

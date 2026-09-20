@@ -18,6 +18,7 @@ model Company {
 
   @@index([name])
   @@index([industry])
+   @@map("company")
 }
 
 model RecruiterProfile {
@@ -37,4 +38,5 @@ model RecruiterProfile {
   jobs        Job[]
 
   @@index([companyId])
+   @@map("recuiter_profile")
 }

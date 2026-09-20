@@ -1,0 +1,19 @@
+{
+  "name": "@HireBridge/redis",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ioredis": "^5.0.0"
+  },
+  "devDependencies": {
+    "@HireBridge/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

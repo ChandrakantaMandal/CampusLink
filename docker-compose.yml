@@ -52,13 +52,14 @@ services:
     environment:
       CORS_ORIGIN: http://localhost:3001
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/HireBridge
+      REDIS_URL: redis://localhost:6379
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "fetch('http://localhost:3000/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+          "fetch('http://localhost:3000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
         ]
       interval: 10s
       timeout: 5s
@@ -66,6 +67,8 @@ services:
       start_period: 10s
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: unless-stopped
 
@@ -87,8 +90,24 @@ services:
       retries: 5
     restart: unless-stopped
 
+  redis:
+    image: redis:8-alpine
+    container_name: HireBridge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - HireBridge_redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   HireBridge_postgres_data:
+  HireBridge_redis_data:
 
 # BuildKit makes these available only while install/build commands run.
 secrets:

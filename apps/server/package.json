@@ -14,9 +14,11 @@
   "dependencies": {
     "@HireBridge/auth": "workspace:*",
     "@HireBridge/db": "workspace:*",
+    "@HireBridge/redis": "workspace:*",
     "@ai-sdk/devtools": "^1.0.15",
     "@ai-sdk/google": "^4.0.64",
     "ai": "catalog:",
+    "bcrypt": "^6.0.0",
     "better-auth": "catalog:",
     "cors": "^2.8.6",
     "express": "^5.2.1",
