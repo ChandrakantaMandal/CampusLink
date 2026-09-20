@@ -95,21 +95,3 @@ export const globalLimiter = createRateLimiter({
   windowSeconds: 15 * 60,
   maxRequests: 100,
 });
-
-export const otpLimiter = createRateLimiter({
-  name: "otp",
-  windowSeconds: 10 * 60,
-  maxRequests: 5,
-});
-
-export const resendOtpLimiter = createRateLimiter({
-  name: "resend-otp",
-  windowSeconds: 10 * 60,
-  maxRequests: 3,
-});
-
-export const forgotPasswordLimiter = createRateLimiter({
-  name: "forgot-password",
-  windowSeconds: 15 * 60,
-  maxRequests: 3,
-});

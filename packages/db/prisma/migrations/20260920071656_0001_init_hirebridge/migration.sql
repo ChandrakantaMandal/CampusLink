@@ -23,18 +23,18 @@ CREATE TYPE "SkillType" AS ENUM ('PROGRAMMING_LANGUAGE', 'FRONTEND', 'BACKEND', 
 CREATE TYPE "SkillLevel" AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT');
 
 -- CreateTable
-CREATE TABLE "AdminProfile" (
+CREATE TABLE "admin_profile" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "permissions" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "AdminProfile_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "admin_profile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Application" (
+CREATE TABLE "application" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -43,11 +43,11 @@ CREATE TABLE "Application" (
     "appliedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Application_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "application_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "MatchResult" (
+CREATE TABLE "match_result" (
     "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "eligible" BOOLEAN NOT NULL,
@@ -62,11 +62,11 @@ CREATE TABLE "MatchResult" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "MatchResult_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "match_result_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Assessment" (
+CREATE TABLE "assessment" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -75,11 +75,11 @@ CREATE TABLE "Assessment" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Assessment_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "assessment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "AssessmentResult" (
+CREATE TABLE "assessment_result" (
     "id" TEXT NOT NULL,
     "assessmentId" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
@@ -89,11 +89,11 @@ CREATE TABLE "AssessmentResult" (
     "feedback" TEXT,
     "takenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "AssessmentResult_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "assessment_result_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ReadinessResult" (
+CREATE TABLE "readiness_result" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "overallScore" DOUBLE PRECISION NOT NULL,
@@ -106,11 +106,11 @@ CREATE TABLE "ReadinessResult" (
     "explanation" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "ReadinessResult_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "readiness_result_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "AIAnalysis" (
+CREATE TABLE "ai_anaysis" (
     "id" TEXT NOT NULL,
     "userId" TEXT,
     "jobId" TEXT,
@@ -124,11 +124,11 @@ CREATE TABLE "AIAnalysis" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "AIAnalysis_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ai_anaysis_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Recommendation" (
+CREATE TABLE "recommendation" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "type" "RecommendationType" NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE "Recommendation" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Recommendation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "recommendation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -205,7 +205,7 @@ CREATE TABLE "verification" (
 );
 
 -- CreateTable
-CREATE TABLE "Company" (
+CREATE TABLE "company" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
@@ -216,11 +216,11 @@ CREATE TABLE "Company" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "company_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "RecruiterProfile" (
+CREATE TABLE "recuiter_profile" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
@@ -228,11 +228,11 @@ CREATE TABLE "RecruiterProfile" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "RecruiterProfile_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "recuiter_profile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Job" (
+CREATE TABLE "job" (
     "id" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
     "recruiterId" TEXT,
@@ -250,11 +250,11 @@ CREATE TABLE "Job" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Job_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "job_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "JobSkill" (
+CREATE TABLE "job_skill" (
     "id" TEXT NOT NULL,
     "jobId" TEXT NOT NULL,
     "skillId" TEXT NOT NULL,
@@ -262,11 +262,11 @@ CREATE TABLE "JobSkill" (
     "weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "JobSkill_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "job_skill_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "StudentProfile" (
+CREATE TABLE "student_profile" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "studentId" TEXT,
@@ -285,11 +285,11 @@ CREATE TABLE "StudentProfile" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "StudentProfile_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "student_profile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Skill" (
+CREATE TABLE "skill" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "normalized" TEXT NOT NULL,
@@ -298,11 +298,11 @@ CREATE TABLE "Skill" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Skill_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "skill_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "StudentSkill" (
+CREATE TABLE "student_skill" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "skillId" TEXT NOT NULL,
@@ -312,11 +312,11 @@ CREATE TABLE "StudentSkill" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "StudentSkill_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "student_skill_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Education" (
+CREATE TABLE "education" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "institution" TEXT NOT NULL,
@@ -329,11 +329,11 @@ CREATE TABLE "Education" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Education_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "education_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Project" (
+CREATE TABLE "project" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -345,65 +345,65 @@ CREATE TABLE "Project" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "project_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ProjectSkill" (
+CREATE TABLE "project_skill" (
     "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "skillId" TEXT NOT NULL,
 
-    CONSTRAINT "ProjectSkill_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "project_skill_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AdminProfile_userId_key" ON "AdminProfile"("userId");
+CREATE UNIQUE INDEX "admin_profile_userId_key" ON "admin_profile"("userId");
 
 -- CreateIndex
-CREATE INDEX "AdminProfile_userId_idx" ON "AdminProfile"("userId");
+CREATE INDEX "admin_profile_userId_idx" ON "admin_profile"("userId");
 
 -- CreateIndex
-CREATE INDEX "Application_studentId_idx" ON "Application"("studentId");
+CREATE INDEX "application_studentId_idx" ON "application"("studentId");
 
 -- CreateIndex
-CREATE INDEX "Application_jobId_idx" ON "Application"("jobId");
+CREATE INDEX "application_jobId_idx" ON "application"("jobId");
 
 -- CreateIndex
-CREATE INDEX "Application_status_idx" ON "Application"("status");
+CREATE INDEX "application_status_idx" ON "application"("status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Application_studentId_jobId_key" ON "Application"("studentId", "jobId");
+CREATE UNIQUE INDEX "application_studentId_jobId_key" ON "application"("studentId", "jobId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "MatchResult_applicationId_key" ON "MatchResult"("applicationId");
+CREATE UNIQUE INDEX "match_result_applicationId_key" ON "match_result"("applicationId");
 
 -- CreateIndex
-CREATE INDEX "AssessmentResult_studentId_idx" ON "AssessmentResult"("studentId");
+CREATE INDEX "assessment_result_studentId_idx" ON "assessment_result"("studentId");
 
 -- CreateIndex
-CREATE INDEX "AssessmentResult_assessmentId_idx" ON "AssessmentResult"("assessmentId");
+CREATE INDEX "assessment_result_assessmentId_idx" ON "assessment_result"("assessmentId");
 
 -- CreateIndex
-CREATE INDEX "ReadinessResult_studentId_idx" ON "ReadinessResult"("studentId");
+CREATE INDEX "readiness_result_studentId_idx" ON "readiness_result"("studentId");
 
 -- CreateIndex
-CREATE INDEX "AIAnalysis_userId_idx" ON "AIAnalysis"("userId");
+CREATE INDEX "ai_anaysis_userId_idx" ON "ai_anaysis"("userId");
 
 -- CreateIndex
-CREATE INDEX "AIAnalysis_jobId_idx" ON "AIAnalysis"("jobId");
+CREATE INDEX "ai_anaysis_jobId_idx" ON "ai_anaysis"("jobId");
 
 -- CreateIndex
-CREATE INDEX "AIAnalysis_type_idx" ON "AIAnalysis"("type");
+CREATE INDEX "ai_anaysis_type_idx" ON "ai_anaysis"("type");
 
 -- CreateIndex
-CREATE INDEX "AIAnalysis_status_idx" ON "AIAnalysis"("status");
+CREATE INDEX "ai_anaysis_status_idx" ON "ai_anaysis"("status");
 
 -- CreateIndex
-CREATE INDEX "Recommendation_userId_idx" ON "Recommendation"("userId");
+CREATE INDEX "recommendation_userId_idx" ON "recommendation"("userId");
 
 -- CreateIndex
-CREATE INDEX "Recommendation_type_idx" ON "Recommendation"("type");
+CREATE INDEX "recommendation_type_idx" ON "recommendation"("type");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
@@ -424,106 +424,106 @@ CREATE UNIQUE INDEX "account_providerId_accountId_uidx" ON "account"("providerId
 CREATE INDEX "verification_identifier_idx" ON "verification"("identifier");
 
 -- CreateIndex
-CREATE INDEX "Company_name_idx" ON "Company"("name");
+CREATE INDEX "company_name_idx" ON "company"("name");
 
 -- CreateIndex
-CREATE INDEX "Company_industry_idx" ON "Company"("industry");
+CREATE INDEX "company_industry_idx" ON "company"("industry");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "RecruiterProfile_userId_key" ON "RecruiterProfile"("userId");
+CREATE UNIQUE INDEX "recuiter_profile_userId_key" ON "recuiter_profile"("userId");
 
 -- CreateIndex
-CREATE INDEX "RecruiterProfile_companyId_idx" ON "RecruiterProfile"("companyId");
+CREATE INDEX "recuiter_profile_companyId_idx" ON "recuiter_profile"("companyId");
 
 -- CreateIndex
-CREATE INDEX "Job_companyId_idx" ON "Job"("companyId");
+CREATE INDEX "job_companyId_idx" ON "job"("companyId");
 
 -- CreateIndex
-CREATE INDEX "Job_recruiterId_idx" ON "Job"("recruiterId");
+CREATE INDEX "job_recruiterId_idx" ON "job"("recruiterId");
 
 -- CreateIndex
-CREATE INDEX "Job_title_idx" ON "Job"("title");
+CREATE INDEX "job_title_idx" ON "job"("title");
 
 -- CreateIndex
-CREATE INDEX "JobSkill_jobId_idx" ON "JobSkill"("jobId");
+CREATE INDEX "job_skill_jobId_idx" ON "job_skill"("jobId");
 
 -- CreateIndex
-CREATE INDEX "JobSkill_skillId_idx" ON "JobSkill"("skillId");
+CREATE INDEX "job_skill_skillId_idx" ON "job_skill"("skillId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "JobSkill_jobId_skillId_key" ON "JobSkill"("jobId", "skillId");
+CREATE UNIQUE INDEX "job_skill_jobId_skillId_key" ON "job_skill"("jobId", "skillId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "StudentProfile_userId_key" ON "StudentProfile"("userId");
+CREATE UNIQUE INDEX "student_profile_userId_key" ON "student_profile"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "StudentProfile_studentId_key" ON "StudentProfile"("studentId");
+CREATE UNIQUE INDEX "student_profile_studentId_key" ON "student_profile"("studentId");
 
 -- CreateIndex
-CREATE INDEX "StudentProfile_college_idx" ON "StudentProfile"("college");
+CREATE INDEX "student_profile_college_idx" ON "student_profile"("college");
 
 -- CreateIndex
-CREATE INDEX "StudentProfile_branch_idx" ON "StudentProfile"("branch");
+CREATE INDEX "student_profile_branch_idx" ON "student_profile"("branch");
 
 -- CreateIndex
-CREATE INDEX "StudentProfile_graduationYear_idx" ON "StudentProfile"("graduationYear");
+CREATE INDEX "student_profile_graduationYear_idx" ON "student_profile"("graduationYear");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Skill_name_key" ON "Skill"("name");
+CREATE UNIQUE INDEX "skill_name_key" ON "skill"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Skill_normalized_key" ON "Skill"("normalized");
+CREATE UNIQUE INDEX "skill_normalized_key" ON "skill"("normalized");
 
 -- CreateIndex
-CREATE INDEX "StudentSkill_studentId_idx" ON "StudentSkill"("studentId");
+CREATE INDEX "student_skill_studentId_idx" ON "student_skill"("studentId");
 
 -- CreateIndex
-CREATE INDEX "StudentSkill_skillId_idx" ON "StudentSkill"("skillId");
+CREATE INDEX "student_skill_skillId_idx" ON "student_skill"("skillId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "StudentSkill_studentId_skillId_key" ON "StudentSkill"("studentId", "skillId");
+CREATE UNIQUE INDEX "student_skill_studentId_skillId_key" ON "student_skill"("studentId", "skillId");
 
 -- CreateIndex
-CREATE INDEX "Education_studentId_idx" ON "Education"("studentId");
+CREATE INDEX "education_studentId_idx" ON "education"("studentId");
 
 -- CreateIndex
-CREATE INDEX "Project_studentId_idx" ON "Project"("studentId");
+CREATE INDEX "project_studentId_idx" ON "project"("studentId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ProjectSkill_projectId_skillId_key" ON "ProjectSkill"("projectId", "skillId");
+CREATE UNIQUE INDEX "project_skill_projectId_skillId_key" ON "project_skill"("projectId", "skillId");
 
 -- AddForeignKey
-ALTER TABLE "AdminProfile" ADD CONSTRAINT "AdminProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "admin_profile" ADD CONSTRAINT "admin_profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Application" ADD CONSTRAINT "Application_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "StudentProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "application" ADD CONSTRAINT "application_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "student_profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Application" ADD CONSTRAINT "Application_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "application" ADD CONSTRAINT "application_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Application" ADD CONSTRAINT "Application_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "application" ADD CONSTRAINT "application_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MatchResult" ADD CONSTRAINT "MatchResult_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "match_result" ADD CONSTRAINT "match_result_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AssessmentResult" ADD CONSTRAINT "AssessmentResult_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "Assessment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "assessment_result" ADD CONSTRAINT "assessment_result_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "assessment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AssessmentResult" ADD CONSTRAINT "AssessmentResult_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "StudentProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "assessment_result" ADD CONSTRAINT "assessment_result_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "student_profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ReadinessResult" ADD CONSTRAINT "ReadinessResult_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "StudentProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "readiness_result" ADD CONSTRAINT "readiness_result_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "student_profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AIAnalysis" ADD CONSTRAINT "AIAnalysis_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ai_anaysis" ADD CONSTRAINT "ai_anaysis_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AIAnalysis" ADD CONSTRAINT "AIAnalysis_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ai_anaysis" ADD CONSTRAINT "ai_anaysis_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "job"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Recommendation" ADD CONSTRAINT "Recommendation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "recommendation" ADD CONSTRAINT "recommendation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -532,40 +532,40 @@ ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "account" ADD CONSTRAINT "account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RecruiterProfile" ADD CONSTRAINT "RecruiterProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "recuiter_profile" ADD CONSTRAINT "recuiter_profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RecruiterProfile" ADD CONSTRAINT "RecruiterProfile_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "recuiter_profile" ADD CONSTRAINT "recuiter_profile_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Job" ADD CONSTRAINT "Job_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "job" ADD CONSTRAINT "job_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Job" ADD CONSTRAINT "Job_recruiterId_fkey" FOREIGN KEY ("recruiterId") REFERENCES "RecruiterProfile"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "job" ADD CONSTRAINT "job_recruiterId_fkey" FOREIGN KEY ("recruiterId") REFERENCES "recuiter_profile"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JobSkill" ADD CONSTRAINT "JobSkill_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "job_skill" ADD CONSTRAINT "job_skill_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "JobSkill" ADD CONSTRAINT "JobSkill_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "Skill"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "job_skill" ADD CONSTRAINT "job_skill_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "skill"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudentProfile" ADD CONSTRAINT "StudentProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "student_profile" ADD CONSTRAINT "student_profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudentSkill" ADD CONSTRAINT "StudentSkill_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "StudentProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "student_skill" ADD CONSTRAINT "student_skill_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "student_profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StudentSkill" ADD CONSTRAINT "StudentSkill_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "Skill"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "student_skill" ADD CONSTRAINT "student_skill_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "skill"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Education" ADD CONSTRAINT "Education_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "StudentProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "education" ADD CONSTRAINT "education_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "student_profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project" ADD CONSTRAINT "Project_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "StudentProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "project" ADD CONSTRAINT "project_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "student_profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ProjectSkill" ADD CONSTRAINT "ProjectSkill_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "project_skill" ADD CONSTRAINT "project_skill_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ProjectSkill" ADD CONSTRAINT "ProjectSkill_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "Skill"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "project_skill" ADD CONSTRAINT "project_skill_skillId_fkey" FOREIGN KEY ("skillId") REFERENCES "skill"("id") ON DELETE CASCADE ON UPDATE CASCADE;

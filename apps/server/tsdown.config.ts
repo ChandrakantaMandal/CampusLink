@@ -8,4 +8,5 @@ export default defineConfig({
   deps: {
     alwaysBundle: [/@HireBridge\/.*/],
   },
+  external: ["bcrypt", "node-gyp-build"],
 });

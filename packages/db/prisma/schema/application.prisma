@@ -31,6 +31,7 @@ model Application {
     @@index([studentId])
     @@index([jobId])
     @@index([status])
+     @@map("application")
 }
 
 model MatchResult {
@@ -54,6 +55,7 @@ model MatchResult {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+     @@map("match_result")
 }
 
 enum AssessmentType {
@@ -79,6 +81,7 @@ model Assessment {
     updatedAt DateTime @updatedAt
 
     results AssessmentResult[]
+     @@map("assessment")
 }
 
 model AssessmentResult {
@@ -100,6 +103,7 @@ model AssessmentResult {
 
     @@index([studentId])
     @@index([assessmentId])
+     @@map("assessment_result")
 }
 
 model ReadinessResult {
@@ -123,6 +127,7 @@ model ReadinessResult {
     createdAt DateTime @default(now())
 
     @@index([studentId])
+     @@map("readiness_result")
 }
 
 enum AIAnalysisType {
@@ -169,6 +174,7 @@ model AIAnalysis {
     @@index([jobId])
     @@index([type])
     @@index([status])
+     @@map("ai_anaysis")
 }
 
 enum RecommendationType {
@@ -207,4 +213,5 @@ model Recommendation {
 
     @@index([userId])
     @@index([type])
+     @@map("recommendation")
 }

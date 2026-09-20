@@ -10,11 +10,16 @@
   },
   "dependencies": {
     "@HireBridge/db": "workspace:*",
+    "@HireBridge/redis": "workspace:*",
+    "bcrypt": "^6.0.0",
     "better-auth": "catalog:",
+    "nodemailer": "^10.0.10",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@HireBridge/config": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
+    "@types/nodemailer": "^8.0.2",
     "typescript": "catalog:"
   }
 }

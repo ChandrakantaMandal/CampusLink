@@ -57,6 +57,7 @@ model StudentProfile {
   @@index([college])
   @@index([branch])
   @@index([graduationYear])
+   @@map("student_profile")
 }
 
 model Skill {
@@ -74,6 +75,7 @@ model Skill {
   students    StudentSkill[]
   jobs        JobSkill[]
   projects    ProjectSkill[]
+   @@map("skill")
 }
 
 model StudentSkill {
@@ -95,6 +97,7 @@ model StudentSkill {
   @@unique([studentId, skillId])
   @@index([studentId])
   @@index([skillId])
+   @@map("student_skill")
 }
 
 model Education {
@@ -117,6 +120,7 @@ model Education {
   updatedAt   DateTime @updatedAt
 
   @@index([studentId])
+   @@map("education")
 }
 
 model Project {
@@ -140,6 +144,7 @@ model Project {
   skills      ProjectSkill[]
 
   @@index([studentId])
+   @@map("project")
 }
 
 model ProjectSkill {
@@ -153,4 +158,5 @@ model ProjectSkill {
 
 
   @@unique([projectId, skillId])
+   @@map("project_skill")
 }
