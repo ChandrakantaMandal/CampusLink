@@ -26,7 +26,6 @@ export function createAuth(
   database: Database,
   desktopOrigins: readonly string[] = [],
 ) {
-
   const mailerConfig = {
     SMTP_USER: env.SMTP_USER,
     SMTP_PASSWORD: env.SMTP_PASSWORD,
@@ -37,6 +36,18 @@ export function createAuth(
     database: prismaAdapter(database, {
       provider: "postgresql",
     }),
+
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          required: false,
+          defaultValue: "STUDENT",
+          input: false,
+        },
+      },
+    },
+
     trustedOrigins: [env.CORS_ORIGIN, ...desktopOrigins],
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
