@@ -31,7 +31,18 @@
     "env:generate": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./packages/redis/",
     "postinstall": "varlock codegen --path ./apps/web/ && varlock codegen --path ./apps/server/ && varlock codegen --path ./packages/db/ && varlock codegen --path ./packages/redis/",
     "auth:generate": "cd apps/server && pnpm run auth:generate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "pnpm run test:server && pnpm run test:web && pnpm run test:auth && pnpm run test:db",
+    "test:watch": "vitest",
+    "test:server": "vitest run --config vitest/vitest.server.config.ts",
+    "test:web": "vitest run --config vitest/vitest.web.config.ts",
+    "test:auth": "vitest run --config vitest/vitest.auth.config.ts",
+    "test:db": "vitest run --config vitest/vitest.db.config.ts",
+    "test:coverage": "pnpm run test:coverage:server && pnpm run test:coverage:web && pnpm run test:coverage:auth && pnpm run test:coverage:db",
+    "test:coverage:server": "vitest run --config vitest/vitest.server.config.ts --coverage",
+    "test:coverage:web": "vitest run --config vitest/vitest.web.config.ts --coverage",
+    "test:coverage:auth": "vitest run --config vitest/vitest.auth.config.ts --coverage",
+    "test:coverage:db": "vitest run --config vitest/vitest.db.config.ts --coverage"
   },
   "dependencies": {
     "zod": "catalog:"
@@ -39,10 +50,12 @@
   "devDependencies": {
     "@HireBridge/config": "workspace:*",
     "@types/node": "catalog:",
+    "@vitest/coverage-v8": "^5.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.0",
     "typescript": "catalog:",
-    "varlock": "catalog:"
+    "varlock": "catalog:",
+    "vitest": "^5.0.1"
   },
   "lint-staged": {
     "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": ""
