@@ -8,11 +8,11 @@ const redisMock = vi.hoisted(() => ({
   set: vi.fn(),
 }));
 
-vi.mock("../src/services", () => ({
+vi.mock("../../src/services", () => ({
   redis: redisMock,
 }));
 
-import { createRateLimiter } from "../src/middleware/rateLimiters";
+import { createRateLimiter } from "../../src/middleware/rateLimiters";
 
 function createMockRequest(ip: string = "127.0.0.1"): Request {
   return {
