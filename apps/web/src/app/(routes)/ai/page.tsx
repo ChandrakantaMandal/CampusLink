@@ -103,7 +103,7 @@ export default function AIPage() {
                 <EmptyMedia variant="icon">
                   <MessageCircleDashedIcon />
                 </EmptyMedia>
-                <EmptyTitle>Morning, HireBridge!</EmptyTitle>
+                <EmptyTitle>Welcome to CAMPUSLINK AI!</EmptyTitle>
                 <EmptyDescription>What are we working on today?</EmptyDescription>
               </EmptyHeader>
             </Empty>

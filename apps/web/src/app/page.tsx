@@ -1,30 +1,35 @@
-"use client";
+import LandingNavbar from "@/components/landing/layout/Navbar";
+import Footer from "@/components/landing/layout/Footer";
+import HeroSection from "@/components/landing/sections/HeroSection";
+import PersonaTabs from "@/components/landing/sections/PersonaTabs";
+import ReadinessCalculator from "@/components/landing/sections/ReadinessCalculator";
+import FeaturesBento from "@/components/landing/sections/FeaturesBento";
+import WorkflowSteps from "@/components/landing/sections/WorkflowSteps";
+import TestimonialsAndPartners from "@/components/landing/sections/TestimonialsAndPartners";
+import FaqSection from "@/components/landing/sections/FaqSection";
+import CtaBanner from "@/components/landing/sections/CtaBanner";
 
-const TITLE_TEXT = `
- ██████╗ ███████╗████████╗████████╗███████╗██████╗
- ██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗
- ██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝
- ██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗
- ██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║
- ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝
-
- ████████╗    ███████╗████████╗ █████╗  ██████╗██╗  ██╗
- ╚══██╔══╝    ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
-    ██║       ███████╗   ██║   ███████║██║     █████╔╝
-    ██║       ╚════██║   ██║   ██╔══██║██║     ██╔═██╗
-    ██║       ███████║   ██║   ██║  ██║╚██████╗██║  ██╗
-    ╚═╝       ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
- `;
+export const metadata = {
+  title: "CAMPUSLINK — AI-Powered Campus Placement Management Platform",
+  description:
+    "Bridge the gap between campus ambition and career success. CAMPUSLINK provides deterministic eligibility checking, real-time readiness scoring, AI resume & skill gap analysis, and automated campus hiring drives.",
+};
 
 export default function Home() {
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-2">
-      <pre className="overflow-x-auto font-mono text-sm">{TITLE_TEXT}</pre>
-      <div className="grid gap-6">
-        <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">API Status</h2>
-        </section>
-      </div>
+    <div className="min-h-screen bg-white text-slate-900 selection:bg-indigo-500 selection:text-white dark:bg-slate-950 dark:text-slate-100 flex flex-col">
+      <LandingNavbar />
+      <main className="flex-1">
+        <HeroSection />
+        <PersonaTabs />
+        <ReadinessCalculator />
+        <FeaturesBento />
+        <WorkflowSteps />
+        <TestimonialsAndPartners />
+        <FaqSection />
+        <CtaBanner />
+      </main>
+      <Footer />
     </div>
   );
 }

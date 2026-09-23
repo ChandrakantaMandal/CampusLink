@@ -1,3 +1,4 @@
+
 enum UserRole {
   STUDENT
   RECRUITER
@@ -28,7 +29,7 @@ model User {
   recommendations Recommendation[]
 
   @@unique([email])
-   @@map("user")
+  @@map("user")
 }
 
 model Session {

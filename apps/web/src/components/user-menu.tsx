@@ -39,7 +39,10 @@ export default function UserMenu() {
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
+          <DropdownMenuItem className="text-xs text-muted-foreground">{session.user.email}</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/profile")}>
+            My Student Profile
+          </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={() => {

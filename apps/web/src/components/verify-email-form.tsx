@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function VerifyEmailForm() {
   const searchParams = useSearchParams();
@@ -134,69 +135,75 @@ export default function VerifyEmailForm() {
   };
 
   return (
-    <div className="mx-auto mt-20 w-full max-w-md p-6">
-      <h1 className="text-center text-3xl font-bold">Verify your email</h1>
+    <div className="mx-auto mt-16 w-full max-w-md p-6">
+      <div className="flex justify-end mb-4">
+        <ModeToggle />
+      </div>
 
-      <p className="mt-3 text-center text-muted-foreground">
-        Enter the verification code sent to
-      </p>
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h1 className="text-center text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Verify your email</h1>
 
-      <p className="mt-1 text-center font-medium">{email || "your email"}</p>
+        <p className="mt-3 text-center text-sm text-slate-500 dark:text-slate-400">
+          Enter the verification code sent to
+        </p>
 
-      <div className="mt-8 space-y-4">
-        {/* OTP Input */}
-        <input
-          type="text"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && otp.length === 6) {
-              handleVerify();
-            }
-          }}
-          placeholder="Enter 6-digit OTP"
-          className="w-full rounded-md border p-3 text-center text-2xl tracking-[0.5em] outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+        <p className="mt-1 text-center font-medium text-indigo-600 dark:text-indigo-400">{email || "your email"}</p>
 
-        {/* Error */}
-        {error && <p className="text-center text-sm text-red-500">{error}</p>}
+        <div className="mt-8 space-y-4">
+          {/* OTP Input */}
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && otp.length === 6) {
+                handleVerify();
+              }
+            }}
+            placeholder="Enter 6-digit OTP"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-center text-2xl tracking-[0.5em] text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
 
-        {/* Success */}
-        {success && (
-          <p className="text-center text-sm text-green-600">{success}</p>
-        )}
+          {/* Error */}
+          {error && <p className="text-center text-sm text-rose-500">{error}</p>}
 
-        {/* Verify */}
-        <button
-          type="button"
-          onClick={handleVerify}
-          disabled={loading || resending || otp.length !== 6}
-          className="w-full rounded-md bg-indigo-600 p-3 text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading ? "Verifying..." : "Verify Email"}
-        </button>
+          {/* Success */}
+          {success && (
+            <p className="text-center text-sm text-emerald-600 dark:text-emerald-400">{success}</p>
+          )}
 
-        {/* Resend */}
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
-            Didn't receive the code?
-          </p>
-
+          {/* Verify */}
           <button
             type="button"
-            onClick={handleResend}
-            disabled={resending || cooldown > 0}
-            className="mt-1 text-sm font-medium text-indigo-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={handleVerify}
+            disabled={loading || resending || otp.length !== 6}
+            className="w-full rounded-xl bg-[#6366F1] p-3 text-sm font-semibold text-white transition hover:bg-[#4F46E5] disabled:cursor-not-allowed disabled:opacity-50 shadow-md shadow-indigo-500/20 cursor-pointer"
           >
-            {resending
-              ? "Sending..."
-              : cooldown > 0
-                ? `Resend OTP in ${cooldown}s`
-                : "Resend OTP"}
+            {loading ? "Verifying..." : "Verify Email"}
           </button>
+
+          {/* Resend */}
+          <div className="text-center pt-2">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Didn't receive the code?
+            </p>
+
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resending || cooldown > 0}
+              className="mt-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            >
+              {resending
+                ? "Sending..."
+                : cooldown > 0
+                  ? `Resend OTP in ${cooldown}s`
+                  : "Resend OTP"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

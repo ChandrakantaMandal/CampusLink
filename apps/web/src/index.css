@@ -1,2 +1,145 @@
 @import "@HireBridge/ui/globals.css";
 @source "../node_modules/streamdown/dist/*.js";
+
+/* ==========================================================================
+   Student Profile Workspace: Adaptive Light / Dark Form Input System
+   ========================================================================== */
+
+/* Color scheme follows theme */
+.student-profile-workspace {
+  color-scheme: light;
+}
+
+.dark .student-profile-workspace,
+.dark.student-profile-workspace {
+  color-scheme: dark;
+}
+
+/* Base styling for detail-filling input elements - Light Mode */
+.student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.student-profile-workspace select,
+.student-profile-workspace textarea {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  -webkit-text-fill-color: #0f172a;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Dark Mode input overrides */
+.dark .student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.dark .student-profile-workspace select,
+.dark .student-profile-workspace textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Hover state - Light */
+.student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):hover,
+.student-profile-workspace select:hover,
+.student-profile-workspace textarea:hover {
+  border-color: #94a3b8;
+}
+
+/* Hover state - Dark */
+.dark .student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):hover,
+.dark .student-profile-workspace select:hover,
+.dark .student-profile-workspace textarea:hover {
+  border-color: #475569 !important;
+}
+
+/* Active Focus state - Light */
+.student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):focus,
+.student-profile-workspace select:focus,
+.student-profile-workspace textarea:focus {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #6366f1;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* Active Focus state - Dark */
+.dark .student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):focus,
+.dark .student-profile-workspace select:focus,
+.dark .student-profile-workspace textarea:focus {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #6366f1 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Placeholder styling - Light */
+.student-profile-workspace input::placeholder,
+.student-profile-workspace textarea::placeholder {
+  color: #94a3b8;
+  -webkit-text-fill-color: #94a3b8;
+}
+
+/* Placeholder styling - Dark */
+.dark .student-profile-workspace input::placeholder,
+.dark .student-profile-workspace textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+/* Chrome / Safari / Edge Autofill Fix - Light */
+.student-profile-workspace input:-webkit-autofill,
+.student-profile-workspace input:-webkit-autofill:hover,
+.student-profile-workspace input:-webkit-autofill:focus,
+.student-profile-workspace input:-webkit-autofill:active,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  color: #0f172a !important;
+  caret-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Chrome / Safari / Edge Autofill Fix - Dark */
+.dark .student-profile-workspace input:-webkit-autofill,
+.dark .student-profile-workspace input:-webkit-autofill:hover,
+.dark .student-profile-workspace input:-webkit-autofill:focus,
+.dark .student-profile-workspace input:-webkit-autofill:active,
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  box-shadow: 0 0 0 1000px #0f172a inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  color: #f8fafc !important;
+  caret-color: #f8fafc !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Error validation override */
+.student-profile-workspace input.has-error,
+.student-profile-workspace .border-rose-400 {
+  border-color: #f43f5e !important;
+  background-color: #fff1f2 !important;
+}
+
+.dark .student-profile-workspace input.has-error,
+.dark .student-profile-workspace .border-rose-400 {
+  border-color: #f43f5e !important;
+  background-color: rgba(244, 63, 94, 0.12) !important;
+}
+
+.student-profile-workspace input.has-error:focus,
+.student-profile-workspace .border-rose-400:focus {
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18) !important;
+}

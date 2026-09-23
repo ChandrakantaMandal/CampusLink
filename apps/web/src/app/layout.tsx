@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HireBridge",
-  description: "HireBridge",
+  title: "CAMPUSLINK — AI-Powered Campus Placement Management Platform",
+  description: "CAMPUSLINK connects students, recruiters, and placement officers with AI readiness scoring, skill gap analysis, and intelligent drive management.",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
         <PwaRegistration />
 
         <Providers>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
+          <div className="flex flex-col min-h-screen">
             <Header />
             {children}
           </div>
