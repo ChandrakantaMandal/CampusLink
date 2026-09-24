@@ -41,6 +41,13 @@ app.use(
 
 app.use(express.json());
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Server is healthy",
+  });
+});
+
 app.use(globalLimiter);
 
 app.all("/api/auth{/*path}", toNodeHandler(auth));
@@ -68,13 +75,6 @@ app.post("/ai", async (req, res) => {
   pipeUIMessageStreamToResponse({
     response: res,
     stream: toUIMessageStream({ stream: result.stream }),
-  });
-});
-
-app.get("/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Server is healthy",
   });
 });
 

@@ -1,6 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 
-function getServerUrl(url: string) {
+function getServerUrl(url?: string) {
   const processEnv = (
     globalThis as {
       process?: { env?: Record<string, string | undefined> };
@@ -12,10 +12,11 @@ function getServerUrl(url: string) {
       : processEnv.SERVER_URL;
   }
 
-  return url.endsWith("/") ? url.slice(0, -1) : url;
+  const rawUrl = url || processEnv?.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
+  return rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
 }
 
-const serverUrl = getServerUrl(process.env.NEXT_PUBLIC_SERVER_URL!);
+const serverUrl = getServerUrl(process.env.NEXT_PUBLIC_SERVER_URL);
 
 export const authClient = createAuthClient({
   baseURL: new URL("/api/auth", serverUrl).toString(),

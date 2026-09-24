@@ -1,16 +1,15 @@
-"use client";
+import { Suspense } from "react";
+import AuthCard from "@/components/auth/AuthCard";
 
-import { useState } from "react";
-
-import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
+export const metadata = {
+  title: "Sign In — CAMPUSLINK Placement Intelligence",
+  description: "Sign in to your CAMPUSLINK account to access your placement dashboard, eligibility checks, and campus drives.",
+};
 
 export default function LoginPage() {
-  const [showSignIn, setShowSignIn] = useState(false);
-
-  return showSignIn ? (
-    <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-  ) : (
-    <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+      <AuthCard initialMode="signin" />
+    </Suspense>
   );
 }

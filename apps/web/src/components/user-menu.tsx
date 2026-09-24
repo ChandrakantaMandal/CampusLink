@@ -11,51 +11,56 @@ import {
 import { Skeleton } from "@CampusLink/ui/components/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import { authClient } from "@/lib/auth-client";
 
 export default function UserMenu() {
   const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session } = authClient.useSession();
 
-  if (isPending) {
-    return <Skeleton className="h-9 w-24" />;
-  }
-
-  if (!session) {
+  if (session?.user) {
     return (
-      <Link href="/login">
-        <Button variant="outline">Sign In</Button>
-      </Link>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" className="rounded-xl" />}>
+          {session.user.name}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-card">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-xs text-muted-foreground">
+              {session.user.email}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/profile")}>
+              My Student Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/");
+                    },
+                  },
+                });
+              }}
+            >
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" />}>
-        {session.user.name}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-card">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => {
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push("/");
-                  },
-                },
-              });
-            }}
-          >
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Link href="/login">
+      <Button
+        variant="outline"
+        className="rounded-xl border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold"
+      >
+        Sign In
+      </Button>
+    </Link>
   );
 }

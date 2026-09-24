@@ -1,12 +1,27 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
 
 export default function Header() {
+  const pathname = usePathname();
+  if (
+    pathname === "/" ||
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/profile") ||
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/signup") ||
+    pathname?.startsWith("/verify-email") ||
+    pathname?.startsWith("/reset-password")
+  ) {
+    return null;
+  }
+
   const links = [
     { to: "/", label: "Home" },
+    { to: "/profile", label: "Student Profile" },
     { to: "/dashboard", label: "Dashboard" },
     { to: "/ai", label: "AI Chat" },
   ] as const;
