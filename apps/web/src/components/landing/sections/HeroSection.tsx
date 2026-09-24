@@ -66,22 +66,12 @@ export default function HeroSection() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-              <Link href="/student/profile" className="w-full sm:w-auto">
+              <a href="#readiness" className="w-full sm:w-auto">
                 <Button className="h-13 w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 px-8 text-base font-bold text-white shadow-xl shadow-indigo-600/25 transition-all hover:scale-105 hover:shadow-indigo-600/40">
                   <span className="flex items-center gap-2">
-                    Launch Student Profile
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                </Button>
-              </Link>
-              <a href="#readiness" className="w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  className="h-13 w-full sm:w-auto rounded-xl border-slate-300 bg-white/80 px-7 text-base font-semibold text-slate-700 backdrop-blur-md hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  <span className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-indigo-500" />
+                    <TrendingUp className="h-4 w-4" />
                     Calculate Readiness Score
+                    <ArrowRight className="h-4 w-4" />
                   </span>
                 </Button>
               </a>

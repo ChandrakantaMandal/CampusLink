@@ -210,7 +210,7 @@ export default function CertificationsSection({
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Cybersecurity Internship"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                 />
               </div>
 
@@ -224,7 +224,7 @@ export default function CertificationsSection({
                   value={formData.issuingOrg}
                   onChange={(e) => setFormData({ ...formData, issuingOrg: e.target.value })}
                   placeholder="e.g. CTTC or Infosys Springboard"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                 />
               </div>
 
@@ -238,7 +238,7 @@ export default function CertificationsSection({
                     value={formData.issueDate}
                     onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
                     placeholder="e.g. June 2024"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                   />
                 </div>
                 <div>
@@ -250,7 +250,7 @@ export default function CertificationsSection({
                     value={formData.credentialId}
                     onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
                     placeholder="e.g. CTTC-CS-2024-892"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                   />
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default function CertificationsSection({
                   value={formData.certificateUrl}
                   onChange={(e) => setFormData({ ...formData, certificateUrl: e.target.value })}
                   placeholder="https://verify.example.com/id"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                 />
               </div>
 

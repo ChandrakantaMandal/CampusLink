@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import {
   TrendingUp,
   Award,
   Sparkles,
-  ArrowRight,
   CheckCircle2,
   AlertCircle,
   HelpCircle,
 } from "lucide-react";
-import { Button } from "@CampusLink/ui/components/button";
 
 export default function ReadinessCalculator() {
   const [cgpa, setCgpa] = useState<number>(8.4);
@@ -285,16 +282,6 @@ export default function ReadinessCalculator() {
                   <div className="space-y-1.5 pt-2 border-t border-indigo-900/60 text-xs">
                     <span className="text-slate-400 font-medium">Sample Matching Companies:</span>
                     <div className="font-semibold text-indigo-200">{tier.companies}</div>
-                  </div>
-
-                  {/* Direct Profile CTA */}
-                  <div className="pt-2">
-                    <Link href="/student/profile" className="block w-full">
-                      <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 font-bold text-white shadow-lg shadow-indigo-500/30 hover:scale-105">
-                        <span>Save & Track in Profile</span>
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
                   </div>
                 </div>
               </div>
