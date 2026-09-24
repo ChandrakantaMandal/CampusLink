@@ -31,12 +31,12 @@ import { OfferTrackingCard } from "@/components/dashboard/student/OfferTrackingC
 import { mockDashboardData } from "@/data/dashboardData";
 import { toast } from "sonner";
 
-interface DashboardProps {
+export interface StudentDashboardProps {
   session?: any;
   initialTab?: string;
 }
 
-export default function Dashboard({ session, initialTab = "dashboard" }: DashboardProps) {
+export default function StudentDashboard({ session, initialTab = "dashboard" }: StudentDashboardProps) {
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
@@ -95,10 +95,11 @@ export default function Dashboard({ session, initialTab = "dashboard" }: Dashboa
                       setActiveTab(t.id);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isActive
-                      ? "bg-[#6366F1] text-white shadow-md shadow-indigo-600/20"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-                      }`}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-[#6366F1] text-white shadow-md shadow-indigo-600/20"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
+                    }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
                     <span>{t.label}</span>
@@ -426,3 +427,5 @@ export default function Dashboard({ session, initialTab = "dashboard" }: Dashboa
     </div>
   );
 }
+
+export { StudentDashboard as StudentDashboardView };

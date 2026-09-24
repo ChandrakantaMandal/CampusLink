@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
-import Dashboard from "../dashboard/dashboard";
+import StudentDashboard from "@/components/dashboard/student/StudentDashboard";
 
 export const metadata = {
   title: "Notifications | CAMPUSLINK",
@@ -20,5 +20,5 @@ export default async function NotificationsPage() {
     // Fallback gracefully for local development & demonstration
   }
 
-  return <Dashboard session={session} initialTab="notifications" />;
+  return <StudentDashboard session={session} initialTab="notifications" />;
 }

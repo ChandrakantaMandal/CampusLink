@@ -35,7 +35,7 @@ export default function Sidebar({
   studentRole = "Student Profile",
 }: SidebarProps) {
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", badge: null },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/student/dashboard", badge: null },
     { id: "profile", label: "Student Profile", icon: UserCheck, href: "/profile", badge: "Active" },
     { id: "opportunities", label: "Opportunities", icon: Briefcase, href: "/profile?tab=opportunities", badge: "6" },
     { id: "applications", label: "Applications", icon: FileCheck2, href: "/profile?tab=applications", badge: "5" },

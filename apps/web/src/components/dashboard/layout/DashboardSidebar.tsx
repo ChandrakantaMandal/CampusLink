@@ -146,7 +146,7 @@ export default function DashboardSidebar({
             {/* Direct Link to My Profile */}
             <div className="pt-3">
               <Link
-                href="/profile"
+                href="/student/profile"
                 className="group flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-300 hover:bg-slate-800/80 hover:text-white transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-3">

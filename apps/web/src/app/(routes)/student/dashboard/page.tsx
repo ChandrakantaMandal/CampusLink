@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { authClient } from "@/lib/auth-client";
-import Dashboard from "./dashboard";
+import StudentDashboard from "@/components/dashboard/student/StudentDashboard";
 
 export const metadata = {
   title: "Dashboard | CAMPUSLINK",
@@ -20,5 +20,5 @@ export default async function DashboardPage() {
     // Fallback gracefully for local development & demonstration
   }
 
-  return <Dashboard session={session} />;
+  return <StudentDashboard session={session} />;
 }
