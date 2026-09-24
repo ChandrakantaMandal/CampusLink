@@ -83,7 +83,7 @@ describe("createPrismaClient", () => {
 
   it("should use the exact DATABASE_URL provided by the environment", () => {
     const databaseUrl =
-      "postgresql://example-user:example-password@db.example.com:5432/hirebridge";
+      "postgresql://example-user:example-password@db.example.com:5432/CampusLink";
 
     const env = {
       DATABASE_URL: databaseUrl,

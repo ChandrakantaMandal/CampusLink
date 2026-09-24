@@ -1,5 +1,5 @@
 {
-  "name": "@HireBridge/db",
+  "name": "@CampusLink/db",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
@@ -20,7 +20,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@HireBridge/config": "workspace:*",
+    "@CampusLink/config": "workspace:*",
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
     "typescript": "catalog:",

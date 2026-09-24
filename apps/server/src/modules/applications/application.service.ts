@@ -1,5 +1,5 @@
 import { db } from "../../services";
-import { redis } from "@HireBridge/redis";
+import { redis } from "@CampusLink/redis";
 
 import type {
   CreateApplicationInput,
@@ -7,7 +7,6 @@ import type {
 } from "./application.schema";
 
 const CACHE_TTL = 300;
-
 
 async function getCache<T>(key: string): Promise<T | null> {
   const cached = await redis.get(key);
@@ -31,7 +30,6 @@ async function setCache(
 ): Promise<void> {
   await redis.set(key, JSON.stringify(data), "EX", ttl);
 }
-
 
 export async function createApplication(
   userId: string,

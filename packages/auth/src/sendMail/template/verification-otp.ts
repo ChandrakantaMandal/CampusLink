@@ -1,9 +1,9 @@
 export function verificationOtpTemplate(otp: string) {
   return {
-    subject: `${otp} — Your HireBridge verification code`,
+    subject: `${otp} — Your CampusLink verification code`,
 
     text: `
-Verify your HireBridge account
+Verify your CampusLink account
 
 Your verification code is: ${otp}
 
@@ -21,7 +21,7 @@ If you didn't request this code, you can safely ignore this email.
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-  <title>Verify your HireBridge account</title>
+  <title>Verify your CampusLink account</title>
 </head>
 
 <body style="
@@ -59,7 +59,7 @@ If you didn't request this code, you can safely ignore this email.
           font-weight: 700;
           color: #ffffff;
         ">
-          HireBridge
+          CampusLink
         </div>
 
         <div style="
@@ -104,7 +104,7 @@ If you didn't request this code, you can safely ignore this email.
           color: #64748b;
         ">
           Use the verification code below to complete your
-          HireBridge account setup.
+          CampusLink account setup.
         </p>
 
         <!-- OTP -->
@@ -160,7 +160,7 @@ If you didn't request this code, you can safely ignore this email.
           color: #7c2d12;
         ">
           Never share this code with anyone.
-          HireBridge will never ask you for your verification code.
+          CampusLink will never ask you for your verification code.
         </div>
 
       </div>
@@ -178,7 +178,7 @@ If you didn't request this code, you can safely ignore this email.
           line-height: 1.6;
           color: #94a3b8;
         ">
-          If you didn't create a HireBridge account,
+          If you didn't create a CampusLink account,
           you can safely ignore this email.
         </p>
 
@@ -187,7 +187,7 @@ If you didn't request this code, you can safely ignore this email.
           font-size: 12px;
           color: #94a3b8;
         ">
-          © HireBridge
+          © CampusLink
         </p>
 
       </div>

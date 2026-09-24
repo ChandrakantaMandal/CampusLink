@@ -1,13 +1,10 @@
-import type { Database } from "@HireBridge/db";
-import { redis } from "@HireBridge/redis";
+import type { Database } from "@CampusLink/db";
+import { redis } from "@CampusLink/redis";
 import { APIError, createAuthEndpoint } from "better-auth/api";
 import { setSessionCookie } from "better-auth/cookies";
 import { z } from "zod";
 
-import {
-  resendSignupOTP,
-  verifyEmailOTP,
-} from "../services/auth.service";
+import { resendSignupOTP, verifyEmailOTP } from "../services/auth.service";
 
 // RATE LIMIT CONFIG
 const VERIFY_OTP_MAX_REQUESTS = 5;
@@ -89,8 +86,7 @@ export function signupOTPPlugin(
         async (ctx) => {
           const ip = getClientIP(ctx.request);
 
-          const rateLimitKey =
-            `hirebridge:ratelimit:otp:verify:${ip}`;
+          const rateLimitKey = `CampusLink:ratelimit:otp:verify:${ip}`;
 
           try {
             await checkRateLimit(
@@ -103,32 +99,19 @@ export function signupOTPPlugin(
               throw error;
             }
 
-            console.error(
-              "OTP verification rate limiter error:",
-              error,
-            );
+            console.error("OTP verification rate limiter error:", error);
           }
 
           const { email, otp } = ctx.body;
 
           const normalizedEmail = email.trim().toLowerCase();
           try {
-            await verifyEmailOTP(
-              database,
-              normalizedEmail,
-              otp,
-              env,
-            );
+            await verifyEmailOTP(database, normalizedEmail, otp, env);
           } catch (error) {
             const message =
-              error instanceof Error
-                ? error.message
-                : "Verification failed";
+              error instanceof Error ? error.message : "Verification failed";
 
-            if (
-              message === "INVALID_OTP" ||
-              message === "OTP_EXPIRED"
-            ) {
+            if (message === "INVALID_OTP" || message === "OTP_EXPIRED") {
               throw new APIError("BAD_REQUEST", {
                 message,
               });
@@ -146,10 +129,7 @@ export function signupOTPPlugin(
               });
             }
 
-            console.error(
-              "OTP verification error:",
-              error,
-            );
+            console.error("OTP verification error:", error);
 
             throw new APIError("INTERNAL_SERVER_ERROR", {
               message: "Verification failed",
@@ -157,9 +137,7 @@ export function signupOTPPlugin(
           }
 
           const user =
-            await ctx.context.internalAdapter.findUserByEmail(
-              normalizedEmail,
-            );
+            await ctx.context.internalAdapter.findUserByEmail(normalizedEmail);
 
           if (!user) {
             throw new APIError("NOT_FOUND", {
@@ -167,10 +145,9 @@ export function signupOTPPlugin(
             });
           }
 
-          const session =
-            await ctx.context.internalAdapter.createSession(
-              user.user.id,
-            );
+          const session = await ctx.context.internalAdapter.createSession(
+            user.user.id,
+          );
 
           if (!session) {
             throw new APIError("INTERNAL_SERVER_ERROR", {
@@ -208,8 +185,7 @@ export function signupOTPPlugin(
         async (ctx) => {
           const ip = getClientIP(ctx.request);
 
-          const rateLimitKey =
-            `hirebridge:ratelimit:otp:resend:${ip}`;
+          const rateLimitKey = `CampusLink:ratelimit:otp:resend:${ip}`;
 
           try {
             await checkRateLimit(
@@ -222,10 +198,7 @@ export function signupOTPPlugin(
               throw error;
             }
 
-            console.error(
-              "OTP resend rate limiter error:",
-              error,
-            );
+            console.error("OTP resend rate limiter error:", error);
           }
 
           const { email } = ctx.body;
@@ -233,11 +206,7 @@ export function signupOTPPlugin(
           const normalizedEmail = email.trim().toLowerCase();
 
           try {
-            await resendSignupOTP(
-              database,
-              normalizedEmail,
-              env,
-            );
+            await resendSignupOTP(database, normalizedEmail, env);
 
             return ctx.json({
               success: true,
@@ -245,9 +214,7 @@ export function signupOTPPlugin(
             });
           } catch (error) {
             const message =
-              error instanceof Error
-                ? error.message
-                : "Failed to resend OTP";
+              error instanceof Error ? error.message : "Failed to resend OTP";
 
             if (message === "USER_NOT_FOUND") {
               throw new APIError("NOT_FOUND", {
@@ -262,8 +229,7 @@ export function signupOTPPlugin(
             }
 
             if (message.startsWith("OTP_RESEND_BLOCKED:")) {
-              const minutes =
-                message.split(":")[1] ?? "60";
+              const minutes = message.split(":")[1] ?? "60";
 
               throw new APIError("TOO_MANY_REQUESTS", {
                 message:
@@ -272,10 +238,7 @@ export function signupOTPPlugin(
               });
             }
 
-            console.error(
-              "OTP resend error:",
-              error,
-            );
+            console.error("OTP resend error:", error);
 
             throw new APIError("INTERNAL_SERVER_ERROR", {
               message: "Failed to resend OTP",

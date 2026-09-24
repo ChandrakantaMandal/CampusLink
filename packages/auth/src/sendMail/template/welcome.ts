@@ -1,13 +1,13 @@
 export function welcomeTemplate(name: string) {
   return {
-    subject: `Welcome to HireBridge, ${name}!`,
+    subject: `Welcome to CampusLink, ${name}!`,
 
     text: `
-Welcome to HireBridge, ${name}!
+Welcome to CampusLink, ${name}!
 
 Your account has been successfully created.
 
-HireBridge helps students discover opportunities,
+CampusLink helps students discover opportunities,
 build their career profiles, and connect with recruiters.
 
 We're excited to have you here.
@@ -22,7 +22,7 @@ We're excited to have you here.
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-  <title>Welcome to HireBridge</title>
+  <title>Welcome to CampusLink</title>
 </head>
 
 <body style="
@@ -65,7 +65,7 @@ We're excited to have you here.
           font-size: 12px;
           font-weight: 700;
         ">
-          WELCOME TO HIREBRIDGE
+          WELCOME TO CampusLink
         </div>
 
         <h1 style="
@@ -97,7 +97,7 @@ We're excited to have you here.
           line-height: 1.7;
           color: #334155;
         ">
-          Your HireBridge account has been successfully created.
+          Your CampusLink account has been successfully created.
           You're now ready to explore opportunities,
           build your profile, and connect with recruiters.
         </p>
@@ -189,7 +189,7 @@ We're excited to have you here.
           color: #94a3b8;
         ">
           You're receiving this email because you created
-          a HireBridge account.
+          a CampusLink account.
         </p>
 
         <p style="
@@ -197,7 +197,7 @@ We're excited to have you here.
           font-size: 12px;
           color: #94a3b8;
         ">
-          © HireBridge
+          © CampusLink
         </p>
 
       </div>

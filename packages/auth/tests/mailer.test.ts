@@ -15,7 +15,7 @@ describe("Mailer", () => {
   const validConfig = {
     SMTP_USER: "test@example.com",
     SMTP_PASSWORD: "test-password",
-    EMAIL_FROM: "HireBridge <test@example.com>",
+    EMAIL_FROM: "CampusLink <test@example.com>",
   };
 
   it("should create a mailer with valid configuration", () => {

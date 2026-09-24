@@ -13,8 +13,8 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "utils": "@HireBridge/ui/lib/utils",
-    "ui": "@HireBridge/ui/components",
+    "utils": "@CampusLink/ui/lib/utils",
+    "ui": "@CampusLink/ui/components",
     "lib": "@/lib",
     "hooks": "@/hooks"
   },

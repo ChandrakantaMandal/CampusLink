@@ -1,6 +1,6 @@
-import { createAuth } from "@HireBridge/auth";
-import { createPrismaClient } from "@HireBridge/db";
-import { redis } from "@HireBridge/redis";
+import { createAuth } from "@CampusLink/auth";
+import { createPrismaClient } from "@CampusLink/db";
+import { redis } from "@CampusLink/redis";
 
 import { ENV } from "./env.server";
 

@@ -1,6 +1,6 @@
-import { Button } from "@HireBridge/ui/components/button";
-import { Input } from "@HireBridge/ui/components/input";
-import { Label } from "@HireBridge/ui/components/label";
+import { Button } from "@CampusLink/ui/components/button";
+import { Input } from "@CampusLink/ui/components/input";
+import { Label } from "@CampusLink/ui/components/label";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
