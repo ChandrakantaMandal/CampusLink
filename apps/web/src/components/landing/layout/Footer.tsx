@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { GraduationCap, ShieldCheck, Heart, ExternalLink, Code2 } from "lucide-react";
 
 export default function Footer() {
@@ -70,12 +71,12 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <Link href="/profile" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link href={"/profile" as Route} className="hover:text-indigo-600 dark:hover:text-indigo-400">
                   Student Profile Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/ai" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link href={"/ai" as Route} className="hover:text-indigo-600 dark:hover:text-indigo-400">
                   AI Placement Assistant
                 </Link>
               </li>

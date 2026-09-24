@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import z from "zod";
 import { authClient } from "@/lib/auth-client";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 
 interface AuthCardProps {
   initialMode?: "signin" | "signup";
@@ -165,7 +165,7 @@ export default function AuthCard({ initialMode = "signin" }: AuthCardProps) {
               } else {
                 toast.success("Welcome back! Redirecting to your dashboard...");
               }
-              router.push("/dashboard");
+              router.push("/student/dashboard");
             },
             onError: (err) => {
               console.error("Sign in failed:", err);

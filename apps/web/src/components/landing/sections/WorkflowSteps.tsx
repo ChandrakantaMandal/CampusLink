@@ -10,7 +10,7 @@ import {
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 
 export default function WorkflowSteps() {
   const steps = [
@@ -106,7 +106,7 @@ export default function WorkflowSteps() {
 
         {/* Action Prompt */}
         <div className="mt-14 text-center">
-          <Link href="/profile">
+          <Link href="/student/profile">
             <Button className="h-13 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 text-base font-bold text-white shadow-xl shadow-indigo-600/25 hover:scale-105">
               <span>Start Stage 1 — Create Your Profile</span>
               <ArrowRight className="ml-2 h-4 w-4" />

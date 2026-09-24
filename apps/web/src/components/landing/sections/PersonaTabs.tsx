@@ -15,94 +15,13 @@ import {
   ShieldCheck,
   FileCheck,
 } from "lucide-react";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
+import { personas } from "../common/common";
 
 export default function PersonaTabs() {
-  const [activeTab, setActiveTab] = useState<"students" | "recruiters" | "tpo">("students");
-
-  const personas = {
-    students: {
-      label: "For Students",
-      icon: GraduationCap,
-      tagline: "Your AI-Powered Career Co-Pilot",
-      headline: "Know Your Placement Readiness Before Day One of Campus Drives",
-      description:
-        "Never wonder whether you qualify or what you need to improve. CAMPUSLINK continuously analyzes your profile, scores your resume against actual recruiter standards, and highlights exact skill gaps to bridge.",
-      benefits: [
-        "Instant Deterministic Eligibility: Pre-check your qualification for all company drives.",
-        "Real-Time Readiness Score: Combines academics, projects, certifications, and technical tests.",
-        "Targeted Skill-Gap Roadmaps: Know exactly what frameworks and concepts you need next.",
-        "1-Click Verified Applications: Apply instantly with verified student credentials.",
-      ],
-      stats: [
-        { label: "Profile Match Accuracy", value: "99.2%" },
-        { label: "Average Salary Boost", value: "+38%" },
-        { label: "Time Saved Applying", value: "12 hrs/wk" },
-      ],
-      ctaText: "Launch Student Profile",
-      ctaLink: "/profile",
-      previewBadge: "Student Dashboard Preview",
-      mockItems: [
-        { title: "Resume ATS Score", value: "96 / 100", highlight: true },
-        { title: "Active Drive Invitations", value: "8 Companies", highlight: false },
-        { title: "Placement Cell Verification", value: "Verified ✅", highlight: false },
-      ],
-    },
-    recruiters: {
-      label: "For Recruiters & Companies",
-      icon: Briefcase,
-      tagline: "Zero-Noise Campus Hiring",
-      headline: "Source Pre-Vetted, 100% Eligible Campus Talent at 4x Speed",
-      description:
-        "Eliminate resume spam and unqualified applications. Set strict deterministic parameters for CGPA, branches, graduation year, and backlog limits, then let our matching engine surface genuine top performers.",
-      benefits: [
-        "Deterministic Criteria Filters: Zero hallucinations on CGPA, degree, and backlogs.",
-        "AI Semantic Skill Verification: Compare candidate project repositories & verified skills.",
-        "End-to-End Drive Scheduling: Coordinate test rounds, technical interviews, and rolling offers.",
-        "One-Click Shortlisting & Export: Seamless integration with enterprise HRMS & ATS.",
-      ],
-      stats: [
-        { label: "Candidate Screening Speed", value: "4.2x Faster" },
-        { label: "Offer Acceptance Rate", value: "91%" },
-        { label: "Unqualified Applications", value: "0%" },
-      ],
-      ctaText: "Recruiter Access Portal",
-      ctaLink: "/login?role=recruiter",
-      previewBadge: "Recruiter Dashboard Preview",
-      mockItems: [
-        { title: "Matched Candidates", value: "142 Shortlisted", highlight: true },
-        { title: "Eligibility Pass Rate", value: "100% Verified", highlight: false },
-        { title: "Assessment Slotting", value: "Automated", highlight: false },
-      ],
-    },
-    tpo: {
-      label: "For Placement Cells & Universities",
-      icon: Building2,
-      tagline: "The Ultimate TPO Command Center",
-      headline: "Orchestrate Entire Campus Placement Seasons With Complete Control",
-      description:
-        "Replace chaotic spreadsheets and scattered WhatsApp messages. Centralize company registrations, student eligibility approvals, job slot schedules, and NIRF/NAAC compliant placement reporting in one real-time portal.",
-      benefits: [
-        "Live College-Wide Dashboard: Real-time visibility into branch-wise offers and CTCs.",
-        "Automated Eligibility Enforcement: Ensure university policies and company rules are respected.",
-        "Instant Drive Broadcasts: One-click circulars with automated email and OTP verification.",
-        "Regulatory & Audit Compliance: Generate complete NIRF, NBA, and NAAC placement reports.",
-      ],
-      stats: [
-        { label: "Placement Management Hours", value: "-75%" },
-        { label: "Offer Tracking Accuracy", value: "100%" },
-        { label: "Campus Drive Capacity", value: "+50 Drives" },
-      ],
-      ctaText: "Explore TPO Command Center",
-      ctaLink: "/login?role=tpo",
-      previewBadge: "Placement Officer Command Center",
-      mockItems: [
-        { title: "Total Placed Batch Rate", value: "94.6%", highlight: true },
-        { title: "Active On-Campus Drives", value: "24 Companies", highlight: false },
-        { title: "Highest Package Offered", value: "48.5 LPA", highlight: false },
-      ],
-    },
-  } as const;
+  const [activeTab, setActiveTab] = useState<"students" | "recruiters" | "tpo">(
+    "students",
+  );
 
   const current = personas[activeTab];
   const IconComponent = current.icon;
@@ -120,7 +39,9 @@ export default function PersonaTabs() {
             Built for Every Stakeholder in Campus Hiring
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300">
-            Whether you are a student striving for your dream offer, a recruiter seeking top talent, or a university placement cell managing hundreds of companies.
+            Whether you are a student striving for your dream offer, a recruiter
+            seeking top talent, or a university placement cell managing hundreds
+            of companies.
           </p>
         </div>
 
@@ -220,7 +141,13 @@ export default function PersonaTabs() {
                       }`}
                     >
                       <span>{item.title}</span>
-                      <span className={item.highlight ? "text-indigo-100 font-extrabold" : "text-indigo-600 dark:text-indigo-400"}>
+                      <span
+                        className={
+                          item.highlight
+                            ? "text-indigo-100 font-extrabold"
+                            : "text-indigo-600 dark:text-indigo-400"
+                        }
+                      >
                         {item.value}
                       </span>
                     </div>

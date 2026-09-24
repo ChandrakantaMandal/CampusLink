@@ -20,5 +20,5 @@ export default async function DashboardPage() {
     // Fallback gracefully for local development & demonstration
   }
 
-  return <StudentDashboard session={session} />;
+  return <StudentDashboard />;
 }

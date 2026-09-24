@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@CampusLink/ui/components/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { authClient } from "@/lib/auth-client";
 
 export default function UserMenu() {
@@ -30,7 +31,7 @@ export default function UserMenu() {
             <DropdownMenuItem className="text-xs text-muted-foreground">
               {session.user.email}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/profile")}>
+            <DropdownMenuItem onClick={() => router.push("/profile" as Route)}>
               My Student Profile
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -54,7 +55,7 @@ export default function UserMenu() {
   }
 
   return (
-    <Link href="/login">
+    <Link href={"/login" as Route}>
       <Button
         variant="outline"
         className="rounded-xl border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold"

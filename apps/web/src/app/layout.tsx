@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "../index.css";
-import Header from "@/components/header";
 import Providers from "@/components/providers";
 import PwaRegistration from "@/components/pwa-registration";
 
@@ -35,7 +34,6 @@ export default function RootLayout({
 
         <Providers>
           <div className="flex flex-col min-h-screen">
-            <Header />
             {children}
           </div>
         </Providers>

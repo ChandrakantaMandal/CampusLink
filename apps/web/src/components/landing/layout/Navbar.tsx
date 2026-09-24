@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 
 export default function LandingNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -89,7 +89,7 @@ export default function LandingNavbar() {
           </Link>
           <ModeToggle />
           <UserMenu />
-          <Link href="/profile">
+          <Link href="/student/profile">
             <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
               <span>Student Profile</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -106,7 +106,11 @@ export default function LandingNavbar() {
             className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
             aria-label="Toggle Navigation Menu"
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
@@ -138,7 +142,10 @@ export default function LandingNavbar() {
                 <span className="text-sm text-slate-500">Account</span>
                 <UserMenu />
               </div>
-              <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                href="/student/profile"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
                   <span>Open Student Profile</span>
                   <ArrowRight className="h-4 w-4" />

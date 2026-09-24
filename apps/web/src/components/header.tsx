@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Route } from "next";
 
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
@@ -20,11 +21,11 @@ export default function Header() {
   }
 
   const links = [
-    { to: "/", label: "Home" },
-    { to: "/profile", label: "Student Profile" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/ai", label: "AI Chat" },
-  ] as const;
+    { to: "/" as Route, label: "Home" },
+    { to: "/profile" as Route, label: "Student Profile" },
+    { to: "/dashboard" as Route, label: "Dashboard" },
+    { to: "/ai" as Route, label: "AI Chat" },
+  ];
 
   return (
     <div>

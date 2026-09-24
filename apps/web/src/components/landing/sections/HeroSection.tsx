@@ -16,7 +16,7 @@ import {
   Award,
   ChevronRight,
 } from "lucide-react";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 
 export default function HeroSection() {
   return (
@@ -39,7 +39,9 @@ export default function HeroSection() {
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-4 py-1.5 text-xs font-semibold text-indigo-700 backdrop-blur-md shadow-xs transition-transform hover:scale-105 dark:border-indigo-900/60 dark:bg-indigo-950/40 dark:text-indigo-300">
               <Sparkles className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
               <span>Next-Gen Campus Placement Intelligence</span>
-              <span className="hidden sm:inline-block text-indigo-400 dark:text-indigo-600">•</span>
+              <span className="hidden sm:inline-block text-indigo-400 dark:text-indigo-600">
+                •
+              </span>
               <span className="hidden sm:inline-block text-indigo-600 font-medium dark:text-indigo-300">
                 Powered by Deterministic AI
               </span>
@@ -56,12 +58,15 @@ export default function HeroSection() {
 
             {/* Sub-headline */}
             <p className="mx-auto max-w-2xl text-base text-slate-600 sm:text-lg md:text-xl lg:mx-0 dark:text-slate-300 leading-relaxed">
-              The all-in-one placement management ecosystem connecting students, universities, and premier recruiters. Real-time readiness scoring, zero-hallucination eligibility checking, and automated campus hiring drives.
+              The all-in-one placement management ecosystem connecting students,
+              universities, and premier recruiters. Real-time readiness scoring,
+              zero-hallucination eligibility checking, and automated campus
+              hiring drives.
             </p>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-              <Link href="/profile" className="w-full sm:w-auto">
+              <Link href="/student/profile" className="w-full sm:w-auto">
                 <Button className="h-13 w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 px-8 text-base font-bold text-white shadow-xl shadow-indigo-600/25 transition-all hover:scale-105 hover:shadow-indigo-600/40">
                   <span className="flex items-center gap-2">
                     Launch Student Profile
@@ -159,7 +164,9 @@ export default function HeroSection() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-black text-white">94</span>
-                      <span className="text-xs font-semibold text-indigo-300">/ 100 • Tier-1 Ready</span>
+                      <span className="text-xs font-semibold text-indigo-300">
+                        / 100 • Tier-1 Ready
+                      </span>
                     </div>
                   </div>
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-indigo-400/50 bg-indigo-500/20 text-xs font-bold text-indigo-200">
@@ -174,7 +181,10 @@ export default function HeroSection() {
                     <span className="font-semibold text-indigo-200">95%</span>
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400" style={{ width: "95%" }} />
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400"
+                      style={{ width: "95%" }}
+                    />
                   </div>
 
                   <div className="flex justify-between text-[11px] text-slate-300 pt-1">
@@ -182,7 +192,10 @@ export default function HeroSection() {
                     <span className="font-semibold text-indigo-200">92%</span>
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-                    <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-400" style={{ width: "92%" }} />
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-400"
+                      style={{ width: "92%" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -194,7 +207,9 @@ export default function HeroSection() {
                     <Zap className="h-3.5 w-3.5 text-amber-500" />
                     Target Role: Full-Stack Engineer
                   </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">96% Skill Fit</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                    96% Skill Fit
+                  </span>
                 </div>
 
                 {/* Skill Pills */}
@@ -242,7 +257,9 @@ export default function HeroSection() {
               {/* Subtle Footer inside Card */}
               <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] text-slate-500 dark:border-slate-800 dark:text-slate-400">
                 <span>Deterministic Zero-Bias Match</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-medium">Verified by Better-Auth</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-medium">
+                  Verified by Better-Auth
+                </span>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 
 export default function CtaBanner() {
   return (
@@ -29,7 +29,7 @@ export default function CtaBanner() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Link href="/profile" className="w-full sm:w-auto">
+              <Link href="/student/profile" className="w-full sm:w-auto">
                 <Button className="h-13 w-full sm:w-auto rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-8 text-base font-bold text-white shadow-xl shadow-indigo-500/30 hover:scale-105">
                   <span>Open Student Profile</span>
                   <ArrowRight className="ml-2 h-4 w-4" />

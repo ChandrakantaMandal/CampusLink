@@ -1,55 +1,9 @@
 "use client";
 
-import React from "react";
-import { Star, Quote, Building2, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Quote, Star } from "lucide-react";
+import { partners, testimonials } from "../common/common";
 
 export default function TestimonialsAndPartners() {
-  const partners = [
-    "Google",
-    "Microsoft",
-    "Amazon",
-    "Oracle",
-    "Cisco",
-    "Infosys",
-    "TCS",
-    "Deloitte",
-    "Goldman Sachs",
-    "Atlassian",
-  ];
-
-  const testimonials = [
-    {
-      quote:
-        "CAMPUSLINK identified that my lack of Docker and Redis was the only gap holding back my resume from Tier-1 shortlists. I focused on those, boosted my readiness score to 96, and cracked an SDE role at Microsoft!",
-      name: "Ananya Sharma",
-      role: "Software Engineer @ Microsoft",
-      sub: "B.Tech CSE Graduate • Batch 2025",
-      avatar: "AS",
-      verified: "Placed via CAMPUSLINK",
-      rating: 5,
-    },
-    {
-      quote:
-        "Managing 2,800 engineering students across 65 on-campus drives used to mean endless spreadsheets and manual verification headaches. CAMPUSLINK automated eligibility cutoffs and made our placement season 4x smoother.",
-      name: "Dr. Rajesh K.",
-      role: "Head of Training & Placement",
-      sub: "Premier National Engineering College",
-      avatar: "RK",
-      verified: "TPO Partner",
-      rating: 5,
-    },
-    {
-      quote:
-        "Zero unqualified candidates reached our technical interview panel. The deterministic eligibility engine verified CGPA and backlogs beforehand, allowing us to focus only on top-tier engineering talent.",
-      name: "Priya Nair",
-      role: "Campus Talent Acquisition Lead",
-      sub: "Global FinTech Solutions",
-      avatar: "PN",
-      verified: "Hiring Partner",
-      rating: 5,
-    },
-  ];
-
   return (
     <section className="py-20 bg-slate-50/50 dark:bg-slate-900/30">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

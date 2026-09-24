@@ -2,42 +2,10 @@
 
 import React, { useState } from "react";
 import { ChevronDown, HelpCircle, Sparkles } from "lucide-react";
+import {faqs} from "../common/common"
 
 export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  const faqs = [
-    {
-      question: "What is deterministic placement intelligence and why does it matter?",
-      answer:
-        "Generic LLMs can hallucinate qualifications or make biased decisions. CAMPUSLINK separates deterministic rules (strict CGPA cutoffs, degree branches, active backlog limits, graduation year) from generative AI. LLMs are applied strictly where they excel: deep semantic resume parsing, keyword normalization, and tailored study recommendations, while eligibility remains 100% auditable and reliable.",
-    },
-    {
-      question: "How is the CAMPUSLINK Readiness Index calculated?",
-      answer:
-        "The readiness score is a multi-dimensional composite metric formulated around real-world recruiter preferences: Academics / CGPA (20%), Technical Proficiencies (30%), Verified Projects with Live Demos (20%), ATS Resume Quality (10%), and Mock Assessment Performance (20%). It provides students with a transparent benchmark against Tier-1 and high-growth hiring bars.",
-    },
-    {
-      question: "Is CAMPUSLINK free for college students?",
-      answer:
-        "Yes! Students can build their complete digital placement portfolio, upload and preview resumes, track profile completion percentages, discover skill gaps, and apply for approved campus drives at zero cost.",
-    },
-    {
-      question: "How does CAMPUSLINK assist University Placement Cells (TPOs)?",
-      answer:
-        "TPO teams replace endless disconnected spreadsheets with an automated command center. They can approve company registration drives, publish customized eligibility criteria, monitor student applications in real time, coordinate interview rounds, and export compliance-ready placement statistics for NIRF, NBA, and NAAC audits in one click.",
-    },
-    {
-      question: "How does the Skill Gap Analyzer work?",
-      answer:
-        "When an eligible company posts a job opening (e.g. Full-Stack Engineer requiring TypeScript, React, Docker, AWS), CAMPUSLINK parses the job requirements and contrasts them against your profile. It highlights matched competencies and identifies unfulfilled requirements with tailored roadmaps to master them before tests begin.",
-    },
-    {
-      question: "Is my student data secure and private?",
-      answer:
-        "CAMPUSLINK utilizes Better-Auth with encrypted session cookies, role-based access control, and PostgreSQL with Prisma ORM. Only verified campus recruiters and your designated university placement officers have access to your verified academic records.",
-    },
-  ];
 
   return (
     <section id="faq" className="py-20 relative">

@@ -1,88 +1,11 @@
 "use client";
 
 import React from "react";
-import {
-  ShieldCheck,
-  Cpu,
-  TrendingUp,
-  Briefcase,
-  BarChart3,
-  Smartphone,
-  CheckCircle2,
-  Sparkles,
-  Zap,
-  Lock,
-} from "lucide-react";
+
+import {features} from "../common/common"
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 export default function FeaturesBento() {
-  const features = [
-    {
-      icon: ShieldCheck,
-      badge: "Zero-Hallucination",
-      title: "Deterministic Eligibility Engine",
-      description:
-        "Unlike generic LLMs that hallucinate, CAMPUSLINK evaluates placement eligibility with strict deterministic rules for CGPA cutoffs, branch, graduation year, and active backlogs.",
-      gradient: "from-blue-500/10 via-indigo-500/5 to-transparent",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      stats: "100% Rule Compliance",
-      highlights: ["Hard cutoff enforcement", "Branch & Degree mapping", "Backlog verification"],
-    },
-    {
-      icon: Cpu,
-      badge: "AI-Powered",
-      title: "Semantic Resume & Skill Gap Analysis",
-      description:
-        "Deeply parses resumes to identify core proficiencies and calculates the exact missing gap: Required Skills − Candidate Skills = Skill Gap with actionable study paths.",
-      gradient: "from-purple-500/10 via-pink-500/5 to-transparent",
-      iconColor: "text-purple-600 dark:text-purple-400",
-      stats: "Instant ATS Evaluation",
-      highlights: ["Skill normalization", "Tailored learning roadmaps", "ATS keyword scoring"],
-    },
-    {
-      icon: TrendingUp,
-      badge: "Multi-Factor",
-      title: "Comprehensive Readiness Index",
-      description:
-        "Synthesizes 5 key dimensions: Academics (20%), Technical Skills (30%), Projects (20%), Resume (10%), and Assessments (20%) to predict recruiter match rates accurately.",
-      gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
-      iconColor: "text-emerald-600 dark:text-emerald-400",
-      stats: "5-Factor Weighted Score",
-      highlights: ["Real-time progress bars", "Tier prediction", "Peer benchmark comparison"],
-    },
-    {
-      icon: Briefcase,
-      badge: "Automation",
-      title: "End-to-End Campus Drive Manager",
-      description:
-        "Orchestrates company onboarding, student registrations, eligibility shortlists, online technical assessments, and multi-round interview slots seamlessly.",
-      gradient: "from-amber-500/10 via-orange-500/5 to-transparent",
-      iconColor: "text-amber-600 dark:text-amber-400",
-      stats: "Zero Spreadsheet Chaos",
-      highlights: ["Automated interview slots", "Batch offer rollouts", "1-click student applications"],
-    },
-    {
-      icon: BarChart3,
-      badge: "Executive",
-      title: "TPO Command Center & NIRF Auditing",
-      description:
-        "Provides college authorities and Placement Officers with live placement statistics, average CTC tracking, branch-wise placements, and instant NAAC/NIRF audit exports.",
-      gradient: "from-cyan-500/10 via-blue-500/5 to-transparent",
-      iconColor: "text-cyan-600 dark:text-cyan-400",
-      stats: "1-Click Audit Reports",
-      highlights: ["Branch-wise CTC metrics", "Department placement ratios", "Accreditation data export"],
-    },
-    {
-      icon: Smartphone,
-      badge: "Architecture",
-      title: "Modern Security & PWA Support",
-      description:
-        "Powered by Better-Auth with secure session cookies, PostgreSQL with Prisma ORM, Redis caching for instant OTPs, and complete Progressive Web App installation.",
-      gradient: "from-indigo-500/10 via-violet-500/5 to-transparent",
-      iconColor: "text-indigo-600 dark:text-indigo-400",
-      stats: "Offline & Mobile First",
-      highlights: ["Better-Auth sessions", "Redis rate limiting", "Installable PWA app"],
-    },
-  ];
 
   return (
     <section id="features" className="py-20 bg-slate-50/50 dark:bg-slate-900/30">
