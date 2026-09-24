@@ -1,5 +1,5 @@
 import { db } from "../../services";
-import { redis } from "@HireBridge/redis";
+import { redis } from "@CampusLink/redis";
 
 import type {
   CreateEducationInput,

@@ -10,7 +10,7 @@
     "env:generate": "varlock codegen"
   },
   "dependencies": {
-    "@HireBridge/ui": "workspace:*",
+    "@CampusLink/ui": "workspace:*",
     "@ai-sdk/react": "^4.0.96",
     "@swc/helpers": "^0.5.23",
     "@tanstack/react-form": "^1.33.5",
@@ -29,7 +29,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@HireBridge/config": "workspace:*",
+    "@CampusLink/config": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

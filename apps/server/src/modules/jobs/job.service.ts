@@ -1,5 +1,5 @@
 import { db } from "../../services";
-import { redis } from "@HireBridge/redis";
+import { redis } from "@CampusLink/redis";
 
 import type { CreateJobInput, UpdateJobInput } from "./job.schema";
 
@@ -36,10 +36,7 @@ function companyJobsCacheKey(companyId: string) {
 
 const JOBS_CACHE_KEY = "jobs:all";
 
-async function invalidateJobCaches(
-  jobId?: string,
-  companyId?: string,
-) {
+async function invalidateJobCaches(jobId?: string, companyId?: string) {
   const keys = [JOBS_CACHE_KEY];
 
   if (jobId) {
@@ -233,4 +230,3 @@ export async function deleteJob(userId: string, jobId: string) {
 
   await invalidateJobCaches(jobId, job.companyId);
 }
-

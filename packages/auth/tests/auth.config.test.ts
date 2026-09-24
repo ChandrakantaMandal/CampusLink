@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   betterAuth: vi.fn(),
   prismaAdapter: vi.fn(),
+  bearer: vi.fn(),
   signupOTPPlugin: vi.fn(),
 
   sendPasswordReset: vi.fn(),
@@ -16,6 +17,10 @@ vi.mock("better-auth", () => ({
 
 vi.mock("better-auth/adapters/prisma", () => ({
   prismaAdapter: mocks.prismaAdapter,
+}));
+
+vi.mock("better-auth/plugins", () => ({
+  bearer: mocks.bearer,
 }));
 
 vi.mock("../src/plugins/signup-otp.plugin", () => ({
@@ -37,7 +42,7 @@ describe("Auth Configuration", () => {
     CORS_ORIGIN: "http://localhost:3001",
     SMTP_USER: "test@gmail.com",
     SMTP_PASSWORD: "test-password",
-    EMAIL_FROM: "HireBridge <test@gmail.com>",
+    EMAIL_FROM: "CampusLink <test@gmail.com>",
     GOOGLE_CLIENT_ID: "google-client-id",
     GOOGLE_CLIENT_SECRET: "google-client-secret",
   };
@@ -53,6 +58,10 @@ describe("Auth Configuration", () => {
 
     mocks.prismaAdapter.mockReturnValue("MOCK_PRISMA_ADAPTER");
 
+    mocks.bearer.mockReturnValue({
+      id: "bearer",
+    });
+
     mocks.signupOTPPlugin.mockReturnValue({
       id: "signup-otp",
     });
@@ -62,8 +71,22 @@ describe("Auth Configuration", () => {
   function getAuthConfig() {
     return createAuth(env, database as never) as unknown as {
       database: unknown;
+
+      user: {
+        additionalFields: {
+          role: {
+            type: string;
+            required: boolean;
+            defaultValue: string;
+            input: boolean;
+          };
+        };
+      };
+
       trustedOrigins: string[];
+
       secret: string;
+
       baseURL: string;
 
       socialProviders: {
@@ -154,7 +177,6 @@ describe("Auth Configuration", () => {
     const auth = getAuthConfig();
 
     expect(auth.secret).toBe(env.BETTER_AUTH_SECRET);
-
     expect(auth.baseURL).toBe(env.BETTER_AUTH_URL);
   });
 
@@ -180,11 +202,27 @@ describe("Auth Configuration", () => {
       EMAIL_FROM: env.EMAIL_FROM,
     });
 
-    expect(auth.plugins).toEqual([
-      {
-        id: "signup-otp",
-      },
-    ]);
+    expect(auth.plugins).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "signup-otp",
+        }),
+      ]),
+    );
+  });
+
+  it("should register the bearer plugin", () => {
+    const auth = getAuthConfig();
+
+    expect(mocks.bearer).toHaveBeenCalledTimes(1);
+
+    expect(auth.plugins).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "bearer",
+        }),
+      ]),
+    );
   });
 
   it("should enable email and password authentication", () => {

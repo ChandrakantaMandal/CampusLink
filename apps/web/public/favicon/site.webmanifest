@@ -1,6 +1,6 @@
 {
-  "name": "CAMPUSLINK",
-  "short_name": "CAMPUSLINK",
+  "name": "CampusLink",
+  "short_name": "CampusLink",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

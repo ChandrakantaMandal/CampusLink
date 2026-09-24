@@ -1,6 +1,4 @@
-"use client";
-
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +7,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@HireBridge/ui/components/dropdown-menu";
+} from "@CampusLink/ui/components/dropdown-menu";
+import { Skeleton } from "@CampusLink/ui/components/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";

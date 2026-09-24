@@ -62,7 +62,6 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/admin", adminRoutes);
 
-
 app.post("/ai", async (req, res) => {
   const { messages = [] } = (req.body || {}) as { messages: UIMessage[] };
   const model = wrapLanguageModel({
@@ -81,6 +80,10 @@ app.post("/ai", async (req, res) => {
 
 app.use(errorMiddleware);
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(3000, () => {
+    console.log("Server is running on http://localhost:3000");
+  });
+}
+
+export default app;

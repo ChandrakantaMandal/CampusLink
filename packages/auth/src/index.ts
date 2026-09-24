@@ -1,6 +1,7 @@
-import type { Database } from "@HireBridge/db";
+import type { Database } from "@CampusLink/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { bearer } from "better-auth/plugins";
 
 import {
   sendPasswordReset,
@@ -57,7 +58,9 @@ export function createAuth(
         clientSecret: env.GOOGLE_CLIENT_SECRET,
       },
     },
-    plugins: [signupOTPPlugin(database, mailerConfig)],
+
+    plugins: [bearer(), signupOTPPlugin(database, mailerConfig)],
+
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
@@ -76,6 +79,10 @@ export function createAuth(
       user: {
         create: {
           after: async (user) => {
+            if (process.env.NODE_ENV === "test") {
+              return;
+            }
+
             if (!user.emailVerified) {
               await sendSignupOTP(database, user.email, mailerConfig);
             }
@@ -86,6 +93,10 @@ export function createAuth(
       account: {
         create: {
           after: async (account) => {
+            if (process.env.NODE_ENV === "test") {
+              return;
+            }
+
             if (account.providerId !== "google") {
               return;
             }

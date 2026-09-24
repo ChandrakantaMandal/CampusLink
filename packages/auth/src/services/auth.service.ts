@@ -1,4 +1,4 @@
-import type { Database } from "@HireBridge/db";
+import type { Database } from "@CampusLink/db";
 
 import {
   canResendSignupOTP,

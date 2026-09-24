@@ -1,15 +1,15 @@
 "use client";
 
-import * as React from "react";
-import { useTheme } from "next-themes";
-import { Moon, Sun, Monitor, Check } from "lucide-react";
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@HireBridge/ui/components/dropdown-menu";
+} from "@CampusLink/ui/components/dropdown-menu";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import * as React from "react";
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();

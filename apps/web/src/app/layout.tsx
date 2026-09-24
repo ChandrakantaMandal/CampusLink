@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CAMPUSLINK — AI-Powered Campus Placement Management Platform",
-  description: "CAMPUSLINK connects students, recruiters, and placement officers with AI readiness scoring, skill gap analysis, and intelligent drive management.",
+  title: "CampusLink",
+  description: "CampusLink",
 };
 
 export default function RootLayout({
@@ -28,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <PwaRegistration />
 
         <Providers>

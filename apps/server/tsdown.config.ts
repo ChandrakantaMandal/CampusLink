@@ -6,7 +6,7 @@ export default defineConfig({
   outDir: "./dist",
   clean: true,
   deps: {
-    alwaysBundle: [/@HireBridge\/.*/],
+    alwaysBundle: [/@CampusLink\/.*/],
   },
   external: ["bcrypt", "node-gyp-build"],
 });

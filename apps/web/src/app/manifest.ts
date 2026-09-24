@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CAMPUSLINK",
-    short_name: "CAMPUSLINK",
-    description: "CAMPUSLINK — AI-Powered Campus Placement Management Platform",
+    name: "CampusLink",
+    short_name: "CampusLink",
+    description: "my pwa app",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

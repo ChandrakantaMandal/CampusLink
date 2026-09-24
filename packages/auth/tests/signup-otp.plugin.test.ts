@@ -14,7 +14,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mocks
-vi.mock("@HireBridge/redis", () => ({
+vi.mock("@CampusLink/redis", () => ({
   redis: {
     incr: mocks.redisIncr,
     expire: mocks.redisExpire,
@@ -77,7 +77,7 @@ type TestPlugin = {
 const env = {
   SMTP_USER: "test@gmail.com",
   SMTP_PASSWORD: "test-password",
-  EMAIL_FROM: "HireBridge <test@gmail.com>",
+  EMAIL_FROM: "CampusLink <test@gmail.com>",
 };
 
 const database = {
@@ -664,11 +664,11 @@ describe("signupOTPPlugin", () => {
       await plugin.endpoints.verifySignupOTP.handler(ctx);
 
       expect(mocks.redisIncr).toHaveBeenCalledWith(
-        "hirebridge:ratelimit:otp:verify:192.168.1.100",
+        "CampusLink:ratelimit:otp:verify:192.168.1.100",
       );
 
       expect(mocks.redisExpire).toHaveBeenCalledWith(
-        "hirebridge:ratelimit:otp:verify:192.168.1.100",
+        "CampusLink:ratelimit:otp:verify:192.168.1.100",
         600,
       );
     });
@@ -706,7 +706,7 @@ describe("signupOTPPlugin", () => {
       await plugin.endpoints.verifySignupOTP.handler(ctx);
 
       expect(mocks.redisIncr).toHaveBeenCalledWith(
-        "hirebridge:ratelimit:otp:verify:10.0.0.1",
+        "CampusLink:ratelimit:otp:verify:10.0.0.1",
       );
     });
 
@@ -743,7 +743,7 @@ describe("signupOTPPlugin", () => {
       await plugin.endpoints.verifySignupOTP.handler(ctx);
 
       expect(mocks.redisIncr).toHaveBeenCalledWith(
-        "hirebridge:ratelimit:otp:verify:172.16.0.10",
+        "CampusLink:ratelimit:otp:verify:172.16.0.10",
       );
     });
 
@@ -796,7 +796,7 @@ describe("signupOTPPlugin", () => {
       await plugin.endpoints.resendSignupOTP.handler(ctx);
 
       expect(mocks.redisExpire).toHaveBeenCalledWith(
-        "hirebridge:ratelimit:otp:resend:127.0.0.1",
+        "CampusLink:ratelimit:otp:resend:127.0.0.1",
         600,
       );
     });

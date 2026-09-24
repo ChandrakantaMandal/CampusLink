@@ -13,7 +13,13 @@ export default defineConfig({
     globals: true,
     environment: "node",
 
+    env: {
+      NODE_ENV: "test",
+    },
+
     include: ["apps/server/tests/**/*.test.ts"],
+
+    fileParallelism: false,
 
     coverage: {
       provider: "v8",
@@ -21,4 +27,6 @@ export default defineConfig({
       reportsDirectory: "./coverage/server",
     },
   },
+
+  envDir: path.resolve(projectRoot, "apps/server"),
 });

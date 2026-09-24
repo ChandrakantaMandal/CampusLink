@@ -1,4 +1,4 @@
-name: HireBridge
+name: CampusLink
 
 services:
   web:
@@ -16,9 +16,6 @@ services:
     env_file:
       - path: apps/web/.env
         required: false
-    environment:
-      SERVER_URL: http://server:3000
-      NEXT_PUBLIC_SERVER_URL: http://server:3000
     depends_on:
       server:
         condition: service_healthy
@@ -49,10 +46,6 @@ services:
     env_file:
       - path: apps/server/.env
         required: false
-    environment:
-      CORS_ORIGIN: http://localhost:3001
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/HireBridge
-      REDIS_URL: redis://redis:6379
     healthcheck:
       test:
         [
@@ -74,15 +67,15 @@ services:
 
   postgres:
     image: postgres:18
-    container_name: HireBridge-postgres
+    container_name: CampusLink-postgres
     environment:
-      POSTGRES_DB: HireBridge
+      POSTGRES_DB: CampusLink
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
       - "5432:5432"
     volumes:
-      - HireBridge_postgres_data:/var/lib/postgresql
+      - CampusLink_postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -92,11 +85,11 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: HireBridge-redis
+    container_name: CampusLink-redis
     ports:
       - "6379:6379"
     volumes:
-      - HireBridge_redis_data:/data
+      - CampusLink_redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -106,8 +99,8 @@ services:
     restart: unless-stopped
 
 volumes:
-  HireBridge_postgres_data:
-  HireBridge_redis_data:
+  CampusLink_postgres_data:
+  CampusLink_redis_data:
 
 # BuildKit makes these available only while install/build commands run.
 secrets:

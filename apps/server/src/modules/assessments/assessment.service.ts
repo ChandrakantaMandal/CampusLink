@@ -1,5 +1,5 @@
 import { db } from "../../services";
-import { redis } from "@HireBridge/redis";
+import { redis } from "@CampusLink/redis";
 
 import type {
   CreateAssessmentInput,
@@ -9,7 +9,6 @@ import type {
 } from "./assessment.schema";
 
 const CACHE_TTL = 300;
-
 
 async function getCache<T>(key: string): Promise<T | null> {
   const cached = await redis.get(key);

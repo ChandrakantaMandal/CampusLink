@@ -7,7 +7,7 @@ const redisMock = vi.hoisted(() => ({
   ttl: vi.fn(),
 }));
 
-vi.mock("@HireBridge/redis", () => ({
+vi.mock("@CampusLink/redis", () => ({
   redis: redisMock,
 }));
 
@@ -40,7 +40,7 @@ describe("Signup OTP", () => {
 
       const key = redisMock.set.mock.calls[0]?.[0];
 
-      expect(key).toBe("hirebridge:signup:otp:student@example.com");
+      expect(key).toBe("CampusLink:signup:otp:student@example.com");
     });
 
     it("should store the OTP with a 10-minute expiration", async () => {
@@ -49,7 +49,7 @@ describe("Signup OTP", () => {
       await generateSignupOTP("student@example.com");
 
       expect(redisMock.set).toHaveBeenCalledWith(
-        "hirebridge:signup:otp:student@example.com",
+        "CampusLink:signup:otp:student@example.com",
         expect.any(String),
         "EX",
         600,
@@ -86,7 +86,7 @@ describe("Signup OTP", () => {
       });
 
       expect(redisMock.set).toHaveBeenCalledWith(
-        "hirebridge:signup:otp:block:student@example.com",
+        "CampusLink:signup:otp:block:student@example.com",
         "1",
         "EX",
         3600,
@@ -109,11 +109,11 @@ describe("Signup OTP", () => {
       });
 
       expect(redisMock.del).toHaveBeenCalledWith(
-        "hirebridge:signup:otp:student@example.com",
+        "CampusLink:signup:otp:student@example.com",
       );
 
       expect(redisMock.del).toHaveBeenCalledWith(
-        "hirebridge:signup:otp:block:student@example.com",
+        "CampusLink:signup:otp:block:student@example.com",
       );
     });
 
@@ -123,7 +123,7 @@ describe("Signup OTP", () => {
       await verifySignupOTP("  Student@Example.COM  ", "123456");
 
       expect(redisMock.get).toHaveBeenCalledWith(
-        "hirebridge:signup:otp:student@example.com",
+        "CampusLink:signup:otp:student@example.com",
       );
     });
   });
@@ -168,7 +168,7 @@ describe("Signup OTP", () => {
       await canResendSignupOTP("  Student@Example.COM  ");
 
       expect(redisMock.ttl).toHaveBeenCalledWith(
-        "hirebridge:signup:otp:block:student@example.com",
+        "CampusLink:signup:otp:block:student@example.com",
       );
     });
   });

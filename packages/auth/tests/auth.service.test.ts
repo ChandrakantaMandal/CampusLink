@@ -37,7 +37,7 @@ describe("Auth Service", () => {
   const env = {
     SMTP_USER: "test@gmail.com",
     SMTP_PASSWORD: "test-password",
-    EMAIL_FROM: "HireBridge <test@gmail.com>",
+    EMAIL_FROM: "CampusLink <test@gmail.com>",
   };
 
   const database = {
