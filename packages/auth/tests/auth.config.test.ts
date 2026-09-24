@@ -42,7 +42,7 @@ describe("Auth Configuration", () => {
     CORS_ORIGIN: "http://localhost:3001",
     SMTP_USER: "test@gmail.com",
     SMTP_PASSWORD: "test-password",
-    EMAIL_FROM: "HireBridge <test@gmail.com>",
+    EMAIL_FROM: "CampusLink <test@gmail.com>",
     GOOGLE_CLIENT_ID: "google-client-id",
     GOOGLE_CLIENT_SECRET: "google-client-secret",
   };

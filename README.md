@@ -1,8 +1,8 @@
-# HireBridge
+# CampusLink
 
 > **AI-powered placement management platform** built on a modern TypeScript monorepo architecture.
 
-HireBridge is a full-stack placement management platform designed for students, recruiters, colleges, and administrators.
+CampusLink is a full-stack placement management platform designed for students, recruiters, colleges, and administrators.
 
 The platform provides authentication, student and company management, job management, applications, assessments, readiness tracking, recommendations, and an extensible AI intelligence layer.
 
@@ -31,7 +31,7 @@ The project is built on the **Better-T-Stack** foundation and uses Next.js, Expr
 
 ## 🏗️ System Architecture
 
-HireBridge follows a modular architecture that separates the web application, backend API, data layer, and AI intelligence layer.
+CampusLink follows a modular architecture that separates the web application, backend API, data layer, and AI intelligence layer.
 
 ```mermaid
 flowchart TB
@@ -90,7 +90,7 @@ flowchart TB
 ## 📁 Project Structure
 
 ```text
-HireBridge/
+CampusLink/
 │
 ├── apps/
 │   ├── web/                    # Next.js frontend / PWA
@@ -145,8 +145,8 @@ git --version
 Clone the repository:
 
 ```bash
-git clone https://github.com/ChandrakantaMandal/HireBridge
-cd HireBridge
+git clone https://github.com/ChandrakantaMandal/CampusLink
+cd CampusLink
 ```
 
 Install dependencies:
@@ -159,7 +159,7 @@ pnpm install
 
 # ⚙️ Environment Configuration
 
-HireBridge uses **Varlock** for environment configuration and validation.
+CampusLink uses **Varlock** for environment configuration and validation.
 
 Each application owns its environment schema through `.env.schema`.
 
@@ -204,7 +204,7 @@ Never expose private API keys, database credentials, SMTP passwords, or Gemini A
 
 # 🗄️ Database
 
-HireBridge uses **PostgreSQL + Prisma**.
+CampusLink uses **PostgreSQL + Prisma**.
 
 Generate the Prisma client:
 
@@ -265,6 +265,7 @@ pnpm run redis:stop
 ```bash
 pnpm run redis:down
 ```
+
 ---
 
 # 🔐 Authentication
@@ -289,7 +290,7 @@ Better Auth manages identity and sessions. Application/business logic remains in
 
 # 📧 Email System
 
-HireBridge uses SMTP/Nodemailer for transactional emails.
+CampusLink uses SMTP/Nodemailer for transactional emails.
 
 Current email functionality includes:
 
@@ -351,7 +352,7 @@ These responsibilities are defined as separate AI/placement engines in the archi
 
 # 🧠 Placement Intelligence
 
-HireBridge is designed around **deterministic placement intelligence**, rather than sending every operation directly to an LLM.
+CampusLink is designed around **deterministic placement intelligence**, rather than sending every operation directly to an LLM.
 
 ### Eligibility
 
@@ -456,7 +457,7 @@ Potential Gemini use cases include:
 - Natural-language explanations
 - Presentation of structured recommendations
 
-The core eligibility, matching, skill-gap, and readiness calculations remain controlled by HireBridge's own application logic.
+The core eligibility, matching, skill-gap, and readiness calculations remain controlled by CampusLink's own application logic.
 
 The Google API key must remain server-side and must never be exposed to the browser.
 
@@ -528,7 +529,7 @@ npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
 Use shared components:
 
 ```tsx
-import { Button } from "@HireBridge/ui/components/button";
+import { Button } from "@CampusLink/ui/components/button";
 ```
 
 For application-specific components, run the shadcn CLI from:
@@ -575,7 +576,7 @@ pnpm run dev:server
 
 # 🐳 Docker
 
-HireBridge supports Docker Compose for local development and deployment.
+CampusLink supports Docker Compose for local development and deployment.
 
 ### Build images
 
@@ -903,7 +904,7 @@ git push -u origin feature/your-feature
 
 ## 📝 Commit Convention
 
-HireBridge follows the **Conventional Commits** specification to keep the Git history clean, consistent, and easy to understand.
+CampusLink follows the **Conventional Commits** specification to keep the Git history clean, consistent, and easy to understand.
 
 ### Commit Types
 
@@ -965,15 +966,15 @@ chore(redis): update Docker configuration
 
 ### Recommended Guidelines
 
-* Use **imperative mood**: `add`, `fix`, `update`, `remove`
-* Keep the subject short and clear
-* Use lowercase for the commit type
-* Do not end the subject with a period
-* Use `feat` for user-facing functionality
-* Use `fix` for bug fixes
-* Use `docs` for README, documentation, and license changes
-* Use `chore` for maintenance that does not change application behavior
-* Use `refactor` when restructuring code without changing its behavior
+- Use **imperative mood**: `add`, `fix`, `update`, `remove`
+- Keep the subject short and clear
+- Use lowercase for the commit type
+- Do not end the subject with a period
+- Use `feat` for user-facing functionality
+- Use `fix` for bug fixes
+- Use `docs` for README, documentation, and license changes
+- Use `chore` for maintenance that does not change application behavior
+- Use `refactor` when restructuring code without changing its behavior
 
 ### Example Git Workflow
 
@@ -990,6 +991,7 @@ git add README.md LICENSE
 git commit -m "docs: update README and add MIT license"
 git push origin main
 ```
+
 ---
 
 # 📄 License
@@ -1024,7 +1026,7 @@ This project is licensed under the MIT License.
 
 ## 📌 Architecture Principle
 
-HireBridge is designed as a **placement intelligence system**, not simply an application that sends every task to an LLM.
+CampusLink is designed as a **placement intelligence system**, not simply an application that sends every task to an LLM.
 
 ### Deterministic Intelligence
 
@@ -1052,7 +1054,7 @@ The application architecture keeps PostgreSQL as the source of truth for structu
 
 ## 🚀 Built for Evolution
 
-HireBridge is designed to evolve from an MVP into a larger placement intelligence platform.
+CampusLink is designed to evolve from an MVP into a larger placement intelligence platform.
 
 The architecture allows additional capabilities such as:
 

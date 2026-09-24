@@ -12,9 +12,9 @@
     "auth:generate": "varlock run -- pnpm dlx auth@latest generate --config src/services.ts --output ../../packages/db/prisma/schema/auth.prisma --yes"
   },
   "dependencies": {
-    "@HireBridge/auth": "workspace:*",
-    "@HireBridge/db": "workspace:*",
-    "@HireBridge/redis": "workspace:*",
+    "@CampusLink/auth": "workspace:*",
+    "@CampusLink/db": "workspace:*",
+    "@CampusLink/redis": "workspace:*",
     "@ai-sdk/devtools": "^1.0.15",
     "@ai-sdk/google": "^4.0.64",
     "ai": "catalog:",
@@ -26,7 +26,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@HireBridge/config": "workspace:*",
+    "@CampusLink/config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "catalog:",

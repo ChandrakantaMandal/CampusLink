@@ -15,7 +15,7 @@ import {
 } from "../../../../src/modules/admin/admin.service";
 
 import { db } from "../../../../src/services";
-import { redis } from "@HireBridge/redis";
+import { redis } from "@CampusLink/redis";
 
 vi.mock("../../../../src/services", () => ({
   db: {
@@ -58,7 +58,7 @@ vi.mock("../../../../src/services", () => ({
   },
 }));
 
-vi.mock("@HireBridge/redis", () => ({
+vi.mock("@CampusLink/redis", () => ({
   redis: {
     get: vi.fn(),
     set: vi.fn(),

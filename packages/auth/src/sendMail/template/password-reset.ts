@@ -1,9 +1,9 @@
 export function passwordResetTemplate(resetUrl: string) {
   return {
-    subject: "Reset your HireBridge password",
+    subject: "Reset your CampusLink password",
 
     text: `
-Reset your HireBridge password
+Reset your CampusLink password
 
 We received a request to reset your password.
 
@@ -24,7 +24,7 @@ If you didn't request a password reset, you can safely ignore this email.
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   />
-  <title>Reset your HireBridge password</title>
+  <title>Reset your CampusLink password</title>
 </head>
 
 <body style="
@@ -62,7 +62,7 @@ If you didn't request a password reset, you can safely ignore this email.
           font-weight: 700;
           color: #ffffff;
         ">
-          HireBridge
+          CampusLink
         </div>
 
         <div style="
@@ -107,7 +107,7 @@ If you didn't request a password reset, you can safely ignore this email.
           color: #64748b;
         ">
           We received a request to reset the password
-          associated with your HireBridge account.
+          associated with your CampusLink account.
         </p>
 
         <!-- CTA -->
@@ -184,7 +184,7 @@ If you didn't request a password reset, you can safely ignore this email.
           font-size: 12px;
           color: #94a3b8;
         ">
-          © HireBridge · Secure account services
+          © CampusLink · Secure account services
         </p>
 
       </div>

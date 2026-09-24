@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { Button } from "@HireBridge/ui/components/button";
-import { Input } from "@HireBridge/ui/components/input";
-import { Label } from "@HireBridge/ui/components/label";
+import { Button } from "@CampusLink/ui/components/button";
+import { Input } from "@CampusLink/ui/components/input";
+import { Label } from "@CampusLink/ui/components/label";
 
 import { authClient } from "@/lib/auth-client";
 

@@ -1,26 +1,26 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { Bubble, BubbleContent } from "@HireBridge/ui/components/bubble";
-import { Button } from "@HireBridge/ui/components/button";
+import { Bubble, BubbleContent } from "@CampusLink/ui/components/bubble";
+import { Button } from "@CampusLink/ui/components/button";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@HireBridge/ui/components/empty";
+} from "@CampusLink/ui/components/empty";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
-} from "@HireBridge/ui/components/input-group";
+} from "@CampusLink/ui/components/input-group";
 import {
   Message,
   MessageContent as MessageBody,
   MessageHeader,
-} from "@HireBridge/ui/components/message";
+} from "@CampusLink/ui/components/message";
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -28,10 +28,19 @@ import {
   MessageScrollerItem,
   MessageScrollerProvider,
   MessageScrollerViewport,
-} from "@HireBridge/ui/components/message-scroller";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@HireBridge/ui/components/tooltip";
+} from "@CampusLink/ui/components/message-scroller";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@CampusLink/ui/components/tooltip";
 import { DefaultChatTransport } from "ai";
-import { ArrowUpIcon, Loader2, MessageCircleDashedIcon, RotateCwIcon } from "lucide-react";
+import {
+  ArrowUpIcon,
+  Loader2,
+  MessageCircleDashedIcon,
+  RotateCwIcon,
+} from "lucide-react";
 import { useState, type FormEvent, type KeyboardEvent } from "react";
 import { Streamdown } from "streamdown";
 
@@ -73,7 +82,9 @@ export default function AIPage() {
           <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
             <div className="min-w-0">
               <h1 className="text-sm font-medium">New Chat</h1>
-              <p className="text-xs/relaxed text-muted-foreground">How can I help you today?</p>
+              <p className="text-xs/relaxed text-muted-foreground">
+                How can I help you today?
+              </p>
             </div>
             <div className="shrink-0">
               <Tooltip>
@@ -103,8 +114,10 @@ export default function AIPage() {
                 <EmptyMedia variant="icon">
                   <MessageCircleDashedIcon />
                 </EmptyMedia>
-                <EmptyTitle>Morning, HireBridge!</EmptyTitle>
-                <EmptyDescription>What are we working on today?</EmptyDescription>
+                <EmptyTitle>Morning, CampusLink!</EmptyTitle>
+                <EmptyDescription>
+                  What are we working on today?
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           ) : (
@@ -118,10 +131,15 @@ export default function AIPage() {
                     const isUser = message.role === "user";
 
                     return (
-                      <MessageScrollerItem key={message.id} scrollAnchor={isUser}>
+                      <MessageScrollerItem
+                        key={message.id}
+                        scrollAnchor={isUser}
+                      >
                         <Message align={isUser ? "end" : "start"}>
                           <MessageBody>
-                            <MessageHeader>{isUser ? "You" : "AI Assistant"}</MessageHeader>
+                            <MessageHeader>
+                              {isUser ? "You" : "AI Assistant"}
+                            </MessageHeader>
                             <Bubble
                               align={isUser ? "end" : "start"}
                               variant={isUser ? "default" : "secondary"}
@@ -133,7 +151,8 @@ export default function AIPage() {
                                       <Streamdown
                                         key={index}
                                         isAnimating={
-                                          status === "streaming" && message.role === "assistant"
+                                          status === "streaming" &&
+                                          message.role === "assistant"
                                         }
                                       >
                                         {part.text}
@@ -194,7 +213,11 @@ export default function AIPage() {
                     disabled={isSending || !input.trim()}
                     className="ml-auto"
                   >
-                    {isSending ? <Loader2 className="animate-spin" /> : <ArrowUpIcon />}
+                    {isSending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <ArrowUpIcon />
+                    )}
                     <span className="sr-only">Send</span>
                   </InputGroupButton>
                 </InputGroupAddon>

@@ -1,5 +1,5 @@
 {
-  "name": "@HireBridge/redis",
+  "name": "@CampusLink/redis",
   "type": "module",
   "private": true,
   "exports": {
@@ -13,7 +13,7 @@
     "ioredis": "^5.0.0"
   },
   "devDependencies": {
-    "@HireBridge/config": "workspace:*",
+    "@CampusLink/config": "workspace:*",
     "typescript": "catalog:"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "HireBridge",
+  "name": "CampusLink",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -12,10 +12,10 @@
     "check-types": "pnpm -r check-types",
     "dev:web": "pnpm --filter web dev",
     "dev:server": "pnpm --filter server dev",
-    "db:push": "pnpm --filter @HireBridge/db db:push",
-    "db:studio": "pnpm --filter @HireBridge/db db:studio",
-    "db:generate": "pnpm --filter @HireBridge/db db:generate",
-    "db:migrate": "pnpm --filter @HireBridge/db db:migrate",
+    "db:push": "pnpm --filter @CampusLink/db db:push",
+    "db:studio": "pnpm --filter @CampusLink/db db:studio",
+    "db:generate": "pnpm --filter @CampusLink/db db:generate",
+    "db:migrate": "pnpm --filter @CampusLink/db db:migrate",
     "db:start": "docker compose up -d postgres",
     "db:watch": "docker compose up postgres",
     "db:stop": "docker compose stop postgres",
@@ -48,7 +48,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@HireBridge/config": "workspace:*",
+    "@CampusLink/config": "workspace:*",
     "@types/node": "catalog:",
     "@types/supertest": "^7.2.1",
     "@vitest/coverage-v8": "^5.0.1",

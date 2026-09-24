@@ -10,7 +10,7 @@
   "$schema": "https://r2.better-t-stack.dev/schema.json",
   "version": "3.43.4",
   "createdAt": "2026-09-18T06:01:40.959Z",
-  "reproducibleCommand": "pnpm create better-t-stack@latest HireBridge --frontend next --backend express --runtime node --database postgres --orm prisma --api none --auth better-auth --payments none --addons husky pwa --examples ai --db-setup docker --web-deploy docker --server-deploy docker --git --package-manager pnpm --install",
+  "reproducibleCommand": "pnpm create better-t-stack@latest CampusLink --frontend next --backend express --runtime node --database postgres --orm prisma --api none --auth better-auth --payments none --addons husky pwa --examples ai --db-setup docker --web-deploy docker --server-deploy docker --git --package-manager pnpm --install",
   "database": "postgres",
   "orm": "prisma",
   "backend": "express",

@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import app from "../../src/index";
 import { auth, db } from "../../src/services";
 
-vi.mock("@HireBridge/redis", () => ({
+vi.mock("@CampusLink/redis", () => ({
   redis: {
     get: vi.fn().mockResolvedValue(null),
     set: vi.fn().mockResolvedValue("OK"),

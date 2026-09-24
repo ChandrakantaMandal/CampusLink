@@ -1,16 +1,16 @@
 import bcrypt from "bcrypt";
 import { randomInt } from "node:crypto";
-import { redis } from "@HireBridge/redis";
+import { redis } from "@CampusLink/redis";
 
 const OTP_TTL = 10 * 60; // 10 minutes
 const OTP_RESEND_BLOCK_TTL = 60 * 60; // 1 hour
 
 function getOTPKey(email: string) {
-  return `hirebridge:signup:otp:${email.toLowerCase()}`;
+  return `CampusLink:signup:otp:${email.toLowerCase()}`;
 }
 
 function getOTPBlockKey(email: string) {
-  return `hirebridge:signup:otp:block:${email.toLowerCase()}`;
+  return `CampusLink:signup:otp:block:${email.toLowerCase()}`;
 }
 
 export async function generateSignupOTP(email: string) {

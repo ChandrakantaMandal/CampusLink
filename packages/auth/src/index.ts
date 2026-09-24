@@ -1,4 +1,4 @@
-import type { Database } from "@HireBridge/db";
+import type { Database } from "@CampusLink/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer } from "better-auth/plugins";
@@ -79,7 +79,6 @@ export function createAuth(
       user: {
         create: {
           after: async (user) => {
-
             if (process.env.NODE_ENV === "test") {
               return;
             }
