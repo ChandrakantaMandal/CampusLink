@@ -147,10 +147,10 @@ export default function PortfolioLinks({
                   value={value}
                   onChange={(e) => onChange(field.key, e.target.value)}
                   placeholder={field.placeholder}
-                  className={`w-full rounded-xl border py-2.5 pl-10 pr-3.5 text-sm text-slate-900 transition-colors focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 ${
+                  className={`w-full rounded-xl border py-2.5 pl-10 pr-3.5 text-sm transition-all focus:outline-hidden ${
                     error
-                      ? "border-rose-400 bg-rose-50/30 focus:border-rose-500 focus:ring-3 focus:ring-rose-500/10"
-                      : "border-slate-200 bg-white focus:border-[#6366F1] focus:ring-3 focus:ring-indigo-500/15"
+                      ? "border-rose-400 bg-rose-50/30 text-rose-900 placeholder:text-rose-300 dark:border-rose-500/60 dark:bg-rose-950/20 dark:text-rose-100 dark:placeholder:text-rose-400/50 focus:border-rose-500 focus:ring-3 focus:ring-rose-500/10"
+                      : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 hover:border-slate-300 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-3 focus:ring-indigo-500/15 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                   }`}
                 />
               </div>

@@ -9,8 +9,12 @@ import {
   Menu,
   ShieldCheck,
   CheckCircle2,
+  Lock,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useAuth } from "@/lib/use-auth";
 
 interface DashboardHeaderProps {
   onToggleSidebar?: () => void;
@@ -20,9 +24,10 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({
   onToggleSidebar,
-  studentName = "Himanshu Rout",
+  studentName = "Student",
   department = "Computer Science",
 }: DashboardHeaderProps) {
+  const { isAuthenticated, signOut } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -100,12 +105,12 @@ export default function DashboardHeader({
         </div>
       </div>
 
-      {/* Right Section: Student Portal Badge, Notifications, Theme, Profile */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Student Portal Badge (Only student view) */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/70 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-          <GraduationCap className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-          <span>Student Portal</span>
+      {/* Right Section: Status Indicator, Notifications & User Status */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Verification Status Pill */}
+        <div className="hidden md:flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+          <span>TPO Verified &bull; 2027 Batch</span>
         </div>
 
         {/* Notifications Popover */}
@@ -113,19 +118,19 @@ export default function DashboardHeader({
           <button
             type="button"
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative rounded-xl border border-slate-200 p-2.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-hidden dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+            className="relative rounded-xl border border-slate-200 p-2.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white transition-colors cursor-pointer"
             aria-label="View notifications"
           >
-            <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-xs">
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#6366F1] text-[10px] font-bold text-white shadow-xs">
                 {unreadCount}
               </span>
             )}
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-slate-800 dark:bg-slate-900 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900 z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-slate-900 dark:text-white">
@@ -144,7 +149,7 @@ export default function DashboardHeader({
                 </button>
               </div>
 
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-72 overflow-y-auto mt-2">
+              <div className="divide-y divide-slate-100 dark:border-slate-800 max-h-72 overflow-y-auto mt-2">
                 {notifications.map((n) => (
                   <div
                     key={n.id}
@@ -176,34 +181,55 @@ export default function DashboardHeader({
         {/* Theme Mode Toggle */}
         <ModeToggle />
 
-        {/* User Profile Avatar Pill */}
-        <Link
-          href="/student/profile"
-          className="flex items-center gap-2.5 pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800 hover:opacity-90 transition-opacity"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#8B5CF6] text-white font-bold text-sm shadow-md shadow-indigo-500/20">
-            {studentName
-              ? studentName
-                .split(" ")
-                .map((p) => p[0])
-                .slice(0, 2)
-                .join("")
-                .toUpperCase()
-              : "ST"}
-          </div>
-          <div className="hidden xl:flex flex-col text-left">
-            <span className="text-sm font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-1">
-              {studentName}
-              <ShieldCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-            </span>
-            <span
-              className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[220px]"
-              title={department}
+        {/* Auth State Header Pill */}
+        {isAuthenticated ? (
+          <div className="flex items-center gap-2 pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800">
+            <Link
+              href="/student/profile"
+              className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
             >
-              {department}
-            </span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#8B5CF6] text-white font-bold text-sm shadow-md shadow-indigo-500/20">
+                {studentName
+                  ? studentName
+                      .split(" ")
+                      .map((p) => p[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()
+                  : "ST"}
+              </div>
+              <div className="hidden xl:flex flex-col text-left">
+                <span className="text-sm font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-1">
+                  {studentName}
+                  <ShieldCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                </span>
+                <span
+                  className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[220px]"
+                  title={department}
+                >
+                  {department}
+                </span>
+              </div>
+            </Link>
+
+            <button
+              type="button"
+              onClick={signOut}
+              title="Sign Out to test locked mode"
+              className="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
-        </Link>
+        ) : (
+          <Link
+            href="/login?role=student"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-indigo-500/20 hover:scale-[1.02] transition-all"
+          >
+            <Lock className="h-3.5 w-3.5" />
+            <span>Login to Access</span>
+          </Link>
+        )}
       </div>
     </header>
   );

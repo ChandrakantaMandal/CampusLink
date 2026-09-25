@@ -13,12 +13,15 @@ import {
   Compass,
   CheckCircle,
   Briefcase,
+  Lock,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
 import { Button } from "@CampusLink/ui/components/button";
+import { useAuth } from "@/lib/use-auth";
 
 export default function LandingNavbar() {
+  const { isAuthenticated } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -89,12 +92,22 @@ export default function LandingNavbar() {
           </Link>
           <ModeToggle />
           <UserMenu />
-          <Link href="/student/profile">
-            <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
-              <span>Student Profile</span>
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/student/dashboard">
+              <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
+                <span>Student Dashboard</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/login?role=student">
+              <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
+                <Lock className="h-4 w-4" />
+                <span>Student Login</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -142,15 +155,28 @@ export default function LandingNavbar() {
                 <span className="text-sm text-slate-500">Account</span>
                 <UserMenu />
               </div>
-              <Link
-                href="/student/profile"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
-                  <span>Open Student Profile</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/student/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
+                    <span>Open Student Dashboard</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <Link
+                  href="/login?role=student"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
+                    <Lock className="h-4 w-4" />
+                    <span>Student Login to Access</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

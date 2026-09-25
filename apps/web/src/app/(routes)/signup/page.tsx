@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import AuthCard from "@/components/auth/AuthCard";
+import SignupForm from "@/components/auth/SignupForm";
 
 export const metadata = {
   title: "Create Account — CAMPUSLINK Placement Intelligence",
@@ -8,8 +8,8 @@ export const metadata = {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
-      <AuthCard initialMode="signup" />
+    <Suspense fallback={<div className="min-h-screen bg-white dark:bg-slate-950" />}>
+      <SignupForm />
     </Suspense>
   );
 }

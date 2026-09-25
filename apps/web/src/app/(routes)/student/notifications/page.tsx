@@ -1,11 +1,12 @@
+"use client";
+
+import React from "react";
 import { NotificationsView } from "@/components/dashboard/student/views/NotificationsView";
 
 export default function StudentNotifications() {
   return (
-    <div>
-      <h1>StudentNotifications</h1>
-      <p>This page is under construction.</p>
-      <NotificationsView/>
+    <div className="space-y-6">
+      <NotificationsView />
     </div>
   );
 }

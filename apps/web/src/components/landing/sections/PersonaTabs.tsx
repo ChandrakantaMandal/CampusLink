@@ -103,14 +103,16 @@ export default function PersonaTabs() {
               </div>
 
               {/* Persona CTA */}
-              <div className="pt-4">
-                <Link href={current.ctaLink}>
-                  <Button className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 font-bold text-white shadow-lg shadow-indigo-600/25 hover:scale-105">
-                    <span>{current.ctaText}</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
+              {current.ctaText && current.ctaLink ? (
+                <div className="pt-4">
+                  <Link href={current.ctaLink}>
+                    <Button className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 font-bold text-white shadow-lg shadow-indigo-600/25 hover:scale-105">
+                      <span>{current.ctaText}</span>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              ) : null}
             </div>
 
             {/* Right Interactive Mockup Column */}

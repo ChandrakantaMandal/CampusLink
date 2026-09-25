@@ -94,7 +94,7 @@ export default function SkillsSection({
               }}
               onKeyDown={handleKeyDown}
               placeholder="Type a skill and press Enter (e.g. Docker, TypeScript)..."
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-[#6366F1] focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
             />
           </div>
           <button

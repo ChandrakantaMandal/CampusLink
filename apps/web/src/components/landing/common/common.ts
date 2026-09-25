@@ -146,8 +146,8 @@ export const personas = {
         { label: "Average Salary Boost", value: "+38%" },
         { label: "Time Saved Applying", value: "12 hrs/wk" },
       ],
-      ctaText: "Launch Student Profile",
-      ctaLink: "/student/profile",
+      ctaText: "",
+      ctaLink: "",
       previewBadge: "Student Dashboard Preview",
       mockItems: [
         { title: "Resume ATS Score", value: "96 / 100", highlight: true },
@@ -173,8 +173,8 @@ export const personas = {
         { label: "Offer Acceptance Rate", value: "91%" },
         { label: "Unqualified Applications", value: "0%" },
       ],
-      ctaText: "Recruiter Access Portal",
-      ctaLink: "/login?role=recruiter",
+      ctaText: "",
+      ctaLink: "",
       previewBadge: "Recruiter Dashboard Preview",
       mockItems: [
         { title: "Matched Candidates", value: "142 Shortlisted", highlight: true },
@@ -200,8 +200,8 @@ export const personas = {
         { label: "Offer Tracking Accuracy", value: "100%" },
         { label: "Campus Drive Capacity", value: "+50 Drives" },
       ],
-      ctaText: "Explore TPO Command Center",
-      ctaLink: "/login?role=tpo",
+      ctaText: "",
+      ctaLink: "",
       previewBadge: "Placement Officer Command Center",
       mockItems: [
         { title: "Total Placed Batch Rate", value: "94.6%", highlight: true },
