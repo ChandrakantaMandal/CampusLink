@@ -1,8 +1,11 @@
-export default function AdminRecruiters() {
-  return (
-    <div>
-      <h1>AdminRecruiters</h1>
-      <p>This page is under construction.</p>
-    </div>
-  );
+import type { Metadata } from "next";
+import RecruitersManagementView from "@/components/dashboard/admin/views/RecruitersManagementView";
+
+export const metadata: Metadata = {
+  title: "Recruiters & Companies — CAMPUSLINK Admin",
+  description: "Corporate recruiter management, MoUs, hiring tiers, and job roles verification.",
+};
+
+export default function AdminRecruitersPage() {
+  return <RecruitersManagementView />;
 }

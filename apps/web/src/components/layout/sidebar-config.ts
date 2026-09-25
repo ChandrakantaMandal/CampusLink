@@ -15,6 +15,7 @@ import {
   MessageSquare,
   GraduationCap,
   Building,
+  Sparkles,
 } from "lucide-react";
 
 export type UserRole = "student" | "admin" | "recruiter";
@@ -184,7 +185,7 @@ export const sidebarConfig: Record<UserRole, SidebarItem[]> = {
     },
     {
       id: "drives",
-      label: "Campus Drives",
+      label: "Placement Drives",
       icon: Briefcase,
       badge: "12",
       href: "/admin/drives",
@@ -193,14 +194,36 @@ export const sidebarConfig: Record<UserRole, SidebarItem[]> = {
       id: "applications",
       label: "Applications",
       icon: ClipboardList,
-      badge: "248",
+      badge: "612",
       href: "/admin/applications",
     },
     {
-      id: "users",
-      label: "User Management",
-      icon: Users,
-      href: "/admin/users",
+      id: "interviews",
+      label: "Interview Schedule",
+      icon: Calendar,
+      badge: "Alert",
+      href: "/admin/interviews",
+    },
+    {
+      id: "readiness",
+      label: "Readiness & Skill Gaps",
+      icon: Layers,
+      badge: "78%",
+      href: "/admin/readiness",
+    },
+    {
+      id: "ai-matching",
+      label: "AI Matching",
+      icon: Sparkles,
+      badge: "AI",
+      href: "/admin/ai-matching",
+    },
+    {
+      id: "offers",
+      label: "Offers",
+      icon: Gift,
+      badge: "112",
+      href: "/admin/offers",
     },
     {
       id: "analytics",
@@ -212,6 +235,7 @@ export const sidebarConfig: Record<UserRole, SidebarItem[]> = {
       id: "notifications",
       label: "Notifications",
       icon: Bell,
+      badge: "6",
       href: "/admin/notifications",
     },
     {

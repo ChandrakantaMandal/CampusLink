@@ -1,8 +1,11 @@
-export default function AdminNotifications() {
-  return (
-    <div>
-      <h1>AdminNotifications</h1>
-      <p>This page is under construction.</p>
-    </div>
-  );
+import type { Metadata } from "next";
+import AdminNotificationsView from "@/components/dashboard/admin/views/AdminNotificationsView";
+
+export const metadata: Metadata = {
+  title: "Placement Alerts & Broadcasts — CAMPUSLINK Admin",
+  description: "Administrative alerts, interview collision warnings, document audits, and institutional announcements.",
+};
+
+export default function AdminNotificationsPage() {
+  return <AdminNotificationsView />;
 }
