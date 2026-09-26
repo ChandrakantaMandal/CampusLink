@@ -1,8 +1,11 @@
-export default function AdminApplications() {
-  return (
-    <div>
-      <h1>AdminApplications</h1>
-      <p>This page is under construction.</p>
-    </div>
-  );
+import type { Metadata } from "next";
+import ApplicationsPipelineView from "@/components/dashboard/admin/views/ApplicationsPipelineView";
+
+export const metadata: Metadata = {
+  title: "Application Pipeline — CAMPUSLINK Admin",
+  description: "Monitor candidate progress from initial application through shortlisting, interviews, and final offers.",
+};
+
+export default function AdminApplicationsPage() {
+  return <ApplicationsPipelineView />;
 }

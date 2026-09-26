@@ -170,48 +170,69 @@ export default function LoginForm() {
                 })
               );
             }
+            const targetDashboard =
+              role === "tpo"
+                ? "/admin/dashboard"
+                : role === "recruiter"
+                  ? "/recruiter/dashboard"
+                  : "/student/dashboard";
+
             if (role === "recruiter") {
               toast.success("Recruiter access authorized! Redirecting...");
             } else if (role === "tpo") {
-              toast.success("TPO Cell verified! Redirecting...");
+              toast.success("TPO Cell verified! Redirecting to Admin Control Center...");
             } else {
               toast.success("Welcome back! Redirecting to your dashboard...");
             }
-            router.push("/student/dashboard" as Route);
+            router.push(targetDashboard as Route);
           },
           onError: (err) => {
             console.warn("Sign in API fallback to local session:", err);
+            const targetDashboard =
+              role === "tpo"
+                ? "/admin/dashboard"
+                : role === "recruiter"
+                  ? "/recruiter/dashboard"
+                  : "/student/dashboard";
+
             if (typeof window !== "undefined") {
               localStorage.setItem("hirebridge_role", role);
               localStorage.setItem(
                 "campuslink_user",
                 JSON.stringify({
-                  name: email.split("@")[0] || "Student",
+                  name: email.split("@")[0] || (role === "tpo" ? "TPO Officer" : "Student"),
                   email,
                   role,
                 })
               );
             }
             toast.success("Welcome! Signed in successfully. Redirecting...");
-            router.push("/student/dashboard" as Route);
+            router.push(targetDashboard as Route);
           },
         }
       );
     } catch (err) {
       console.warn("Network error during sign in, local fallback:", err);
+      const targetDashboard =
+        role === "tpo"
+          ? "/admin/dashboard"
+          : role === "recruiter"
+            ? "/recruiter/dashboard"
+            : "/student/dashboard";
+
       if (typeof window !== "undefined") {
         localStorage.setItem("hirebridge_role", role);
         localStorage.setItem(
           "campuslink_user",
           JSON.stringify({
-            name: email.split("@")[0] || "Student",
+            name: email.split("@")[0] || (role === "tpo" ? "TPO Officer" : "Student"),
             email,
             role,
           })
         );
       }
       toast.success("Welcome! Signed in. Redirecting to dashboard...");
-      router.push("/student/dashboard" as Route);
+      router.push(targetDashboard as Route);
     } finally {
       setIsLoading(false);
     }
@@ -410,28 +431,28 @@ export default function LoginForm() {
         </Button>
 
         {/* Quick Demo Login Form Fill & Details View (Does NOT auto-login) */}
-        <div className="rounded-xl border border-dashed border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/50 dark:bg-indigo-950/20 p-3.5 text-xs mt-3">
-          <div className="flex items-center justify-between mb-2">
+        <div className="rounded-xl border border-dashed border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/40 p-3.5 text-xs mt-3">
+          <div className="flex items-center justify-between mb-2.5">
             <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+              <Sparkles className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
               Demo Credentials ({demoCredentials[role].label}):
             </span>
             <button
               type="button"
               onClick={handleFillDemo}
-              className="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] px-2.5 py-1 transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+              className="rounded-lg bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold text-[11px] px-2.5 py-1 transition-all cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
             >
               Fill Form
             </button>
           </div>
-          <div className="flex flex-col gap-1 text-[11px] text-slate-600 dark:text-slate-400 font-mono bg-white dark:bg-slate-900/70 p-2 rounded-lg border border-slate-200/80 dark:border-slate-800">
+          <div className="flex flex-col gap-1.5 text-[11px] font-mono bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span>Email:</span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{demoCredentials[role].email}</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">Email:</span>
+              <span className="font-semibold text-slate-900 dark:text-slate-100 select-all">{demoCredentials[role].email}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span>Password:</span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{demoCredentials[role].password}</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">Password:</span>
+              <span className="font-semibold text-slate-900 dark:text-slate-100 select-all">{demoCredentials[role].password}</span>
             </div>
           </div>
         </div>
