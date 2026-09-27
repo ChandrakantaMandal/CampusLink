@@ -1,8 +1,11 @@
-export default function RecruiterInterviews() {
-  return (
-    <div>
-      <h1>RecruiterInterviews</h1>
-      <p>This page is under construction.</p>
-    </div>
-  );
+import type { Metadata } from "next";
+import RecruiterInterviewsView from "@/components/dashboard/recruiter/views/RecruiterInterviewsView";
+
+export const metadata: Metadata = {
+  title: "Interview Schedule & Conflicts — CAMPUSLINK Recruiter Portal",
+  description: "Schedule campus interviews, configure panel evaluation rounds, and detect schedule overlaps.",
+};
+
+export default function RecruiterInterviewsPage() {
+  return <RecruiterInterviewsView />;
 }

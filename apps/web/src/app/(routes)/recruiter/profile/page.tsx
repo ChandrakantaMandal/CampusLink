@@ -1,9 +1,11 @@
-import React from 'react'
+import type { Metadata } from "next";
+import RecruiterCompanyProfileView from "@/components/dashboard/recruiter/views/RecruiterCompanyProfileView";
 
-const page = () => {
-  return (
-    <div>r</div>
-  )
+export const metadata: Metadata = {
+  title: "Company Profile — CAMPUSLINK Recruiter Portal",
+  description: "Manage official company information, recruiter contacts, and campus verification badges.",
+};
+
+export default function RecruiterProfilePage() {
+  return <RecruiterCompanyProfileView />;
 }
-
-export default page
