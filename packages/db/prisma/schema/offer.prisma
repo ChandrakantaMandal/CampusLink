@@ -1,0 +1,68 @@
+enum OfferStatus {
+  DRAFT
+  SENT
+  PENDING_ACCEPTANCE
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+}
+
+enum DocumentVerificationStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  ACTION_REQUIRED
+}
+
+enum JoiningStatus {
+  CONFIRMED
+  AWAITING_ONBOARDING
+  JOINED
+  DECLINED
+}
+
+model Offer {
+  id              String                     @id @default(uuid())
+
+  studentId       String
+  student         StudentProfile             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  companyId       String
+  company         Company                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  jobId           String?
+  job             Job?                       @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  applicationId   String?                    @unique
+  application     Application?               @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  role            String
+  ctc             String
+  baseSalary      Float?
+  variableBonus   Float?
+  currency        String                     @default("INR")
+
+  offerDate       DateTime                   @default(now())
+  responseDeadline DateTime?
+  joiningDate     DateTime?
+  offerLetterUrl  String?
+
+  status          OfferStatus                @default(SENT)
+  documentStatus  DocumentVerificationStatus @default(PENDING_VERIFICATION)
+  documentsVerified Boolean                  @default(false)
+  joiningStatus   JoiningStatus              @default(AWAITING_ONBOARDING)
+
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  notes           String?
+
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  @@index([studentId])
+  @@index([companyId])
+  @@index([jobId])
+  @@index([status])
+  @@index([documentStatus])
+  @@map("offer")
+}

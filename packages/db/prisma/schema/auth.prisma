@@ -1,4 +1,3 @@
-
 enum UserRole {
   STUDENT
   RECRUITER
@@ -27,6 +26,8 @@ model User {
   applications    Application[]
   aiAnalyses      AIAnalysis[]
   recommendations Recommendation[]
+  notifications   UserNotification[]
+  auditLogs       AuditLog[]
 
   @@unique([email])
   @@map("user")

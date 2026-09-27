@@ -1,0 +1,103 @@
+enum NotificationType {
+  APPLICATION
+  AI_MATCH
+  INTERVIEW
+  CONFLICT
+  OFFER
+  SYSTEM
+  DRIVE
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model UserNotification {
+  id          String               @id @default(uuid())
+
+  userId      String
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        NotificationType     @default(SYSTEM)
+  priority    NotificationPriority @default(MEDIUM)
+
+  title       String
+  message     String
+  actionUrl   String?
+  actionLabel String?
+
+  isRead      Boolean              @default(false)
+  readAt      DateTime?
+
+  metadata    Json?
+
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@map("user_notification")
+}
+
+model AdminNotification {
+  id          String               @id @default(uuid())
+
+  adminId     String
+  admin       AdminProfile         @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  type        NotificationType     @default(SYSTEM)
+  priority    NotificationPriority @default(MEDIUM)
+
+  title       String
+  message     String
+  actionUrl   String?
+  actionLabel String?
+
+  isRead      Boolean              @default(false)
+  readAt      DateTime?
+
+  metadata    Json?
+
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([adminId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@map("admin_notification")
+}
+
+model RecruiterNotification {
+  id          String               @id @default(uuid())
+
+  recruiterId String
+  recruiter   RecruiterProfile     @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+
+  type        NotificationType     @default(SYSTEM)
+  priority    NotificationPriority @default(MEDIUM)
+
+  title       String
+  message     String
+  actionUrl   String?
+  actionLabel String?
+
+  isRead      Boolean              @default(false)
+  readAt      DateTime?
+
+  metadata    Json?
+
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([recruiterId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@map("recruiter_notification")
+}

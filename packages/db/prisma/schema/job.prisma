@@ -1,50 +1,75 @@
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  APPLICATIONS_OPEN
+  APPLICATIONS_CLOSED
+  INTERVIEWING
+  COMPLETED
+  ARCHIVED
+}
+
 model Job {
-  id              String   @id @default(uuid())
+  id                  String             @id @default(uuid())
 
-  companyId       String
-  company         Company  @relation(fields: [companyId],references: [id],onDelete: Cascade)
+  companyId           String
+  company             Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  recruiterId     String?
-  recruiter       RecruiterProfile? @relation(fields: [recruiterId],references: [id])
+  recruiterId         String?
+  recruiter           RecruiterProfile?  @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
 
-  title           String
-  description     String
+  driveId             String?
+  drive               PlacementDrive?    @relation(fields: [driveId], references: [id], onDelete: SetNull)
 
-  location        String?
-  employmentType  String?
+  title               String
+  description         String
 
-  minCGPA         Float?
-  maxBacklogs     Int?
+  location            String?
+  employmentType      String?
+  workMode            String?
 
-  requiredDegree  String?
-  requiredBranch  String?
-  graduationYear  Int?
+  ctc                 String?
+  openPositions       Int                @default(1)
 
-  minExperience   Int?
-  maxExperience   Int?
+  minCGPA             Float?
+  maxBacklogs         Int?
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  requiredDegree      String?
+  requiredBranch      String?
+  allowedBranches     String[]           @default([])
+  graduationYear      Int?
 
-  skills          JobSkill[]
-  applications    Application[]
+  minExperience       Int?
+  maxExperience       Int?
 
-  aiAnalyses AIAnalysis[]
+  applicationDeadline DateTime?
+  status              JobStatus          @default(APPLICATIONS_OPEN)
+
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  skills              JobSkill[]
+  rounds              JobRound[]
+  applications        Application[]
+  aiAnalyses          AIAnalysis[]
+  interviews          Interview[]
+  offers              Offer[]
 
   @@index([companyId])
   @@index([recruiterId])
+  @@index([driveId])
   @@index([title])
-   @@map("job")
+  @@index([status])
+  @@map("job")
 }
 
 model JobSkill {
   id        String   @id @default(uuid())
 
   jobId     String
-  job       Job      @relation(fields: [jobId],references: [id],onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   skillId   String
-  skill     Skill    @relation(fields: [skillId],references: [id],onDelete: Cascade)
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   required  Boolean  @default(true)
   weight    Float    @default(1)
@@ -54,5 +79,24 @@ model JobSkill {
   @@unique([jobId, skillId])
   @@index([jobId])
   @@index([skillId])
-   @@map("job_skill")
+  @@map("job_skill")
+}
+
+model JobRound {
+  id          String   @id @default(uuid())
+
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  roundNumber Int
+  name        String
+  type        String
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([jobId, roundNumber])
+  @@index([jobId])
+  @@map("job_round")
 }
