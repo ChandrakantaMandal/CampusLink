@@ -26,7 +26,6 @@ import {
   mockRecruiterCompany,
   mockRecruiterJobs,
   mockRecruiterCandidates,
-  mockAIMatches,
   mockRecruiterInterviews,
   mockRecruiterOffers,
 } from "../mock-recruiter-data";
@@ -223,187 +222,94 @@ export default function RecruiterDashboardHomeView() {
         </div>
       </div>
 
-      {/* Main Grid: AI Matches & Upcoming Interviews */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: AI Candidate Matching Highlights */}
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-xs flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-white">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-                  Top AI Candidate Matches
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Matched against active job profiles using semantic skills and academic eligibility
-                </p>
+      {/* Upcoming Interviews & Conflict Alert */}
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-xs flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-amber-600 to-orange-600 text-white">
+              <Calendar className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                Upcoming Interviews & Conflicts
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Scheduled evaluation rounds with automated conflict detection
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/recruiter/interviews"
+            className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline shrink-0"
+          >
+            Full Calendar &rarr;
+          </Link>
+        </div>
+
+        {/* Conflict Alert Banner if any */}
+        <div className="mb-3.5 p-3 rounded-xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+            <div className="text-xs">
+              <span className="font-bold">Interview Conflict Detected: </span>
+              <span>Candidate Himanshu Rout has an overlapping slot with Apex Systems at 10:30 AM.</span>
+              <div className="mt-1">
+                <Link
+                  href="/recruiter/interviews"
+                  className="font-bold text-amber-700 dark:text-amber-300 underline"
+                >
+                  Reschedule slot now &rarr;
+                </Link>
               </div>
             </div>
-            <Link
-              href="/recruiter/candidates"
-              className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 hover:underline shrink-0"
-            >
-              Explore All Candidates &rarr;
-            </Link>
-          </div>
-
-          <div className="space-y-3.5 flex-1">
-            {mockAIMatches.slice(0, 3).map((match) => (
-              <div
-                key={match.candidateId}
-                className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:border-purple-300 dark:hover:border-purple-800/80 transition-all"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        {match.candidateName}
-                      </span>
-                      <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-                        {match.candidateBranch} &bull; CGPA: {match.candidateCGPA}
-                      </span>
-                    </div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-0.5 truncate">
-                      Job: {match.jobTitle}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-sm font-black text-purple-600 dark:text-purple-400">
-                      {match.overallMatchScore}%
-                    </span>
-                    <span className="rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 text-[10px] font-bold px-2 py-0.5">
-                      {match.matchTier}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Match Explainability */}
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                  <strong className="text-slate-700 dark:text-slate-300">Why:</strong> {match.whyExplanation}
-                </p>
-
-                {/* Skills Preview */}
-                <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                  {match.matchedCriteria.slice(0, 2).map((crit, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40 px-2 py-0.5 rounded-md"
-                    >
-                      {crit}
-                    </span>
-                  ))}
-                  {match.missingSkills.length > 0 && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/40 px-2 py-0.5 rounded-md">
-                      ⚠ Gap: {match.missingSkills[0]}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
-            <Link
-              href="/recruiter/candidates"
-              className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 hover:underline"
-            >
-              Analyze All 1,240 Campus Candidates &rarr;
-            </Link>
           </div>
         </div>
 
-        {/* Right: Upcoming Interviews & Conflict Alert */}
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-xs flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-amber-600 to-orange-600 text-white">
-                <Calendar className="h-4 w-4" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-                  Upcoming Interviews & Conflicts
-                </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Scheduled evaluation rounds with automated conflict detection
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/recruiter/interviews"
-              className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline shrink-0"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 flex-1">
+          {mockRecruiterInterviews.map((interview) => (
+            <div
+              key={interview.id}
+              className={`p-3.5 rounded-xl border transition-all ${interview.hasConflict ? "border-amber-300 dark:border-amber-600/60 bg-amber-50/30 dark:bg-amber-950/10" : "border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40"}`}
             >
-              Full Calendar &rarr;
-            </Link>
-          </div>
-
-          {/* Conflict Alert Banner if any */}
-          <div className="mb-3.5 p-3 rounded-xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
-            <div className="flex items-start gap-2.5">
-              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
-              <div className="text-xs">
-                <span className="font-bold">Interview Conflict Detected: </span>
-                <span>Candidate Himanshu Rout has an overlapping slot with Apex Systems at 10:30 AM.</span>
-                <div className="mt-1">
-                  <Link
-                    href="/recruiter/interviews"
-                    className="font-bold text-amber-700 dark:text-amber-300 underline"
-                  >
-                    Reschedule slot now &rarr;
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 flex-1">
-            {mockRecruiterInterviews.map((interview) => (
-              <div
-                key={interview.id}
-                className={`p-3.5 rounded-xl border transition-all ${interview.hasConflict ? "border-amber-300 dark:border-amber-600/60 bg-amber-50/30 dark:bg-amber-950/10" : "border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40"}`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        {interview.candidateName}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                      {interview.candidateName}
+                    </span>
+                    {interview.hasConflict && (
+                      <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2 animate-pulse">
+                        Conflict!
                       </span>
-                      {interview.hasConflict && (
-                        <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2 animate-pulse">
-                          Conflict!
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
-                      {interview.round} &bull; {interview.jobTitle}
-                    </p>
+                    )}
                   </div>
-
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">
-                    {interview.time}
-                  </span>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                    {interview.round} &bull; {interview.jobTitle}
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <span className="truncate">Panel: {interview.interviewerPanel}</span>
-                  <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0">
-                    {interview.mode}
-                  </span>
-                </div>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                  {interview.time}
+                </span>
               </div>
-            ))}
-          </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
-            <Link
-              href="/recruiter/interviews"
-              className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
-            >
-              Manage All Scheduled Interviews &rarr;
-            </Link>
-          </div>
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <span className="truncate">Panel: {interview.interviewerPanel}</span>
+                <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0">
+                  {interview.mode}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
+          <Link
+            href="/recruiter/interviews"
+            className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
+          >
+            Manage All Scheduled Interviews &rarr;
+          </Link>
         </div>
       </div>
 

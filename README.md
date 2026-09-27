@@ -146,6 +146,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/ChandrakantaMandal/CampusLink
+git clone https://github.com/HimanshuKumarRout/CampusLink
 cd CampusLink
 ```
 

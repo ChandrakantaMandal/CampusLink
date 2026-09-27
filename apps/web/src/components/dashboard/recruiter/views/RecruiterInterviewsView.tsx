@@ -108,7 +108,7 @@ export default function RecruiterInterviewsView() {
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-amber-600/25 hover:shadow-lg hover:shadow-amber-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
         >
           <Plus className="h-4 w-4" />
-          <span>+ Schedule Interview</span>
+          <span>Schedule Interview</span>
         </button>
       </div>
 
