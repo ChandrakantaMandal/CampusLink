@@ -41,7 +41,7 @@ vi.mock("../../src/middleware/auth.middleware.ts", () => ({
 }));
 
 vi.mock("../../src/middleware/role.middleware", () => ({
-  requireRole: vi.fn(() => (req: any, _res: any, next: any) => {
+  requireRole: vi.fn(() => (_req: any, _res: any, next: any) => {
     next();
   }),
 }));

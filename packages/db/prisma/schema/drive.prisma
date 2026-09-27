@@ -1,0 +1,85 @@
+enum DriveType {
+  IN_PERSON
+  VIRTUAL
+  HYBRID
+}
+
+enum DriveStatus {
+  DRAFT
+  OPEN
+  ONGOING
+  APPLICATIONS_CLOSED
+  COMPLETED
+  CANCELLED
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  ATTENDED
+  SHORTLISTED
+  REJECTED
+  ABSENT
+}
+
+model PlacementDrive {
+  id               String              @id @default(uuid())
+
+  companyId        String
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  title            String
+  role             String
+  description      String?
+
+  tier             CompanyTier         @default(TIER_2)
+  type             DriveType           @default(IN_PERSON)
+  status           DriveStatus         @default(OPEN)
+
+  salary           String?
+  minCgpa          Float?
+  backlogsAllowed  Int                 @default(0)
+  batchEligibility String?
+  allowedBranches  String[]            @default([])
+  requiredSkills   String[]            @default([])
+  rounds           String[]            @default([])
+  openings         Int                 @default(1)
+
+  driveDate        DateTime
+  driveTime        String?
+  venue            String?
+  deadline         DateTime?
+
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  jobs             Job[]
+  registrations    DriveRegistration[]
+  interviews       Interview[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([driveDate])
+  @@index([tier])
+  @@map("placement_drive")
+}
+
+model DriveRegistration {
+  id           String             @id @default(uuid())
+
+  driveId      String
+  drive        PlacementDrive     @relation(fields: [driveId], references: [id], onDelete: Cascade)
+
+  studentId    String
+  student      StudentProfile     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  status       RegistrationStatus @default(REGISTERED)
+
+  registeredAt DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([driveId, studentId])
+  @@index([driveId])
+  @@index([studentId])
+  @@index([status])
+  @@map("drive_registration")
+}
