@@ -2,10 +2,20 @@
 
 import React from "react";
 import { OfferTrackingCard } from "@/components/dashboard/student/OfferTrackingCard";
-import { mockDashboardData } from "@/data/dashboardData";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentOffers } from "@/hooks/use-student-aggregates";
+import { toOfferDetails } from "@/lib/dashboard-adapters";
 import { Gift, Award } from "lucide-react";
 
 export default function StudentOffers() {
+  const offers = useStudentOffers();
+
+  const items = offers.data ? toOfferDetails(offers.data) : null;
+  const total = offers.data?.stats.total ?? items?.length ?? null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -27,14 +37,20 @@ export default function StudentOffers() {
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
             <Award className="h-3.5 w-3.5" />
-            1 Offer Extended
+            {total !== null ? `${total} Offer${total === 1 ? "" : "s"} Extended` : "—"}
           </span>
         </div>
       </div>
 
       {/* Main Offers Component */}
       <div className="min-w-0">
-        <OfferTrackingCard offers={mockDashboardData.offers} />
+        {items ? (
+          <OfferTrackingCard offers={items} />
+        ) : offers.error ? (
+          <AggregateError message={offers.error} onRetry={offers.refresh} />
+        ) : (
+          <AggregateLoading label="Loading your offers..." />
+        )}
       </div>
     </div>
   );

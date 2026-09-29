@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useProfile } from "@/components/dashboard/student/student-profile/context/ProfileContext";
+import { useProfile } from "@/stores/profileStore";
 import { OpportunitiesView } from "@/components/dashboard/student/student-profile/views/OpportunitiesView";
 
 export default function OpportunitiesPage() {

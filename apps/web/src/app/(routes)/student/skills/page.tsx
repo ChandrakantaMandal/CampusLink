@@ -2,11 +2,25 @@
 
 import React from "react";
 import SkillGapCard from "@/components/dashboard/student/SkillGapCard";
-import { mockDashboardData } from "@/data/dashboardData";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentSkills } from "@/hooks/use-student-aggregates";
+import { toSkillGaps } from "@/lib/dashboard-adapters";
 import { toast } from "sonner";
-import { Layers, Sparkles, BookOpen, ExternalLink } from "lucide-react";
+import { Layers, Sparkles, BookOpen } from "lucide-react";
 
 export default function StudentSkills() {
+  const skills = useStudentSkills();
+
+  const items = skills.data ? toSkillGaps(skills.data) : null;
+
+  const handleAnalyze = async () => {
+    toast.info("Syncing latest assessment results...");
+    await skills.refresh();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -26,7 +40,7 @@ export default function StudentSkills() {
         </div>
 
         <button
-          onClick={() => toast.info("Syncing latest assessment results...")}
+          onClick={handleAnalyze}
           className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-purple-500/20 hover:bg-purple-500 transition-colors"
         >
           <Sparkles className="h-3.5 w-3.5" />
@@ -36,13 +50,19 @@ export default function StudentSkills() {
 
       {/* Main Skill Gap Component */}
       <div className="min-w-0">
-        <SkillGapCard
-          skills={mockDashboardData.skillGaps}
-          variant="default"
-          onPracticeSkill={(skill) =>
-            toast.info(`Opening practice module for ${skill}`)
-          }
-        />
+        {items ? (
+          <SkillGapCard
+            skills={items}
+            variant="default"
+            onPracticeSkill={(skill) =>
+              toast.info(`Opening practice module for ${skill}`)
+            }
+          />
+        ) : skills.error ? (
+          <AggregateError message={skills.error} onRetry={skills.refresh} />
+        ) : (
+          <AggregateLoading label="Loading your skill profile..." />
+        )}
       </div>
 
       {/* Learning Resources Recommendation */}

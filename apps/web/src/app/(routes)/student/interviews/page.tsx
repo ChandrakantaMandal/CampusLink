@@ -2,11 +2,20 @@
 
 import React from "react";
 import { InterviewScheduleCard } from "@/components/dashboard/student/InterviewScheduleCard";
-import { mockDashboardData } from "@/data/dashboardData";
-import { Calendar, Video, Clock } from "lucide-react";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentInterviews } from "@/hooks/use-student-aggregates";
+import { toInterviewSlots } from "@/lib/dashboard-adapters";
+import { Calendar } from "lucide-react";
 import { toast } from "sonner";
 
 export default function StudentInterviews() {
+  const interviews = useStudentInterviews();
+
+  const items = interviews.data ? toInterviewSlots(interviews.data) : null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -36,7 +45,16 @@ export default function StudentInterviews() {
 
       {/* Main Interviews Component */}
       <div className="min-w-0">
-        <InterviewScheduleCard interviews={mockDashboardData.interviews} />
+        {items ? (
+          <InterviewScheduleCard interviews={items} />
+        ) : interviews.error ? (
+          <AggregateError
+            message={interviews.error}
+            onRetry={interviews.refresh}
+          />
+        ) : (
+          <AggregateLoading label="Loading your interview schedule..." />
+        )}
       </div>
     </div>
   );

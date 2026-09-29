@@ -16,6 +16,7 @@
     "@tanstack/react-form": "^1.33.5",
     "@varlock/nextjs-integration": "1.2.2",
     "ai": "catalog:",
+    "axios": "^1.20.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "better-auth": "catalog:",
     "lucide-react": "catalog:",
@@ -26,7 +27,8 @@
     "sonner": "catalog:",
     "streamdown": "^2.6.0",
     "varlock": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@CampusLink/config": "workspace:*",
