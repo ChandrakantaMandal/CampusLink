@@ -2,11 +2,25 @@
 
 import React from "react";
 import RecommendedJobsCard from "@/components/dashboard/student/RecommendedJobsCard";
-import { mockDashboardData } from "@/data/dashboardData";
-import { Briefcase, Sparkles, Filter } from "lucide-react";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentJobs } from "@/hooks/use-student-aggregates";
+import { toRecommendedJobs } from "@/lib/dashboard-adapters";
+import { Briefcase, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export default function StudentJobs() {
+  const jobs = useStudentJobs();
+
+  const items = jobs.data ? toRecommendedJobs(jobs.data) : null;
+
+  const handleRefresh = async () => {
+    toast.success("Refreshed AI job matches");
+    await jobs.refresh();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -26,7 +40,7 @@ export default function StudentJobs() {
         </div>
 
         <button
-          onClick={() => toast.success("Refreshed AI job matches")}
+          onClick={handleRefresh}
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors"
         >
           <Sparkles className="h-3.5 w-3.5" />
@@ -36,7 +50,13 @@ export default function StudentJobs() {
 
       {/* Main Jobs Component */}
       <div className="min-w-0">
-        <RecommendedJobsCard jobs={mockDashboardData.recommendedJobs} columns={3} />
+        {items ? (
+          <RecommendedJobsCard jobs={items} columns={3} />
+        ) : jobs.error ? (
+          <AggregateError message={jobs.error} onRetry={jobs.refresh} />
+        ) : (
+          <AggregateLoading label="Finding jobs matched to your profile..." />
+        )}
       </div>
     </div>
   );
