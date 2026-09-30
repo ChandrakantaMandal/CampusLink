@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentInterviews } from "@/hooks/use-student-aggregates";
+import { useStudentInterviews } from "@/hooks/use-student";
 import { toInterviewSlots } from "@/lib/dashboard-adapters";
 import { Calendar } from "lucide-react";
 import { toast } from "sonner";

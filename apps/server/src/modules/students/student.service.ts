@@ -269,13 +269,6 @@ type EligibleDrive = {
   allowedBranches: string[];
 };
 
-type EligibleJob = {
-  minCGPA: number | null;
-  maxBacklogs: number | null;
-  allowedBranches: string[];
-  requiredBranch: string | null;
-};
-
 function studentBranchOf(student: EligibleStudent) {
   return (student.branch ?? student.department ?? "").toLowerCase();
 }
@@ -309,38 +302,6 @@ export function isEligibleForDrive(
 
   if (drive.allowedBranches.length > 0) {
     if (!branchMatches(studentBranchOf(student), drive.allowedBranches)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function isEligibleForJob(
-  student: EligibleStudent,
-  job: EligibleJob,
-): boolean {
-  if (
-    job.minCGPA !== null &&
-    student.cgpa !== null &&
-    student.cgpa < job.minCGPA
-  ) {
-    return false;
-  }
-
-  if (job.maxBacklogs !== null && student.backlogs > job.maxBacklogs) {
-    return false;
-  }
-
-  const allowedBranches =
-    job.allowedBranches.length > 0
-      ? job.allowedBranches
-      : job.requiredBranch
-        ? [job.requiredBranch]
-        : [];
-
-  if (allowedBranches.length > 0) {
-    if (!branchMatches(studentBranchOf(student), allowedBranches)) {
       return false;
     }
   }
@@ -564,131 +525,6 @@ export async function getStudentDrives(userId: string) {
             isRegistered: false,
             eligible: isEligibleForDrive(student, drive),
           })),
-      };
-    },
-  );
-}
-
-export async function getStudentSkills(userId: string) {
-  return withAggregateCache(
-    aggregateCacheKey(userId, "skills"),
-    CACHE_TTL,
-    async () => {
-      const student = await resolveStudentForAggregates(userId);
-
-      if (!student) {
-        return null;
-      }
-
-      const skills = await db.studentSkill.findMany({
-        where: { studentId: student.id },
-        include: { skill: true },
-        orderBy: { createdAt: "desc" },
-      });
-
-      return {
-        skills,
-        count: skills.length,
-      };
-    },
-  );
-}
-
-export async function getStudentJobs(userId: string) {
-  return withAggregateCache(
-    aggregateCacheKey(userId, "jobs"),
-    CACHE_TTL,
-    async () => {
-      const student = await resolveStudentForAggregates(userId);
-
-      if (!student) {
-        return null;
-      }
-
-      const jobs = await db.job.findMany({
-        where: { status: { in: ["APPLICATIONS_OPEN", "PUBLISHED"] } },
-        orderBy: { createdAt: "desc" },
-        take: 50,
-        include: {
-          company: { select: companyCompactSelect },
-          skills: {
-            include: {
-              skill: { select: { id: true, name: true, type: true } },
-            },
-          },
-          applications: {
-            where: { studentId: student.id },
-            select: { id: true, status: true },
-          },
-        },
-      });
-
-      return {
-        jobs: jobs.map((job) => {
-          const application = job.applications[0] ?? null;
-
-          return {
-            ...job,
-            hasApplied: application !== null,
-            applicationStatus: application?.status ?? null,
-            eligible: isEligibleForJob(student, job),
-          };
-        }),
-      };
-    },
-  );
-}
-
-export async function getStudentApplications(userId: string) {
-  return withAggregateCache(
-    aggregateCacheKey(userId, "applications"),
-    VOLATILE_TTL,
-    async () => {
-      const student = await resolveStudentForAggregates(userId);
-
-      if (!student) {
-        return null;
-      }
-
-      const [applications, statusGroups] = await Promise.all([
-        db.application.findMany({
-          where: { studentId: student.id },
-          orderBy: { appliedAt: "desc" },
-          take: 50,
-          include: {
-            job: {
-              select: {
-                id: true,
-                title: true,
-                ctc: true,
-                location: true,
-                company: { select: companyCompactSelect },
-              },
-            },
-            matchResult: true,
-          },
-        }),
-        db.application.groupBy({
-          by: ["status"],
-          where: { studentId: student.id },
-          _count: { _all: true },
-        }),
-      ]);
-
-      const byStatus: Record<string, number> = {};
-      let total = 0;
-
-      for (const group of statusGroups) {
-        byStatus[group.status] = group._count._all;
-        total += group._count._all;
-      }
-
-      return {
-        applications,
-        stats: {
-          total,
-          byStatus,
-        },
       };
     },
   );

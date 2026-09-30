@@ -10,7 +10,7 @@ import {
 import {
   useStudentDashboard,
   useStudentReadiness,
-} from "@/hooks/use-student-aggregates";
+} from "@/hooks/use-student";
 import {
   toStudentStats,
   toReadinessCardProps,

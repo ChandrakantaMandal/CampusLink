@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentNotifications } from "@/hooks/use-student-aggregates";
+import { useStudentNotifications } from "@/hooks/use-student";
 import { toDashboardNotifications } from "@/lib/dashboard-adapters";
 
 export default function StudentNotifications() {

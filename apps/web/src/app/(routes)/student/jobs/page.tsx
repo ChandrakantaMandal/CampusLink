@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentJobs } from "@/hooks/use-student-aggregates";
+import { useStudentJobs } from "@/hooks/use-student";
 import { toRecommendedJobs } from "@/lib/dashboard-adapters";
 import { Briefcase, Sparkles } from "lucide-react";
 import { toast } from "sonner";

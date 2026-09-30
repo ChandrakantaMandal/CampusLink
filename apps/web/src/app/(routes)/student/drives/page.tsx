@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentDrives } from "@/hooks/use-student-aggregates";
+import { useStudentDrives } from "@/hooks/use-student";
 import { toUpcomingDrives } from "@/lib/dashboard-adapters";
 import { Building2 } from "lucide-react";
 import { toast } from "sonner";

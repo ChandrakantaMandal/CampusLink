@@ -484,16 +484,113 @@ export async function getMyDrives(): Promise<StudentDrivesData> {
   return getAggregate<StudentDrivesData>("/me/drives");
 }
 
+function isEligibleForJob(profile: StudentProfile, job: JobData): boolean {
+  if (
+    job.minCGPA !== null &&
+    profile.cgpa !== null &&
+    profile.cgpa < job.minCGPA
+  ) {
+    return false;
+  }
+
+  if (job.maxBacklogs !== null && profile.backlogs > job.maxBacklogs) {
+    return false;
+  }
+
+  const allowedBranches =
+    job.allowedBranches.length > 0
+      ? job.allowedBranches
+      : job.requiredBranch
+        ? [job.requiredBranch]
+        : [];
+
+  if (allowedBranches.length > 0) {
+    const studentBranch = (
+      profile.branch ??
+      profile.department ??
+      ""
+    ).toLowerCase();
+
+    if (studentBranch) {
+      const matches = allowedBranches.some(
+        (branch) => branch.toLowerCase() === studentBranch,
+      );
+
+      if (!matches) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 export async function getMySkills(): Promise<StudentSkillsData> {
-  return getAggregate<StudentSkillsData>("/me/skills");
+  const response = await api.get<AggregateResponse<StudentSkillData[]>>(
+    "/api/skills/student/me",
+  );
+
+  const skills = response.data.data;
+
+  return { skills, count: skills.length };
 }
 
 export async function getMyJobs(): Promise<StudentJobsData> {
-  return getAggregate<StudentJobsData>("/me/jobs");
+  const [jobsResponse, applicationsResponse, profile] = await Promise.all([
+    api.get<AggregateResponse<JobData[]>>("/api/jobs"),
+    api.get<AggregateResponse<ApplicationData[]>>("/api/applications/my"),
+    getMyStudentProfile(),
+  ]);
+
+  const jobs = jobsResponse.data.data;
+  const applications = applicationsResponse.data.data;
+
+  const applicationStatusByJob = new Map<string, string>();
+
+  for (const application of applications) {
+    if (!applicationStatusByJob.has(application.jobId)) {
+      applicationStatusByJob.set(application.jobId, application.status);
+    }
+  }
+
+  const openJobs = jobs
+    .filter(
+      (job) =>
+        job.status === "APPLICATIONS_OPEN" || job.status === "PUBLISHED",
+    )
+    .slice(0, 50);
+
+  return {
+    jobs: openJobs.map((job) => {
+      const applicationStatus = applicationStatusByJob.get(job.id) ?? null;
+
+      return {
+        ...job,
+        hasApplied: applicationStatus !== null,
+        applicationStatus,
+        eligible: isEligibleForJob(profile, job),
+      };
+    }),
+  };
 }
 
 export async function getMyApplications(): Promise<StudentApplicationsData> {
-  return getAggregate<StudentApplicationsData>("/me/applications");
+  const response = await api.get<AggregateResponse<ApplicationData[]>>(
+    "/api/applications/my",
+  );
+
+  const all = response.data.data;
+
+  const byStatus: Record<string, number> = {};
+
+  for (const application of all) {
+    byStatus[application.status] = (byStatus[application.status] ?? 0) + 1;
+  }
+
+  return {
+    applications: all.slice(0, 50),
+    stats: { total: all.length, byStatus },
+  };
 }
 
 export async function getMyInterviews(): Promise<StudentInterviewsData> {
