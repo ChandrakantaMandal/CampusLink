@@ -63,6 +63,8 @@ export interface PlacementDrive {
   applicantsCount: number;
   status: "Open" | "Ongoing" | "Draft" | "Applications Closed" | "Completed" | "Cancelled";
   tier: "Super Dream" | "Dream" | "Regular";
+  jobIds?: string[];
+  jobs?: { id: string; title: string }[];
 }
 
 export interface ApplicationItem {

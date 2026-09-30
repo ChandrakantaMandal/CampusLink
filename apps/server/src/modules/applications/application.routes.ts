@@ -31,11 +31,11 @@ router.get(
 // Authenticated user views an application
 router.get("/:id", requireAuth, getApplicationController);
 
-// Recruiter/Admin updates application status
+// Recruiter updates application status
 router.patch(
   "/:id/status",
   requireAuth,
-  requireRole("RECRUITER", "ADMIN"),
+  requireRole("RECRUITER"),
   updateApplicationStatusController,
 );
 

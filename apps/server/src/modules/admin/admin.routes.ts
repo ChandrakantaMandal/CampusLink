@@ -7,7 +7,6 @@ import {
   getDashboardStatsController,
   getUsersController,
   getUserController,
-  updateUserRoleController,
   deleteUserController,
   getStudentsController,
   getRecruitersController,
@@ -15,6 +14,12 @@ import {
   getJobsController,
   getApplicationsController,
   getAssessmentStatsController,
+  getDrivesController,
+  getDriveController,
+  createPlacementDriveController,
+  updatePlacementDriveController,
+  deletePlacementDriveController,
+  createRecruiterController,
 } from "./admin.controller";
 
 const router = Router();
@@ -32,14 +37,6 @@ router.get("/users", requireAuth, requireRole("ADMIN"), getUsersController);
 
 // Get a single user
 router.get("/users/:id", requireAuth, requireRole("ADMIN"), getUserController);
-
-// Update a user's role
-router.patch(
-  "/users/:id/role",
-  requireAuth,
-  requireRole("ADMIN"),
-  updateUserRoleController,
-);
 
 // Delete a user
 router.delete(
@@ -63,6 +60,13 @@ router.get(
   requireAuth,
   requireRole("ADMIN"),
   getRecruitersController,
+);
+// Create a recruiter
+router.post(
+  "/recruiters",
+  requireAuth,
+  requireRole("ADMIN"),
+  createRecruiterController,
 );
 
 // Get all companies
@@ -90,6 +94,41 @@ router.get(
   requireAuth,
   requireRole("ADMIN"),
   getAssessmentStatsController,
+);
+
+// Get all placement drives
+router.get("/drives", requireAuth, requireRole("ADMIN"), getDrivesController);
+
+// Get a single placement drive
+router.get(
+  "/drives/:id",
+  requireAuth,
+  requireRole("ADMIN"),
+  getDriveController,
+);
+
+// Create a placement drive
+router.post(
+  "/drives",
+  requireAuth,
+  requireRole("ADMIN"),
+  createPlacementDriveController,
+);
+
+// Update a placement drive
+router.patch(
+  "/drives/:id",
+  requireAuth,
+  requireRole("ADMIN"),
+  updatePlacementDriveController,
+);
+
+// Delete a placement drive
+router.delete(
+  "/drives/:id",
+  requireAuth,
+  requireRole("ADMIN"),
+  deletePlacementDriveController,
 );
 
 export default router;
