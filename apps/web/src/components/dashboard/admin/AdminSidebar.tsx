@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   ChevronRight,
 } from "lucide-react";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 interface AdminSidebarProps {
   isOpen?: boolean;
@@ -147,10 +147,9 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useAuth();
 
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=tpo" as Route);
   };
 

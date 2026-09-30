@@ -17,7 +17,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
 import { mockNotifications } from "./mock-admin-data";
 
 interface AdminHeaderProps {
@@ -27,11 +27,10 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { signOut } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=tpo" as Route);
   };
 

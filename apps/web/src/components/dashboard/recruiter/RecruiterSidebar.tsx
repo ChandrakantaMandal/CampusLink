@@ -22,7 +22,7 @@ import {
   Building2,
   ChevronRight,
 } from "lucide-react";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 interface RecruiterSidebarProps {
   isOpen?: boolean;
@@ -152,10 +152,9 @@ export default function RecruiterSidebar({
 }: RecruiterSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useAuth();
 
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=recruiter" as Route);
   };
 
