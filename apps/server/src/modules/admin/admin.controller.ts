@@ -1,12 +1,15 @@
 import type { Request, Response } from "express";
 
-import { updateUserRoleSchema } from "./admin.schema";
+import {
+  createPlacementDriveSchema,
+  updatePlacementDriveSchema,
+  createRecruiterSchema,
+} from "./admin.schema";
 
 import {
   getDashboardStats,
   getUsers,
   getUserById,
-  updateUserRole,
   deleteUser,
   getStudents,
   getRecruiters,
@@ -14,6 +17,12 @@ import {
   getJobs,
   getApplications,
   getAssessmentStats,
+  getDrives,
+  getDriveById,
+  createPlacementDrive,
+  updatePlacementDrive,
+  deletePlacementDrive,
+  createRecruiter,
 } from "./admin.service";
 
 export async function getDashboardStatsController(
@@ -86,35 +95,6 @@ export async function getUserController(req: Request, res: Response) {
   }
 }
 
-export async function updateUserRoleController(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-
-    const data = updateUserRoleSchema.parse(req.body);
-
-    const user = await updateUserRole(id, data);
-
-    return res.json({
-      success: true,
-      message: "User role updated successfully",
-      data: user,
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message:
-        error instanceof Error ? error.message : "Failed to update user role",
-    });
-  }
-}
-
 export async function deleteUserController(req: Request, res: Response) {
   try {
     const { id } = req.params;
@@ -170,6 +150,25 @@ export async function getRecruitersController(_req: Request, res: Response) {
       success: false,
       message:
         error instanceof Error ? error.message : "Failed to get recruiters",
+    });
+  }
+}
+
+export async function createRecruiterController(req: Request, res: Response) {
+  try {
+    const data = createRecruiterSchema.parse(req.body);
+
+    const recruiter = await createRecruiter(data);
+
+    return res.status(201).json({
+      success: true,
+      message: "Recruiter created successfully",
+      data: recruiter,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to create recruiter",
     });
   }
 }
@@ -242,6 +241,150 @@ export async function getAssessmentStatsController(
         error instanceof Error
           ? error.message
           : "Failed to get assessment statistics",
+    });
+  }
+}
+
+export async function getDrivesController(_req: Request, res: Response) {
+  try {
+    const drives = await getDrives();
+
+    return res.json({
+      success: true,
+      data: drives,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to get placement drives",
+    });
+  }
+}
+
+export async function getDriveController(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid drive ID",
+      });
+    }
+
+    const drive = await getDriveById(id);
+
+    if (!drive) {
+      return res.status(404).json({
+        success: false,
+        message: "Placement drive not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: drive,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to get placement drive",
+    });
+  }
+}
+
+export async function createPlacementDriveController(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const data = createPlacementDriveSchema.parse(req.body);
+
+    const drive = await createPlacementDrive(data);
+
+    return res.status(201).json({
+      success: true,
+      message: "Placement drive created successfully",
+      data: drive,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to create placement drive",
+    });
+  }
+}
+
+export async function updatePlacementDriveController(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid drive ID",
+      });
+    }
+
+    const data = updatePlacementDriveSchema.parse(req.body);
+
+    const drive = await updatePlacementDrive(id, data);
+
+    return res.json({
+      success: true,
+      message: "Placement drive updated successfully",
+      data: drive,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to update placement drive",
+    });
+  }
+}
+
+export async function deletePlacementDriveController(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid drive ID",
+      });
+    }
+
+    await deletePlacementDrive(id);
+
+    return res.json({
+      success: true,
+      message: "Placement drive deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete placement drive",
     });
   }
 }

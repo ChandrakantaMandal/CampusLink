@@ -9,11 +9,9 @@ import {
   getStudentDashboard,
   getStudentDrives,
   getStudentInterviews,
-  getStudentJobs,
   getStudentNotifications,
   getStudentOffers,
   getStudentReadiness,
-  getStudentSkills,
   updateStudent,
 } from "./student.service";
 
@@ -139,14 +137,6 @@ export const getMyStudentDashboard = makeAggregateHandler(getStudentDashboard);
 export const getMyStudentReadiness = makeAggregateHandler(getStudentReadiness);
 
 export const getMyStudentDrives = makeAggregateHandler(getStudentDrives);
-
-export const getMyStudentSkills = makeAggregateHandler(getStudentSkills);
-
-export const getMyStudentJobs = makeAggregateHandler(getStudentJobs);
-
-export const getMyStudentApplications = makeAggregateHandler(
-  getStudentApplications,
-);
 
 export const getMyStudentInterviews = makeAggregateHandler(
   getStudentInterviews,

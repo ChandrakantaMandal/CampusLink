@@ -13,7 +13,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
 import { useStudentDashboard, useStudentNotifications } from "@/hooks/use-student";
 import { useStudentProfile } from "@/hooks/use-student";
 
@@ -33,14 +33,13 @@ export default function StudentHeader({
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { signOut } = useAuth();
   const router = useRouter();
   const dashboard = useStudentDashboard();
   const notifications = useStudentNotifications();
   const profile = useStudentProfile();
 
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=student" as Route);
   };
 

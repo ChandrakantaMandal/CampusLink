@@ -4,25 +4,69 @@ import React, { useState } from "react";
 import {
   Briefcase,
   Search,
-  Filter,
   Building2,
   MapPin,
   Calendar,
   CheckCircle2,
   AlertCircle,
-  ExternalLink,
   Sparkles,
   ArrowRight,
   Download,
-  Clock,
-  Award
 } from "lucide-react";
 import { toast } from "sonner";
-import { mockDashboardData } from "@/data/dashboardData";
+import {
+  AggregateError,
+  AggregateLoading,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentJobs } from "@/hooks/use-student";
+import { formatDate } from "@/lib/dashboard-adapters";
 
 interface OpportunitiesViewProps {
   studentCgpa?: string;
   department?: string;
+}
+
+interface Opportunity {
+  id: string;
+  company: string;
+  role: string;
+  ctc: string;
+  type: string;
+  category: "Super Dream" | "Dream" | "Standard";
+  location: string;
+  deadline: string;
+  minCgpa: number | null;
+  eligibleBranches: string[];
+  skills: string[];
+  description: string;
+  isEligible: boolean;
+  hasApplied: boolean;
+}
+
+function ctcLpa(ctc: string | null): number | null {
+  if (!ctc) return null;
+  const m = ctc.replace(/,/g, "").match(/\d+(\.\d+)?/);
+  if (!m) return null;
+  let n = parseFloat(m[0]);
+  if (n > 1000) n = n / 100000;
+  return n;
+}
+
+function ctcCategory(ctc: string | null): Opportunity["category"] {
+  const n = ctcLpa(ctc);
+  if (n == null) return "Standard";
+  if (n >= 25) return "Super Dream";
+  if (n >= 15) return "Dream";
+  return "Standard";
+}
+
+function employmentTypeLabel(value: string | null): string {
+  if (!value) return "Full-Time";
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 export function OpportunitiesView({
@@ -32,123 +76,50 @@ export function OpportunitiesView({
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [minCtcFilter, setMinCtcFilter] = useState<number>(0);
-  const [appliedDrives, setAppliedDrives] = useState<Record<string, boolean>>({
-    "drive-1": true, // Google registered by default
-  });
+  const [appliedDrives, setAppliedDrives] = useState<Record<string, boolean>>({});
 
-  const opportunities = [
-    {
-      id: "opp-1",
-      company: "Google India",
-      role: "Software Development Engineer (SDE-1)",
-      ctc: "₹32.5 LPA",
-      stipend: "₹1,25,000 / mo",
-      type: "Full-Time + Internship",
-      category: "Super Dream",
-      location: "Bangalore / Hyderabad",
-      deadline: "Oct 05, 2026",
-      driveDate: "Oct 12, 2026",
-      minCgpa: 8.0,
-      eligibleBranches: ["CSE", "IT", "ECE"],
-      skills: ["Data Structures", "Algorithms", "C++ / Java", "System Design"],
-      description: "Core engineering role across Google Cloud and Search platforms. High problem-solving and algorithmic rigor expected.",
-      isEligible: true,
-      registeredCount: 142,
-    },
-    {
-      id: "opp-2",
-      company: "Microsoft IDC",
-      role: "Software Engineer",
-      ctc: "₹28.0 LPA",
-      stipend: "₹1,00,000 / mo",
-      type: "Full-Time",
-      category: "Super Dream",
-      location: "Hyderabad / Noida",
-      deadline: "Oct 08, 2026",
-      driveDate: "Oct 15, 2026",
-      minCgpa: 7.5,
-      eligibleBranches: ["CSE", "IT", "ECE", "EE"],
-      skills: ["Azure", "C# / Java", "Distributed Systems", "SQL"],
-      description: "Build hyper-scale enterprise infrastructure and AI copilots for global Fortune 500 customers.",
-      isEligible: true,
-      registeredCount: 210,
-    },
-    {
-      id: "opp-3",
-      company: "Amazon AWS",
-      role: "Cloud Solutions Architect - Associate",
-      ctc: "₹24.0 LPA",
-      stipend: "₹80,000 / mo",
-      type: "Full-Time",
-      category: "Dream",
-      location: "Bangalore",
-      deadline: "Oct 10, 2026",
-      driveDate: "Oct 18, 2026",
-      minCgpa: 7.0,
-      eligibleBranches: ["All Engineering Branches"],
-      skills: ["AWS", "Networking", "Linux", "Python", "Kubernetes"],
-      description: "Partner with enterprise tech leaders to architect resilient, cloud-native deployments.",
-      isEligible: true,
-      registeredCount: 185,
-    },
-    {
-      id: "opp-4",
-      company: "TCS Digital",
-      role: "Systems Engineer (Digital Cadre)",
-      ctc: "₹9.2 LPA",
-      stipend: "₹35,000 / mo",
-      type: "Full-Time",
-      category: "Standard",
-      location: "Pan-India",
-      deadline: "Sep 30, 2026",
-      driveDate: "Oct 08, 2026",
-      minCgpa: 7.0,
-      eligibleBranches: ["All Engineering Branches"],
-      skills: ["Full Stack", "Java", "Python", "Cloud Fundamentals"],
-      description: "Digital transformation engineering for international banking and healthcare giants.",
-      isEligible: true,
-      registeredCount: 420,
-    },
-    {
-      id: "opp-5",
-      company: "Oracle India",
-      role: "Member of Technical Staff (MTS)",
-      ctc: "₹21.5 LPA",
-      stipend: "₹75,000 / mo",
-      type: "Full-Time",
-      category: "Dream",
-      location: "Bangalore / Pune",
-      deadline: "Oct 14, 2026",
-      driveDate: "Oct 22, 2026",
-      minCgpa: 7.5,
-      eligibleBranches: ["CSE", "IT"],
-      skills: ["Autonomous DB", "Java Core", "Microservices", "REST APIs"],
-      description: "Develop cutting-edge cloud database engine modules and high-availability storage subsystems.",
-      isEligible: true,
-      registeredCount: 165,
-    },
-    {
-      id: "opp-6",
-      company: "Deloitte USI",
-      role: "Analyst - Cyber Security & Cloud",
-      ctc: "₹8.8 LPA",
-      stipend: "₹30,000 / mo",
-      type: "Full-Time",
-      category: "Standard",
-      location: "Hyderabad / Gurgaon",
-      deadline: "Oct 18, 2026",
-      driveDate: "Oct 26, 2026",
-      minCgpa: 6.5,
-      eligibleBranches: ["CSE", "IT", "ECE"],
-      skills: ["Network Security", "Risk Assessment", "SIEM", "Python"],
-      description: "Security operations center (SOC) analytics and cloud vulnerability management.",
-      isEligible: true,
-      registeredCount: 310,
-    },
-  ];
+  const jobs = useStudentJobs();
+
+  if (jobs.loading) {
+    return <AggregateLoading label="Loading opportunities..." />;
+  }
+
+  if (jobs.error) {
+    return (
+      <AggregateError message={jobs.error} onRetry={jobs.refresh} />
+    );
+  }
+
+  const opportunities: Opportunity[] = (jobs.data?.jobs ?? []).map((job) => ({
+    id: job.id,
+    company: job.company.name,
+    role: job.title,
+    ctc: job.ctc ?? "—",
+    type: employmentTypeLabel(job.employmentType),
+    category: ctcCategory(job.ctc),
+    location: job.location ?? "—",
+    deadline: job.applicationDeadline
+      ? formatDate(job.applicationDeadline)
+      : "—",
+    minCgpa: job.minCGPA,
+    eligibleBranches:
+      job.allowedBranches.length > 0
+        ? job.allowedBranches
+        : job.requiredBranch
+          ? [job.requiredBranch]
+          : [],
+    skills: job.skills.map((entry) => entry.skill.name),
+    description: job.description,
+    isEligible: job.eligible,
+    hasApplied: job.hasApplied,
+  }));
 
   const handleApply = (id: string, company: string, role: string) => {
-    if (appliedDrives[id]) {
+    const alreadyApplied =
+      appliedDrives[id] ??
+      opportunities.find((opp) => opp.id === id)?.hasApplied ??
+      false;
+    if (alreadyApplied) {
       toast.info(`Already registered for ${company} (${role})`);
       return;
     }
@@ -238,7 +209,7 @@ export function OpportunitiesView({
       {/* Opportunities List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filteredOpportunities.map((item) => {
-          const isApplied = appliedDrives[item.id];
+          const isApplied = appliedDrives[item.id] ?? item.hasApplied;
           return (
             <div
               key={item.id}
@@ -283,16 +254,16 @@ export function OpportunitiesView({
                     </p>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Stipend (Intern)</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Application Deadline</span>
                     <p className="font-semibold text-slate-700 dark:text-slate-300 text-xs mt-0.5">
-                      {item.stipend}
+                      {item.deadline}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Drive Date</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Employment Type</span>
                     <p className="font-medium text-slate-700 dark:text-slate-300 text-xs mt-0.5 flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-400" />
-                      {item.driveDate}
+                      <Briefcase className="w-3 h-3 text-slate-400" />
+                      {item.type}
                     </p>
                   </div>
                   <div>
@@ -324,10 +295,17 @@ export function OpportunitiesView({
 
               {/* Bottom Actions */}
               <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Eligible (Min: {item.minCgpa} CGPA)
-                </div>
+                {item.isEligible ? (
+                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Eligible{item.minCgpa != null ? ` (Min: ${item.minCgpa} CGPA)` : ""}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    Not Eligible{item.minCgpa != null ? ` (Min: ${item.minCgpa} CGPA)` : ""}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2">
                   <button

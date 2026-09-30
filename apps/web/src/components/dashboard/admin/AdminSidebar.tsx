@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   ChevronRight,
 } from "lucide-react";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
+import { getDashboardStats, type DashboardStats } from "@/lib/api/admin.api";
 
 interface AdminSidebarProps {
   isOpen?: boolean;
@@ -147,10 +148,14 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useAuth();
+  const [stats, setStats] = React.useState<DashboardStats | null>(null);
+
+  React.useEffect(() => {
+    getDashboardStats().then(setStats).catch(console.error);
+  }, []);
 
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=tpo" as Route);
   };
 
@@ -225,6 +230,15 @@ export default function AdminSidebar({
                 const isNestedActive =
                   item.href !== "/admin/dashboard" && pathname.startsWith(`${item.href}/`);
                 const isActive = isExactActive || isNestedActive;
+                
+                let badge = item.badge;
+                if (stats) {
+                  if (item.id === "students") badge = (stats.users?.students ?? 0).toLocaleString();
+                  if (item.id === "recruiters") badge = (stats.users?.recruiters ?? 0).toLocaleString();
+                  if (item.id === "drives") badge = (stats.drives ?? 0).toLocaleString();
+                  if (item.id === "applications") badge = (stats.applications ?? 0).toLocaleString();
+                  if (item.id === "offers") badge = (stats.offers ?? 0).toLocaleString();
+                }
 
                 return (
                   <Link
@@ -251,7 +265,7 @@ export default function AdminSidebar({
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      {item.badge && (
+                      {badge && (
                         <span
                           className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                             item.badgeColor ||
@@ -260,7 +274,7 @@ export default function AdminSidebar({
                               : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300")
                           }`}
                         >
-                          {item.badge}
+                          {badge}
                         </span>
                       )}
                     </div>

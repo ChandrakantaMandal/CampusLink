@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -19,15 +19,37 @@ import {
   Phone,
   ArrowRight,
 } from "lucide-react";
-import { mockRecruiters, type AdminRecruiter } from "../mock-admin-data";
+import type { AdminRecruiter } from "../mock-admin-data";
+import { getAdminRecruiters, createAdminRecruiter } from "@/lib/api/admin.api";
+import { VIEW_TO_TIER } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function RecruitersManagementView() {
-  const [recruiters, setRecruiters] = useState<AdminRecruiter[]>(mockRecruiters);
+  const [recruiters, setRecruiters] = useState<AdminRecruiter[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedRecruiter, setSelectedRecruiter] = useState<AdminRecruiter | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getAdminRecruiters()
+      .then((data) => {
+        if (!cancelled) setRecruiters(data);
+      })
+      .catch(() => {
+        toast.error("Failed to load recruiters");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [newRecruiter, setNewRecruiter] = useState({
     name: "",
@@ -70,35 +92,46 @@ export default function RecruitersManagementView() {
     toast.info("Recruiter deactivated.");
   };
 
-  const handleCreateRecruiter = (e: React.FormEvent) => {
+  const handleCreateRecruiter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRecruiter.name || !newRecruiter.email) {
       toast.error("Please fill in company name and recruiter email");
       return;
     }
 
-    const created: AdminRecruiter = {
-      id: `rec-${Date.now()}`,
-      name: newRecruiter.name,
-      logo: "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg",
-      contactPerson: newRecruiter.contactPerson || "Lead Recruiter",
-      email: newRecruiter.email,
-      phone: newRecruiter.phone || "+91 80 0000 0000",
-      industry: newRecruiter.industry,
-      website: newRecruiter.website || "https://example.com",
-      jobsCount: 1,
-      drivesCount: 1,
-      status: "Active",
-      tier: newRecruiter.tier,
-      packageRange: newRecruiter.packageRange,
-      eligibilityCriteria: newRecruiter.eligibilityCriteria,
-      activeDrives: ["Graduate Engineering Trainee"],
-    };
+    try {
+      const created = await createAdminRecruiter({
+        name: newRecruiter.name,
+        contactPerson: newRecruiter.contactPerson,
+        email: newRecruiter.email,
+        phone: newRecruiter.phone,
+        industry: newRecruiter.industry,
+        website: newRecruiter.website,
+        packageRange: newRecruiter.packageRange,
+        eligibilityCriteria: newRecruiter.eligibilityCriteria,
+        tier: VIEW_TO_TIER[newRecruiter.tier] || "TIER_2",
+      });
 
-    setRecruiters([created, ...recruiters]);
-    setIsAddModalOpen(false);
-    toast.success(`${created.name} added to campus recruitment roster!`);
+      setRecruiters([created, ...recruiters]);
+      setIsAddModalOpen(false);
+      toast.success(`${created.name} added to campus recruitment roster!`);
+      
+      setNewRecruiter({
+        name: "",
+        contactPerson: "",
+        email: "",
+        phone: "",
+        industry: "Information Technology",
+        website: "",
+        packageRange: "₹8 - ₹15 LPA",
+        eligibilityCriteria: "CGPA ≥ 7.0, 0 Backlogs",
+        tier: "Dream" as const,
+      });
+    } catch (error) {
+      toast.error("Failed to create recruiter");
+    }
   };
+
 
   return (
     <div className="space-y-6">
@@ -172,7 +205,21 @@ export default function RecruitersManagementView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-              {filteredRecruiters.map((rec) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    Loading recruiters…
+                  </td>
+                </tr>
+              ) : filteredRecruiters.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    No recruiters found.
+                  </td>
+                </tr>
+              ) : null}
+              {!loading &&
+                filteredRecruiters.map((rec) => (
                 <tr
                   key={rec.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
