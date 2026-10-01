@@ -290,6 +290,102 @@ describe("Admin API Integration Tests", () => {
     });
   });
 
+  describe("GET /api/admin/offers", () => {
+    it("should reject unauthenticated requests", async () => {
+      const response = await request(app).get("/api/admin/offers");
+
+      expect(response.status).toBe(401);
+    });
+
+    it("should reject non-admin users", async () => {
+      const response = await request(app)
+        .get("/api/admin/offers")
+        .set("Authorization", `Bearer ${studentSessionToken}`);
+
+      expect(response.status).toBe(403);
+    });
+
+    it("should return all offers for an admin", async () => {
+      const response = await request(app)
+        .get("/api/admin/offers")
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+
+    it("should include seeded offer with student, company and job data", async () => {
+      const user = await db.user.create({
+        data: {
+          id: `offer-student-${Date.now()}`,
+          email: `offer-student-${Date.now()}@example.com`,
+          name: "Offer Test Student",
+          emailVerified: true,
+          role: "STUDENT",
+        },
+      });
+
+      const studentProfile = await db.studentProfile.create({
+        data: {
+          userId: user.id,
+          rollNo: `ROLL-${Date.now()}`,
+          firstName: "Offer",
+          lastName: "Test",
+          branch: "CSE",
+        },
+      });
+
+      const company = await db.company.create({
+        data: {
+          name: `Offer Test Co ${Date.now()}`,
+        },
+      });
+
+      const offer = await db.offer.create({
+        data: {
+          studentId: studentProfile.id,
+          companyId: company.id,
+          role: "Software Engineer",
+          ctc: "7.5",
+          offerDate: new Date(),
+          status: "SENT",
+        },
+      });
+
+      try {
+        const response = await request(app)
+          .get("/api/admin/offers")
+          .set("Authorization", `Bearer ${adminSessionToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+
+        const created = response.body.data.find(
+          (item: { id: string }) => item.id === offer.id,
+        );
+
+        expect(created).toBeDefined();
+        expect(created.company.id).toBe(company.id);
+        expect(created.student.id).toBe(studentProfile.id);
+        expect(created.role).toBe("Software Engineer");
+      } finally {
+        await db.offer.deleteMany({
+          where: { id: offer.id },
+        });
+        await db.company.deleteMany({
+          where: { id: company.id },
+        });
+        await db.studentProfile.deleteMany({
+          where: { id: studentProfile.id },
+        });
+        await db.user.deleteMany({
+          where: { id: user.id },
+        });
+      }
+    }, 15_000);
+  });
+
   describe("Placement drives", () => {
     let companyId: string;
     let driveId: string;

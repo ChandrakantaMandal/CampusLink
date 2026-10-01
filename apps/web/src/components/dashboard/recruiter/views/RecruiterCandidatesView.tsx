@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Users,
   Search,
@@ -19,16 +19,42 @@ import {
   AlertTriangle,
   Code2,
   Globe,
+  Loader2,
 } from "lucide-react";
-import { mockRecruiterCandidates, type RecruiterCandidate } from "../mock-recruiter-data";
+import { type RecruiterCandidate } from "../mock-recruiter-data";
+import { getApplications, updateApplicationStatus } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterCandidatesView() {
-  const [candidates, setCandidates] = useState<RecruiterCandidate[]>(mockRecruiterCandidates);
+  const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [branchFilter, setBranchFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedCandidate, setSelectedCandidate] = useState<RecruiterCandidate | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getApplications()
+      .then((data) => {
+        if (!cancelled) setCandidates(data);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          toast.error("Failed to load candidates", {
+            description: "Please try again later.",
+          });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredCandidates = candidates.filter((cand) => {
     const matchesSearch =
@@ -43,7 +69,16 @@ export default function RecruiterCandidatesView() {
     return matchesSearch && matchesBranch && matchesStatus;
   });
 
-  const handleStatusChange = (candId: string, newStatus: RecruiterCandidate["status"]) => {
+  const handleStatusChange = async (candId: string, newStatus: RecruiterCandidate["status"]) => {
+    try {
+      await updateApplicationStatus(candId, newStatus);
+    } catch {
+      toast.error("Failed to update status", {
+        description: "The candidate status could not be changed.",
+      });
+      return;
+    }
+
     setCandidates((prev) =>
       prev.map((c) => (c.id === candId ? { ...c, status: newStatus } : c))
     );
@@ -136,7 +171,33 @@ export default function RecruiterCandidatesView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-              {filteredCandidates.map((cand) => (
+              {loading && (
+                <tr>
+                  <td colSpan={8} className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400" />
+                      <p className="text-xs font-bold">Loading candidates...</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading && filteredCandidates.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="p-10 text-center">
+                    <div className="flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <Users className="h-6 w-6 text-slate-400" />
+                      <p className="text-xs font-bold">No candidates found</p>
+                      <p className="text-[11px] text-slate-400">
+                        {candidates.length === 0
+                          ? "There are no applications yet."
+                          : "Try adjusting your search or filters."}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                filteredCandidates.map((cand) => (
                 <tr
                   key={cand.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors"
