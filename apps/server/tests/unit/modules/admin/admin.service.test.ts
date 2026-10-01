@@ -11,6 +11,7 @@ import {
   getDrives,
   getDriveById,
   getJobs,
+  getOffers,
   getRecruiters,
   getStudents,
   getUserById,
@@ -47,6 +48,7 @@ vi.mock("../../../../src/services", () => ({
       findUnique: vi.fn(),
     },
     placementDrive: {
+      count: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
@@ -66,6 +68,9 @@ vi.mock("../../../../src/services", () => ({
     },
     assessmentResult: {
       count: vi.fn(),
+    },
+    offer: {
+      findMany: vi.fn(),
     },
   },
 }));
@@ -120,6 +125,7 @@ describe("admin.service", () => {
       vi.mocked(db.job.count).mockResolvedValue(5);
       vi.mocked(db.application.count).mockResolvedValue(20);
       vi.mocked(db.assessment.count).mockResolvedValue(4);
+      vi.mocked(db.placementDrive.count).mockResolvedValue(3);
 
       const result = await getDashboardStats();
 
@@ -134,6 +140,8 @@ describe("admin.service", () => {
         jobs: 5,
         applications: 20,
         assessments: 4,
+        drives: 3,
+        offers: 20,
       });
 
       expect(redis.set).toHaveBeenCalled();
@@ -548,6 +556,96 @@ describe("admin.service", () => {
     });
   });
 
+  describe("getOffers", () => {
+    it("should return cached offers", async () => {
+      const offers = [
+        {
+          id: "offer-1",
+          studentId: "student-1",
+          companyId: "company-1",
+          role: "SDE",
+        },
+      ];
+
+      vi.mocked(redis.get).mockResolvedValueOnce(JSON.stringify(offers));
+
+      const result = await getOffers();
+
+      expect(result).toEqual(offers);
+      expect(db.offer.findMany).not.toHaveBeenCalled();
+      expect(redis.set).not.toHaveBeenCalled();
+    });
+
+    it("should fetch offers when cache is empty", async () => {
+      const offers = [
+        {
+          id: "offer-1",
+          studentId: "student-1",
+          companyId: "company-1",
+          role: "SDE",
+        },
+      ];
+
+      vi.mocked(db.offer.findMany).mockResolvedValue(offers as never);
+
+      const result = await getOffers();
+
+      expect(result).toEqual(offers);
+      expect(db.offer.findMany).toHaveBeenCalledWith({
+        include: {
+          student: {
+            select: {
+              id: true,
+              rollNo: true,
+              firstName: true,
+              lastName: true,
+              branch: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          },
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logoUrl: true,
+            },
+          },
+          job: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+        orderBy: {
+          offerDate: "desc",
+        },
+      });
+      expect(redis.set).toHaveBeenCalledWith(
+        "admin:offers",
+        JSON.stringify(offers),
+        "EX",
+        300,
+      );
+    });
+
+    it("should return an empty array when there are no offers", async () => {
+      vi.mocked(db.offer.findMany).mockResolvedValue([] as never);
+
+      const result = await getOffers();
+
+      expect(result).toEqual([]);
+      expect(db.offer.findMany).toHaveBeenCalled();
+      expect(redis.set).toHaveBeenCalledWith("admin:offers", "[]", "EX", 300);
+    });
+  });
+
   describe("createPlacementDrive", () => {
     const input = {
       companyId: "company-1",
@@ -588,8 +686,11 @@ describe("admin.service", () => {
       const result = await createPlacementDrive(input);
 
       expect(result).toEqual(drive);
+
+      const { jobIds: _jobIds, ...rest } = input;
+
       expect(db.placementDrive.create).toHaveBeenCalledWith({
-        data: input,
+        data: { ...rest, jobs: { connect: [] } },
       });
       expect(redis.del).toHaveBeenCalledWith("admin:drives");
     });

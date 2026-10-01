@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -16,19 +16,36 @@ import {
   X,
   Filter,
 } from "lucide-react";
-import { mockNotifications, type SystemNotification } from "../mock-admin-data";
+import type { SystemNotification } from "../mock-admin-data";
+import {
+  getAdminNotifications,
+  markAdminNotificationRead,
+  markAllAdminNotificationsRead,
+  broadcastNotification,
+  type BroadcastAudience,
+  type BroadcastPriority,
+} from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function AdminNotificationsView() {
-  const [notifications, setNotifications] = useState<SystemNotification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<SystemNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState("all");
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
   const [broadcastMessage, setBroadcastMessage] = useState({
     title: "",
-    audience: "All Students",
-    priority: "High",
+    audience: "ALL_STUDENTS" as BroadcastAudience,
+    priority: "HIGH" as BroadcastPriority,
     body: "",
   });
+
+  useEffect(() => {
+    getAdminNotifications()
+      .then((result) => setNotifications(result.notifications))
+      .catch(() => toast.error("Failed to load notifications"))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = notifications.filter((n) => {
     if (filter === "unread") return !n.read;
@@ -36,37 +53,63 @@ export default function AdminNotificationsView() {
     return true;
   });
 
-  const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const hasUnread = notifications.some((n) => !n.read);
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markAdminNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+    } catch {
+      toast.error("Failed to mark notification as read");
+    }
   };
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    toast.success("All placement notifications marked as read!");
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllAdminNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      toast.success("All placement notifications marked as read!");
+    } catch {
+      toast.error("Failed to mark notifications as read");
+    }
   };
 
-  const handleSendBroadcast = (e: React.FormEvent) => {
+  const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!broadcastMessage.title || !broadcastMessage.body) {
       toast.error("Please enter notification title and message body");
       return;
     }
 
-    const created: SystemNotification = {
-      id: `notif-${Date.now()}`,
-      type: "info",
-      title: `📢 ${broadcastMessage.title}`,
-      description: broadcastMessage.body,
-      time: "Just now",
-      read: false,
-    };
+    setSending(true);
+    try {
+      const { notification, recipients } = await broadcastNotification({
+        title: broadcastMessage.title,
+        message: broadcastMessage.body,
+        audience: broadcastMessage.audience,
+        priority: broadcastMessage.priority,
+      });
 
-    setNotifications([created, ...notifications]);
-    setIsBroadcastModalOpen(false);
-    setBroadcastMessage({ title: "", audience: "All Students", priority: "High", body: "" });
-    toast.success(`Announcement broadcasted to ${broadcastMessage.audience}!`);
+      setNotifications((prev) => [notification, ...prev]);
+      setIsBroadcastModalOpen(false);
+      setBroadcastMessage({
+        title: "",
+        audience: "ALL_STUDENTS",
+        priority: "HIGH",
+        body: "",
+      });
+      toast.success(
+        `Announcement sent to ${recipients} ${
+          broadcastMessage.audience === "RECRUITERS" ? "recruiters" : "students"
+        }!`
+      );
+    } catch {
+      toast.error("Failed to broadcast notification");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -87,7 +130,8 @@ export default function AdminNotificationsView() {
           <button
             type="button"
             onClick={handleMarkAllRead}
-            className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-2xs"
+            disabled={!hasUnread || loading}
+            className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-2xs disabled:cursor-not-allowed disabled:opacity-50"
           >
             Mark All Read
           </button>
@@ -122,7 +166,24 @@ export default function AdminNotificationsView() {
 
       {/* Notifications List */}
       <div className="space-y-3">
-        {filtered.map((item) => (
+        {loading ? (
+          <div className="py-16 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">
+            Loading notifications...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 py-16 text-center">
+            <Bell className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-600" />
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+              {notifications.length === 0
+                ? "No notifications yet"
+                : `No ${filter} alerts`}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              Broadcasts and placement alerts will appear here.
+            </p>
+          </div>
+        ) : (
+        filtered.map((item) => (
           <div
             key={item.id}
             className={`p-4 rounded-3xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
@@ -192,7 +253,8 @@ export default function AdminNotificationsView() {
               )}
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Broadcast Announcement Modal */}
@@ -233,12 +295,11 @@ export default function AdminNotificationsView() {
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Target Audience</label>
                   <select
                     value={broadcastMessage.audience}
-                    onChange={(e) => setBroadcastMessage({ ...broadcastMessage, audience: e.target.value })}
+                    onChange={(e) => setBroadcastMessage({ ...broadcastMessage, audience: e.target.value as BroadcastAudience })}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
                   >
-                    <option value="All Students">All Registered Students (1,240)</option>
-                    <option value="Eligible Cohort">Eligible Candidates Only (980)</option>
-                    <option value="Recruiters">Corporate Recruiters (42)</option>
+                    <option value="ALL_STUDENTS">All Registered Students</option>
+                    <option value="RECRUITERS">Corporate Recruiters</option>
                   </select>
                 </div>
 
@@ -246,12 +307,12 @@ export default function AdminNotificationsView() {
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Priority</label>
                   <select
                     value={broadcastMessage.priority}
-                    onChange={(e) => setBroadcastMessage({ ...broadcastMessage, priority: e.target.value })}
+                    onChange={(e) => setBroadcastMessage({ ...broadcastMessage, priority: e.target.value as BroadcastPriority })}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
                   >
-                    <option value="High">High (Push + In-app)</option>
-                    <option value="Urgent">Urgent Banner</option>
-                    <option value="Normal">Normal Notification</option>
+                    <option value="HIGH">High (Push + In-app)</option>
+                    <option value="URGENT">Urgent Banner</option>
+                    <option value="MEDIUM">Normal Notification</option>
                   </select>
                 </div>
               </div>
@@ -280,9 +341,10 @@ export default function AdminNotificationsView() {
                 </button>
                 <button
                   type="submit"
-                  className="cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2 font-bold text-white shadow-md shadow-indigo-600/20"
+                  disabled={sending}
+                  className="cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2 font-bold text-white shadow-md shadow-indigo-600/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Send Announcement
+                  {sending ? "Sending..." : "Send Announcement"}
                 </button>
               </div>
             </form>

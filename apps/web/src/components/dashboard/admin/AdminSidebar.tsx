@@ -24,7 +24,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { getDashboardStats, type DashboardStats } from "@/lib/api/admin.api";
+import { getDashboardStats, getAdminInterviews, getAdminNotifications, type DashboardStats } from "@/lib/api/admin.api";
 
 interface AdminSidebarProps {
   isOpen?: boolean;
@@ -97,9 +97,7 @@ const adminNavSections: NavSection[] = [
         label: "Interview Schedule",
         icon: Calendar,
         href: "/admin/interviews",
-        badge: "Conflict!",
         badgeColor: "bg-amber-500 text-white animate-pulse",
-        hasAlert: true,
       },
       {
         id: "offers",
@@ -149,9 +147,17 @@ export default function AdminSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [stats, setStats] = React.useState<DashboardStats | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = React.useState<number | null>(null);
+  const [conflictCount, setConflictCount] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     getDashboardStats().then(setStats).catch(console.error);
+    getAdminNotifications()
+      .then((result) => setUnreadNotifications(result.unreadCount))
+      .catch(() => {});
+    getAdminInterviews()
+      .then((items) => setConflictCount(items.filter((item) => item.hasConflict).length))
+      .catch(() => {});
   }, []);
 
   const handleLogout = async () => {
@@ -238,6 +244,12 @@ export default function AdminSidebar({
                   if (item.id === "drives") badge = (stats.drives ?? 0).toLocaleString();
                   if (item.id === "applications") badge = (stats.applications ?? 0).toLocaleString();
                   if (item.id === "offers") badge = (stats.offers ?? 0).toLocaleString();
+                }
+                if (item.id === "notifications" && unreadNotifications !== null) {
+                  badge = unreadNotifications > 0 ? unreadNotifications.toLocaleString() : "";
+                }
+                if (item.id === "interviews" && conflictCount !== null) {
+                  badge = conflictCount > 0 ? conflictCount.toLocaleString() : "";
                 }
 
                 return (

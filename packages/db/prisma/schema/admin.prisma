@@ -6,6 +6,7 @@ model AdminProfile {
 
   department  String?
   designation String?
+  phone       String?
   permissions Json?
 
   createdAt   DateTime @default(now())
@@ -15,6 +16,16 @@ model AdminProfile {
 
   @@index([userId])
   @@map("admin_profile")
+}
+
+model SystemSetting {
+  key       String   @id
+  value     Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_setting")
 }
 
 model AuditLog {

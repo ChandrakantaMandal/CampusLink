@@ -120,6 +120,7 @@ describe("application.service", () => {
         "applications:user:user-123",
         "applications:student:student-123",
         "application:job:job-123",
+        "applications:company:company-123",
         "admin:applications",
         "admin:dashboard:stats",
       );
@@ -434,6 +435,7 @@ describe("application.service", () => {
         "applications:user:student-user-123",
         "applications:student:student-123",
         "application:job:job-123",
+        "applications:company:company-123",
         "admin:applications",
         "admin:dashboard:stats",
       );
