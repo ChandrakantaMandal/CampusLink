@@ -1,37 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   Clock,
   AlertTriangle,
   Video,
-  MapPin,
-  Users,
-  CheckCircle2,
   X,
   Plus,
-  ArrowRight,
   ExternalLink,
   RefreshCw,
 } from "lucide-react";
-import {
-  mockRecruiterInterviews,
-  type RecruiterInterview,
-  mockRecruiterCandidates,
-  mockRecruiterJobs,
+import type {
+  RecruiterCandidate,
+  RecruiterInterview,
+  RecruiterJob,
 } from "../mock-recruiter-data";
+import {
+  createMyInterview,
+  getMyInterviews,
+  getMyJobs,
+  getShortlistedCandidates,
+  VIEW_TO_INTERVIEW_MODE,
+  type CreateRecruiterInterviewInput,
+} from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterInterviewsView() {
-  const [interviews, setInterviews] = useState<RecruiterInterview[]>(mockRecruiterInterviews);
+  const [interviews, setInterviews] = useState<RecruiterInterview[]>([]);
+  const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
+  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isScheduling, setIsScheduling] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [resolvingConflictId, setResolvingConflictId] = useState<string | null>(null);
 
   // New Interview Form
   const [newInterview, setNewInterview] = useState({
-    candidateId: mockRecruiterCandidates[0].id,
-    jobId: mockRecruiterJobs[0].id,
+    candidateId: "",
+    jobId: "",
     round: "Round 2: Core Technical & DSA",
     date: "2026-09-28",
     time: "03:00 PM – 04:00 PM",
@@ -41,33 +47,69 @@ export default function RecruiterInterviewsView() {
     interviewerPanel: "Vikram Malhotra & Tech Lead",
   });
 
-  const handleSchedule = (e: React.FormEvent) => {
-    e.preventDefault();
-    const candidate = mockRecruiterCandidates.find((c) => c.id === newInterview.candidateId);
-    const job = mockRecruiterJobs.find((j) => j.id === newInterview.jobId);
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getMyInterviews(), getShortlistedCandidates(), getMyJobs()])
+      .then(([interviewRows, candidateRows, jobRows]) => {
+        if (cancelled) return;
+        setInterviews(interviewRows);
+        setCandidates(candidateRows);
+        setJobs(jobRows);
+        setNewInterview((prev) => ({
+          ...prev,
+          candidateId: candidateRows[0]?.id ?? "",
+          jobId: jobRows[0]?.id ?? "",
+        }));
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Failed to load interviews");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    const created: RecruiterInterview = {
-      id: `int-0${interviews.length + 1}`,
-      candidateId: newInterview.candidateId,
-      candidateName: candidate ? candidate.name : "Candidate",
-      candidateEmail: candidate ? candidate.email : "candidate@campuslink.edu",
+  const handleSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newInterview.candidateId || !newInterview.jobId) {
+      toast.error("Select a candidate and target role first");
+      return;
+    }
+
+    const [slotStart = "", slotEnd = ""] = newInterview.time.split("–");
+    const payload: CreateRecruiterInterviewInput = {
+      studentId: newInterview.candidateId,
       jobId: newInterview.jobId,
-      jobTitle: job ? job.title : "Role",
-      round: newInterview.round,
-      date: newInterview.date,
-      time: newInterview.time,
-      duration: newInterview.duration,
-      mode: newInterview.mode,
-      meetingLink: newInterview.meetingLink,
-      interviewerPanel: newInterview.interviewerPanel,
-      status: "Scheduled",
+      roundName: newInterview.round,
+      roundNumber: Number(newInterview.round.match(/round\s*(\d+)/i)?.[1] ?? 1),
+      scheduledDate: new Date(newInterview.date).toISOString(),
+      startTime: slotStart.trim(),
+      endTime: slotEnd.trim(),
+      durationMinutes: Number.parseInt(newInterview.duration, 10) || 60,
+      mode: VIEW_TO_INTERVIEW_MODE[newInterview.mode],
+      meetingLink: newInterview.meetingLink || undefined,
+      interviewerPanel: newInterview.interviewerPanel
+        .split(/[&,]/)
+        .map((part) => part.trim())
+        .filter(Boolean),
     };
 
-    setInterviews([created, ...interviews]);
-    setIsModalOpen(false);
-    toast.success("Interview Successfully Scheduled", {
-      description: `Evaluation invite dispatched to ${created.candidateName}.`,
-    });
+    setIsScheduling(true);
+    try {
+      const created = await createMyInterview(payload);
+      setInterviews((prev) => [created, ...prev]);
+      setIsModalOpen(false);
+      toast.success("Interview Successfully Scheduled", {
+        description: `Evaluation invite dispatched to ${created.candidateName}.`,
+      });
+    } catch {
+      toast.error("Failed to schedule interview");
+    } finally {
+      setIsScheduling(false);
+    }
   };
 
   const handleAutoResolveConflict = (interviewId: string) => {
@@ -87,6 +129,8 @@ export default function RecruiterInterviewsView() {
       description: "Slot automatically updated to 03:30 PM (next non-overlapping campus slot).",
     });
   };
+
+  const conflict = interviews.find((i) => i.hasConflict);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -113,7 +157,7 @@ export default function RecruiterInterviewsView() {
       </div>
 
       {/* Conflict Detection Banner (Section 13 of docx) */}
-      {interviews.some((i) => i.hasConflict) && (
+      {conflict && (
         <div className="rounded-2xl border-2 border-amber-400/80 dark:border-amber-500/60 bg-amber-50 dark:bg-amber-950/40 p-5 text-amber-950 dark:text-amber-100 shadow-md">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
@@ -130,18 +174,22 @@ export default function RecruiterInterviewsView() {
                   </span>
                 </div>
                 <p className="text-xs text-amber-900/90 dark:text-amber-200/90 leading-relaxed max-w-2xl">
-                  <strong>Candidate: Himanshu Rout</strong> has an overlapping interview slot booked by TPO Cell:
+                  <strong>Candidate: {conflict.candidateName}</strong> has an overlapping interview slot:
                   <br />
-                  <span className="font-semibold text-slate-900 dark:text-white">Existing Slot:</span> 10:00 AM – 11:00 AM (Apex Systems Final Round)
+                  <span className="font-semibold text-slate-900 dark:text-white">Existing Slot:</span>{" "}
+                  {conflict.conflictDetails
+                    ? `${conflict.conflictDetails.conflictingWith} (${conflict.conflictDetails.existingSlot})`
+                    : "Another booked campus interview slot"}
                   <br />
-                  <span className="font-semibold text-slate-900 dark:text-white">Your Scheduled Slot:</span> 10:30 AM – 11:30 AM (TechCorp Technical Round)
+                  <span className="font-semibold text-slate-900 dark:text-white">Your Scheduled Slot:</span>{" "}
+                  {conflict.date} &bull; {conflict.time} ({conflict.round})
                 </p>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => handleAutoResolveConflict("int-01")}
+              onClick={() => handleAutoResolveConflict(conflict.id)}
               className="inline-flex items-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 text-xs font-bold shadow-md hover:shadow-amber-500/30 transition-all cursor-pointer shrink-0"
             >
               <RefreshCw className="h-3.5 w-3.5" />
@@ -153,7 +201,16 @@ export default function RecruiterInterviewsView() {
 
       {/* Interviews List */}
       <div className="space-y-4">
-        {interviews.map((int) => (
+        {isLoading ? (
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-8 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">
+            Loading interviews...
+          </div>
+        ) : interviews.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">
+            No interviews scheduled yet.
+          </div>
+        ) : (
+        interviews.map((int) => (
           <div
             key={int.id}
             className={`rounded-2xl border p-5 shadow-xs transition-all ${
@@ -222,7 +279,7 @@ export default function RecruiterInterviewsView() {
               )}
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {/* Schedule Interview Modal */}
@@ -250,7 +307,12 @@ export default function RecruiterInterviewsView() {
                   onChange={(e) => setNewInterview({ ...newInterview, candidateId: e.target.value })}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                 >
-                  {mockRecruiterCandidates.map((c) => (
+                  {candidates.length === 0 && (
+                    <option value="" disabled>
+                      No shortlisted candidates
+                    </option>
+                  )}
+                  {candidates.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.branch} - {c.cgpa} CGPA)
                     </option>
@@ -265,7 +327,12 @@ export default function RecruiterInterviewsView() {
                   onChange={(e) => setNewInterview({ ...newInterview, jobId: e.target.value })}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                 >
-                  {mockRecruiterJobs.map((j) => (
+                  {jobs.length === 0 && (
+                    <option value="" disabled>
+                      No active jobs
+                    </option>
+                  )}
+                  {jobs.map((j) => (
                     <option key={j.id} value={j.id}>
                       {j.title}
                     </option>
@@ -318,9 +385,14 @@ export default function RecruiterInterviewsView() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-amber-600 hover:bg-amber-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg hover:shadow-amber-500/30 transition-all cursor-pointer"
+                  disabled={
+                    isScheduling ||
+                    !newInterview.candidateId ||
+                    !newInterview.jobId
+                  }
+                  className="rounded-xl bg-amber-600 hover:bg-amber-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg hover:shadow-amber-500/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Confirm Schedule
+                  {isScheduling ? "Scheduling..." : "Confirm Schedule"}
                 </button>
               </div>
             </form>

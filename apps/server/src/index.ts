@@ -27,6 +27,7 @@ import educationRoutes from "./modules/education/education.routes";
 import projectRoutes from "./modules/projects/project.routes";
 import assessmentRoutes from "./modules/assessments/assessment.routes";
 import adminRoutes from "./modules/admin/admin.routes";
+import recruiterRoutes from "./modules/recruiter/recruiter.routes";
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use("/api/education", educationRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/recruiter", recruiterRoutes);
 
 app.post("/ai", async (req, res) => {
   const { messages = [] } = (req.body || {}) as { messages: UIMessage[] };
