@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
@@ -23,6 +23,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { getRecruiterProfile, getRecruiterStats } from "@/lib/api/recruiter.api";
+import type { RecruiterStats } from "@/lib/api/recruiter.api";
 
 interface RecruiterSidebarProps {
   isOpen?: boolean;
@@ -68,21 +70,18 @@ const recruiterNavSections: NavSection[] = [
         label: "Jobs / Postings",
         icon: Briefcase,
         href: "/recruiter/jobs",
-        badge: "5",
       },
       {
         id: "candidates",
         label: "Candidates",
         icon: Users,
         href: "/recruiter/candidates",
-        badge: "342",
       },
       {
         id: "applications",
         label: "Applications",
         icon: ClipboardList,
         href: "/recruiter/applications",
-        badge: "68",
       },
     ],
   },
@@ -94,7 +93,6 @@ const recruiterNavSections: NavSection[] = [
         label: "Shortlisted",
         icon: CheckCircle2,
         href: "/recruiter/shortlisted",
-        badge: "68",
       },
     ],
   },
@@ -106,9 +104,6 @@ const recruiterNavSections: NavSection[] = [
         label: "Interviews",
         icon: Calendar,
         href: "/recruiter/interviews",
-        badge: "Conflict!",
-        badgeColor: "bg-amber-500 text-white animate-pulse",
-        hasAlert: true,
       },
     ],
   },
@@ -120,8 +115,6 @@ const recruiterNavSections: NavSection[] = [
         label: "Offers",
         icon: Gift,
         href: "/recruiter/offers",
-        badge: "12",
-        badgeColor: "bg-emerald-600 text-white",
       },
     ],
   },
@@ -133,8 +126,6 @@ const recruiterNavSections: NavSection[] = [
         label: "Notifications",
         icon: Bell,
         href: "/recruiter/notifications",
-        badge: "5",
-        badgeColor: "bg-rose-500 text-white",
       },
       {
         id: "settings",
@@ -146,12 +137,61 @@ const recruiterNavSections: NavSection[] = [
   },
 ];
 
+function buildStatBadges(
+  stats: RecruiterStats,
+): Record<string, { badge: string; badgeColor?: string }> {
+  return {
+    jobs: { badge: String(stats.jobs) },
+    candidates: { badge: String(stats.candidates) },
+    applications: { badge: String(stats.applications) },
+    shortlisted: { badge: String(stats.shortlisted) },
+    interviews:
+      stats.interviewConflicts > 0
+        ? { badge: "Conflict!", badgeColor: "bg-amber-500 text-white animate-pulse" }
+        : { badge: "" },
+    offers: { badge: String(stats.offers), badgeColor: "bg-emerald-600 text-white" },
+    notifications: {
+      badge: String(stats.unreadNotifications),
+      badgeColor: "bg-rose-500 text-white",
+    },
+  };
+}
+
 export default function RecruiterSidebar({
   isOpen = false,
   onClose,
 }: RecruiterSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [stats, setStats] = useState<RecruiterStats | null>(null);
+  const [companyName, setCompanyName] = useState("TechCorp Innovations");
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getRecruiterStats(), getRecruiterProfile()])
+      .then(([nextStats, profile]) => {
+        if (cancelled) return;
+        setStats(nextStats);
+        setCompanyName(profile.name);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const statBadges: Record<string, { badge: string; badgeColor?: string }> = stats
+    ? buildStatBadges(stats)
+    : {};
+  const companyInitials =
+    companyName
+      .split(/\s+/)
+      .map((word) => word[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "CL";
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -229,6 +269,7 @@ export default function RecruiterSidebar({
                 const isNestedActive =
                   item.href !== "/recruiter/dashboard" && pathname.startsWith(`${item.href}/`);
                 const isActive = isExactActive || isNestedActive;
+                const statBadge = statBadges[item.id];
 
                 return (
                   <Link
@@ -255,16 +296,16 @@ export default function RecruiterSidebar({
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      {item.badge && (
+                      {statBadge?.badge && (
                         <span
                           className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            item.badgeColor ||
+                            statBadge.badgeColor ||
                             (isActive
                               ? "bg-white/20 text-white"
                               : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300")
                           }`}
                         >
-                          {item.badge}
+                          {statBadge.badge}
                         </span>
                       )}
                     </div>
@@ -283,11 +324,11 @@ export default function RecruiterSidebar({
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                TC
+                {companyInitials}
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  TechCorp Innovations
+                  {companyName}
                 </p>
                 <p className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold truncate">
                   Verified Partner ✓

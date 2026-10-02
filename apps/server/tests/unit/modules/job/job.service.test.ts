@@ -62,6 +62,7 @@ describe("job.service", () => {
       workMode: "HYBRID",
       salaryMin: 500000,
       salaryMax: 900000,
+      ctc: "₹8 - ₹12 LPA",
       applicationDeadline: "2026-12-31T23:59:59.000Z",
       companyId: "company-123",
     };
@@ -100,8 +101,7 @@ describe("job.service", () => {
           location: jobData.location,
           employmentType: jobData.employmentType,
           workMode: jobData.workMode,
-          salaryMin: jobData.salaryMin,
-          salaryMax: jobData.salaryMax,
+          ctc: jobData.ctc,
           applicationDeadline: new Date(
             jobData.applicationDeadline,
           ),
@@ -185,8 +185,7 @@ describe("job.service", () => {
           location: dataWithoutDeadline.location,
           employmentType: dataWithoutDeadline.employmentType,
           workMode: dataWithoutDeadline.workMode,
-          salaryMin: dataWithoutDeadline.salaryMin,
-          salaryMax: dataWithoutDeadline.salaryMax,
+          ctc: dataWithoutDeadline.ctc,
           applicationDeadline: undefined,
           companyId: dataWithoutDeadline.companyId,
         },
@@ -417,6 +416,7 @@ describe("job.service", () => {
       description: "Updated job description.",
       salaryMin: 800000,
       salaryMax: 1200000,
+      ctc: "₹14 - ₹18 LPA",
       applicationDeadline: "2027-01-31T23:59:59.000Z",
     };
 
@@ -453,6 +453,8 @@ describe("job.service", () => {
         },
         data: {
           ...updateData,
+          salaryMin: undefined,
+          salaryMax: undefined,
           applicationDeadline: new Date(
             updateData.applicationDeadline,
           ),
@@ -563,6 +565,8 @@ describe("job.service", () => {
         },
         data: {
           title: "Updated Job",
+          salaryMin: undefined,
+          salaryMax: undefined,
           applicationDeadline: undefined,
         },
         include: {
