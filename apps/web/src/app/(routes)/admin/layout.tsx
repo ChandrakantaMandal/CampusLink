@@ -6,6 +6,7 @@ import { Lock, LogIn, ArrowRight, ShieldAlert } from "lucide-react";
 
 import AdminSidebar from "@/components/dashboard/admin/AdminSidebar";
 import AdminHeader from "@/components/dashboard/admin/AdminHeader";
+import FloatingChatWidget from "@/components/ai/FloatingChatWidget";
 import { authClient } from "@/lib/auth-client";
 
 export default function AdminLayout({
@@ -120,6 +121,8 @@ export default function AdminLayout({
           {children}
         </main>
       </div>
+
+      <FloatingChatWidget role="admin" />
     </div>
   );
 }

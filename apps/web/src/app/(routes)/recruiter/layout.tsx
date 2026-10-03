@@ -13,6 +13,7 @@ import {
 
 import RecruiterSidebar from "@/components/dashboard/recruiter/RecruiterSidebar";
 import RecruiterHeader from "@/components/dashboard/recruiter/RecruiterHeader";
+import FloatingChatWidget from "@/components/ai/FloatingChatWidget";
 import { authClient } from "@/lib/auth-client";
 
 export default function RecruiterLayout({
@@ -134,6 +135,8 @@ export default function RecruiterLayout({
           {children}
         </main>
       </div>
+
+      <FloatingChatWidget role="recruiter" />
     </div>
   );
 }
