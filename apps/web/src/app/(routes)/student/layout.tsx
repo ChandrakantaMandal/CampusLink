@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import StudentHeader from "../../../components/dashboard/student/StudentHeader";
 import StudentSidebar from "../../../components/dashboard/student/StudentSidebar";
+import FloatingChatWidget from "@/components/ai/FloatingChatWidget";
 
 export default function StudentLayout({
   children,
@@ -21,12 +22,7 @@ export default function StudentLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-   const { data: session, isPending } = authClient.useSession();
-
-  const studentName =  "Student";
-  const department = "Computer Science & Engineering";
-
-
+  const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
     return (
@@ -137,6 +133,8 @@ export default function StudentLayout({
           {children}
         </main>
       </div>
+
+      <FloatingChatWidget role="student" />
     </div>
   );
 }
