@@ -17,6 +17,9 @@ const mocks = vi.hoisted(() => ({
     recruiterProfile: {
       findUnique: vi.fn(),
     },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
 
   redis: {
@@ -117,6 +120,7 @@ describe("application.service", () => {
         "applications:user:user-123",
         "applications:student:student-123",
         "application:job:job-123",
+        "applications:company:company-123",
         "admin:applications",
         "admin:dashboard:stats",
       );
@@ -431,6 +435,7 @@ describe("application.service", () => {
         "applications:user:student-user-123",
         "applications:student:student-123",
         "application:job:job-123",
+        "applications:company:company-123",
         "admin:applications",
         "admin:dashboard:stats",
       );
@@ -459,6 +464,7 @@ describe("application.service", () => {
       });
 
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(null);
+      mocks.db.user.findUnique.mockResolvedValue({ role: "STUDENT" });
 
       await expect(
         updateApplicationStatus("recruiter-user-123", "application-123", {
@@ -468,6 +474,7 @@ describe("application.service", () => {
 
       expect(mocks.db.application.update).not.toHaveBeenCalled();
     });
+
 
     it("should reject recruiter from another company", async () => {
       mocks.db.application.findUnique.mockResolvedValue({

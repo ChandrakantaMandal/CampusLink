@@ -17,15 +17,25 @@ export const updateStudentSchema = z.object({
 
   graduationYear: z.number().int().min(2000).max(2100).optional(),
 
-  cgpa: z.number().min(0).max(10).optional(),
+  cgpa: z.number().min(0).max(10).nullish(),
 
   bio: z.string().max(1000).optional(),
+
+  location: z.string().max(150).optional(),
+
+  isPublic: z.boolean().optional(),
 
   githubUrl: z.string().url().optional().or(z.literal("")),
 
   linkedinUrl: z.string().url().optional().or(z.literal("")),
 
   portfolioUrl: z.string().url().optional().or(z.literal("")),
+
+  leetcodeUrl: z.string().url().optional().or(z.literal("")),
+
+  hackerrankUrl: z.string().url().optional().or(z.literal("")),
+
+  otherWebsiteUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;

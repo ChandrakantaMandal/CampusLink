@@ -2,10 +2,20 @@
 
 import React from "react";
 import { ApplicationsTracker } from "@/components/dashboard/student/ApplicationsTracker";
-import { mockDashboardData } from "@/data/dashboardData";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentApplications } from "@/hooks/use-student";
+import { toApplicationItems } from "@/lib/dashboard-adapters";
 import { UserCheck } from "lucide-react";
 
 export default function StudentApplications() {
+  const applications = useStudentApplications();
+
+  const items = applications.data ? toApplicationItems(applications.data) : null;
+  const total = applications.data?.stats.total ?? items?.length ?? null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -26,14 +36,23 @@ export default function StudentApplications() {
 
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            {mockDashboardData.applications.length} Total Submissions
+            {total !== null ? `${total} Total Submission${total === 1 ? "" : "s"}` : "—"}
           </span>
         </div>
       </div>
 
       {/* Main Applications Tracker Component */}
       <div className="min-w-0">
-        <ApplicationsTracker applications={mockDashboardData.applications} />
+        {items ? (
+          <ApplicationsTracker applications={items} />
+        ) : applications.error ? (
+          <AggregateError
+            message={applications.error}
+            onRetry={applications.refresh}
+          />
+        ) : (
+          <AggregateLoading label="Loading your applications..." />
+        )}
       </div>
     </div>
   );

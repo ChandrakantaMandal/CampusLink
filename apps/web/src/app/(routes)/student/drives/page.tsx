@@ -2,11 +2,23 @@
 
 import React from "react";
 import { UpcomingDrivesCard } from "@/components/dashboard/student/UpcomingDrivesCard";
-import { mockDashboardData } from "@/data/dashboardData";
-import { Building2, Search, Filter } from "lucide-react";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentDrives } from "@/hooks/use-student";
+import { toUpcomingDrives } from "@/lib/dashboard-adapters";
+import { Building2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function StudentDrives() {
+  const drives = useStudentDrives();
+
+  const items = drives.data ? toUpcomingDrives(drives.data) : null;
+  const activeCount = drives.data
+    ? drives.data.registered.length + drives.data.available.length
+    : null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -27,18 +39,24 @@ export default function StudentDrives() {
 
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
-            3 Active Drives
+            {activeCount !== null ? `${activeCount} Active Drive${activeCount === 1 ? "" : "s"}` : "—"}
           </span>
         </div>
       </div>
 
       {/* Main Drives Component */}
       <div className="min-w-0">
-        <UpcomingDrivesCard
-          drives={mockDashboardData.upcomingDrives}
-          layout="grid"
-          onViewAll={() => toast.info("Showing all drives")}
-        />
+        {items ? (
+          <UpcomingDrivesCard
+            drives={items}
+            layout="grid"
+            onViewAll={() => toast.info("Showing all drives")}
+          />
+        ) : drives.error ? (
+          <AggregateError message={drives.error} onRetry={drives.refresh} />
+        ) : (
+          <AggregateLoading label="Loading placement drives..." />
+        )}
       </div>
     </div>
   );

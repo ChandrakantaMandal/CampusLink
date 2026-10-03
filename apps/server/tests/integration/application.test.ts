@@ -249,6 +249,86 @@ describe("Applications Module - Integration", () => {
     });
   });
 
+  describe("GET /api/applications", () => {
+    it("should return the company's applications to a recruiter", async () => {
+      const response = await request(app)
+        .get("/api/applications")
+        .set("Authorization", `Bearer ${recruiterToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(
+        response.body.data.some(
+          (application: { id: string }) => application.id === applicationId,
+        ),
+      ).toBe(true);
+      expect(
+        response.body.data.every(
+          (application: { jobId: string }) => application.jobId === jobId,
+        ),
+      ).toBe(true);
+    });
+
+    it("should return an empty array for a recruiter without a profile", async () => {
+      const bareEmail = `recruiter-bare-${randomUUID()}@test.com`;
+
+      const signup = await auth.api.signUpEmail({
+        body: {
+          name: "Bare Recruiter",
+          email: bareEmail,
+          password: recruiterPassword,
+        },
+      });
+
+      if (!signup.user) {
+        throw new Error("Failed to create bare recruiter");
+      }
+
+      await db.user.update({
+        where: { id: signup.user.id },
+        data: { emailVerified: true, role: "RECRUITER" },
+      });
+
+      const signIn = await auth.api.signInEmail({
+        body: {
+          email: bareEmail,
+          password: recruiterPassword,
+        },
+      });
+
+      if (!signIn.token) {
+        throw new Error("Failed to create bare recruiter session");
+      }
+
+      const response = await request(app)
+        .get("/api/applications")
+        .set("Authorization", `Bearer ${signIn.token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual([]);
+
+      await db.user.deleteMany({ where: { id: signup.user.id } });
+    });
+
+    it("should forbid students from listing recruiter applications", async () => {
+      const response = await request(app)
+        .get("/api/applications")
+        .set("Authorization", `Bearer ${studentToken}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.success).toBe(false);
+    });
+
+    it("should require authentication", async () => {
+      const response = await request(app).get("/api/applications");
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+    });
+  });
+
   describe("GET /api/applications/:id", () => {
     it("should return an application by ID", async () => {
       const response = await request(app)

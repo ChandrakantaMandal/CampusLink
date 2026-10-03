@@ -5,6 +5,12 @@ import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import {
   getStudentById,
   getStudentByUserId,
+  getStudentDashboard,
+  getStudentDrives,
+  getStudentInterviews,
+  getStudentNotifications,
+  getStudentOffers,
+  getStudentReadiness,
   updateStudent,
 } from "./student.service";
 
@@ -98,3 +104,45 @@ export async function getStudent(
     next(error);
   }
 }
+
+function makeAggregateHandler(
+  fetcher: (userId: string) => Promise<unknown>,
+) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authenticatedReq = req as AuthenticatedRequest;
+
+      const data = await fetcher(authenticatedReq.user.id);
+
+      if (data === null) {
+        return res.status(404).json({
+          success: false,
+          message: "Student profile not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export const getMyStudentDashboard = makeAggregateHandler(getStudentDashboard);
+
+export const getMyStudentReadiness = makeAggregateHandler(getStudentReadiness);
+
+export const getMyStudentDrives = makeAggregateHandler(getStudentDrives);
+
+export const getMyStudentInterviews = makeAggregateHandler(
+  getStudentInterviews,
+);
+
+export const getMyStudentOffers = makeAggregateHandler(getStudentOffers);
+
+export const getMyStudentNotifications = makeAggregateHandler(
+  getStudentNotifications,
+);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -19,26 +19,41 @@ import {
   Phone,
   ArrowRight,
 } from "lucide-react";
-import { mockRecruiters, type AdminRecruiter } from "../mock-admin-data";
+import type { AdminRecruiter } from "../mock-admin-data";
+import { getAdminRecruiters, createAdminRecruiter } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function RecruitersManagementView() {
-  const [recruiters, setRecruiters] = useState<AdminRecruiter[]>(mockRecruiters);
+  const [recruiters, setRecruiters] = useState<AdminRecruiter[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedRecruiter, setSelectedRecruiter] = useState<AdminRecruiter | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    getAdminRecruiters()
+      .then((data) => {
+        if (!cancelled) setRecruiters(data);
+      })
+      .catch(() => {
+        toast.error("Failed to load recruiters");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [newRecruiter, setNewRecruiter] = useState({
     name: "",
-    contactPerson: "",
     email: "",
-    phone: "",
-    industry: "Information Technology",
-    website: "",
-    packageRange: "₹8 - ₹15 LPA",
-    eligibilityCriteria: "CGPA ≥ 7.0, 0 Backlogs",
-    tier: "Dream" as const,
+    password: "",
   });
 
   const filteredRecruiters = recruiters.filter((r) => {
@@ -70,35 +85,38 @@ export default function RecruitersManagementView() {
     toast.info("Recruiter deactivated.");
   };
 
-  const handleCreateRecruiter = (e: React.FormEvent) => {
+  const handleCreateRecruiter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRecruiter.name || !newRecruiter.email) {
       toast.error("Please fill in company name and recruiter email");
       return;
     }
+    if (newRecruiter.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
 
-    const created: AdminRecruiter = {
-      id: `rec-${Date.now()}`,
-      name: newRecruiter.name,
-      logo: "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg",
-      contactPerson: newRecruiter.contactPerson || "Lead Recruiter",
-      email: newRecruiter.email,
-      phone: newRecruiter.phone || "+91 80 0000 0000",
-      industry: newRecruiter.industry,
-      website: newRecruiter.website || "https://example.com",
-      jobsCount: 1,
-      drivesCount: 1,
-      status: "Active",
-      tier: newRecruiter.tier,
-      packageRange: newRecruiter.packageRange,
-      eligibilityCriteria: newRecruiter.eligibilityCriteria,
-      activeDrives: ["Graduate Engineering Trainee"],
-    };
+    try {
+      const created = await createAdminRecruiter({
+        name: newRecruiter.name,
+        email: newRecruiter.email,
+        password: newRecruiter.password,
+      });
 
-    setRecruiters([created, ...recruiters]);
-    setIsAddModalOpen(false);
-    toast.success(`${created.name} added to campus recruitment roster!`);
+      setRecruiters([created, ...recruiters]);
+      setIsAddModalOpen(false);
+      toast.success(`${created.name} added to campus recruitment roster!`);
+
+      setNewRecruiter({
+        name: "",
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      toast.error("Failed to create recruiter");
+    }
   };
+
 
   return (
     <div className="space-y-6">
@@ -172,7 +190,21 @@ export default function RecruitersManagementView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-              {filteredRecruiters.map((rec) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    Loading recruiters…
+                  </td>
+                </tr>
+              ) : filteredRecruiters.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    No recruiters found.
+                  </td>
+                </tr>
+              ) : null}
+              {!loading &&
+                filteredRecruiters.map((rec) => (
                 <tr
                   key={rec.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
@@ -397,65 +429,32 @@ export default function RecruitersManagementView() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Contact Person *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newRecruiter.contactPerson}
-                    onChange={(e) => setNewRecruiter({ ...newRecruiter, contactPerson: e.target.value })}
-                    placeholder="Sundar Rajan"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Recruiter Email *</label>
-                  <input
-                    type="email"
-                    required
-                    value={newRecruiter.email}
-                    onChange={(e) => setNewRecruiter({ ...newRecruiter, email: e.target.value })}
-                    placeholder="hiring@company.com"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Hiring Tier</label>
-                  <select
-                    value={newRecruiter.tier}
-                    onChange={(e) => setNewRecruiter({ ...newRecruiter, tier: e.target.value as any })}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
-                  >
-                    <option value="Super Dream">Super Dream (&gt; ₹20 LPA)</option>
-                    <option value="Dream">Dream (₹8 - ₹20 LPA)</option>
-                    <option value="Regular">Regular (&lt; ₹8 LPA)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">CTC Range</label>
-                  <input
-                    type="text"
-                    value={newRecruiter.packageRange}
-                    onChange={(e) => setNewRecruiter({ ...newRecruiter, packageRange: e.target.value })}
-                    placeholder="₹12 - ₹18 LPA"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
-                  />
-                </div>
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Recruiter Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={newRecruiter.email}
+                  onChange={(e) => setNewRecruiter({ ...newRecruiter, email: e.target.value })}
+                  placeholder="hiring@company.com"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
+                />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Eligibility Criteria</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Password *</label>
                 <input
-                  type="text"
-                  value={newRecruiter.eligibilityCriteria}
-                  onChange={(e) => setNewRecruiter({ ...newRecruiter, eligibilityCriteria: e.target.value })}
-                  placeholder="CGPA ≥ 7.5, 0 Backlogs, CSE/IT"
+                  type="password"
+                  required
+                  minLength={8}
+                  value={newRecruiter.password}
+                  onChange={(e) => setNewRecruiter({ ...newRecruiter, password: e.target.value })}
+                  placeholder="Min. 8 characters"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />
+                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                  The recruiter will use this email and password to sign in.
+                </p>
               </div>
 
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">

@@ -7,6 +7,7 @@ import {
   createApplicationController,
   getApplicationController,
   getMyApplicationsController,
+  getRecruiterApplicationsController,
   updateApplicationStatusController,
 } from "./application.controller";
 
@@ -28,14 +29,22 @@ router.get(
   getMyApplicationsController,
 );
 
+// Recruiter views applications for their company's jobs
+router.get(
+  "/",
+  requireAuth,
+  requireRole("RECRUITER"),
+  getRecruiterApplicationsController,
+);
+
 // Authenticated user views an application
 router.get("/:id", requireAuth, getApplicationController);
 
-// Recruiter/Admin updates application status
+// Recruiter updates application status
 router.patch(
   "/:id/status",
   requireAuth,
-  requireRole("RECRUITER", "ADMIN"),
+  requireRole("RECRUITER"),
   updateApplicationStatusController,
 );
 

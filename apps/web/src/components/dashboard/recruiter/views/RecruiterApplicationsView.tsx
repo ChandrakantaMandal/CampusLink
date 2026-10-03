@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ClipboardList,
   Search,
@@ -14,12 +14,10 @@ import {
   ChevronRight,
   X,
   FileText,
+  Loader2,
 } from "lucide-react";
-import {
-  mockRecruiterCandidates,
-  type RecruiterCandidate,
-  mockRecruiterJobs,
-} from "../mock-recruiter-data";
+import { type RecruiterCandidate } from "../mock-recruiter-data";
+import { getApplications, updateApplicationStatus } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 const STAGES = [
@@ -32,16 +30,56 @@ const STAGES = [
 ] as const;
 
 export default function RecruiterApplicationsView() {
-  const [candidates, setCandidates] = useState<RecruiterCandidate[]>(mockRecruiterCandidates);
+  const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<string>("ALL");
   const [selectedCandidate, setSelectedCandidate] = useState<RecruiterCandidate | null>(null);
   const [recruiterNotes, setRecruiterNotes] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getApplications()
+      .then((data) => {
+        if (!cancelled) setCandidates(data);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          toast.error("Failed to load applications", {
+            description: "Please try again later.",
+          });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const jobOptions = candidates.reduce<{ id: string; title: string }[]>((acc, c) => {
+    if (c.appliedJobId && !acc.some((j) => j.id === c.appliedJobId)) {
+      acc.push({ id: c.appliedJobId, title: c.appliedJobTitle });
+    }
+    return acc;
+  }, []);
 
   const filteredCandidates = candidates.filter((c) => {
     return selectedJob === "ALL" || c.appliedJobId === selectedJob;
   });
 
-  const handleMoveStage = (candId: string, newStage: RecruiterCandidate["status"]) => {
+  const handleMoveStage = async (candId: string, newStage: RecruiterCandidate["status"]) => {
+    try {
+      await updateApplicationStatus(candId, newStage);
+    } catch {
+      toast.error("Failed to update stage", {
+        description: "The application status could not be changed.",
+      });
+      return;
+    }
+
     setCandidates((prev) =>
       prev.map((c) => (c.id === candId ? { ...c, status: newStage } : c))
     );
@@ -85,8 +123,10 @@ export default function RecruiterApplicationsView() {
             onChange={(e) => setSelectedJob(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-900 dark:text-white shadow-xs"
           >
-            <option value="ALL">All Active Openings (342 Applicants)</option>
-            {mockRecruiterJobs.map((j) => (
+            <option value="ALL">
+              All Active Openings ({candidates.length} Applicants)
+            </option>
+            {jobOptions.map((j) => (
               <option key={j.id} value={j.id}>
                 {j.title}
               </option>
@@ -95,7 +135,27 @@ export default function RecruiterApplicationsView() {
         </div>
       </div>
 
+      {/* Loading / Empty States */}
+      {loading && (
+        <div className="flex items-center justify-center gap-2 py-16 text-sm font-medium text-slate-500">
+          <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+          Loading applications...
+        </div>
+      )}
+
+      {!loading && candidates.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 p-10 text-center space-y-1">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            No applications yet
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            When students apply to your company&apos;s openings, they will appear here.
+          </p>
+        </div>
+      )}
+
       {/* Pipeline Kanban Board Columns */}
+      {!loading && candidates.length > 0 && (
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {STAGES.map((stage) => {
           const stageCandidates = filteredCandidates.filter((c) => c.status === stage.id);
@@ -158,6 +218,7 @@ export default function RecruiterApplicationsView() {
           );
         })}
       </div>
+      )}
 
       {/* Candidate Application Detail Modal */}
       {selectedCandidate && (

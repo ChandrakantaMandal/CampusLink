@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
@@ -17,8 +17,9 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useAuth } from "@/lib/use-auth";
-import { mockNotifications } from "./mock-admin-data";
+import { authClient } from "@/lib/auth-client";
+import type { SystemNotification } from "./mock-admin-data";
+import { getAdminInterviews, getAdminNotifications, getAdminSettings } from "@/lib/api/admin.api";
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void;
@@ -27,11 +28,29 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { signOut } = useAuth();
+  const [notifications, setNotifications] = useState<SystemNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [conflictCount, setConflictCount] = useState(0);
+  const [season, setSeason] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    getAdminNotifications()
+      .then((result) => {
+        setNotifications(result.notifications);
+        setUnreadCount(result.unreadCount);
+      })
+      .catch(() => {});
+    getAdminInterviews()
+      .then((items) => setConflictCount(items.filter((item) => item.hasConflict).length))
+      .catch(() => {});
+    getAdminSettings()
+      .then((settings) => setSeason(settings.campus.placementSeason))
+      .catch(() => {});
+  }, []);
+
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=tpo" as Route);
   };
 
@@ -40,8 +59,6 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
     if (!searchQuery.trim()) return;
     router.push(`/admin/students?q=${encodeURIComponent(searchQuery)}` as Route);
   };
-
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
 
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-[#0B1120]/95 px-4 sm:px-6 lg:px-8 backdrop-blur-md transition-colors shadow-2xs">
@@ -74,19 +91,25 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
       {/* Right Controls: Conflict Pill, Live Season, Notifications, Theme, Profile */}
       <div className="flex items-center gap-2.5 sm:gap-4 shrink-0 ml-3">
         {/* Urgent Conflict Warning Pill */}
-        <Link
-          href={("/admin/interviews" as Route)}
-          className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300 shadow-2xs hover:scale-105 active:scale-95 transition-all"
-        >
-          <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 animate-pulse" />
-          <span>1 Schedule Conflict!</span>
-        </Link>
+        {conflictCount > 0 && (
+          <Link
+            href={("/admin/interviews" as Route)}
+            className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300 shadow-2xs hover:scale-105 active:scale-95 transition-all"
+          >
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 animate-pulse" />
+            <span>
+              {conflictCount} Schedule Conflict{conflictCount > 1 ? "s" : ""}!
+            </span>
+          </Link>
+        )}
 
         {/* Season Tag */}
-        <div className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/70 dark:bg-indigo-950/30 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Season 2026 • Live</span>
-        </div>
+        {season && (
+          <div className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/70 dark:bg-indigo-950/30 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>{season} • Live</span>
+          </div>
+        )}
 
         {/* Notifications Popover */}
         <div className="relative">
@@ -111,9 +134,11 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                     Placement Notifications
                   </h3>
-                  <span className="rounded-full bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
-                    {mockNotifications.length} New
-                  </span>
+                  {unreadCount > 0 && (
+                    <span className="rounded-full bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                      {unreadCount} New
+                    </span>
+                  )}
                 </div>
                 <Link
                   href={("/admin/notifications" as Route)}
@@ -125,7 +150,12 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               </div>
 
               <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
-                {mockNotifications.slice(0, 4).map((item) => (
+                {notifications.length === 0 ? (
+                  <p className="py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+                    No notifications yet
+                  </p>
+                ) : (
+                notifications.slice(0, 4).map((item) => (
                   <div
                     key={item.id}
                     className={`p-2.5 rounded-xl text-xs border transition-colors ${item.type === "urgent"
@@ -155,7 +185,8 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                       </Link>
                     )}
                   </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           )}

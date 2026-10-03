@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Settings,
   Shield,
@@ -13,12 +13,30 @@ import {
   Save,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  getAdminSettings,
+  updateAdminSettings,
+  type AdminProfileSettings,
+  type AdminCampusSettings,
+  type AdminSystemSettings,
+  type AdminSecuritySettings,
+} from "@/lib/api/admin.api";
 
 export default function AdminSettingsView() {
   const [activeTab, setActiveTab] = useState<"account" | "campus" | "system" | "security">("account");
+  const [saving, setSaving] = useState(false);
 
-  // Settings form states
-  const [campusConfig, setCampusConfig] = useState({
+  // Settings form states (seed defaults; replaced by server data on load)
+  const [profile, setProfile] = useState<AdminProfileSettings>({
+    name: "",
+    email: "",
+    role: "",
+    phone: "",
+    designation: "",
+    department: "",
+  });
+
+  const [campusConfig, setCampusConfig] = useState<AdminCampusSettings>({
     collegeName: "Apex Institute of Technology & Management",
     collegeCode: "AITM-751024",
     academicYear: "2025 - 2026",
@@ -27,17 +45,71 @@ export default function AdminSettingsView() {
     tpoHead: "Dr. Alok Verma",
   });
 
-  const [aiSettings, setAiSettings] = useState({
+  const [aiSettings, setAiSettings] = useState<AdminSystemSettings>({
     autoEligibilityFilter: true,
     strictBacklogRule: true,
     aiMatchingThreshold: 75,
     conflictAlertSensitivity: "Strict",
     emailDigestDaily: true,
+    scheduleCollisionDetection: true,
   });
 
-  const handleSave = (e: React.FormEvent) => {
+  const [security, setSecurity] = useState<AdminSecuritySettings>({
+    twoFactorEnabled: false,
+    activeSessions: 0,
+  });
+
+  useEffect(() => {
+    getAdminSettings()
+      .then((settings) => {
+        setProfile(settings.profile);
+        setCampusConfig(settings.campus);
+        setAiSettings(settings.system);
+        setSecurity(settings.security);
+      })
+      .catch(() => {
+        toast.error("Could not load settings. Please refresh.");
+      });
+  }, []);
+
+  const handleSave = async (
+    section: "profile" | "campus" | "system",
+    e: React.FormEvent,
+  ) => {
     e.preventDefault();
-    toast.success("Institutional settings updated successfully!");
+    setSaving(true);
+    try {
+      const payload =
+        section === "profile"
+          ? {
+              profile: {
+                name: profile.name,
+                email: profile.email,
+                phone: profile.phone,
+              },
+            }
+          : section === "campus"
+            ? { campus: campusConfig }
+            : { system: aiSettings };
+      const fresh = await updateAdminSettings(payload);
+      setProfile(fresh.profile);
+      setCampusConfig(fresh.campus);
+      setAiSettings(fresh.system);
+      setSecurity(fresh.security);
+      toast.success(
+        section === "profile"
+          ? "Profile settings updated successfully!"
+          : section === "campus"
+            ? "Campus configuration updated successfully!"
+            : "AI engine parameters applied successfully!",
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save settings.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -82,7 +154,7 @@ export default function AdminSettingsView() {
 
       {/* Tab 1: Account */}
       {activeTab === "account" && (
-        <form onSubmit={handleSave} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
+        <form onSubmit={(e) => handleSave("profile", e)} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
           <h3 className="text-sm font-black text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">
             Training &amp; Placement Officer Profile
           </h3>
@@ -92,7 +164,8 @@ export default function AdminSettingsView() {
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Admin Officer Name</label>
               <input
                 type="text"
-                defaultValue="Dr. Alok Verma"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
@@ -100,7 +173,7 @@ export default function AdminSettingsView() {
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Official Role</label>
               <input
                 type="text"
-                defaultValue="Head of Placements (TPO Cell)"
+                value={profile.designation}
                 disabled
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-2.5 text-slate-500"
               />
@@ -112,7 +185,8 @@ export default function AdminSettingsView() {
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Institutional Email</label>
               <input
                 type="email"
-                defaultValue="tpo@campuslink.edu"
+                value={profile.email}
+                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
@@ -120,7 +194,8 @@ export default function AdminSettingsView() {
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Direct Phone</label>
               <input
                 type="text"
-                defaultValue="+91 98765 11223"
+                value={profile.phone}
+                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
@@ -128,17 +203,18 @@ export default function AdminSettingsView() {
 
           <button
             type="submit"
-            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20"
+            disabled={saving}
+            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
-            <span>Save Profile Changes</span>
+            <span>{saving ? "Saving..." : "Save Profile Changes"}</span>
           </button>
         </form>
       )}
 
       {/* Tab 2: Campus */}
       {activeTab === "campus" && (
-        <form onSubmit={handleSave} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
+        <form onSubmit={(e) => handleSave("campus", e)} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
           <h3 className="text-sm font-black text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">
             College &amp; Academic Season Parameters
           </h3>
@@ -186,17 +262,18 @@ export default function AdminSettingsView() {
 
           <button
             type="submit"
-            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20"
+            disabled={saving}
+            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
-            <span>Save Campus Configuration</span>
+            <span>{saving ? "Saving..." : "Save Campus Configuration"}</span>
           </button>
         </form>
       )}
 
       {/* Tab 3: System & AI Settings */}
       {activeTab === "system" && (
-        <form onSubmit={handleSave} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
+        <form onSubmit={(e) => handleSave("system", e)} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
           <h3 className="text-sm font-black text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">
             Automated Rules &amp; AI Engine Configuration
           </h3>
@@ -222,7 +299,8 @@ export default function AdminSettingsView() {
               </div>
               <input
                 type="checkbox"
-                defaultChecked
+                checked={aiSettings.scheduleCollisionDetection}
+                onChange={(e) => setAiSettings({ ...aiSettings, scheduleCollisionDetection: e.target.checked })}
                 className="h-4 w-4 text-indigo-600 rounded"
               />
             </label>
@@ -246,10 +324,11 @@ export default function AdminSettingsView() {
 
           <button
             type="submit"
-            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20"
+            disabled={saving}
+            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
-            <span>Apply AI Engine Parameters</span>
+            <span>{saving ? "Saving..." : "Apply AI Engine Parameters"}</span>
           </button>
         </form>
       )}
@@ -267,8 +346,24 @@ export default function AdminSettingsView() {
                 <span className="font-bold text-slate-900 dark:text-white block">Two-Factor Authentication (2FA)</span>
                 <span className="text-[11px] text-slate-500">Require TOTP authenticator code on all administrative logins</span>
               </div>
-              <span className="rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 border border-emerald-200 dark:border-emerald-800">
-                Enabled
+              <span
+                className={`rounded-full text-[10px] font-bold px-2.5 py-0.5 border ${
+                  security.twoFactorEnabled
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                    : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700"
+                }`}
+              >
+                {security.twoFactorEnabled ? "Enabled" : "Disabled"}
+              </span>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="font-bold text-slate-900 dark:text-white block">Active Administrative Sessions</span>
+                <span className="text-[11px] text-slate-500">Authenticated admin sessions currently open</span>
+              </div>
+              <span className="rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400 text-[10px] font-bold px-2.5 py-0.5 border border-indigo-200 dark:border-indigo-800">
+                {security.activeSessions}
               </span>
             </div>
 

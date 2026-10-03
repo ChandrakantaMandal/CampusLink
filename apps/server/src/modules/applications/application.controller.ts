@@ -6,6 +6,7 @@ import {
   createApplication,
   getApplicationById,
   getMyApplications,
+  getRecruiterApplications,
   updateApplicationStatus,
 } from "./application.service";
 
@@ -56,6 +57,27 @@ export async function getMyApplicationsController(
     const authenticatedReq = req as AuthenticatedRequest;
 
     const applications = await getMyApplications(authenticatedReq.user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: applications,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getRecruiterApplicationsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const applications = await getRecruiterApplications(
+      authenticatedReq.user.id,
+    );
 
     return res.status(200).json({
       success: true,

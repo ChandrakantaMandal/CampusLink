@@ -88,6 +88,7 @@ export async function createApplication(
     `applications:user:${userId}`,
     `applications:student:${student.id}`,
     `application:job:${data.jobId}`,
+    `applications:company:${job.companyId}`,
     "admin:applications",
     "admin:dashboard:stats",
   );
@@ -122,6 +123,68 @@ export async function getMyApplications(userId: string) {
       job: {
         include: {
           company: true,
+        },
+      },
+      matchResult: true,
+    },
+    orderBy: {
+      appliedAt: "desc",
+    },
+  });
+
+  await setCache(cacheKey, applications);
+
+  return applications;
+}
+
+export async function getRecruiterApplications(userId: string) {
+  const recruiter = await db.recruiterProfile.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  if (!recruiter || !recruiter.companyId) {
+    return [];
+  }
+
+  const cacheKey = `applications:company:${recruiter.companyId}`;
+
+  const cached = await getCache(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  const applications = await db.application.findMany({
+    where: {
+      job: {
+        companyId: recruiter.companyId,
+      },
+    },
+    include: {
+      job: {
+        include: {
+          company: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      student: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
         },
       },
       matchResult: true,
@@ -244,6 +307,7 @@ export async function updateApplicationStatus(
     `applications:user:${application.userId}`,
     `applications:student:${application.studentId}`,
     `application:job:${application.jobId}`,
+    `applications:company:${application.job.companyId}`,
     "admin:applications",
     "admin:dashboard:stats",
   );

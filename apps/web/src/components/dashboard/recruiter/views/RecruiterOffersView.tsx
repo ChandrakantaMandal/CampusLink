@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Gift,
   Plus,
@@ -14,54 +14,103 @@ import {
   Building,
 } from "lucide-react";
 import {
-  mockRecruiterOffers,
   type RecruiterOffer,
-  mockRecruiterCandidates,
-  mockRecruiterJobs,
+  type RecruiterCandidate,
+  type RecruiterJob,
 } from "../mock-recruiter-data";
+import {
+  getMyOffers,
+  createMyOffer,
+  getShortlistedCandidates,
+  getMyJobs,
+  type CreateRecruiterOfferInput,
+} from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterOffersView() {
-  const [offers, setOffers] = useState<RecruiterOffer[]>(mockRecruiterOffers);
+  const [offers, setOffers] = useState<RecruiterOffer[]>([]);
+  const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
+  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // New Offer Form
   const [newOffer, setNewOffer] = useState({
-    candidateId: mockRecruiterCandidates[0].id,
-    jobId: mockRecruiterJobs[0].id,
+    candidateId: "",
+    jobId: "",
     role: "Software Development Engineer (SDE-1)",
-    ctc: "₹16.0 LPA",
-    baseSalary: "₹13.5 LPA",
-    variableBonus: "₹2.5 LPA Joining Bonus",
-    joiningDate: "July 15, 2026",
+    ctc: "16",
+    baseSalary: "13.5",
+    variableBonus: "2.5",
+    joiningDate: "2026-07-15",
   });
 
-  const handleIssueOffer = (e: React.FormEvent) => {
-    e.preventDefault();
-    const candidate = mockRecruiterCandidates.find((c) => c.id === newOffer.candidateId);
-
-    const created: RecruiterOffer = {
-      id: `off-0${offers.length + 1}`,
-      candidateId: newOffer.candidateId,
-      candidateName: candidate ? candidate.name : "Candidate",
-      candidateBranch: candidate ? candidate.branch : "CSE",
-      jobId: newOffer.jobId,
-      role: newOffer.role,
-      ctc: newOffer.ctc,
-      baseSalary: newOffer.baseSalary,
-      variableBonus: newOffer.variableBonus,
-      joiningDate: newOffer.joiningDate,
-      offerLetterUrl: "/documents/offers/Generated_Offer.pdf",
-      acceptanceStatus: "Sent",
-      documentVerification: "Pending Review",
-      joiningStatus: "Awaiting Onboarding",
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getMyOffers(), getShortlistedCandidates(), getMyJobs()])
+      .then(([offerList, candidateList, jobList]) => {
+        if (cancelled) return;
+        setOffers(offerList);
+        setCandidates(candidateList);
+        setJobs(jobList);
+        setNewOffer((prev) => ({
+          ...prev,
+          candidateId: candidateList[0]?.id ?? "",
+          jobId: jobList[0]?.id ?? "",
+        }));
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Failed to load offers");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
     };
+  }, []);
 
-    setOffers([created, ...offers]);
-    setIsModalOpen(false);
-    toast.success("Offer Letter Issued 🎉", {
-      description: `Formal offer extended to ${created.candidateName} for ${created.ctc}.`,
-    });
+  const handleIssueOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ctcText = newOffer.ctc.trim();
+    const ctc = Number(ctcText);
+    if (ctcText === "" || !Number.isFinite(ctc) || ctc < 0) {
+      toast.error("Enter a valid total CTC");
+      return;
+    }
+    if (!newOffer.candidateId) {
+      toast.error("No shortlisted candidate selected");
+      return;
+    }
+    const parseOptional = (value: string): number | undefined => {
+      const trimmed = value.trim();
+      if (trimmed === "") return undefined;
+      const parsed = Number(trimmed);
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+    };
+    const input: CreateRecruiterOfferInput = {
+      studentId: newOffer.candidateId,
+      role: newOffer.role,
+      ctc,
+      baseSalary: parseOptional(newOffer.baseSalary),
+      variableBonus: parseOptional(newOffer.variableBonus),
+      joiningDate: newOffer.joiningDate || undefined,
+      jobId: newOffer.jobId || undefined,
+    };
+    setIsSubmitting(true);
+    try {
+      const created = await createMyOffer(input);
+      setOffers((prev) => [created, ...prev]);
+      setIsModalOpen(false);
+      toast.success("Offer Letter Issued 🎉", {
+        description: `Formal offer extended to ${created.candidateName} for ${created.ctc}.`,
+      });
+    } catch {
+      toast.error("Failed to issue offer");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,6 +154,20 @@ export default function RecruiterOffersView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+              {isLoading && (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                    Loading offers...
+                  </td>
+                </tr>
+              )}
+              {!isLoading && offers.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                    No offers issued yet. Generate your first offer to get started.
+                  </td>
+                </tr>
+              )}
               {offers.map((off) => (
                 <tr key={off.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50">
                   <td className="p-4">
@@ -202,10 +265,30 @@ export default function RecruiterOffersView() {
                   value={newOffer.candidateId}
                   onChange={(e) => setNewOffer({ ...newOffer, candidateId: e.target.value })}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
+                  disabled={candidates.length === 0}
                 >
-                  {mockRecruiterCandidates.map((c) => (
+                  {candidates.length === 0 && (
+                    <option value="">No shortlisted candidates</option>
+                  )}
+                  {candidates.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.branch} - {c.cgpa} CGPA)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Linked Job (optional)</label>
+                <select
+                  value={newOffer.jobId}
+                  onChange={(e) => setNewOffer({ ...newOffer, jobId: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
+                >
+                  <option value="">None (general offer)</option>
+                  {jobs.map((job) => (
+                    <option key={job.id} value={job.id}>
+                      {job.title}
                     </option>
                   ))}
                 </select>
@@ -224,9 +307,11 @@ export default function RecruiterOffersView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Total CTC</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Total CTC (₹ LPA)</label>
                   <input
-                    type="text"
+                    type="number"
+                    min="0"
+                    step="0.1"
                     value={newOffer.ctc}
                     onChange={(e) => setNewOffer({ ...newOffer, ctc: e.target.value })}
                     className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
@@ -235,13 +320,26 @@ export default function RecruiterOffersView() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Base Salary</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Base Salary (₹ LPA)</label>
                   <input
-                    type="text"
+                    type="number"
+                    min="0"
+                    step="0.1"
                     value={newOffer.baseSalary}
                     onChange={(e) => setNewOffer({ ...newOffer, baseSalary: e.target.value })}
                     className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
-                    required
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Variable Bonus (₹ LPA)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={newOffer.variableBonus}
+                    onChange={(e) => setNewOffer({ ...newOffer, variableBonus: e.target.value })}
+                    className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                   />
                 </div>
               </div>
@@ -249,7 +347,7 @@ export default function RecruiterOffersView() {
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Expected Joining Date</label>
                 <input
-                  type="text"
+                  type="date"
                   value={newOffer.joiningDate}
                   onChange={(e) => setNewOffer({ ...newOffer, joiningDate: e.target.value })}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
@@ -267,9 +365,10 @@ export default function RecruiterOffersView() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:shadow-emerald-500/30 transition-all cursor-pointer"
+                  disabled={isSubmitting}
+                  className="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:shadow-emerald-500/30 transition-all cursor-pointer disabled:opacity-60 disabled:pointer-events-none"
                 >
-                  Issue Offer Letter
+                  {isSubmitting ? "Issuing..." : "Issue Offer Letter"}
                 </button>
               </div>
             </form>
