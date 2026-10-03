@@ -117,7 +117,7 @@ export default function FloatingChatWidget({
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
-        api: `${SERVER_URL}/ai`,
+        api: `${SERVER_URL}/api/ai/chat`,
       }),
     [],
   );
