@@ -1,95 +1,111 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  FileCheck2,
-  Clock,
-  CheckCircle2,
-  Calendar,
-  AlertCircle,
-  ExternalLink,
-  Download,
-  Building2,
-  Search,
-  Filter,
-  ArrowUpRight,
-  Sparkles,
-  ChevronRight
-} from "lucide-react";
+import { FileCheck2, Clock, Calendar, Download, Search } from "lucide-react";
 import { toast } from "sonner";
-import { mockDashboardData } from "@/data/dashboardData";
+import {
+  AggregateError,
+  AggregateLoading,
+} from "@/components/dashboard/student/aggregate-feedback";
+import {
+  useStudentApplications,
+  useStudentInterviews,
+} from "@/hooks/use-student";
+import {
+  formatDate,
+  nextStepForStatus,
+  toApplicationStatus,
+} from "@/lib/dashboard-adapters";
+import type { StudentInterviewData } from "@/lib/api/student.api";
+import type { ApplicationStatus } from "@/data/dashboardData";
+
+interface ApplicationRow {
+  id: string;
+  company: string;
+  role: string;
+  ctc: string;
+  appliedDate: string;
+  status: ApplicationStatus;
+  stage: string;
+  dateScheduled: string;
+}
 
 export function ApplicationsView() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const applications = [
-    {
-      id: "app-1",
-      company: "Google India",
-      role: "Software Development Engineer (SDE-1)",
-      ctc: "₹32.5 LPA",
-      appliedDate: "Sep 18, 2026",
-      status: "Shortlisted",
-      stage: "Round 2: Technical & Data Structures",
-      dateScheduled: "Oct 12, 2026 (10:00 AM IST)",
-      venue: "Google Meet (Link will activate 15 mins prior)",
-      hallTicketReady: true,
-      hasConflict: false,
-    },
-    {
-      id: "app-2",
-      company: "TCS Digital",
-      role: "Systems Engineer (Digital)",
-      ctc: "₹9.2 LPA",
-      appliedDate: "Sep 10, 2026",
-      status: "Offer Received",
-      stage: "Offer Letter Released (LOI Verified)",
-      dateScheduled: "Offer Accepted",
-      venue: "TCS iON Portal",
-      hallTicketReady: false,
-      hasConflict: false,
-    },
-    {
-      id: "app-3",
-      company: "Microsoft IDC",
-      role: "Software Engineer",
-      ctc: "₹28.0 LPA",
-      appliedDate: "Sep 20, 2026",
-      status: "Under Review",
-      stage: "Resume Screening by University TPO & Microsoft HR",
-      dateScheduled: "Shortlist on Sep 29, 2026",
-      venue: "Microsoft Teams",
-      hallTicketReady: false,
-      hasConflict: false,
-    },
-    {
-      id: "app-4",
-      company: "Amazon AWS",
-      role: "Cloud Solutions Architect - Associate",
-      ctc: "₹24.0 LPA",
-      appliedDate: "Sep 15, 2026",
-      status: "Interview",
-      stage: "Technical Round 1 (System Design & Networking)",
-      dateScheduled: "Oct 18, 2026 (02:30 PM IST)",
-      venue: "Amazon Chime Online",
-      hallTicketReady: true,
-      hasConflict: false,
-    },
-    {
-      id: "app-5",
-      company: "Oracle India",
-      role: "Member of Technical Staff",
-      ctc: "₹21.5 LPA",
-      appliedDate: "Sep 12, 2026",
-      status: "Applied",
-      stage: "Online Proctored Coding Test Pending",
-      dateScheduled: "Oct 04, 2026 (04:00 PM IST)",
-      venue: "HackerRank Proctored",
-      hallTicketReady: true,
-      hasConflict: false,
-    },
-  ];
+  const applicationsQuery = useStudentApplications();
+  const interviewsQuery = useStudentInterviews();
+
+  if (applicationsQuery.loading) {
+    return <AggregateLoading label="Loading your applications..." />;
+  }
+
+  if (applicationsQuery.error) {
+    return (
+      <AggregateError
+        message={applicationsQuery.error}
+        onRetry={applicationsQuery.refresh}
+      />
+    );
+  }
+
+  const applicationsData = applicationsQuery.data;
+  const interviewsData = interviewsQuery.data;
+
+  const interviewByJobId = new Map<string, StudentInterviewData>();
+  if (interviewsData) {
+    for (const interview of [
+      ...interviewsData.past,
+      ...interviewsData.upcoming,
+    ]) {
+      if (interview.jobId) interviewByJobId.set(interview.jobId, interview);
+    }
+  }
+
+  const applications: ApplicationRow[] = (
+    applicationsData?.applications ?? []
+  ).map((app) => {
+    const status = toApplicationStatus(app.status);
+    const interview =
+      status === "Interview" || status === "Shortlisted"
+        ? interviewByJobId.get(app.jobId)
+        : undefined;
+    return {
+      id: app.id,
+      company: app.job.company.name,
+      role: app.job.title,
+      ctc: app.job.ctc ?? "Not disclosed",
+      appliedDate: formatDate(app.appliedAt),
+      status,
+      stage: interview
+        ? `Round ${interview.roundNumber}: ${interview.roundName}`
+        : (nextStepForStatus(status) ?? "—"),
+      dateScheduled: interview
+        ? `${formatDate(interview.scheduledDate)}${
+            interview.startTime ? ` (${interview.startTime})` : ""
+          }`
+        : "—",
+    };
+  });
+
+  const byStatus = applicationsData?.stats.byStatus ?? {};
+  const totalApplied = applicationsData?.stats.total ?? applications.length;
+  const shortlistedCount = byStatus["SHORTLISTED"] ?? 0;
+  const offerCount =
+    (byStatus["OFFER_EXTENDED"] ?? 0) + (byStatus["ACCEPTED"] ?? 0);
+
+  const counts = {
+    all: applications.length,
+    shortlisted: applications.filter((app) => app.status === "Shortlisted")
+      .length,
+    interview: applications.filter((app) => app.status === "Interview").length,
+    offers: applications.filter((app) => app.status === "Offer Received")
+      .length,
+    applied: applications.filter(
+      (app) => app.status === "Applied" || app.status === "Under Review",
+    ).length,
+  };
 
   const filtered = applications.filter((app) => {
     const matchesSearch =
@@ -142,15 +158,15 @@ export function ApplicationsView() {
           <div className="flex items-center gap-3">
             <div className="px-3.5 py-2 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-center">
               <span className="text-[10px] text-slate-400 uppercase font-semibold block">Total Applied</span>
-              <span className="text-lg font-bold text-slate-900 dark:text-white">5</span>
+              <span className="text-lg font-bold text-slate-900 dark:text-white">{totalApplied}</span>
             </div>
             <div className="px-3.5 py-2 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-center">
               <span className="text-[10px] text-indigo-400 uppercase font-semibold block">Shortlisted</span>
-              <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">2</span>
+              <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{shortlistedCount}</span>
             </div>
             <div className="px-3.5 py-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-center">
               <span className="text-[10px] text-emerald-500 uppercase font-semibold block">Offers</span>
-              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">1</span>
+              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{offerCount}</span>
             </div>
           </div>
         </div>
@@ -171,11 +187,11 @@ export function ApplicationsView() {
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { id: "all", label: "All (5)" },
-            { id: "shortlisted", label: "Shortlisted (1)" },
-            { id: "interview", label: "Interviews (1)" },
-            { id: "offers", label: "Offers (1)" },
-            { id: "applied", label: "In Review (2)" },
+            { id: "all", label: "All", count: counts.all },
+            { id: "shortlisted", label: "Shortlisted", count: counts.shortlisted },
+            { id: "interview", label: "Interviews", count: counts.interview },
+            { id: "offers", label: "Offers", count: counts.offers },
+            { id: "applied", label: "In Review", count: counts.applied },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -185,7 +201,7 @@ export function ApplicationsView() {
                   : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
             >
-              {cat.label}
+              {cat.label} ({cat.count})
             </button>
           ))}
         </div>
@@ -193,6 +209,21 @@ export function ApplicationsView() {
 
       {/* Applications Cards */}
       <div className="space-y-4">
+        {filtered.length === 0 && (
+          <div className="p-10 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60 text-center">
+            <FileCheck2 className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+              {applications.length === 0
+                ? "No applications yet"
+                : "No applications match your filters"}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {applications.length === 0
+                ? "Jobs you apply for will appear here with their current status and next steps."
+                : "Try a different search term or status filter."}
+            </p>
+          </div>
+        )}
         {filtered.map((app) => (
           <div
             key={app.id}
@@ -251,17 +282,6 @@ export function ApplicationsView() {
                   >
                     <Download className="w-3.5 h-3.5" />
                     Download Offer Letter
-                  </button>
-                )}
-
-                {app.hallTicketReady && app.status !== "Offer Received" && (
-                  <button
-                    type="button"
-                    onClick={() => toast.success(`Downloading Hall Ticket for ${app.company} assessment`)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    Hall Ticket
                   </button>
                 )}
 

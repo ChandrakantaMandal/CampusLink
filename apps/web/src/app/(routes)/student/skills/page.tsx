@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentSkills } from "@/hooks/use-student-aggregates";
+import { useStudentSkills } from "@/hooks/use-student";
 import { toSkillGaps } from "@/lib/dashboard-adapters";
 import { toast } from "sonner";
 import { Layers, Sparkles, BookOpen } from "lucide-react";

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -13,29 +13,93 @@ import {
   ArrowRight,
   Sparkles,
   AlertTriangle,
-  Clock,
   ChevronRight,
   TrendingUp,
-  MapPin,
-  ExternalLink,
   Plus,
-  Building,
-  Filter,
+  Loader2,
 } from "lucide-react";
-import {
-  mockRecruiterCompany,
-  mockRecruiterJobs,
-  mockRecruiterCandidates,
-  mockRecruiterInterviews,
-  mockRecruiterOffers,
+import type {
+  RecruiterCompany,
+  RecruiterInterview,
+  RecruiterJob,
+  RecruiterOffer,
 } from "../mock-recruiter-data";
+import {
+  getMyInterviews,
+  getMyJobs,
+  getMyOffers,
+  getRecruiterProfile,
+  getRecruiterStats,
+  type RecruiterStats,
+} from "@/lib/api/recruiter.api";
+import { toast } from "sonner";
 
 export default function RecruiterDashboardHomeView() {
+  const [profile, setProfile] = useState<RecruiterCompany | null>(null);
+  const [stats, setStats] = useState<RecruiterStats | null>(null);
+  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [interviews, setInterviews] = useState<RecruiterInterview[]>([]);
+  const [offers, setOffers] = useState<RecruiterOffer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      getRecruiterProfile(),
+      getRecruiterStats(),
+      getMyJobs(),
+      getMyInterviews(),
+      getMyOffers(),
+    ])
+      .then(([profileRow, statsRow, jobRows, interviewRows, offerRows]) => {
+        if (cancelled) return;
+        setProfile(profileRow);
+        setStats(statsRow);
+        setJobs(jobRows);
+        setInterviews(interviewRows);
+        setOffers(offerRows);
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Failed to load dashboard data");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-2 py-16 text-sm font-medium text-slate-500">
+        <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  const applicationCount = stats?.applications ?? 0;
+  const shortlistedCount = stats?.shortlisted ?? 0;
+  const offerCount = stats?.offers ?? offers.length;
+  const conflictCount = stats?.interviewConflicts ?? 0;
+  const acceptedCount = offers.filter(
+    (offer) => offer.acceptanceStatus === "Accepted",
+  ).length;
+  const joinedCount = offers.filter(
+    (offer) => offer.joiningStatus === "Joined",
+  ).length;
+  const conversionPct =
+    applicationCount > 0
+      ? Math.round((shortlistedCount / applicationCount) * 100)
+      : 0;
+  const pct = (count: number) =>
+    applicationCount > 0 ? Math.round((count / applicationCount) * 100) : 0;
+
   const kpis = [
     {
       label: "Active Jobs",
-      value: "5",
-      change: "+2 this month",
+      value: stats?.jobs ?? jobs.length,
       subtitle: "Current campus openings",
       icon: Briefcase,
       color: "from-blue-600 to-indigo-600",
@@ -43,8 +107,7 @@ export default function RecruiterDashboardHomeView() {
     },
     {
       label: "Total Applicants",
-      value: "342",
-      change: "+48 this week",
+      value: applicationCount,
       subtitle: "Applications received",
       icon: Users,
       color: "from-purple-600 to-indigo-600",
@@ -52,8 +115,9 @@ export default function RecruiterDashboardHomeView() {
     },
     {
       label: "Shortlisted",
-      value: "68",
-      change: "20% conversion",
+      value: shortlistedCount,
+      change:
+        applicationCount > 0 ? `${conversionPct}% conversion` : undefined,
       subtitle: "Screened & approved",
       icon: CheckCircle2,
       color: "from-teal-600 to-emerald-600",
@@ -61,17 +125,20 @@ export default function RecruiterDashboardHomeView() {
     },
     {
       label: "Interviews",
-      value: "32",
-      change: "1 conflict alert",
-      subtitle: "Active interview stages",
+      value: interviews.length,
+      change:
+        conflictCount > 0
+          ? `${conflictCount} conflict alert${conflictCount === 1 ? "" : "s"}`
+          : "No conflicts",
+      subtitle: "Scheduled interview rounds",
       icon: Calendar,
       color: "from-amber-600 to-orange-600",
       href: "/recruiter/interviews",
     },
     {
       label: "Offers Made",
-      value: "12",
-      change: "4 accepted",
+      value: offerCount,
+      change: `${acceptedCount} accepted`,
       subtitle: "Formal offer letters",
       icon: Gift,
       color: "from-emerald-600 to-teal-600",
@@ -79,9 +146,8 @@ export default function RecruiterDashboardHomeView() {
     },
     {
       label: "Positions Filled",
-      value: "8",
-      change: "Target: 15",
-      subtitle: "Accepted & confirmed",
+      value: joinedCount,
+      subtitle: "Joined & confirmed",
       icon: Award,
       color: "from-rose-600 to-pink-600",
       href: "/recruiter/offers",
@@ -89,13 +155,36 @@ export default function RecruiterDashboardHomeView() {
   ];
 
   const pipelineStages = [
-    { name: "Applicants", count: 342, percentage: 100, color: "bg-blue-600" },
-    { name: "Screening", count: 186, percentage: 54, color: "bg-indigo-600" },
-    { name: "Shortlisted", count: 68, percentage: 20, color: "bg-purple-600" },
-    { name: "Interview", count: 32, percentage: 9.3, color: "bg-amber-500" },
-    { name: "Selected", count: 14, percentage: 4.1, color: "bg-teal-500" },
-    { name: "Offer", count: 12, percentage: 3.5, color: "bg-emerald-600" },
-    { name: "Joined", count: 8, percentage: 2.3, color: "bg-rose-500" },
+    {
+      name: "Applicants",
+      count: applicationCount,
+      percentage: applicationCount > 0 ? 100 : 0,
+      color: "bg-blue-600",
+    },
+    {
+      name: "Shortlisted",
+      count: shortlistedCount,
+      percentage: pct(shortlistedCount),
+      color: "bg-purple-600",
+    },
+    {
+      name: "Interview",
+      count: interviews.length,
+      percentage: pct(interviews.length),
+      color: "bg-amber-500",
+    },
+    {
+      name: "Offer",
+      count: offerCount,
+      percentage: pct(offerCount),
+      color: "bg-emerald-600",
+    },
+    {
+      name: "Joined",
+      count: joinedCount,
+      percentage: pct(joinedCount),
+      color: "bg-rose-500",
+    },
   ];
 
   return (
@@ -110,7 +199,7 @@ export default function RecruiterDashboardHomeView() {
               <span>Campus Recruitment Drive 2025-2026</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-              Good Morning, {mockRecruiterCompany.name} 👋
+              Good Morning, {profile?.name ?? "Recruiter"} 👋
             </h1>
             <p className="text-sm sm:text-base text-blue-100/90 max-w-xl">
               Manage your campus hiring pipeline, review AI-matched candidates, resolve interview schedule overlaps, and dispatch formal offers.
@@ -150,9 +239,11 @@ export default function RecruiterDashboardHomeView() {
                 <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr ${kpi.color} text-white shadow-sm transition-transform group-hover:scale-110`}>
                   <Icon className="h-4 w-4" />
                 </div>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
-                  {kpi.change}
-                </span>
+                {kpi.change && (
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                    {kpi.change}
+                  </span>
+                )}
               </div>
 
               <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
@@ -191,7 +282,7 @@ export default function RecruiterDashboardHomeView() {
         </div>
 
         {/* Funnel Progress Bars */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {pipelineStages.map((stage, idx) => (
             <div
               key={stage.name}
@@ -247,60 +338,76 @@ export default function RecruiterDashboardHomeView() {
         </div>
 
         {/* Conflict Alert Banner if any */}
-        <div className="mb-3.5 p-3 rounded-xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
-          <div className="flex items-start gap-2.5">
-            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
-            <div className="text-xs">
-              <span className="font-bold">Interview Conflict Detected: </span>
-              <span>Candidate Himanshu Rout has an overlapping slot with Apex Systems at 10:30 AM.</span>
-              <div className="mt-1">
-                <Link
-                  href="/recruiter/interviews"
-                  className="font-bold text-amber-700 dark:text-amber-300 underline"
-                >
-                  Reschedule slot now &rarr;
-                </Link>
+        {conflictCount > 0 && (
+          <div className="mb-3.5 p-3 rounded-xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+              <div className="text-xs">
+                <span className="font-bold">Interview Conflict Detected: </span>
+                <span>
+                  {conflictCount} overlapping interview slot
+                  {conflictCount === 1 ? "" : "s"} in your schedule.
+                </span>
+                <div className="mt-1">
+                  <Link
+                    href="/recruiter/interviews"
+                    className="font-bold text-amber-700 dark:text-amber-300 underline"
+                  >
+                    Reschedule slot now &rarr;
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 flex-1">
-          {mockRecruiterInterviews.map((interview) => (
-            <div
-              key={interview.id}
-              className={`p-3.5 rounded-xl border transition-all ${interview.hasConflict ? "border-amber-300 dark:border-amber-600/60 bg-amber-50/30 dark:bg-amber-950/10" : "border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40"}`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">
-                      {interview.candidateName}
-                    </span>
-                    {interview.hasConflict && (
-                      <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2 animate-pulse">
-                        Conflict!
+          {interviews.length === 0 ? (
+            <div className="col-span-full rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 p-8 text-center space-y-1">
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                No interviews scheduled yet.
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Schedule an interview from the calendar to see it here.
+              </p>
+            </div>
+          ) : (
+            interviews.slice(0, 6).map((interview) => (
+              <div
+                key={interview.id}
+                className={`p-3.5 rounded-xl border transition-all ${interview.hasConflict ? "border-amber-300 dark:border-amber-600/60 bg-amber-50/30 dark:bg-amber-950/10" : "border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40"}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">
+                        {interview.candidateName}
                       </span>
-                    )}
+                      {interview.hasConflict && (
+                        <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2 animate-pulse">
+                          Conflict!
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                      {interview.round} &bull; {interview.jobTitle}
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
-                    {interview.round} &bull; {interview.jobTitle}
-                  </p>
+
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                    {interview.time}
+                  </span>
                 </div>
 
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">
-                  {interview.time}
-                </span>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <span className="truncate">Panel: {interview.interviewerPanel}</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0">
+                    {interview.mode}
+                  </span>
+                </div>
               </div>
-
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="truncate">Panel: {interview.interviewerPanel}</span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0">
-                  {interview.mode}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
@@ -330,79 +437,92 @@ export default function RecruiterDashboardHomeView() {
             href="/recruiter/jobs"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
           >
-            <span>Manage All 5 Jobs</span>
+            <span>
+              {jobs.length > 0 ? `Manage All ${jobs.length} Jobs` : "Post a Job"}
+            </span>
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="pb-3 font-bold">Job Role</th>
-                <th className="pb-3 font-bold">CTC / Package</th>
-                <th className="pb-3 font-bold">Eligibility (Min CGPA)</th>
-                <th className="pb-3 font-bold">Applicants</th>
-                <th className="pb-3 font-bold">Deadline</th>
-                <th className="pb-3 font-bold">Status</th>
-                <th className="pb-3 font-bold text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-              {mockRecruiterJobs.map((job) => (
-                <tr key={job.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3.5 pr-3">
-                    <p className="font-bold text-slate-900 dark:text-white text-sm">
-                      {job.title}
-                    </p>
-                    <p className="text-[11px] text-slate-400">{job.jobType} &bull; {job.location}</p>
-                  </td>
-                  <td className="py-3.5 pr-3 font-semibold text-slate-700 dark:text-slate-300">
-                    {job.ctc}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span className="font-bold text-blue-600 dark:text-blue-400">
-                      {job.minCGPA} CGPA
-                    </span>
-                    <span className="text-[10px] text-slate-400 ml-1">
-                      ({job.allowedBranches.join(", ")})
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3 font-bold text-slate-900 dark:text-white">
-                    {job.applicantsCount}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-500 dark:text-slate-400">
-                    {job.applicationDeadline}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        job.status === "Applications Open"
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                          : job.status === "Interviewing"
-                          ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-                          : job.status === "Published"
-                          ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-                          : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="py-3.5 text-right">
-                    <Link
-                      href={`/recruiter/candidates?jobId=${job.id}` as Route}
-                      className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      <span>Review</span>
-                      <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </td>
+        {jobs.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 p-8 text-center space-y-1">
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+              No job openings found.
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Post a new opening to start building your campus pipeline.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <th className="pb-3 font-bold">Job Role</th>
+                  <th className="pb-3 font-bold">CTC / Package</th>
+                  <th className="pb-3 font-bold">Eligibility (Min CGPA)</th>
+                  <th className="pb-3 font-bold">Applicants</th>
+                  <th className="pb-3 font-bold">Deadline</th>
+                  <th className="pb-3 font-bold">Status</th>
+                  <th className="pb-3 font-bold text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                {jobs.slice(0, 5).map((job) => (
+                  <tr key={job.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="py-3.5 pr-3">
+                      <p className="font-bold text-slate-900 dark:text-white text-sm">
+                        {job.title}
+                      </p>
+                      <p className="text-[11px] text-slate-400">{job.jobType} &bull; {job.location}</p>
+                    </td>
+                    <td className="py-3.5 pr-3 font-semibold text-slate-700 dark:text-slate-300">
+                      {job.ctc}
+                    </td>
+                    <td className="py-3.5 pr-3">
+                      <span className="font-bold text-blue-600 dark:text-blue-400">
+                        {job.minCGPA} CGPA
+                      </span>
+                      <span className="text-[10px] text-slate-400 ml-1">
+                        ({job.allowedBranches.join(", ")})
+                      </span>
+                    </td>
+                    <td className="py-3.5 pr-3 font-bold text-slate-900 dark:text-white">
+                      {job.applicantsCount}
+                    </td>
+                    <td className="py-3.5 pr-3 text-slate-500 dark:text-slate-400">
+                      {job.applicationDeadline}
+                    </td>
+                    <td className="py-3.5 pr-3">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          job.status === "Applications Open"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                            : job.status === "Interviewing"
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                            : job.status === "Published"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                            : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        }`}
+                      >
+                        {job.status}
+                      </span>
+                    </td>
+                    <td className="py-3.5 text-right">
+                      <Link
+                        href={`/recruiter/candidates?jobId=${job.id}` as Route}
+                        className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <span>Review</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

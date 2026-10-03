@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ClipboardList,
   Search,
@@ -13,23 +13,61 @@ import {
   Users,
   ChevronDown,
 } from "lucide-react";
-import { mockApplications, type ApplicationItem } from "../mock-admin-data";
+import type { ApplicationItem } from "../mock-admin-data";
+import {
+  getAdminApplications,
+} from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function ApplicationsPipelineView() {
-  const [applications, setApplications] = useState<ApplicationItem[]>(mockApplications);
+  const [applications, setApplications] = useState<ApplicationItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [companyFilter, setCompanyFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [branchFilter, setBranchFilter] = useState("All");
 
+  useEffect(() => {
+    let cancelled = false;
+
+    getAdminApplications()
+      .then((data) => {
+        if (!cancelled) setApplications(data);
+      })
+      .catch(() => {
+        toast.error("Failed to load applications");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const totalCount = applications.length;
+  const stageCount = (stage: ApplicationItem["status"]) =>
+    applications.filter((app) => app.status === stage).length;
+
   const funnelStages = [
-    { stage: "Applied", count: 612, color: "bg-indigo-500" },
-    { stage: "Shortlisted", count: 342, color: "bg-blue-500" },
-    { stage: "Interview", count: 218, color: "bg-purple-500" },
-    { stage: "Selected", count: 112, color: "bg-amber-500" },
-    { stage: "Offer", count: 96, color: "bg-emerald-500" },
-    { stage: "Joined", count: 84, color: "bg-teal-500" },
+    { stage: "Applied", count: stageCount("Applied"), color: "bg-indigo-500" },
+    { stage: "Shortlisted", count: stageCount("Shortlisted"), color: "bg-blue-500" },
+    { stage: "Interview", count: stageCount("Interview"), color: "bg-purple-500" },
+    { stage: "Selected", count: stageCount("Selected"), color: "bg-amber-500" },
+    { stage: "Offer", count: stageCount("Offer"), color: "bg-emerald-500" },
+    { stage: "Joined", count: stageCount("Joined"), color: "bg-teal-500" },
+  ];
+
+  const companyOptions = [
+    "All",
+    ...Array.from(new Set(applications.map((app) => app.company))).sort(),
+  ];
+  const branchOptions = [
+    "All",
+    ...Array.from(new Set(applications.map((app) => app.branch)))
+      .filter(Boolean)
+      .sort(),
   ];
 
   const filteredApplications = applications.filter((app) => {
@@ -42,13 +80,6 @@ export default function ApplicationsPipelineView() {
     const matchesBranch = branchFilter === "All" || app.branch === branchFilter;
     return matchesSearch && matchesCompany && matchesStatus && matchesBranch;
   });
-
-  const handleUpdateStatus = (id: string, newStatus: ApplicationItem["status"]) => {
-    setApplications((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, status: newStatus } : app))
-    );
-    toast.success(`Application updated to stage: ${newStatus}`);
-  };
 
   const handleExportCSV = () => {
     const headers = "Student Name,Roll No,Branch,CGPA,Company,Role,Applied Date,Status,AI Match\n";
@@ -79,7 +110,7 @@ export default function ApplicationsPipelineView() {
             Recruitment Applications Pipeline
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Monitor all 612 student applications through shortlisting, online assessments, interviews, and offer rollouts.
+            Monitor all {loading ? "…" : totalCount} student applications through shortlisting, online assessments, interviews, and offer rollouts.
           </p>
         </div>
 
@@ -100,7 +131,7 @@ export default function ApplicationsPipelineView() {
             Current Application Pipeline Breakdown
           </h3>
           <span className="text-xs text-indigo-600 dark:text-indigo-400 font-bold">
-            Total 612 Applications
+            Total {loading ? "…" : totalCount} Applications
           </span>
         </div>
 
@@ -122,7 +153,7 @@ export default function ApplicationsPipelineView() {
               <div className="mt-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                 <div
                   className={`h-full rounded-full ${st.color}`}
-                  style={{ width: `${(st.count / 612) * 100}%` }}
+                  style={{ width: `${totalCount === 0 ? 0 : (st.count / totalCount) * 100}%` }}
                 />
               </div>
             </div>
@@ -150,10 +181,11 @@ export default function ApplicationsPipelineView() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
           >
             <option value="All">All Companies</option>
-            <option value="Google">Google</option>
-            <option value="TCS">TCS</option>
-            <option value="Infosys">Infosys</option>
-            <option value="Amazon">Amazon</option>
+            {companyOptions.slice(1).map((company) => (
+              <option key={company} value={company}>
+                {company}
+              </option>
+            ))}
           </select>
 
           <select
@@ -162,10 +194,11 @@ export default function ApplicationsPipelineView() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
           >
             <option value="All">All Branches</option>
-            <option value="CSE">CSE</option>
-            <option value="IT">IT</option>
-            <option value="ECE">ECE</option>
-            <option value="EEE">EEE</option>
+            {branchOptions.slice(1).map((branch) => (
+              <option key={branch} value={branch}>
+                {branch}
+              </option>
+            ))}
           </select>
 
           <select
@@ -197,11 +230,24 @@ export default function ApplicationsPipelineView() {
                 <th className="px-4 py-3.5">AI Match</th>
                 <th className="px-4 py-3.5">Applied Date</th>
                 <th className="px-4 py-3.5">Stage</th>
-                <th className="px-5 py-3.5 text-right">Move Stage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-              {filteredApplications.map((app) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    Loading applications…
+                  </td>
+                </tr>
+              ) : filteredApplications.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    No applications found.
+                  </td>
+                </tr>
+              ) : null}
+              {!loading &&
+                filteredApplications.map((app) => (
                 <tr
                   key={app.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
@@ -250,21 +296,6 @@ export default function ApplicationsPipelineView() {
                     >
                       {app.status}
                     </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <select
-                      value={app.status}
-                      onChange={(e) => handleUpdateStatus(app.id, e.target.value as any)}
-                      className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2 py-1 text-[11px] font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
-                    >
-                      <option value="Applied">Applied</option>
-                      <option value="Shortlisted">Shortlisted</option>
-                      <option value="Interview">Interview</option>
-                      <option value="Selected">Selected</option>
-                      <option value="Offer">Offer</option>
-                      <option value="Joined">Joined</option>
-                      <option value="Rejected">Rejected</option>
-                    </select>
                   </td>
                 </tr>
               ))}

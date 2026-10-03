@@ -20,7 +20,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
 import { useStudentDashboard, useStudentReadiness, useStudentDrives, useStudentSkills, useStudentJobs, useStudentApplications, useStudentInterviews, useStudentOffers, useStudentNotifications } from "@/hooks/use-student";
 import { useStudentProfile } from "@/hooks/use-student";
 import ProfileFlyout from "./ProfileFlyout";
@@ -48,14 +48,13 @@ export default function StudentSidebar({
 }: StudentSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useAuth();
   const dashboard = useStudentDashboard();
   const profile = useStudentProfile();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleLogout = async () => {
-    await signOut();
+    await authClient.signOut();
     router.push("/login?role=student" as Route);
   };
 

@@ -44,7 +44,7 @@ export interface DashboardNotification {
 
 // ---------- helpers ----------
 
-function formatDate(iso: string): string {
+export function formatDate(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleDateString("en-US", {
@@ -300,7 +300,7 @@ export function toApplicationStatus(status: string): ApplicationStatus {
   }
 }
 
-function nextStepForStatus(status: ApplicationStatus): string | undefined {
+export function nextStepForStatus(status: ApplicationStatus): string | undefined {
   switch (status) {
     case "Applied":
       return "Awaiting recruiter review";

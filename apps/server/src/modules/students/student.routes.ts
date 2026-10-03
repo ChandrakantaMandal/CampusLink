@@ -4,15 +4,12 @@ import { requireAuth } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
 
 import {
-  getMyStudentApplications,
   getMyStudentDashboard,
   getMyStudentDrives,
   getMyStudentInterviews,
-  getMyStudentJobs,
   getMyStudentNotifications,
   getMyStudentOffers,
   getMyStudentReadiness,
-  getMyStudentSkills,
   getMyStudentProfile,
   getStudent,
   updateMyStudentProfile,
@@ -20,7 +17,7 @@ import {
 
 const router = Router();
 
-const studentGuard = [requireAuth, requireRole("STUDENT")];
+
 
 // Get currently logged-in student's profile
 router.get("/me", requireAuth, requireRole("STUDENT"), getMyStudentProfile);
@@ -29,31 +26,22 @@ router.get("/me", requireAuth, requireRole("STUDENT"), getMyStudentProfile);
 router.patch("/me",requireAuth,requireRole("STUDENT"),updateMyStudentProfile);
 
 // Student dashboard aggregates
-router.get("/me/dashboard", ...studentGuard, getMyStudentDashboard);
+router.get("/me/dashboard",requireAuth, requireRole("STUDENT"), getMyStudentDashboard);
 
 // Student readiness aggregates
-router.get("/me/readiness", ...studentGuard, getMyStudentReadiness);
+router.get("/me/readiness", requireAuth, requireRole("STUDENT"), getMyStudentReadiness);
 
 // Student placement drives (registered + available)
-router.get("/me/drives", ...studentGuard, getMyStudentDrives);
-
-// Student skills
-router.get("/me/skills", ...studentGuard, getMyStudentSkills);
-
-// Student job recommendations
-router.get("/me/jobs", ...studentGuard, getMyStudentJobs);
-
-// Student applications + status stats
-router.get("/me/applications", ...studentGuard, getMyStudentApplications);
+router.get("/me/drives",requireAuth, requireRole("STUDENT"), getMyStudentDrives);
 
 // Student interviews (upcoming + past)
-router.get("/me/interviews", ...studentGuard, getMyStudentInterviews);
+router.get("/me/interviews", requireAuth, requireRole("STUDENT"), getMyStudentInterviews);
 
 // Student offers + stats
-router.get("/me/offers", ...studentGuard, getMyStudentOffers);
+router.get("/me/offers", requireAuth, requireRole("STUDENT"), getMyStudentOffers);
 
 // Student notifications + unread count
-router.get("/me/notifications", ...studentGuard, getMyStudentNotifications);
+router.get("/me/notifications", requireAuth, requireRole("STUDENT"), getMyStudentNotifications);
 
 // Get a student by ID
 router.get("/:id", requireAuth,requireRole("RECRUITER", "ADMIN"), getStudent);

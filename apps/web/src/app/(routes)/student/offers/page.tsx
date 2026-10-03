@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentOffers } from "@/hooks/use-student-aggregates";
+import { useStudentOffers } from "@/hooks/use-student";
 import { toOfferDetails } from "@/lib/dashboard-adapters";
 import { Gift, Award } from "lucide-react";
 

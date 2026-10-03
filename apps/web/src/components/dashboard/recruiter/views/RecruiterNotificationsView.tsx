@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -13,23 +13,47 @@ import {
   Filter,
   Check,
 } from "lucide-react";
+import type { RecruiterNotification } from "../mock-recruiter-data";
 import {
-  mockRecruiterNotifications,
-  type RecruiterNotification,
-} from "../mock-recruiter-data";
+  getMyNotifications,
+  markAllNotificationsRead,
+} from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterNotificationsView() {
-  const [notifications, setNotifications] = useState<RecruiterNotification[]>(mockRecruiterNotifications);
+  const [notifications, setNotifications] = useState<RecruiterNotification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("ALL");
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyNotifications()
+      .then((feed) => {
+        if (!cancelled) setNotifications(feed.notifications);
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Failed to load notifications");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = notifications.filter((n) => {
     return filterType === "ALL" || n.type === filterType;
   });
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    toast.success("All notifications marked as read");
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      toast.success("All notifications marked as read");
+    } catch {
+      toast.error("Failed to mark notifications as read");
+    }
   };
 
   const getIcon = (type: RecruiterNotification["type"]) => {
@@ -91,6 +115,16 @@ export default function RecruiterNotificationsView() {
 
       {/* Notifications List */}
       <div className="space-y-3">
+        {isLoading && (
+          <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-8">
+            Loading notifications...
+          </p>
+        )}
+        {!isLoading && filtered.length === 0 && (
+          <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-8">
+            No notifications{filterType === "ALL" ? "" : " in this category"}.
+          </p>
+        )}
         {filtered.map((notif) => (
           <div
             key={notif.id}

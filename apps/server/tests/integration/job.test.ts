@@ -94,8 +94,7 @@ describe("Job Integration Tests", () => {
       location: "Bangalore",
       employmentType: "FULL_TIME",
       workMode: "HYBRID",
-      salaryMin: 600000,
-      salaryMax: 1200000,
+      ctc: "₹8 - ₹12 LPA",
       applicationDeadline: new Date("2026-12-31T23:59:59.000Z"),
       company: {
         id: "company-1",
@@ -112,8 +111,7 @@ describe("Job Integration Tests", () => {
       location: "Bangalore",
       employmentType: "FULL_TIME",
       workMode: "REMOTE",
-      salaryMin: 800000,
-      salaryMax: 1500000,
+      ctc: "₹14 - ₹18 LPA",
       company: {
         id: "company-1",
         name: "Google",
@@ -135,6 +133,7 @@ describe("Job Integration Tests", () => {
         workMode: "HYBRID",
         salaryMin: 600000,
         salaryMax: 1200000,
+        ctc: "₹8 - ₹12 LPA",
         applicationDeadline: "2026-12-31T23:59:59.000Z",
         companyId: "company-1",
       });
@@ -153,8 +152,7 @@ describe("Job Integration Tests", () => {
           location: "Bangalore",
           employmentType: "FULL_TIME",
           workMode: "HYBRID",
-          salaryMin: 600000,
-          salaryMax: 1200000,
+          ctc: "₹8 - ₹12 LPA",
           applicationDeadline: "2026-12-31T23:59:59.000Z",
           company: {
             id: "company-1",
@@ -176,8 +174,7 @@ describe("Job Integration Tests", () => {
           location: "Bangalore",
           employmentType: "FULL_TIME",
           workMode: "HYBRID",
-          salaryMin: 600000,
-          salaryMax: 1200000,
+          ctc: "₹8 - ₹12 LPA",
           applicationDeadline: new Date("2026-12-31T23:59:59.000Z"),
           companyId: "company-1",
         },
@@ -433,6 +430,7 @@ describe("Job Integration Tests", () => {
         workMode: "REMOTE",
         salaryMin: 800000,
         salaryMax: 1500000,
+        ctc: "₹14 - ₹18 LPA",
       });
 
       expect(response.status).toBe(200);
@@ -449,8 +447,7 @@ describe("Job Integration Tests", () => {
           location: "Bangalore",
           employmentType: "FULL_TIME",
           workMode: "REMOTE",
-          salaryMin: 800000,
-          salaryMax: 1500000,
+          ctc: "₹14 - ₹18 LPA",
           company: {
             id: "company-1",
             name: "Google",
@@ -471,8 +468,9 @@ describe("Job Integration Tests", () => {
         data: {
           title: "Senior Software Engineer",
           workMode: "REMOTE",
-          salaryMin: 800000,
-          salaryMax: 1500000,
+          ctc: "₹14 - ₹18 LPA",
+          salaryMin: undefined,
+          salaryMax: undefined,
           applicationDeadline: undefined,
         },
         include: {
@@ -564,6 +562,8 @@ describe("Job Integration Tests", () => {
           id: "job-1",
         },
         data: {
+          salaryMin: undefined,
+          salaryMax: undefined,
           applicationDeadline: new Date(deadline),
         },
         include: {

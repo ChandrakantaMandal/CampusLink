@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
+import { useStudentProfile } from "@/hooks/use-student";
 import {
   User,
   Bell,
@@ -34,6 +35,11 @@ interface SettingsViewProps {
   onNavigateToTab?: (tab: string) => void;
 }
 
+function getDisplayName(firstName: string | null, lastName: string | null): string {
+  const name = [firstName, lastName].filter(Boolean).join(" ").trim();
+  return name || "";
+}
+
 export function SettingsView({
   studentName = "Himanshu Rout",
   department = "Computer Science & Engineering",
@@ -44,6 +50,8 @@ export function SettingsView({
   const [activeSection, setActiveSection] = useState<
     "account" | "placement" | "notifications" | "security" | "appearance"
   >("account");
+
+  const { profile } = useStudentProfile();
 
   // State management with localStorage persistence
   const [settings, setSettings] = useState({
@@ -93,6 +101,48 @@ export function SettingsView({
     }
   }, []);
 
+  const seededFromProfileRef = useRef(false);
+  const profileDefaultsRef = useRef<typeof settings | null>(null);
+
+  useEffect(() => {
+    if (!profile || seededFromProfileRef.current) return;
+    seededFromProfileRef.current = true;
+
+    const fromProfile = {
+      fullName:
+        getDisplayName(profile.firstName, profile.lastName) ||
+        profile.user?.name ||
+        undefined,
+      rollNumber: profile.rollNo ?? undefined,
+      email: profile.user?.email ?? undefined,
+      phone: profile.phone ?? undefined,
+      college: profile.college ?? undefined,
+      department: profile.department ?? profile.branch ?? undefined,
+      graduationYear:
+        profile.graduationYear != null ? String(profile.graduationYear) : undefined,
+      cgpa: profile.cgpa != null ? profile.cgpa.toFixed(2) : undefined,
+      targetRoles: profile.targetRole ? [profile.targetRole] : undefined,
+    };
+
+    const seeded = Object.fromEntries(
+      Object.entries(fromProfile).filter(
+        ([, value]) => value !== undefined && value !== null && value !== "",
+      ),
+    ) as unknown as typeof settings;
+
+    if (Object.keys(seeded).length === 0) return;
+
+    profileDefaultsRef.current = seeded;
+
+    try {
+      if (localStorage.getItem("hirebridge_student_settings")) return; // saved preferences win
+    } catch {
+      // storage unavailable — apply profile defaults anyway
+    }
+
+    setSettings((prev) => ({ ...prev, ...seeded }));
+  }, [profile]);
+
   const handleChange = (key: string, value: any) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
     setHasChanges(true);
@@ -136,6 +186,7 @@ export function SettingsView({
       showCgpaPublicly: true,
       twoFactorAuth: false,
       sessionAlerts: true,
+      ...(profileDefaultsRef.current ?? {}),
     });
     setHasChanges(false);
     toast.info("Settings reset to defaults.");

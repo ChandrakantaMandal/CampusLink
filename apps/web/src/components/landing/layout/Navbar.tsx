@@ -18,10 +18,11 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
 import { Button } from "@CampusLink/ui/components/button";
-import { useAuth } from "@/lib/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 export default function LandingNavbar() {
-  const { isAuthenticated } = useAuth();
+  const { data: session } = authClient.useSession();
+  const isAuthenticated = Boolean(session?.user);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

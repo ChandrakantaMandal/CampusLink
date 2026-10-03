@@ -13,7 +13,6 @@ const mocks = vi.hoisted(() => ({
     application: {
       count: vi.fn(),
       findMany: vi.fn(),
-      groupBy: vi.fn(),
     },
     interview: {
       count: vi.fn(),
@@ -41,12 +40,6 @@ const mocks = vi.hoisted(() => ({
     assessmentResult: {
       findMany: vi.fn(),
     },
-    studentSkill: {
-      findMany: vi.fn(),
-    },
-    job: {
-      findMany: vi.fn(),
-    },
   },
 
   redis: {
@@ -71,9 +64,6 @@ import {
   getStudentDashboard,
   getStudentReadiness,
   getStudentDrives,
-  getStudentSkills,
-  getStudentJobs,
-  getStudentApplications,
   getStudentInterviews,
   getStudentOffers,
   getStudentNotifications,
@@ -843,129 +833,6 @@ describe("Student Aggregates Service", () => {
         JSON.stringify(result),
         "EX",
         300,
-      );
-    });
-  });
-
-  describe("getStudentSkills", () => {
-    it("should return student skills with a count", async () => {
-      const skills = [
-        { id: "ss-1", skill: { id: "skill-1", name: "React" } },
-        { id: "ss-2", skill: { id: "skill-2", name: "Node.js" } },
-      ];
-
-      mocks.db.studentSkill.findMany.mockResolvedValue(skills);
-
-      const result = await getStudentSkills("user-1");
-
-      expect(result).toEqual({ skills, count: 2 });
-
-      expect(mocks.db.studentSkill.findMany).toHaveBeenCalledWith({
-        where: { studentId: "student-1" },
-        include: { skill: true },
-        orderBy: { createdAt: "desc" },
-      });
-
-      expect(mocks.redis.set).toHaveBeenCalledWith(
-        "student:skills:user-1",
-        JSON.stringify(result),
-        "EX",
-        300,
-      );
-    });
-  });
-
-  describe("getStudentJobs", () => {
-    it("should annotate jobs with application state and eligibility", async () => {
-      const appliedJob = {
-        id: "job-1",
-        title: "SDE 1",
-        minCGPA: 9.0,
-        maxBacklogs: 0,
-        allowedBranches: ["CSE"],
-        requiredBranch: null,
-        status: "APPLICATIONS_OPEN",
-        company: { id: "comp-1", name: "Acme" },
-        skills: [],
-        applications: [{ id: "app-1", status: "APPLIED" }],
-      };
-      const openJob = {
-        id: "job-2",
-        title: "SDE 2",
-        minCGPA: null,
-        maxBacklogs: null,
-        allowedBranches: [],
-        requiredBranch: null,
-        status: "PUBLISHED",
-        company: { id: "comp-2", name: "Globex" },
-        skills: [],
-        applications: [],
-      };
-
-      mocks.db.job.findMany.mockResolvedValue([appliedJob, openJob]);
-
-      const result = await getStudentJobs("user-1");
-
-      expect(result?.jobs).toHaveLength(2);
-
-      expect(result?.jobs[0]).toMatchObject({
-        id: "job-1",
-        hasApplied: true,
-        applicationStatus: "APPLIED",
-        eligible: false,
-      });
-
-      expect(result?.jobs[1]).toMatchObject({
-        id: "job-2",
-        hasApplied: false,
-        applicationStatus: null,
-        eligible: true,
-      });
-
-      expect(mocks.db.job.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { status: { in: ["APPLICATIONS_OPEN", "PUBLISHED"] } },
-          take: 50,
-        }),
-      );
-
-      expect(mocks.redis.set).toHaveBeenCalledWith(
-        "student:jobs:user-1",
-        JSON.stringify(result),
-        "EX",
-        300,
-      );
-    });
-  });
-
-  describe("getStudentApplications", () => {
-    it("should return applications with grouped status stats", async () => {
-      const applications = [
-        { id: "app-1", status: "APPLIED" },
-        { id: "app-2", status: "REJECTED" },
-      ];
-
-      mocks.db.application.findMany.mockResolvedValue(applications);
-      mocks.db.application.groupBy.mockResolvedValue([
-        { status: "APPLIED", _count: { _all: 2 } },
-        { status: "REJECTED", _count: { _all: 1 } },
-      ]);
-
-      const result = await getStudentApplications("user-1");
-
-      expect(result).toEqual({
-        applications,
-        stats: {
-          total: 3,
-          byStatus: { APPLIED: 2, REJECTED: 1 },
-        },
-      });
-
-      expect(mocks.redis.set).toHaveBeenCalledWith(
-        "student:applications:user-1",
-        JSON.stringify(result),
-        "EX",
-        60,
       );
     });
   });

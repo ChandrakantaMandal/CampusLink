@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
-import { mockRecruiterNotifications } from "./mock-recruiter-data";
+import type { RecruiterNotification } from "./mock-recruiter-data";
+import { getMyNotifications, getRecruiterProfile } from "@/lib/api/recruiter.api";
 
 interface RecruiterHeaderProps {
   onToggleSidebar: () => void;
@@ -33,8 +34,24 @@ export default function RecruiterHeader({
   const router = useRouter();
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [recentNotifications, setRecentNotifications] = useState<RecruiterNotification[]>([]);
+  const [companyName, setCompanyName] = useState("TechCorp Innovations");
 
-  const unreadCount = mockRecruiterNotifications.filter((n) => !n.isRead).length;
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getMyNotifications(), getRecruiterProfile()])
+      .then(([feed, profile]) => {
+        if (cancelled) return;
+        setUnreadCount(feed.unreadCount);
+        setRecentNotifications(feed.notifications.slice(0, 4));
+        setCompanyName(profile.name);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +104,7 @@ export default function RecruiterHeader({
         <div className="hidden lg:flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/60 dark:border-blue-900/40 dark:bg-blue-950/20 px-3 py-1.5">
           <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
           <span className="text-xs font-bold text-blue-700 dark:text-blue-300">
-            TechCorp Innovations
+            {companyName}
           </span>
           <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded-md">
             Verified ✓
@@ -129,7 +146,7 @@ export default function RecruiterHeader({
               </div>
 
               <div className="space-y-2 max-h-72 overflow-y-auto">
-                {mockRecruiterNotifications.slice(0, 4).map((notif) => (
+                {recentNotifications.map((notif) => (
                   <Link
                     key={notif.id}
                     href={(notif.actionUrl as Route) || "/recruiter/notifications"}
@@ -152,6 +169,11 @@ export default function RecruiterHeader({
                     </div>
                   </Link>
                 ))}
+                {recentNotifications.length === 0 && (
+                  <p className="py-3 text-center text-xs text-slate-400 dark:text-slate-500">
+                    No notifications yet.
+                  </p>
+                )}
               </div>
             </div>
           )}

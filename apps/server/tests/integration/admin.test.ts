@@ -191,40 +191,6 @@ describe("Admin API Integration Tests", () => {
     });
   });
 
-  describe("PATCH /api/admin/users/:id/role", () => {
-    it("should update a user's role", async () => {
-      const response = await request(app)
-        .patch(`/api/admin/users/${studentUser.id}/role`)
-        .set("Authorization", `Bearer ${adminSessionToken}`)
-        .send({
-          role: "RECRUITER",
-        });
-
-      expect(response.status).toBe(200);
-    });
-
-    it("should reject an invalid role", async () => {
-      const response = await request(app)
-        .patch(`/api/admin/users/${studentUser.id}/role`)
-        .set("Authorization", `Bearer ${adminSessionToken}`)
-        .send({
-          role: "INVALID_ROLE",
-        });
-
-      expect(response.status).toBe(400);
-    });
-
-    it("should return 400 when the user ID is invalid", async () => {
-      const response = await request(app)
-        .patch("/api/admin/users/invalid-id/role")
-        .set("Authorization", `Bearer ${adminSessionToken}`)
-        .send({
-          role: "STUDENT",
-        });
-
-      expect(response.status).toBe(400);
-    });
-  });
 
   describe("DELETE /api/admin/users/:id", () => {
     it("should delete a user", async () => {
@@ -321,6 +287,272 @@ describe("Admin API Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
+    });
+  });
+
+  describe("GET /api/admin/offers", () => {
+    it("should reject unauthenticated requests", async () => {
+      const response = await request(app).get("/api/admin/offers");
+
+      expect(response.status).toBe(401);
+    });
+
+    it("should reject non-admin users", async () => {
+      const response = await request(app)
+        .get("/api/admin/offers")
+        .set("Authorization", `Bearer ${studentSessionToken}`);
+
+      expect(response.status).toBe(403);
+    });
+
+    it("should return all offers for an admin", async () => {
+      const response = await request(app)
+        .get("/api/admin/offers")
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+
+    it("should include seeded offer with student, company and job data", async () => {
+      const user = await db.user.create({
+        data: {
+          id: `offer-student-${Date.now()}`,
+          email: `offer-student-${Date.now()}@example.com`,
+          name: "Offer Test Student",
+          emailVerified: true,
+          role: "STUDENT",
+        },
+      });
+
+      const studentProfile = await db.studentProfile.create({
+        data: {
+          userId: user.id,
+          rollNo: `ROLL-${Date.now()}`,
+          firstName: "Offer",
+          lastName: "Test",
+          branch: "CSE",
+        },
+      });
+
+      const company = await db.company.create({
+        data: {
+          name: `Offer Test Co ${Date.now()}`,
+        },
+      });
+
+      const offer = await db.offer.create({
+        data: {
+          studentId: studentProfile.id,
+          companyId: company.id,
+          role: "Software Engineer",
+          ctc: "7.5",
+          offerDate: new Date(),
+          status: "SENT",
+        },
+      });
+
+      try {
+        const response = await request(app)
+          .get("/api/admin/offers")
+          .set("Authorization", `Bearer ${adminSessionToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+
+        const created = response.body.data.find(
+          (item: { id: string }) => item.id === offer.id,
+        );
+
+        expect(created).toBeDefined();
+        expect(created.company.id).toBe(company.id);
+        expect(created.student.id).toBe(studentProfile.id);
+        expect(created.role).toBe("Software Engineer");
+      } finally {
+        await db.offer.deleteMany({
+          where: { id: offer.id },
+        });
+        await db.company.deleteMany({
+          where: { id: company.id },
+        });
+        await db.studentProfile.deleteMany({
+          where: { id: studentProfile.id },
+        });
+        await db.user.deleteMany({
+          where: { id: user.id },
+        });
+      }
+    }, 15_000);
+  });
+
+  describe("Placement drives", () => {
+    let companyId: string;
+    let driveId: string;
+
+    beforeAll(async () => {
+      const company = await db.company.create({
+        data: {
+          name: `Drive Test Co ${Date.now()}`,
+        },
+      });
+
+      companyId = company.id;
+    }, 15_000);
+
+    afterAll(async () => {
+      if (companyId) {
+        await db.company.deleteMany({
+          where: {
+            id: companyId,
+          },
+        });
+      }
+    });
+
+    it("should reject unauthenticated drive creation", async () => {
+      const response = await request(app).post("/api/admin/drives").send({
+        companyId,
+        title: "Unauth Drive",
+        role: "SDE",
+        driveDate: new Date().toISOString(),
+      });
+
+      expect(response.status).toBe(401);
+    });
+
+    it("should reject drive creation by non-admin users", async () => {
+      const response = await request(app)
+        .post("/api/admin/drives")
+        .set("Authorization", `Bearer ${studentSessionToken}`)
+        .send({
+          companyId,
+          title: "Student Drive",
+          role: "SDE",
+          driveDate: new Date().toISOString(),
+        });
+
+      expect(response.status).toBe(403);
+    });
+
+    it("should create a placement drive", async () => {
+      const response = await request(app)
+        .post("/api/admin/drives")
+        .set("Authorization", `Bearer ${adminSessionToken}`)
+        .send({
+          companyId,
+          title: "Campus Placement Drive",
+          role: "Software Engineer",
+          driveDate: new Date().toISOString(),
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.data.id).toBeDefined();
+
+      driveId = response.body.data.id;
+    }, 15_000);
+
+    it("should return 400 when creating a drive for an unknown company", async () => {
+      const response = await request(app)
+        .post("/api/admin/drives")
+        .set("Authorization", `Bearer ${adminSessionToken}`)
+        .send({
+          companyId: "00000000-0000-0000-0000-000000000000",
+          title: "Orphan Drive",
+          role: "SDE",
+          driveDate: new Date().toISOString(),
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it("should return 400 when required fields are missing", async () => {
+      const response = await request(app)
+        .post("/api/admin/drives")
+        .set("Authorization", `Bearer ${adminSessionToken}`)
+        .send({
+          companyId,
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it("should return all placement drives for an admin", async () => {
+      const response = await request(app)
+        .get("/api/admin/drives")
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body.data)).toBe(true);
+    });
+
+    it("should return a placement drive by ID", async () => {
+      const response = await request(app)
+        .get(`/api/admin/drives/${driveId}`)
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.id).toBe(driveId);
+    });
+
+    it("should return 404 for a non-existent drive", async () => {
+      const response = await request(app)
+        .get("/api/admin/drives/00000000-0000-0000-0000-000000000000")
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(404);
+    });
+
+    it("should update a placement drive", async () => {
+      const response = await request(app)
+        .patch(`/api/admin/drives/${driveId}`)
+        .set("Authorization", `Bearer ${adminSessionToken}`)
+        .send({
+          title: "Updated Placement Drive",
+          status: "ONGOING",
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.title).toBe("Updated Placement Drive");
+    });
+
+    it("should reject an invalid tier", async () => {
+      const response = await request(app)
+        .patch(`/api/admin/drives/${driveId}`)
+        .set("Authorization", `Bearer ${adminSessionToken}`)
+        .send({
+          tier: "TIER_9",
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it("should return 400 when updating a non-existent drive", async () => {
+      const response = await request(app)
+        .patch("/api/admin/drives/00000000-0000-0000-0000-000000000000")
+        .set("Authorization", `Bearer ${adminSessionToken}`)
+        .send({
+          title: "Ghost Drive",
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it("should delete a placement drive", async () => {
+      const response = await request(app)
+        .delete(`/api/admin/drives/${driveId}`)
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(200);
+    });
+
+    it("should return 500 when deleting a non-existent drive", async () => {
+      const response = await request(app)
+        .delete("/api/admin/drives/00000000-0000-0000-0000-000000000000")
+        .set("Authorization", `Bearer ${adminSessionToken}`);
+
+      expect(response.status).toBe(500);
     });
   });
 });

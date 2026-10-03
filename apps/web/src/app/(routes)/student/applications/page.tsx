@@ -6,7 +6,7 @@ import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
-import { useStudentApplications } from "@/hooks/use-student-aggregates";
+import { useStudentApplications } from "@/hooks/use-student";
 import { toApplicationItems } from "@/lib/dashboard-adapters";
 import { UserCheck } from "lucide-react";
 

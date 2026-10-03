@@ -84,10 +84,13 @@ describe("createApplicationSchema", () => {
 describe("updateApplicationStatusSchema", () => {
   const validStatuses = [
     "APPLIED",
+    "UNDER_REVIEW",
     "SHORTLISTED",
     "ASSESSMENT",
     "INTERVIEW",
     "SELECTED",
+    "OFFER_EXTENDED",
+    "ACCEPTED",
     "REJECTED",
     "WITHDRAWN",
   ] as const;

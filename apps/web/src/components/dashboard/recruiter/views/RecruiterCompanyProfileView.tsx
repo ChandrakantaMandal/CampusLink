@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Building2,
   Globe,
@@ -16,22 +16,81 @@ import {
   ExternalLink,
   Award,
 } from "lucide-react";
-import { mockRecruiterCompany, type RecruiterCompany } from "../mock-recruiter-data";
+import type { RecruiterCompany } from "../mock-recruiter-data";
+import {
+  getRecruiterProfile,
+  updateRecruiterProfile,
+  type UpdateRecruiterProfileInput,
+} from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterCompanyProfileView() {
-  const [company, setCompany] = useState<RecruiterCompany>(mockRecruiterCompany);
+  const [company, setCompany] = useState<RecruiterCompany | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<RecruiterCompany>(mockRecruiterCompany);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState<RecruiterCompany | null>(null);
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    let cancelled = false;
+    getRecruiterProfile()
+      .then((data) => {
+        if (!cancelled) {
+          setCompany(data);
+          setFormData(data);
+        }
+      })
+      .catch((error: Error) => {
+        if (!cancelled)
+          toast.error("Failed to load company profile", {
+            description: error.message,
+          });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCompany(formData);
-    setIsEditing(false);
-    toast.success("Company Profile Updated", {
-      description: "Company details and recruiter credentials successfully saved.",
-    });
+    if (!formData) return;
+
+    setIsSaving(true);
+    try {
+      const companyPayload: UpdateRecruiterProfileInput["company"] = {};
+      if (formData.name) companyPayload.name = formData.name;
+      if (formData.industry) companyPayload.industry = formData.industry;
+      if (formData.website) companyPayload.website = formData.website;
+      if (formData.location) companyPayload.location = formData.location;
+      if (formData.description) companyPayload.description = formData.description;
+      if (formData.linkedinUrl) companyPayload.linkedinUrl = formData.linkedinUrl;
+
+      const updated = await updateRecruiterProfile(companyPayload);
+      setCompany(updated);
+      setFormData(updated);
+      setIsEditing(false);
+      toast.success("Company Profile Updated", {
+        description: "Company details and recruiter credentials successfully saved.",
+      });
+    } catch (error) {
+      toast.error("Failed to update company profile", {
+        description: (error as Error).message,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (!company || !formData) {
+    return (
+      <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-8 shadow-xs">
+          <p className="text-sm font-semibold text-slate-400 text-center">
+            Loading company profile...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -118,8 +177,8 @@ export default function RecruiterCompanyProfileView() {
                 <input
                   type="text"
                   value={formData.recruiterName}
-                  onChange={(e) => setFormData({ ...formData, recruiterName: e.target.value })}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
+                  disabled
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-500 dark:text-slate-400"
                   required
                 />
               </div>
@@ -129,8 +188,8 @@ export default function RecruiterCompanyProfileView() {
                 <input
                   type="email"
                   value={formData.recruiterEmail}
-                  onChange={(e) => setFormData({ ...formData, recruiterEmail: e.target.value })}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
+                  disabled
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-500 dark:text-slate-400"
                   required
                 />
               </div>
@@ -140,8 +199,8 @@ export default function RecruiterCompanyProfileView() {
                 <input
                   type="text"
                   value={formData.companySize}
-                  onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
+                  disabled
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-500 dark:text-slate-400"
                 />
               </div>
 
@@ -177,10 +236,11 @@ export default function RecruiterCompanyProfileView() {
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-6 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg hover:shadow-blue-500/30 transition-all cursor-pointer"
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-6 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Save className="h-4 w-4" />
-                <span>Save Changes</span>
+                <span>{isSaving ? "Saving..." : "Save Changes"}</span>
               </button>
             </div>
           </form>
@@ -189,7 +249,13 @@ export default function RecruiterCompanyProfileView() {
             {/* Top Brand Banner */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 pb-6 border-b border-slate-200 dark:border-slate-800">
               <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white text-2xl font-black shadow-lg shadow-blue-600/30">
-                TC
+                {company.name
+                  .split(" ")
+                  .map((word) => word[0] ?? "")
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase() || "CO"}
               </div>
 
               <div className="space-y-1.5 flex-1">
