@@ -56,6 +56,7 @@ app.use("/api/assessments", assessmentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/recruiter", recruiterRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/ai", aiRoutes);
 
 app.use(errorMiddleware);
 

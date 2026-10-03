@@ -42,13 +42,16 @@ export default function AIPage() {
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
-        api: `${SERVER_URL}/ai`,
+        api: `${SERVER_URL}/api/ai/chat`,
       }),
     [],
   );
 
-  const { messages, sendMessage, status, setMessages } = useChat({
+  const { messages, sendMessage, status, setMessages, error } = useChat({
     transport,
+    onError: (err) => {
+      console.error("[CampusLink AI Chat] Error:", err);
+    },
   });
 
   const isSending = status === "submitted" || status === "streaming";
