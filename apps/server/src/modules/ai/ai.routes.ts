@@ -3,7 +3,8 @@ import { chatStreamController } from "./ai.controller";
 
 const router = Router();
 
-// Chat streaming endpoint
+// Chat streaming endpoints
 router.post("/chat", chatStreamController);
+router.post("/", chatStreamController);
 
 export default router;
