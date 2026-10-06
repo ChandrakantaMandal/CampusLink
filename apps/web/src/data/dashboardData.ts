@@ -33,6 +33,7 @@ export interface RecommendedJob {
   };
   whyMatch: string;
   driveDate: string;
+  hasApplied: boolean;
 }
 
 export interface UpcomingDrive {
@@ -145,6 +146,7 @@ export const sampleDashboardData = {
       whyMatch:
         "Strong Python skills, verified full-stack project experience, and academic criteria fully satisfied.",
       driveDate: "Oct 18, 2026",
+      hasApplied: false,
     },
     {
       id: "job-2",
@@ -161,6 +163,7 @@ export const sampleDashboardData = {
       whyMatch:
         "Verified cybersecurity fundamentals, Linux coursework, and hands-on networking projects.",
       driveDate: "Oct 25, 2026",
+      hasApplied: false,
     },
     {
       id: "job-3",
@@ -177,6 +180,7 @@ export const sampleDashboardData = {
       whyMatch:
         "High problem-solving scores and algorithmic agility; adding Docker project will raise match to 94%.",
       driveDate: "Nov 5, 2026",
+      hasApplied: false,
     },
   ] as RecommendedJob[],
 

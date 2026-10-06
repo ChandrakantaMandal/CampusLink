@@ -15,7 +15,7 @@ import {
   Mail,
   FileCheck,
 } from "lucide-react";
-import type { RecruiterCandidate } from "../mock-recruiter-data";
+import type { RecruiterCandidate } from "../recruiter.types";
 import { getShortlistedCandidates } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
@@ -128,7 +128,7 @@ export default function RecruiterShortlistedView() {
                 </tr>
               ) : (
                 filtered.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50">
+                <tr key={`${c.id}-${c.appliedJobId}`} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50">
                   <td className="p-4">
                     <p className="font-bold text-slate-900 dark:text-white text-sm">{c.name}</p>
                     <p className="text-[11px] text-slate-400">{c.branch} &bull; CGPA: {c.cgpa}</p>

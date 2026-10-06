@@ -19,8 +19,8 @@ import {
   Phone,
   ArrowRight,
 } from "lucide-react";
-import type { AdminRecruiter } from "../mock-admin-data";
-import { getAdminRecruiters, createAdminRecruiter } from "@/lib/api/admin.api";
+import type { AdminRecruiter } from "../admin.types";
+import { getAdminRecruiters, createAdminRecruiter, verifyAdminRecruiter } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function RecruitersManagementView() {
@@ -30,6 +30,8 @@ export default function RecruitersManagementView() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedRecruiter, setSelectedRecruiter] = useState<AdminRecruiter | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [actingId, setActingId] = useState<string | null>(null);
+  const [confirmDeactivateId, setConfirmDeactivateId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,24 +67,53 @@ export default function RecruitersManagementView() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleApprove = (id: string) => {
-    setRecruiters((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: "Active" } : r))
+  const refreshRecruiters = async () => {
+    const data = await getAdminRecruiters();
+    setRecruiters(data);
+    setSelectedRecruiter((prev) =>
+      prev ? (data.find((r) => r.id === prev.id) ?? prev) : null
     );
-    if (selectedRecruiter?.id === id) {
-      setSelectedRecruiter((prev) => prev ? { ...prev, status: "Active" } : null);
-    }
-    toast.success("Recruiter approved for campus drives!");
   };
 
-  const handleDeactivate = (id: string) => {
-    setRecruiters((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: "Inactive" } : r))
-    );
-    if (selectedRecruiter?.id === id) {
-      setSelectedRecruiter((prev) => prev ? { ...prev, status: "Inactive" } : null);
+  const handleApprove = async (id: string) => {
+    if (actingId) return;
+    setActingId(id);
+    setConfirmDeactivateId(null);
+    try {
+      await verifyAdminRecruiter(id, "VERIFIED");
+      await refreshRecruiters();
+      toast.success("Recruiter approved for campus drives!");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to approve recruiter",
+      );
+    } finally {
+      setActingId(null);
     }
-    toast.info("Recruiter deactivated.");
+  };
+
+  const handleDeactivate = async (id: string) => {
+    const target = recruiters.find((r) => r.id === id);
+    if (!target) return;
+    const reactivating = target.status === "Inactive";
+    if (!reactivating && confirmDeactivateId !== id) {
+      setConfirmDeactivateId(id);
+      return;
+    }
+    if (actingId) return;
+    setActingId(id);
+    setConfirmDeactivateId(null);
+    try {
+      await verifyAdminRecruiter(id, reactivating ? "VERIFIED" : "REJECTED");
+      await refreshRecruiters();
+      toast.info(reactivating ? "Recruiter reactivated." : "Recruiter deactivated.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update recruiter",
+      );
+    } finally {
+      setActingId(null);
+    }
   };
 
   const handleCreateRecruiter = async (e: React.FormEvent) => {
@@ -138,7 +169,7 @@ export default function RecruitersManagementView() {
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-indigo-600/25 cursor-pointer shrink-0 self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
-          <span>+ Add Recruiter</span>
+          <span>Add Recruiter</span>
         </button>
       </div>
 
@@ -279,17 +310,32 @@ export default function RecruitersManagementView() {
                       <button
                         type="button"
                         onClick={() => handleApprove(rec.id)}
-                        className="cursor-pointer rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all"
+                        disabled={actingId === rec.id}
+                        className="cursor-pointer rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait"
                       >
-                        Approve
+                        {actingId === rec.id ? "Working…" : "Approve"}
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => handleDeactivate(rec.id)}
-                        className="cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 px-2 py-1 text-[11px] text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                        onBlur={() =>
+                          setConfirmDeactivateId((prev) => (prev === rec.id ? null : prev))
+                        }
+                        disabled={actingId === rec.id}
+                        className={`cursor-pointer rounded-lg px-2 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait ${
+                          confirmDeactivateId === rec.id
+                            ? "bg-rose-600 text-white font-bold"
+                            : "border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                        }`}
                       >
-                        {rec.status === "Inactive" ? "Activate" : "Deactivate"}
+                        {actingId === rec.id
+                          ? "Working…"
+                          : confirmDeactivateId === rec.id
+                          ? "Confirm?"
+                          : rec.status === "Inactive"
+                          ? "Activate"
+                          : "Deactivate"}
                       </button>
                     )}
                   </td>
@@ -372,17 +418,32 @@ export default function RecruitersManagementView() {
                   <button
                     type="button"
                     onClick={() => handleApprove(selectedRecruiter.id)}
-                    className="cursor-pointer rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 text-xs"
+                    disabled={actingId === selectedRecruiter.id}
+                    className="cursor-pointer rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 text-xs disabled:opacity-60 disabled:cursor-wait"
                   >
-                    Approve Recruiter
+                    {actingId === selectedRecruiter.id ? "Working…" : "Approve Recruiter"}
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => handleDeactivate(selectedRecruiter.id)}
-                    className="cursor-pointer rounded-xl border border-rose-300 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-bold px-4 py-2 text-xs"
+                    onBlur={() =>
+                      setConfirmDeactivateId((prev) =>
+                        prev === selectedRecruiter.id ? null : prev
+                      )
+                    }
+                    disabled={actingId === selectedRecruiter.id}
+                    className={`cursor-pointer rounded-xl font-bold px-4 py-2 text-xs disabled:opacity-60 disabled:cursor-wait ${
+                      confirmDeactivateId === selectedRecruiter.id
+                        ? "bg-rose-600 hover:bg-rose-700 text-white"
+                        : "border border-rose-300 dark:border-rose-900 text-rose-600 dark:text-rose-400"
+                    }`}
                   >
-                    Deactivate
+                    {actingId === selectedRecruiter.id
+                      ? "Working…"
+                      : confirmDeactivateId === selectedRecruiter.id
+                      ? "Confirm?"
+                      : "Deactivate"}
                   </button>
                 )}
               </div>

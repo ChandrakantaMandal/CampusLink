@@ -136,7 +136,7 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-6 min-w-0 flex flex-col">
           {offerDetails ? (
-            <OfferTrackingCard offers={offerDetails} />
+            <OfferTrackingCard offers={offerDetails} onAccepted={offers.refresh} />
           ) : offers.error ? (
             <AggregateError message={offers.error} onRetry={offers.refresh} />
           ) : (

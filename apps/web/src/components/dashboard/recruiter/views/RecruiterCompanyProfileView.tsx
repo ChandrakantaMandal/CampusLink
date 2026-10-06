@@ -7,16 +7,16 @@ import {
   Mail,
   Phone,
   MapPin,
-  Users,
   CheckCircle2,
   ShieldCheck,
   Edit3,
   Save,
   Plus,
+  X,
   ExternalLink,
   Award,
 } from "lucide-react";
-import type { RecruiterCompany } from "../mock-recruiter-data";
+import type { RecruiterCompany } from "../recruiter.types";
 import {
   getRecruiterProfile,
   updateRecruiterProfile,
@@ -29,6 +29,7 @@ export default function RecruiterCompanyProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<RecruiterCompany | null>(null);
+  const [benefitDraft, setBenefitDraft] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -50,21 +51,42 @@ export default function RecruiterCompanyProfileView() {
     };
   }, []);
 
+  const addBenefit = () => {
+    const value = benefitDraft.trim();
+    if (!value || !formData || formData.benefits.length >= 30) return;
+    if (formData.benefits.includes(value)) {
+      setBenefitDraft("");
+      return;
+    }
+    setFormData({ ...formData, benefits: [...formData.benefits, value] });
+    setBenefitDraft("");
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
 
     setIsSaving(true);
     try {
-      const companyPayload: UpdateRecruiterProfileInput["company"] = {};
-      if (formData.name) companyPayload.name = formData.name;
-      if (formData.industry) companyPayload.industry = formData.industry;
+      const companyPayload: NonNullable<UpdateRecruiterProfileInput["company"]> =
+        {
+          name: formData.name,
+          industry: formData.industry,
+          location: formData.location,
+          description: formData.description,
+          logoUrl: formData.logo,
+          tier: formData.tier,
+          benefits: formData.benefits,
+        };
       if (formData.website) companyPayload.website = formData.website;
-      if (formData.location) companyPayload.location = formData.location;
-      if (formData.description) companyPayload.description = formData.description;
-      if (formData.linkedinUrl) companyPayload.linkedinUrl = formData.linkedinUrl;
 
-      const updated = await updateRecruiterProfile(companyPayload);
+      const input: UpdateRecruiterProfileInput = {
+        phone: formData.recruiterPhone,
+        company: companyPayload,
+      };
+      if (formData.linkedinUrl) input.linkedinUrl = formData.linkedinUrl;
+
+      const updated = await updateRecruiterProfile(input);
       setCompany(updated);
       setFormData(updated);
       setIsEditing(false);
@@ -195,12 +217,12 @@ export default function RecruiterCompanyProfileView() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Size</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Recruiter Phone</label>
                 <input
-                  type="text"
-                  value={formData.companySize}
-                  disabled
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-500 dark:text-slate-400"
+                  type="tel"
+                  value={formData.recruiterPhone}
+                  onChange={(e) => setFormData({ ...formData, recruiterPhone: e.target.value })}
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                 />
               </div>
 
@@ -212,6 +234,32 @@ export default function RecruiterCompanyProfileView() {
                   onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                 />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Logo URL</label>
+                <input
+                  type="url"
+                  value={formData.logo}
+                  onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                  placeholder="https://..."
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Tier</label>
+                <select
+                  value={formData.tier}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tier: e.target.value as RecruiterCompany["tier"] })
+                  }
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white cursor-pointer"
+                >
+                  <option value="TIER_1">Tier 1 — Top campus partner</option>
+                  <option value="TIER_2">Tier 2 — Preferred partner</option>
+                  <option value="TIER_3">Tier 3 — Standard partner</option>
+                </select>
               </div>
             </div>
 
@@ -226,7 +274,61 @@ export default function RecruiterCompanyProfileView() {
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Campus Perks & Benefits</label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {formData.benefits.map((benefit, i) => (
+                  <span
+                    key={`${benefit}-${i}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300"
+                  >
+                    {benefit}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${benefit}`}
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          benefits: formData.benefits.filter((_, idx) => idx !== i),
+                        })
+                      }
+                      className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+                {formData.benefits.length === 0 && (
+                  <p className="text-xs text-slate-400">No benefits added yet.</p>
+                )}
+              </div>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  value={benefitDraft}
+                  onChange={(e) => setBenefitDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addBenefit();
+                    }
+                  }}
+                  maxLength={120}
+                  placeholder="e.g. Relocation assistance & hybrid work"
+                  className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={addBenefit}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
@@ -248,15 +350,23 @@ export default function RecruiterCompanyProfileView() {
           <div className="space-y-8">
             {/* Top Brand Banner */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 pb-6 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white text-2xl font-black shadow-lg shadow-blue-600/30">
-                {company.name
-                  .split(" ")
-                  .map((word) => word[0] ?? "")
-                  .filter(Boolean)
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase() || "CO"}
-              </div>
+              {company.logo ? (
+                <img
+                  src={company.logo}
+                  alt={`${company.name} logo`}
+                  className="h-20 w-20 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-lg"
+                />
+              ) : (
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white text-2xl font-black shadow-lg shadow-blue-600/30">
+                  {company.name
+                    .split(" ")
+                    .map((word) => word[0] ?? "")
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase() || "CO"}
+                </div>
+              )}
 
               <div className="space-y-1.5 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
@@ -266,6 +376,10 @@ export default function RecruiterCompanyProfileView() {
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300">
                     <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span>{company.verifiedStatus}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 dark:bg-blue-950/80 border border-blue-300 dark:border-blue-800 px-3 py-1 text-xs font-bold text-blue-800 dark:text-blue-300">
+                    <Award className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span>Tier {company.tier.slice(-1)}</span>
                   </span>
                 </div>
 
@@ -277,10 +391,6 @@ export default function RecruiterCompanyProfileView() {
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5 text-slate-400" />
                     {company.location}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5 text-slate-400" />
-                    {company.companySize}
                   </span>
                   <a
                     href={company.website}
@@ -326,7 +436,7 @@ export default function RecruiterCompanyProfileView() {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recruiter Phone</span>
                 <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 flex items-center gap-1.5">
                   <Phone className="h-3.5 w-3.5 text-emerald-600" />
-                  {company.recruiterPhone}
+                  {company.recruiterPhone || "Not provided"}
                 </p>
               </div>
             </div>

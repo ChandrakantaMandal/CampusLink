@@ -5,30 +5,45 @@ import {
   Briefcase,
   Search,
   Plus,
-  Clock,
   MapPin,
   Calendar,
-  Users,
-  CheckCircle2,
   X,
-  FileText,
-  Layers,
-  Sparkles,
   ArrowRight,
-  Filter,
+  Pencil,
+  Trash2,
 } from "lucide-react";
-import { type PlacementDrive } from "../mock-admin-data";
+import { type PlacementDrive } from "../admin.types";
 import {
   getAdminDrives,
   getCompaniesForDrive,
   getAdminJobs,
   createPlacementDrive,
   updatePlacementDrive,
+  deletePlacementDrive,
   VIEW_TO_DRIVE_STATUS,
-  VIEW_TO_TIER,
   type CompanyRaw,
+  type AdminJobOption,
+  type CreatePlacementDrivePayload,
 } from "@/lib/api/admin.api";
 import { toast } from "sonner";
+
+interface DriveFormState {
+  companyId: string;
+  jobIds: string[];
+  driveDate: string;
+  driveTime: string;
+  venue: string;
+  rounds: string;
+}
+
+const emptyForm = (): DriveFormState => ({
+  companyId: "",
+  jobIds: [],
+  driveDate: "",
+  driveTime: "",
+  venue: "",
+  rounds: "",
+});
 
 export default function PlacementDrivesView() {
   const [drives, setDrives] = useState<PlacementDrive[]>([]);
@@ -37,8 +52,13 @@ export default function PlacementDrivesView() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedDrive, setSelectedDrive] = useState<PlacementDrive | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [allJobs, setAllJobs] = useState<{ id: string; title: string; companyId: string }[]>([]);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [editingDrive, setEditingDrive] = useState<PlacementDrive | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [allJobs, setAllJobs] = useState<AdminJobOption[]>([]);
+  const [form, setForm] = useState<DriveFormState>(emptyForm);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,8 +75,7 @@ export default function PlacementDrivesView() {
     };
   }, []);
 
-  const openCreateModal = () => {
-    setIsCreateModalOpen(true);
+  const ensureOptions = () => {
     if (companies.length === 0) {
       getCompaniesForDrive()
         .then(setCompanies)
@@ -69,44 +88,77 @@ export default function PlacementDrivesView() {
     }
   };
 
-  // New Drive Form State
-  const [newDrive, setNewDrive] = useState({
-    companyId: "",
-    role: "",
-    salary: "₹10 LPA",
-    description: "",
-    minCgpa: "7.0",
-    backlogsAllowed: "0",
-    driveDate: "2026-10-10",
-    driveTime: "10:00 AM",
-    venue: "Main Computer Center",
-    openings: "10",
-    skills: "Python, DSA, React, SQL",
-    rounds: "Online Test, Technical Round, HR Round",
-    tier: "Dream" as const,
-    jobIds: [] as string[],
-  });
+  const openCreateModal = () => {
+    setEditingDrive(null);
+    setForm(emptyForm());
+    setConfirmDeleteId(null);
+    setIsFormModalOpen(true);
+    ensureOptions();
+  };
+
+  const openEditModal = (drive: PlacementDrive) => {
+    setEditingDrive(drive);
+    setForm({
+      companyId: drive.companyId,
+      jobIds: drive.jobs?.map((j) => j.id) ?? [],
+      driveDate: drive.driveDate,
+      driveTime: drive.driveTime,
+      venue: drive.venue,
+      rounds: drive.rounds.join(", "),
+    });
+    setIsFormModalOpen(true);
+    ensureOptions();
+  };
+
+  const openDetails = (drive: PlacementDrive) => {
+    setSelectedDrive(drive);
+    setConfirmDeleteId(null);
+    ensureOptions();
+  };
+
+  const closeFormModal = () => {
+    setIsFormModalOpen(false);
+    setEditingDrive(null);
+    setConfirmDeleteId(null);
+  };
+
+  const companyJobs = allJobs.filter((j) => j.companyId === form.companyId);
 
   const filteredDrives = drives.filter((d) => {
+    const term = search.toLowerCase();
     const matchesSearch =
-      d.company.toLowerCase().includes(search.toLowerCase()) ||
-      d.role.toLowerCase().includes(search.toLowerCase()) ||
-      d.requiredSkills.some((s) => s.toLowerCase().includes(search.toLowerCase()));
+      d.company.toLowerCase().includes(term) ||
+      d.role.toLowerCase().includes(term) ||
+      d.requiredSkills.some((s) => s.toLowerCase().includes(term)) ||
+      (d.jobs ?? []).some((j) => j.title.toLowerCase().includes(term));
     const matchesStatus = statusFilter === "All" || d.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const toggleJob = (jobId: string) => {
+    setForm((f) => ({
+      ...f,
+      jobIds: f.jobIds.includes(jobId)
+        ? f.jobIds.filter((id) => id !== jobId)
+        : [...f.jobIds, jobId],
+    }));
+  };
 
   const handleUpdateStatus = async (
     id: string,
     newStatus: PlacementDrive["status"],
   ) => {
     try {
-      const updated = await updatePlacementDrive(id, {
+      await updatePlacementDrive(id, {
         status: VIEW_TO_DRIVE_STATUS[newStatus],
       });
-      setDrives((prev) => prev.map((d) => (d.id === id ? updated : d)));
+      setDrives((prev) =>
+        prev.map((d) => (d.id === id ? { ...d, status: newStatus } : d)),
+      );
       if (selectedDrive?.id === id) {
-        setSelectedDrive(updated);
+        setSelectedDrive((prev) =>
+          prev ? { ...prev, status: newStatus } : prev,
+        );
       }
       toast.success(`Drive status changed to ${newStatus}`);
     } catch {
@@ -114,44 +166,137 @@ export default function PlacementDrivesView() {
     }
   };
 
-  const handleCreateDrive = async (e: React.FormEvent) => {
+  const handleDeleteDrive = async (drive: PlacementDrive) => {
+    if (deletingId) return;
+    if (confirmDeleteId !== drive.id) {
+      setConfirmDeleteId(drive.id);
+      return;
+    }
+    setConfirmDeleteId(null);
+    setDeletingId(drive.id);
+    try {
+      await deletePlacementDrive(drive.id);
+      const fresh = await getAdminDrives();
+      setDrives(fresh);
+      if (selectedDrive?.id === drive.id) setSelectedDrive(null);
+      if (editingDrive?.id === drive.id) {
+        setIsFormModalOpen(false);
+        setEditingDrive(null);
+      }
+      toast.success("Placement drive deleted");
+    } catch {
+      toast.error("Failed to delete placement drive");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleSaveDrive = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDrive.companyId || !newDrive.role) {
-      toast.error("Please select a company and job role");
+
+    if (!form.companyId) {
+      toast.error("Please select a company");
+      return;
+    }
+    const validJobIds = form.jobIds.filter((id) =>
+      allJobs.some((j) => j.id === id && j.companyId === form.companyId),
+    );
+    if (validJobIds.length === 0) {
+      toast.error("Select at least one job for the drive");
+      return;
+    }
+    if (!form.driveDate) {
+      toast.error("Please choose a drive date");
+      return;
+    }
+    if (!form.driveTime.trim()) {
+      toast.error("Please enter a drive time");
+      return;
+    }
+    if (!form.venue.trim()) {
+      toast.error("Please enter a venue");
+      return;
+    }
+    const rounds = form.rounds
+      .split(",")
+      .map((r) => r.trim())
+      .filter(Boolean);
+    if (rounds.length === 0) {
+      toast.error("Enter at least one interview round");
       return;
     }
 
-    try {
-      const created = await createPlacementDrive({
-        companyId: newDrive.companyId,
-        title: newDrive.role,
-        role: newDrive.role,
-        description: newDrive.description || undefined,
-        tier: VIEW_TO_TIER[newDrive.tier],
-        status: "OPEN",
-        salary: newDrive.salary || undefined,
-        minCgpa: parseFloat(newDrive.minCgpa) || undefined,
-        backlogsAllowed: parseInt(newDrive.backlogsAllowed) || 0,
-        requiredSkills: newDrive.skills
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        rounds: newDrive.rounds
-          .split(",")
-          .map((r) => r.trim())
-          .filter(Boolean),
-        openings: parseInt(newDrive.openings) || 10,
-        driveDate: newDrive.driveDate,
-        driveTime: newDrive.driveTime || undefined,
-        venue: newDrive.venue || undefined,
-        jobIds: newDrive.jobIds,
-      });
+    const selected = allJobs.filter((j) => validJobIds.includes(j.id));
+    const ctcs = selected.map((j) => j.ctc).filter((c): c is string => !!c);
+    const cgpas = selected
+      .map((j) => j.minCGPA)
+      .filter((c): c is number => c != null);
+    const skillNames = Array.from(
+      new Set(
+        selected.flatMap((j) =>
+          (j.skills ?? [])
+            .map((s) => s?.skill?.name)
+            .filter((n): n is string => !!n),
+        ),
+      ),
+    );
+    const openings = selected.reduce(
+      (sum, j) => sum + (j.openPositions || 1),
+      0,
+    );
+    const backlogsAllowed = selected.reduce(
+      (max, j) => Math.max(max, j.maxBacklogs ?? 0),
+      0,
+    );
+    const title = selected.length === 1 ? selected[0].title : "Multiple Roles";
+    const companyTier = companies.find((c) => c.id === form.companyId)?.tier;
 
-      setDrives((prev) => [created, ...prev]);
-      setIsCreateModalOpen(false);
-      toast.success(`Placement Drive for ${created.company} created successfully!`);
+    const payload: CreatePlacementDrivePayload = {
+      companyId: form.companyId,
+      jobIds: validJobIds,
+      title,
+      role: title,
+      ...(companyTier ? { tier: companyTier } : {}),
+      ...(editingDrive ? {} : { status: "OPEN" }),
+      ...(ctcs.length > 0 ? { salary: ctcs[0] } : {}),
+      ...(cgpas.length > 0 ? { minCgpa: Math.min(...cgpas) } : {}),
+      backlogsAllowed,
+      requiredSkills: skillNames,
+      openings: openings || 1,
+      driveDate: form.driveDate,
+      driveTime: form.driveTime.trim(),
+      venue: form.venue.trim(),
+      rounds,
+    };
+
+    setSaving(true);
+    try {
+      if (editingDrive) {
+        await updatePlacementDrive(editingDrive.id, payload);
+        toast.success("Placement drive updated");
+      } else {
+        await createPlacementDrive(payload);
+        const companyName =
+          companies.find((c) => c.id === form.companyId)?.name ?? "company";
+        toast.success(`Placement drive for ${companyName} created`);
+      }
+      const fresh = await getAdminDrives();
+      setDrives(fresh);
+      setIsFormModalOpen(false);
+      setEditingDrive(null);
+      if (selectedDrive) {
+        setSelectedDrive(
+          fresh.find((d) => d.id === selectedDrive.id) ?? null,
+        );
+      }
     } catch {
-      toast.error("Failed to create placement drive");
+      toast.error(
+        editingDrive
+          ? "Failed to update placement drive"
+          : "Failed to create placement drive",
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -175,7 +320,7 @@ export default function PlacementDrivesView() {
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-indigo-600/25 cursor-pointer shrink-0 self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
-          <span>+ Create New Drive</span>
+          <span>Create New Drive</span>
         </button>
       </div>
 
@@ -187,7 +332,7 @@ export default function PlacementDrivesView() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search drives by company, role, or required skill..."
+            placeholder="Search drives by company, role, job, or required skill..."
             className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 py-2 pl-10 pr-4 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-hidden focus:border-indigo-500"
           />
         </div>
@@ -266,7 +411,7 @@ export default function PlacementDrivesView() {
               <div className="mt-4 grid grid-cols-2 gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 text-xs">
                 <div>
                   <span className="text-[10px] text-slate-400 font-bold uppercase">Salary / CTC</span>
-                  <p className="text-base font-black text-emerald-600 dark:text-emerald-400">{drive.salary}</p>
+                  <p className="text-base font-black text-emerald-600 dark:text-emerald-400">{drive.salary || "—"}</p>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 font-bold uppercase">Openings / Roster</span>
@@ -280,22 +425,45 @@ export default function PlacementDrivesView() {
               <div className="mt-3 text-xs space-y-1">
                 <span className="text-slate-400 text-[11px] font-bold uppercase">Eligibility Requirement:</span>
                 <p className="text-slate-700 dark:text-slate-300 font-semibold">
-                  Minimum CGPA ≥ <strong className="text-indigo-600 dark:text-indigo-400">{drive.minCgpa}</strong> &bull; Backlogs Allowed: <strong className="text-slate-900 dark:text-white">{drive.backlogsAllowed}</strong>
+                  Minimum CGPA ≥ <strong className="text-indigo-600 dark:text-indigo-400">{drive.minCgpa || "—"}</strong> &bull; Backlogs Allowed: <strong className="text-slate-900 dark:text-white">{drive.backlogsAllowed}</strong>
                 </p>
+              </div>
+
+              {/* Jobs in this Drive */}
+              <div className="mt-3">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Jobs in this Drive:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {drive.jobs && drive.jobs.length > 0 ? (
+                    drive.jobs.map((j) => (
+                      <span
+                        key={j.id}
+                        className="rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300"
+                      >
+                        {j.title}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">{drive.role}</span>
+                  )}
+                </div>
               </div>
 
               {/* Required Skills Badges */}
               <div className="mt-3">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Required Tech Stack:</span>
                 <div className="flex flex-wrap gap-1.5">
-                  {drive.requiredSkills.map((sk) => (
-                    <span
-                      key={sk}
-                      className="rounded-lg bg-indigo-50/70 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/50 px-2 py-0.5 text-[11px] font-semibold text-indigo-800 dark:text-indigo-300"
-                    >
-                      {sk}
-                    </span>
-                  ))}
+                  {drive.requiredSkills.length > 0 ? (
+                    drive.requiredSkills.map((sk) => (
+                      <span
+                        key={sk}
+                        className="rounded-lg bg-indigo-50/70 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/50 px-2 py-0.5 text-[11px] font-semibold text-indigo-800 dark:text-indigo-300"
+                      >
+                        {sk}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">No skills listed</span>
+                  )}
                 </div>
               </div>
 
@@ -303,11 +471,11 @@ export default function PlacementDrivesView() {
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-                  <span>{drive.driveDate} at {drive.driveTime}</span>
+                  <span>{drive.driveDate}{drive.driveTime ? ` at ${drive.driveTime}` : ""}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{drive.venue}</span>
+                  <span className="truncate">{drive.venue || "TBA"}</span>
                 </div>
               </div>
             </div>
@@ -332,14 +500,46 @@ export default function PlacementDrivesView() {
                 <option value="Cancelled">Cancelled</option>
               </select>
 
-              <button
-                type="button"
-                onClick={() => setSelectedDrive(drive)}
-                className="cursor-pointer inline-flex items-center gap-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-3 py-1.5 text-xs transition-all"
-              >
-                <span>Full Details</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => openEditModal(drive)}
+                  className="cursor-pointer inline-flex items-center gap-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold px-3 py-1.5 text-xs transition-all"
+                >
+                  <Pencil className="h-3 w-3" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openDetails(drive)}
+                  className="cursor-pointer inline-flex items-center gap-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-3 py-1.5 text-xs transition-all"
+                >
+                  <span>Full Details</span>
+                  <ArrowRight className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingId === drive.id}
+                  onClick={() => handleDeleteDrive(drive)}
+                  onBlur={() =>
+                    setConfirmDeleteId((c) => (c === drive.id ? null : c))
+                  }
+                  className={`cursor-pointer inline-flex items-center gap-1 rounded-xl font-bold px-3 py-1.5 text-xs transition-all disabled:opacity-60 ${
+                    confirmDeleteId === drive.id
+                      ? "bg-red-600 hover:bg-red-700 text-white"
+                      : "bg-red-50 hover:bg-red-100 dark:bg-red-950/60 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  <Trash2 className="h-3 w-3" />
+                  <span>
+                    {deletingId === drive.id
+                      ? "Deleting..."
+                      : confirmDeleteId === drive.id
+                        ? "Confirm?"
+                        : "Delete"}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -364,25 +564,102 @@ export default function PlacementDrivesView() {
               </div>
               <div>
                 <h3 className="text-xl font-black text-slate-900 dark:text-white">{selectedDrive.company}</h3>
-                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{selectedDrive.role} &bull; {selectedDrive.salary}</p>
+                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                  {selectedDrive.role} &bull; {selectedDrive.salary || "Salary not listed"}
+                </p>
               </div>
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800">
-              {selectedDrive.description}
+              {selectedDrive.description || "No description provided."}
             </p>
 
+            {/* Drive Overview */}
+            <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-xs">
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Drive Date &amp; Time</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">
+                  {selectedDrive.driveDate}{selectedDrive.driveTime ? ` at ${selectedDrive.driveTime}` : ""}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Venue</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">{selectedDrive.venue || "TBA"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Openings</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">{selectedDrive.openings} Seats</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Applicants</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">{selectedDrive.applicantsCount} Applied</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Min CGPA</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">{selectedDrive.minCgpa || "—"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Backlogs Allowed</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">{selectedDrive.backlogsAllowed}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Salary / CTC</span>
+                <p className="font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{selectedDrive.salary || "—"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Tier / Status</span>
+                <p className="font-black text-slate-900 dark:text-white mt-0.5">{selectedDrive.tier} &bull; {selectedDrive.status}</p>
+              </div>
+            </div>
+
+            {/* Jobs in this Drive (enriched) */}
             <div className="space-y-2">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Jobs in this Drive:</span>
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-1.5">
                 {selectedDrive.jobs && selectedDrive.jobs.length > 0 ? (
-                  selectedDrive.jobs.map(j => (
-                    <span key={j.id} className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200 text-xs">
-                      {j.title}
+                  selectedDrive.jobs.map((j) => {
+                    const job = allJobs.find((oj) => oj.id === j.id);
+                    const meta = [
+                      job?.ctc,
+                      job?.minCGPA != null ? `CGPA ≥ ${job.minCGPA}` : null,
+                      job?.maxBacklogs != null ? `Backlogs ≤ ${job.maxBacklogs}` : null,
+                      job?.openPositions ? `${job.openPositions} seats` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" • ");
+                    return (
+                      <div
+                        key={j.id}
+                        className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800"
+                      >
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{j.title}</p>
+                        {meta && (
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{meta}</p>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <span className="text-xs text-slate-500">No jobs assigned</span>
+                )}
+              </div>
+            </div>
+
+            {/* Required Skills */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Required Skills:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedDrive.requiredSkills.length > 0 ? (
+                  selectedDrive.requiredSkills.map((sk) => (
+                    <span
+                      key={sk}
+                      className="rounded-lg bg-indigo-50/70 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/50 px-2 py-0.5 text-[11px] font-semibold text-indigo-800 dark:text-indigo-300"
+                    >
+                      {sk}
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-500">No jobs assigned</span>
+                  <span className="text-xs text-slate-500">No skills listed</span>
                 )}
               </div>
             </div>
@@ -390,14 +667,18 @@ export default function PlacementDrivesView() {
             <div className="space-y-2">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Recruitment Rounds:</span>
               <div className="space-y-1.5">
-                {selectedDrive.rounds.map((round, idx) => (
-                  <div key={round} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5 text-xs">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white font-bold text-[10px] shrink-0">
-                      {idx + 1}
-                    </span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{round}</span>
-                  </div>
-                ))}
+                {selectedDrive.rounds.length > 0 ? (
+                  selectedDrive.rounds.map((round, idx) => (
+                    <div key={round} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center gap-2.5 text-xs">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white font-bold text-[10px] shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{round}</span>
+                    </div>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-500">No rounds configured</span>
+                )}
               </div>
             </div>
 
@@ -409,162 +690,168 @@ export default function PlacementDrivesView() {
               >
                 Close
               </button>
+              <button
+                type="button"
+                disabled={deletingId === selectedDrive.id}
+                onClick={() => handleDeleteDrive(selectedDrive)}
+                onBlur={() =>
+                  setConfirmDeleteId((c) =>
+                    c === selectedDrive.id ? null : c,
+                  )
+                }
+                className={`cursor-pointer inline-flex items-center gap-1.5 rounded-xl px-4 py-2 font-bold text-xs transition-all disabled:opacity-60 ${
+                  confirmDeleteId === selectedDrive.id
+                    ? "bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20"
+                    : "bg-red-50 hover:bg-red-100 dark:bg-red-950/60 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400"
+                }`}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {deletingId === selectedDrive.id
+                  ? "Deleting..."
+                  : confirmDeleteId === selectedDrive.id
+                    ? "Confirm?"
+                    : "Delete Drive"}
+              </button>
+              <button
+                type="button"
+                onClick={() => openEditModal(selectedDrive)}
+                className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2 font-bold text-white text-xs shadow-md shadow-indigo-600/20"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit Drive
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Create Drive Modal */}
-      {isCreateModalOpen && (
+      {/* Create / Edit Drive Modal */}
+      {isFormModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                 <Plus className="h-5 w-5 text-indigo-600" />
-                Schedule New Campus Placement Drive
+                {editingDrive ? "Edit Placement Drive" : "Schedule New Campus Placement Drive"}
               </h3>
               <button
                 type="button"
-                onClick={() => setIsCreateModalOpen(false)}
+                onClick={closeFormModal}
                 className="cursor-pointer p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateDrive} className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Company *</label>
-                  <select
-                    required
-                    value={newDrive.companyId}
-                    onChange={(e) => setNewDrive({ ...newDrive, companyId: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
-                  >
-                    <option value="">Select a company…</option>
-                    {companies.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Job Role *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newDrive.role}
-                    onChange={(e) => setNewDrive({ ...newDrive, role: e.target.value })}
-                    placeholder="Software Developer"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
-                  />
-                </div>
+            <form onSubmit={handleSaveDrive} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Company *</label>
+                <select
+                  value={form.companyId}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      companyId: e.target.value,
+                      jobIds: [],
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
+                >
+                  <option value="">Select a company…</option>
+                  {companies.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {newDrive.companyId && (
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Select Jobs for this Drive</label>
-                  <select
-                    multiple
-                    value={newDrive.jobIds}
-                    onChange={(e) => {
-                      const options = Array.from(e.target.selectedOptions, option => option.value);
-                      setNewDrive({ ...newDrive, jobIds: options });
-                    }}
-                    className="w-full h-24 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 text-slate-900 dark:text-white focus:outline-hidden"
-                  >
-                    {allJobs.filter(j => j.companyId === newDrive.companyId).map(j => (
-                      <option key={j.id} value={j.id}>{j.title}</option>
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Jobs * ({form.jobIds.length} selected)
+                </label>
+                {!form.companyId ? (
+                  <p className="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-3 text-center text-slate-500 dark:text-slate-400">
+                    Select a company first
+                  </p>
+                ) : companyJobs.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-3 text-center text-slate-500 dark:text-slate-400">
+                    No jobs found for this company
+                  </p>
+                ) : (
+                  <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 space-y-1">
+                    {companyJobs.map((job) => (
+                      <label
+                        key={job.id}
+                        className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.jobIds.includes(job.id)}
+                          onChange={() => toggleJob(job.id)}
+                          className="h-4 w-4 rounded border-slate-300 accent-indigo-600 cursor-pointer shrink-0"
+                        />
+                        <span className="font-semibold text-slate-800 dark:text-slate-200 flex-1">
+                          {job.title}
+                        </span>
+                        {job.ctc && (
+                          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                            {job.ctc}
+                          </span>
+                        )}
+                      </label>
                     ))}
-                  </select>
-                  <p className="text-[10px] text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple jobs</p>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Salary / CTC</label>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Drive Date *</label>
+                  <input
+                    type="date"
+                    value={form.driveDate}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, driveDate: e.target.value }))
+                    }
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Drive Time *</label>
                   <input
                     type="text"
-                    value={newDrive.salary}
-                    onChange={(e) => setNewDrive({ ...newDrive, salary: e.target.value })}
-                    placeholder="₹12 LPA"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Min CGPA</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={newDrive.minCgpa}
-                    onChange={(e) => setNewDrive({ ...newDrive, minCgpa: e.target.value })}
-                    placeholder="7.5"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Backlogs Allowed</label>
-                  <input
-                    type="number"
-                    value={newDrive.backlogsAllowed}
-                    onChange={(e) => setNewDrive({ ...newDrive, backlogsAllowed: e.target.value })}
-                    placeholder="0"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
+                    value={form.driveTime}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, driveTime: e.target.value }))
+                    }
+                    placeholder="10:00 AM"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Required Skills (comma separated)</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Venue *</label>
                 <input
                   type="text"
-                  value={newDrive.skills}
-                  onChange={(e) => setNewDrive({ ...newDrive, skills: e.target.value })}
-                  placeholder="Python, DSA, SQL, React"
+                  value={form.venue}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, venue: e.target.value }))
+                  }
+                  placeholder="Main Computer Center"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Drive Date &amp; Time</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      value={newDrive.driveDate}
-                      onChange={(e) => setNewDrive({ ...newDrive, driveDate: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 text-slate-900 dark:text-white"
-                    />
-                    <input
-                      type="text"
-                      value={newDrive.driveTime}
-                      onChange={(e) => setNewDrive({ ...newDrive, driveTime: e.target.value })}
-                      placeholder="10:00 AM"
-                      className="w-32 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 text-slate-900 dark:text-white"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Venue</label>
-                  <input
-                    type="text"
-                    value={newDrive.venue}
-                    onChange={(e) => setNewDrive({ ...newDrive, venue: e.target.value })}
-                    placeholder="Computer Lab 2"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
-                  />
-                </div>
-              </div>
-
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Interview Rounds (comma separated)</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Interview Rounds (comma separated) *</label>
                 <input
                   type="text"
-                  value={newDrive.rounds}
-                  onChange={(e) => setNewDrive({ ...newDrive, rounds: e.target.value })}
+                  value={form.rounds}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, rounds: e.target.value }))
+                  }
                   placeholder="Online Assessment, Technical Round 1, HR Interview"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
                 />
@@ -573,16 +860,21 @@ export default function PlacementDrivesView() {
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
+                  onClick={closeFormModal}
                   className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2 font-bold text-white shadow-md shadow-indigo-600/20"
+                  disabled={saving}
+                  className="cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2 font-bold text-white shadow-md shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Publish Drive
+                  {saving
+                    ? "Saving…"
+                    : editingDrive
+                    ? "Save Changes"
+                    : "Publish Drive"}
                 </button>
               </div>
             </form>

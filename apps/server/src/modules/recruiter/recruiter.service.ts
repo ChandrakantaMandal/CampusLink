@@ -1,9 +1,14 @@
+import { Prisma } from "@CampusLink/db";
+
 import { db } from "../../services";
+import { invalidateApplicationCaches } from "../applications/application.service";
+import { invalidateInterviewCache } from "../admin/admin.service";
 
 import type {
   CreateInterviewInput,
   CreateMyJobInput,
   CreateMyOfferInput,
+  UpdateInterviewInput,
   UpdateRecruiterProfileInput,
 } from "./recruiter.schema";
 
@@ -190,6 +195,10 @@ export async function updateRecruiterProfile(
     profileFields.phone = null;
   }
 
+  if (company && company.logoUrl === "") {
+    company.logoUrl = null;
+  }
+
   if (Object.keys(profileFields).length > 0) {
     await db.recruiterProfile.update({
       where: { id: recruiter.id },
@@ -221,6 +230,7 @@ export async function getMyJobs(userId: string) {
       where: { companyId: recruiter.companyId },
       include: {
         _count: { select: { applications: true, interviews: true } },
+        skills: { include: { skill: { select: { name: true } } } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -264,9 +274,9 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
     throw new Error("Recruiter profile not found");
   }
 
-  const { status, ...rest } = data;
+  const { status, requiredSkills, ...rest } = data;
 
-  return db.job.create({
+  const job = await db.job.create({
     data: {
       ...rest,
       companyId: recruiter.companyId,
@@ -274,6 +284,80 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
       ...(status ? { status } : {}),
     },
   });
+
+  const skillNames = [
+    ...new Map(
+      (requiredSkills ?? [])
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .map((name) => [name.toLowerCase(), name] as const),
+    ).values(),
+  ];
+
+  if (skillNames.length > 0) {
+    const existing = await db.skill.findMany({
+      where: {
+        normalized: { in: skillNames.map((name) => name.toLowerCase()) },
+      },
+    });
+    const byNormalized = new Map(
+      existing.map((skill) => [skill.normalized, skill]),
+    );
+
+    for (const name of skillNames) {
+      const key = name.toLowerCase();
+      const skill =
+        byNormalized.get(key) ??
+        (await db.skill.create({
+          data: { name, normalized: key, type: "OTHER" },
+        }));
+      byNormalized.set(key, skill);
+      await db.jobSkill.create({
+        data: { jobId: job.id, skillId: skill.id },
+      });
+    }
+  }
+
+  return db.job.findUniqueOrThrow({
+    where: { id: job.id },
+    include: { skills: { include: { skill: { select: { name: true } } } } },
+  });
+}
+
+export type DeleteJobResult =
+  | { ok: true }
+  | { ok: false; reason: "HAS_APPLICATIONS"; count: number };
+
+export async function deleteMyJob(
+  userId: string,
+  jobId: string,
+): Promise<DeleteJobResult | null> {
+  const recruiter = await db.recruiterProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!recruiter) {
+    return null;
+  }
+
+  const job = await db.job.findUnique({
+    where: { id: jobId },
+    select: { id: true, companyId: true },
+  });
+
+  if (!job || job.companyId !== recruiter.companyId) {
+    return null;
+  }
+
+  const count = await db.application.count({ where: { jobId } });
+
+  if (count > 0) {
+    return { ok: false, reason: "HAS_APPLICATIONS", count };
+  }
+
+  await db.job.delete({ where: { id: job.id } });
+
+  return { ok: true };
 }
 
 export async function getMyInterviews(userId: string) {
@@ -410,7 +494,7 @@ export async function createInterview(
     throw new Error("Failed to create interview");
   }
 
-  return db.interview.create({
+  const createdInterview = await db.interview.create({
     data: {
       studentId: data.studentId,
       recruiterId: recruiter.id,
@@ -429,7 +513,7 @@ export async function createInterview(
       interviewerEmail: data.interviewerEmail,
       interviewerPanel: data.interviewerPanel?.join(", "),
       hasConflict: created.hasConflict,
-      conflictDetails: created.conflictDetails ?? undefined,
+      conflictDetails: created.conflictDetails ?? Prisma.DbNull,
     },
     include: {
       student: {
@@ -452,6 +536,191 @@ export async function createInterview(
       application: { select: { id: true, status: true } },
     },
   });
+
+  await Promise.all(
+    flagged.slice(1).map((row) =>
+      db.interview.updateMany({
+        where: { id: row.id },
+        data: {
+          hasConflict: row.hasConflict,
+          conflictDetails: row.conflictDetails ?? Prisma.DbNull,
+        },
+      }),
+    ),
+  );
+
+  const application =
+    createdInterview.application ??
+    (createdInterview.jobId
+      ? await db.application.findFirst({
+          where: {
+            studentId: createdInterview.studentId,
+            jobId: createdInterview.jobId,
+          },
+          select: { id: true, status: true },
+        })
+      : null);
+
+  if (
+    application &&
+    ["APPLIED", "UNDER_REVIEW", "SHORTLISTED", "ASSESSMENT"].includes(
+      application.status,
+    )
+  ) {
+    await db.application.update({
+      where: { id: application.id },
+      data: { status: "INTERVIEW" },
+    });
+
+    await invalidateApplicationCaches(application.id);
+  }
+
+  await invalidateInterviewCache();
+
+  return createdInterview;
+}
+
+export async function updateInterview(
+  userId: string,
+  interviewId: string,
+  data: UpdateInterviewInput,
+) {
+  const recruiter = await db.recruiterProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!recruiter) {
+    return null;
+  }
+
+  const existing = await db.interview.findUnique({
+    where: { id: interviewId },
+    select: {
+      id: true,
+      studentId: true,
+      recruiterId: true,
+      roundName: true,
+      scheduledDate: true,
+      startTime: true,
+      endTime: true,
+      durationMinutes: true,
+      job: { select: { id: true, title: true, companyId: true } },
+    },
+  });
+
+  if (
+    !existing ||
+    (existing.recruiterId !== recruiter.id &&
+      existing.job?.companyId !== recruiter.companyId)
+  ) {
+    return null;
+  }
+
+  const schedulingChanged =
+    data.scheduledDate !== undefined ||
+    data.startTime !== undefined ||
+    data.endTime !== undefined ||
+    data.durationMinutes !== undefined;
+
+  const scheduledDate = data.scheduledDate ?? existing.scheduledDate;
+  const startTime = data.startTime ?? existing.startTime;
+  const endTime = data.endTime ?? existing.endTime;
+  const durationMinutes = data.durationMinutes ?? existing.durationMinutes;
+
+  const dayStart = new Date(scheduledDate);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+
+  const sameDayInterviews = await db.interview.findMany({
+    where: {
+      studentId: existing.studentId,
+      scheduledDate: { gte: dayStart, lt: dayEnd },
+      id: { not: interviewId },
+    },
+    select: {
+      id: true,
+      studentId: true,
+      scheduledDate: true,
+      startTime: true,
+      endTime: true,
+      durationMinutes: true,
+      roundName: true,
+      job: { select: { title: true } },
+    },
+  });
+
+  const flagged = computeConflicts<ConflictSource>([
+    {
+      id: existing.id,
+      studentId: existing.studentId,
+      scheduledDate,
+      startTime: startTime ?? null,
+      endTime: endTime ?? null,
+      durationMinutes: durationMinutes ?? null,
+      roundName: existing.roundName,
+      job: existing.job ? { title: existing.job.title } : null,
+    },
+    ...sameDayInterviews,
+  ]);
+
+  const recomputed = flagged[0];
+
+  if (!recomputed) {
+    throw new Error("Failed to update interview");
+  }
+
+  const updated = await db.interview.update({
+    where: { id: interviewId },
+    data: {
+      scheduledDate,
+      startTime,
+      endTime,
+      durationMinutes,
+      mode: data.mode ?? undefined,
+      venue: data.venue ?? undefined,
+      meetingLink: data.meetingLink ?? undefined,
+      status: schedulingChanged ? "RESCHEDULED" : (data.status ?? undefined),
+      hasConflict: recomputed.hasConflict,
+      conflictDetails: recomputed.conflictDetails ?? Prisma.DbNull,
+    },
+    include: {
+      student: {
+        select: {
+          id: true,
+          rollNo: true,
+          firstName: true,
+          lastName: true,
+          branch: true,
+          user: { select: { id: true, name: true, image: true } },
+        },
+      },
+      job: {
+        select: {
+          id: true,
+          title: true,
+          company: { select: { id: true, name: true } },
+        },
+      },
+      application: { select: { id: true, status: true } },
+    },
+  });
+
+  await Promise.all(
+    flagged.slice(1).map((row) =>
+      db.interview.updateMany({
+        where: { id: row.id },
+        data: {
+          hasConflict: row.hasConflict,
+          conflictDetails: row.conflictDetails ?? Prisma.DbNull,
+        },
+      }),
+    ),
+  );
+
+  await invalidateInterviewCache();
+
+  return updated;
 }
 
 export async function getShortlistedCandidates(userId: string) {

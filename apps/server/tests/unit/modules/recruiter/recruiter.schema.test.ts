@@ -81,6 +81,38 @@ describe("updateRecruiterProfileSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("should accept a valid company tier", () => {
+    const result = updateRecruiterProfileSchema.safeParse({
+      company: { tier: "TIER_1" },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("should reject an invalid company tier", () => {
+    const result = updateRecruiterProfileSchema.safeParse({
+      company: { tier: "TIER_4" },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("should allow an empty logoUrl to clear the logo", () => {
+    const result = updateRecruiterProfileSchema.safeParse({
+      company: { logoUrl: "" },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("should allow a null logoUrl", () => {
+    const result = updateRecruiterProfileSchema.safeParse({
+      company: { logoUrl: null },
+    });
+
+    expect(result.success).toBe(true);
+  });
 });
 
 describe("createMyJobSchema", () => {

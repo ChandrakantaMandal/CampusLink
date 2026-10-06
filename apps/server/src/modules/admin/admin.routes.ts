@@ -19,6 +19,8 @@ import {
   createPlacementDriveController,
   updatePlacementDriveController,
   deletePlacementDriveController,
+  verifyStudentController,
+  verifyRecruiterController,
   createRecruiterController,
   getOffersController,
   getInterviewsController,
@@ -79,12 +81,28 @@ router.get(
   getStudentsController,
 );
 
+// Verify or revoke verification for a student
+router.patch(
+  "/students/:id/verify",
+  requireAuth,
+  requireRole("ADMIN"),
+  verifyStudentController,
+);
+
 // Get all recruiters
 router.get(
   "/recruiters",
   requireAuth,
   requireRole("ADMIN"),
   getRecruitersController,
+);
+
+// Approve or reject a recruiter's company verification
+router.patch(
+  "/recruiters/:id/verify",
+  requireAuth,
+  requireRole("ADMIN"),
+  verifyRecruiterController,
 );
 // Create a recruiter
 router.post(

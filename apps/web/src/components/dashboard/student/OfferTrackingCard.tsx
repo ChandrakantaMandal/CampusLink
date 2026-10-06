@@ -6,27 +6,42 @@ import {
   FileCheck2,
   Download,
   CheckCircle2,
-  Clock,
   Sparkles,
-  Building,
-  DollarSign,
-  ArrowRight
+  ArrowRight,
+  Loader2,
 } from "lucide-react";
 import type { OfferDetails } from "@/data/dashboardData";
 import { toast } from "sonner";
+import { acceptMyOffer } from "@/lib/api/student.api";
 
 interface OfferTrackingCardProps {
   offers: OfferDetails[];
+  onAccepted?: () => void;
 }
 
-export function OfferTrackingCard({ offers }: OfferTrackingCardProps) {
+export function OfferTrackingCard({ offers, onAccepted }: OfferTrackingCardProps) {
   const [acceptedOfferId, setAcceptedOfferId] = useState<string | null>(null);
+  const [pendingOfferId, setPendingOfferId] = useState<string | null>(null);
 
-  const handleAccept = (offer: OfferDetails) => {
+  const handleAccept = async (offer: OfferDetails) => {
+    if (pendingOfferId) return;
+
+    setPendingOfferId(offer.id);
     setAcceptedOfferId(offer.id);
-    toast.success(`Offer formally accepted! Congratulations! 🎉`, {
-      description: `CAMPUSLINK has notified ${offer.company} Placement Officer. Next step: Pre-onboarding portal.`,
-    });
+    try {
+      await acceptMyOffer(offer.id);
+      toast.success(`Offer formally accepted! Congratulations! 🎉`, {
+        description: `CAMPUSLINK has notified ${offer.company} Placement Officer. Next step: Pre-onboarding portal.`,
+      });
+      onAccepted?.();
+    } catch (error) {
+      setAcceptedOfferId(null);
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+      toast.error("Could not accept offer", { description: message });
+    } finally {
+      setPendingOfferId(null);
+    }
   };
 
   const handleDownload = (offer: OfferDetails) => {
@@ -36,7 +51,35 @@ export function OfferTrackingCard({ offers }: OfferTrackingCardProps) {
   };
 
   if (!offers || offers.length === 0) {
-    return null;
+    return (
+      <div className="rounded-2xl border border-emerald-300/80 dark:border-emerald-800/80 bg-gradient-to-br from-emerald-50/80 via-white/80 to-teal-50/80 dark:from-emerald-950/30 dark:via-slate-900/60 dark:to-teal-950/20 backdrop-blur-md p-6 shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <Award className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base">
+              Campus Offer Tracking
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Verified campus placement contract &amp; acceptance portal
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <Award className="w-6 h-6" />
+          </div>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            No offers yet
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+            When a recruiter extends you an offer, it will appear here for
+            verification and one-click acceptance.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -70,7 +113,9 @@ export function OfferTrackingCard({ offers }: OfferTrackingCardProps) {
 
       <div className="space-y-4">
         {offers.map((offer) => {
-          const isAccepted = acceptedOfferId === offer.id;
+          const isAccepted =
+            offer.status === "Accepted" || acceptedOfferId === offer.id;
+          const isPending = pendingOfferId === offer.id;
 
           return (
             <div
@@ -140,10 +185,20 @@ export function OfferTrackingCard({ offers }: OfferTrackingCardProps) {
                   ) : (
                     <button
                       onClick={() => handleAccept(offer)}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all"
+                      disabled={pendingOfferId !== null}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      Accept Offer
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      {isPending ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Accepting...
+                        </>
+                      ) : (
+                        <>
+                          Accept Offer
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
                     </button>
                   )}
                 </div>

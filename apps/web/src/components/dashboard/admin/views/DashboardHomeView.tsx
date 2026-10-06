@@ -29,7 +29,7 @@ import {
   getAdminApplications,
   type DashboardStats,
 } from "@/lib/api/admin.api";
-import { type PlacementDrive, type ApplicationItem } from "../mock-admin-data";
+import { type PlacementDrive, type ApplicationItem } from "../admin.types";
 
 export default function DashboardHomeView() {
   const [stats, setStats] = React.useState<DashboardStats | null>(null);

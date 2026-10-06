@@ -116,3 +116,15 @@ export const updateAdminSettingsSchema = z.object({
 export type UpdateAdminSettingsInput = z.infer<
   typeof updateAdminSettingsSchema
 >;
+
+export const verifyStudentSchema = z.object({
+  verified: z.boolean(),
+});
+
+export type VerifyStudentInput = z.infer<typeof verifyStudentSchema>;
+
+export const verifyRecruiterSchema = z.object({
+  status: z.enum(["VERIFIED", "REJECTED"]),
+});
+
+export type VerifyRecruiterInput = z.infer<typeof verifyRecruiterSchema>;

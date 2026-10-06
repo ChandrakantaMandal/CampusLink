@@ -23,7 +23,7 @@ import type {
   RecruiterInterview,
   RecruiterJob,
   RecruiterOffer,
-} from "../mock-recruiter-data";
+} from "../recruiter.types";
 import {
   getMyInterviews,
   getMyJobs,

@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
-import type { SystemNotification } from "./mock-admin-data";
+import type { SystemNotification } from "./admin.types";
 import { getAdminInterviews, getAdminNotifications, getAdminSettings } from "@/lib/api/admin.api";
 
 interface AdminHeaderProps {

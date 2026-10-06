@@ -593,6 +593,22 @@ export async function getMyApplications(): Promise<StudentApplicationsData> {
   };
 }
 
+export interface ApplyToJobPayload {
+  jobId: string;
+  coverLetter?: string;
+  resumeId?: string;
+}
+
+export async function applyToJob(
+  payload: ApplyToJobPayload,
+): Promise<ApplicationData> {
+  const response = await api.post<AggregateResponse<ApplicationData>>(
+    "/api/applications",
+    payload,
+  );
+  return response.data.data;
+}
+
 export async function getMyInterviews(): Promise<StudentInterviewsData> {
   return getAggregate<StudentInterviewsData>("/me/interviews");
 }
@@ -601,6 +617,26 @@ export async function getMyOffers(): Promise<StudentOffersData> {
   return getAggregate<StudentOffersData>("/me/offers");
 }
 
+export async function acceptMyOffer(id: string): Promise<OfferData> {
+  const response = await api.patch<AggregateResponse<OfferData>>(
+    `/api/students/me/offers/${id}/accept`,
+  );
+  return response.data.data;
+}
+
 export async function getMyNotifications(): Promise<StudentNotificationsData> {
   return getAggregate<StudentNotificationsData>("/me/notifications");
+}
+
+export async function markMyNotificationRead(
+  id: string,
+): Promise<UserNotificationData> {
+  const response = await api.patch<AggregateResponse<UserNotificationData>>(
+    `/api/students/me/notifications/${id}/read`,
+  );
+  return response.data.data;
+}
+
+export async function markMyNotificationsReadAll(): Promise<void> {
+  await api.patch("/api/students/me/notifications/read-all");
 }
