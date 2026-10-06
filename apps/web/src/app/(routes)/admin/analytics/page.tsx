@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import AdminAnalyticsView from "@/components/dashboard/admin/views/AdminAnalyticsView";
 
 export const metadata: Metadata = {
-  title: "Placement Analytics & Insights — CAMPUSLINK Admin",
-  description: "Comprehensive multi-year placement performance, salary trends, branch absorption rates, and tier metrics.",
+  title: "Placement Analysis & Insights — CAMPUSLINK Admin",
+  description: "Cohort placement intelligence, branch absorption, engineering fresher compensation benchmarks, and resume screening conversion rates.",
 };
 
-export default function AdminAnalyticsPage() {
+export default function AdminAnalysisPage() {
   return <AdminAnalyticsView />;
 }

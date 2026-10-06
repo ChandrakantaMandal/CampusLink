@@ -1,8 +1,8 @@
-export default function RecruiterApplications() {
-  return (
-    <div>
-      <h1>AdminAnalyticsView</h1>
-      <p>This page is under construction.</p>
-    </div>
-  );
+"use client";
+
+import React from "react";
+import AdminAnalyticsDashboard from "../analytics/AdminAnalyticsDashboard";
+
+export default function AdminAnalyticsView() {
+  return <AdminAnalyticsDashboard />;
 }

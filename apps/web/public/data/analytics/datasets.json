@@ -1,0 +1,26 @@
+{
+  "datasets": [
+    {
+      "slug": "jessenth/indian-engineering-fresher-salaries-2023",
+      "file": "engineering_fresher_salaries.csv",
+      "label": "Indian Engineering Fresher Salaries",
+      "category": "Salary"
+    },
+    {
+      "slug": "sutariyasmit01/local-college-placements-dataset",
+      "file": "college_placements.csv",
+      "label": "Local College Placements",
+      "category": "College Placements"
+    }
+  ],
+  "failures": [
+    {
+      "label": "Resume Skills & Interview Calls",
+      "error": "Remote end closed connection without response"
+    },
+    {
+      "label": "Indian Job Market",
+      "error": "[WinError 10054] An existing connection was forcibly closed by the remote host"
+    }
+  ]
+}
