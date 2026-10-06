@@ -7,7 +7,7 @@ import type { RecommendedJob } from "@/data/dashboardData";
 
 interface RecommendedJobsCardProps {
   jobs: RecommendedJob[];
-  onApplyJob?: (jobId: string) => void;
+  onApplyJob?: (jobId: string, matchPercentage: number | null) => void;
   columns?: 1 | 2 | 3;
 }
 
@@ -23,7 +23,7 @@ export default function RecommendedJobsCard({
     toast.success(`Application submitted to ${job.company}!`, {
       description: `Applied for ${job.title} (${job.ctc}). Confirmation sent to your student email.`,
     });
-    onApplyJob?.(job.id);
+    onApplyJob?.(job.id, job.matchPercentage);
   };
 
   const gridClass =
@@ -83,7 +83,11 @@ export default function RecommendedJobsCard({
                   {/* AI Match Badge */}
                   <div className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 px-2.5 py-1 text-xs font-black text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0 whitespace-nowrap">
                     <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>{job.matchPercentage}% Match</span>
+                    <span>
+  {job.matchPercentage === null
+    ? "AI Analyzing..."
+    : `${job.matchPercentage}% Match`}
+</span>
                   </div>
                 </div>
 
@@ -133,27 +137,49 @@ export default function RecommendedJobsCard({
                   <span>Drive: {job.driveDate}</span>
                 </span>
 
-                <button
-                  type="button"
-                  onClick={() => handleApply(job)}
-                  disabled={isApplied}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${isApplied
-                    ? "bg-emerald-600 text-white cursor-default"
-                    : "bg-[#6366F1] text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 active:scale-98"
-                    }`}
-                >
-                  {isApplied ? (
-                    <>
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span>Applied</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Apply Now</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
+  {isApplied ? (
+    <button
+      type="button"
+      disabled
+      className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white cursor-default"
+    >
+      <CheckCircle2 className="h-3.5 w-3.5" />
+      <span>Applied</span>
+    </button>
+  ) : job.matchPercentage === 100 ? (
+    <button
+      type="button"
+      onClick={() => handleApply(job)}
+      className="flex items-center gap-1.5 rounded-xl bg-[#6366F1] px-4 py-2 text-xs font-bold text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 transition-all active:scale-95"
+    >
+      <span>Apply</span>
+      <ArrowRight className="h-3.5 w-3.5" />
+    </button>
+  ) : (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = `/student/skills?jobId=${job.id}`;
+        }}
+        className="flex items-center gap-1.5 rounded-xl border border-orange-500/40 bg-orange-500/10 px-2.5 py-2 text-xs font-bold text-orange-400 hover:bg-orange-500/20 transition-all active:scale-95"
+      >
+        <Info className="h-3.5 w-3.5" />
+        <span>Review Skill Gap</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => handleApply(job)}
+        className="flex items-center gap-1.5 rounded-xl bg-[#6366F1] px-3 py-2 text-xs font-bold text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 transition-all active:scale-95"
+      >
+        <span>Apply Anyway</span>
+        <ArrowRight className="h-3.5 w-3.5" />
+      </button>
+    </>
+  )}
+</div>
               </div>
             </div>
           );

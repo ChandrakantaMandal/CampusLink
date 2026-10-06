@@ -93,5 +93,5 @@ export const createRateLimiter = ({
 export const globalLimiter = createRateLimiter({
   name: "global",
   windowSeconds: 15 * 60,
-  maxRequests: 100,
+  maxRequests: 1000,
 });

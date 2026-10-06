@@ -10,6 +10,8 @@ import {
 
 import { updateStudentSchema } from "./student.schema";
 
+import { calculateReadiness } from "./readiness.service";
+
 export async function getMyStudentProfile(
   req: Request,
   res: Response,
@@ -54,12 +56,45 @@ export async function updateMyStudentProfile(
       });
     }
 
-    const student = await updateStudent(authenticatedReq.user.id, parsed.data);
+    const student = await updateStudent(
+      authenticatedReq.user.id,
+      parsed.data,
+    );
 
     return res.status(200).json({
       success: true,
       message: "Student profile updated successfully",
       data: student,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getMyReadiness(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const student = await getStudentByUserId(authenticatedReq.user.id);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student profile not found",
+      });
+    }
+
+    const readiness = calculateReadiness(
+  student as Parameters<typeof calculateReadiness>[0],
+);
+
+    return res.status(200).json({
+      success: true,
+      data: readiness,
     });
   } catch (error) {
     next(error);

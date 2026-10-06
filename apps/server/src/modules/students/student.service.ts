@@ -34,7 +34,10 @@ function studentCacheKey(studentId: string) {
   return `student:${studentId}`;
 }
 
-async function invalidateStudentCaches(userId?: string, studentId?: string) {
+async function invalidateStudentCaches(
+  userId?: string,
+  studentId?: string,
+) {
   const keys: string[] = [];
 
   if (userId) {
@@ -45,11 +48,14 @@ async function invalidateStudentCaches(userId?: string, studentId?: string) {
     keys.push(studentCacheKey(studentId));
   }
 
-  await redis.del(...keys);
+  if (keys.length > 0) {
+    await redis.del(...keys);
+  }
 }
 
 export async function getStudentByUserId(userId: string) {
   const cacheKey = studentUserCacheKey(userId);
+
   const cached = await getCache(cacheKey);
 
   if (cached) {
@@ -60,6 +66,7 @@ export async function getStudentByUserId(userId: string) {
     where: {
       userId,
     },
+
     include: {
       user: {
         select: {
@@ -70,12 +77,15 @@ export async function getStudentByUserId(userId: string) {
           role: true,
         },
       },
+
       skills: {
         include: {
           skill: true,
         },
       },
+
       education: true,
+
       projects: {
         include: {
           skills: {
@@ -85,6 +95,10 @@ export async function getStudentByUserId(userId: string) {
           },
         },
       },
+
+      assessments: true,
+
+      resumes: true,
     },
   });
 
@@ -98,6 +112,7 @@ export async function getStudentByUserId(userId: string) {
 
 export async function getStudentById(id: string) {
   const cacheKey = studentCacheKey(id);
+
   const cached = await getCache(cacheKey);
 
   if (cached) {
@@ -108,6 +123,7 @@ export async function getStudentById(id: string) {
     where: {
       id,
     },
+
     include: {
       user: {
         select: {
@@ -118,12 +134,15 @@ export async function getStudentById(id: string) {
           role: true,
         },
       },
+
       skills: {
         include: {
           skill: true,
         },
       },
+
       education: true,
+
       projects: {
         include: {
           skills: {
@@ -133,6 +152,10 @@ export async function getStudentById(id: string) {
           },
         },
       },
+
+      assessments: true,
+
+      resumes: true,
     },
   });
 
@@ -144,7 +167,10 @@ export async function getStudentById(id: string) {
   return student;
 }
 
-export async function updateStudent(userId: string, data: UpdateStudentInput) {
+export async function updateStudent(
+  userId: string,
+  data: UpdateStudentInput,
+) {
   const existingStudent = await db.studentProfile.findUnique({
     where: {
       userId,
@@ -159,7 +185,9 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
     where: {
       userId,
     },
+
     data,
+
     include: {
       user: {
         select: {
@@ -173,7 +201,10 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
     },
   });
 
-  await invalidateStudentCaches(userId, existingStudent.id);
+  await invalidateStudentCaches(
+    userId,
+    existingStudent.id,
+  );
 
   return student;
 }

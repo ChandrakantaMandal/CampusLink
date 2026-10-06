@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { StudentProfileData } from "@/data/studentProfile";
 import ResumePreviewModal from "./ResumePreviewModal";
+const AI_SERVICE_URL = "http://127.0.0.1:8000";
 
 interface ResumeSectionProps {
   profile: StudentProfileData;
@@ -26,23 +27,67 @@ export default function ResumeSection({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [analysisError, setAnalysisError] = useState("");
+  const handleFile = async (file: File) => {
+  if (!file) return;
 
-  const handleFile = (file: File) => {
-    if (!file) return;
+  if (file.type !== "application/pdf") {
+    alert("Only PDF files are supported.");
+    return;
+  }
 
-    const sizeInMb = (file.size / (1024 * 1024)).toFixed(1);
-    const today = new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Resume must be smaller than 5MB.");
+    return;
+  }
 
-    onUploadResume({
-      fileName: file.name,
-      fileSize: `${sizeInMb} MB`,
-      uploadDate: today,
-    });
-  };
+  const sizeInMb = (file.size / (1024 * 1024)).toFixed(1);
+
+  const today = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  onUploadResume({
+    fileName: file.name,
+    fileSize: `${sizeInMb} MB`,
+    uploadDate: today,
+  });
+
+  try {
+    setIsAnalyzing(true);
+    setAnalysis(null);
+    setAnalysisError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(
+      `${AI_SERVICE_URL}/resume/analyze`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText);
+    }
+
+    const result = await response.json();
+
+    setAnalysis(result);
+  } catch (error) {
+  console.error("Resume analysis failed:", error);
+  setAnalysisError("Please enter a valid resume or CV.");
+} finally {
+    setIsAnalyzing(false);
+  }
+};
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,66 +147,230 @@ export default function ResumeSection({
           onChange={handleFileChange}
         />
 
-        {profile.resume ? (
-          /* Active resume display card */
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 transition-all hover:bg-white hover:shadow-md dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800/80">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/20">
-                  <FileText className="h-7 w-7" />
+                {profile.resume ? (
+          <>
+            {/* Active resume display card */}
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 transition-all hover:bg-white hover:shadow-md dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800/80">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/20">
+                    <FileText className="h-7 w-7" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white break-all">
+                      {profile.resume.fileName}
+                    </h3>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                      <span>{profile.resume.fileSize}</span>
+                      <span>•</span>
+                      <span>Uploaded on {profile.resume.uploadDate}</span>
+                      <span>•</span>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                        Verified PDF
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm sm:base font-bold text-slate-900 dark:text-white break-all">
-                    {profile.resume.fileName}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                    <span>{profile.resume.fileSize}</span>
-                    <span>•</span>
-                    <span>Uploaded on {profile.resume.uploadDate}</span>
-                    <span>•</span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">Verified PDF</span>
+
+                <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsPreviewOpen(true)}
+                    className="flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 shadow-xs transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer"
+                  >
+                    <Eye className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>Preview</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 shadow-xs transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer"
+                  >
+                    <RefreshCw className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                    <span>Replace</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={onDeleteResume}
+                    className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-100 transition-colors dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-950/80 cursor-pointer"
+                    title="Delete resume"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span>Recruiters download this file during automated shortlisting.</span>
+
+                <span
+                  className="font-medium text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline"
+                  onClick={() => setIsPreviewOpen(true)}
+                >
+                  View full screen
+                </span>
+              </div>
+            </div>
+
+            {/* AI Resume Analysis */}
+            {isAnalyzing && (
+              <div className="mt-6 rounded-2xl border border-indigo-200 bg-indigo-50/50 p-5 dark:border-indigo-900/60 dark:bg-indigo-950/20">
+                <div className="flex items-center gap-3">
+                  <RefreshCw className="h-5 w-5 animate-spin text-indigo-600" />
+
+                  <div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      AI is analyzing your resume...
+                    </p>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Extracting skills, projects and career insights.
+                    </p>
                   </div>
                 </div>
               </div>
+            )}
+            {analysis && !isAnalyzing && (
+              <div className="mt-6 rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm dark:border-indigo-900/60 dark:bg-slate-900">
+                <div className="mb-5">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    AI Resume Analysis
+                  </h3>
 
-              {/* Action buttons */}
-              <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
-                <button
-                  type="button"
-                  onClick={() => setIsPreviewOpen(true)}
-                  className="flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 shadow-xs transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer"
-                >
-                  <Eye className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  <span>Preview</span>
-                </button>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    AI-generated insights from your uploaded resume.
+                  </p>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 shadow-xs transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer"
-                >
-                  <RefreshCw className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                  <span>Replace</span>
-                </button>
+                <div className="grid gap-5 sm:grid-cols-2">
 
-                <button
-                  type="button"
-                  onClick={onDeleteResume}
-                  className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-rose-600 hover:bg-rose-100 transition-colors dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-950/80 cursor-pointer"
-                  title="Delete resume"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                  {/* Skills */}
+                  <div>
+                    <h4 className="mb-2 text-sm font-bold text-emerald-600">
+                      Skills
+                    </h4>
+
+                    <div className="flex flex-wrap gap-2">
+                      {analysis.skills?.map((skill: string) => (
+                        <span
+                          key={skill}
+                          className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Projects */}
+                  <div>
+                    <h4 className="mb-2 text-sm font-bold text-indigo-600">
+                      Projects
+                    </h4>
+
+                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                      {analysis.projects?.map((project: string) => (
+                        <li key={project}>• {project}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Education */}
+                  <div>
+                    <h4 className="mb-2 text-sm font-bold text-blue-600">
+                      Education
+                    </h4>
+
+                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                      {Array.isArray(analysis.education)
+  ? analysis.education.map((item: string) => (
+      <li key={item}>• {item}</li>
+    ))
+  : (
+      <li>• {analysis.education}</li>
+    )}
+                    </ul>
+                  </div>
+
+                  {/* Certifications */}
+                  <div>
+                    <h4 className="mb-2 text-sm font-bold text-violet-600">
+                      Certifications
+                    </h4>
+
+                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                      {analysis.certifications?.map((item: string) => (
+                        <li key={item}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Strengths */}
+                  <div>
+                    <h4 className="mb-2 text-sm font-bold text-emerald-600">
+                      Strengths
+                    </h4>
+
+                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                      {analysis.strengths?.map((item: string) => (
+                        <li key={item}>✓ {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Weaknesses */}
+                  <div>
+                    <h4 className="mb-2 text-sm font-bold text-amber-600">
+                      Weaknesses
+                    </h4>
+
+                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                      {analysis.weaknesses?.map((item: string) => (
+                        <li key={item}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                </div>
+
+                {/* Recommendations */}
+                <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+                  <h4 className="mb-2 text-sm font-bold text-violet-600">
+                    Recommendations
+                  </h4>
+
+                  <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                    {analysis.recommendations?.map((item: string) => (
+                      <li key={item}>→ {item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>
+            )}
+           {analysisError && !isAnalyzing && (
+  <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-900/60 dark:bg-rose-950/20">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">
+        <FileText className="h-5 w-5" />
+      </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Recruiters download this file during automated shortlisting.</span>
-              <span className="font-medium text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline" onClick={() => setIsPreviewOpen(true)}>
-                View full screen
-              </span>
-            </div>
-          </div>
+      <div>
+        <p className="text-sm font-bold text-rose-700 dark:text-rose-400">
+          Invalid Resume or CV
+        </p>
+
+        <p className="text-xs text-rose-600/80 dark:text-rose-400/80">
+          Please enter a valid resume or CV.
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+          </>
         ) : (
           /* Empty upload zone */
           <div
@@ -179,10 +388,14 @@ export default function ResumeSection({
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-3 shadow-xs dark:bg-indigo-950/60 dark:text-indigo-400">
               <UploadCloud className="h-7 w-7" />
             </div>
+
             <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
               Drag &amp; drop your resume here, or{" "}
-              <span className="text-[#6366F1] dark:text-indigo-400 underline">browse files</span>
+              <span className="text-[#6366F1] dark:text-indigo-400 underline">
+                browse files
+              </span>
             </p>
+
             <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
               PDF format preferred • Maximum file size 5MB
             </p>
