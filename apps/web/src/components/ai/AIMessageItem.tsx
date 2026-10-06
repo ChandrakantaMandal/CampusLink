@@ -37,19 +37,35 @@ export function AIMessageItem({
 }: AIMessageItemProps) {
   const isUser = message.role === "user";
 
-  // Robustly extract text whether message provides parts array or content string
-  const textParts =
-    message.parts
-      ?.filter((p) => p.type === "text" && typeof p.text === "string")
-      .map((p) => p.text) || [];
+  // Robustly extract text from all possible message structures (parts, text, delta, content)
+  const extractedParts: string[] = [];
+  if (Array.isArray(message.parts)) {
+    for (const p of message.parts) {
+      if (typeof p === "string") {
+        extractedParts.push(p);
+      } else if (p && typeof p === "object") {
+        if ("text" in p && typeof p.text === "string" && p.text) {
+          extractedParts.push(p.text);
+        } else if ("content" in p && typeof p.content === "string" && p.content) {
+          extractedParts.push(p.content);
+        } else if ("textDelta" in p && typeof (p as any).textDelta === "string" && (p as any).textDelta) {
+          extractedParts.push((p as any).textDelta);
+        } else if ("delta" in p && typeof (p as any).delta === "string" && (p as any).delta) {
+          extractedParts.push((p as any).delta);
+        }
+      }
+    }
+  }
 
   const rawContent =
-    (message as any).content && typeof (message as any).content === "string"
+    typeof (message as any).content === "string"
       ? ((message as any).content as string)
       : "";
 
   const fullText =
-    textParts.length > 0 ? textParts.join("\n") : rawContent;
+    extractedParts.length > 0
+      ? extractedParts.join("\n")
+      : rawContent || "";
 
   return (
     <MessageScrollerItem key={message.id} scrollAnchor={isLast}>
@@ -63,14 +79,8 @@ export function AIMessageItem({
                 <User className="size-3" />
               </div>
             </div>
-            <div className="rounded-2xl rounded-tr-xs bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-sm text-white shadow-md shadow-indigo-600/15 leading-relaxed">
-              {textParts.length > 0 ? (
-                textParts.map((text, index) => (
-                  <Streamdown key={index}>{text}</Streamdown>
-                ))
-              ) : (
-                <Streamdown>{fullText}</Streamdown>
-              )}
+            <div className="rounded-2xl rounded-tr-xs bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-sm text-white shadow-md shadow-indigo-600/15 leading-relaxed whitespace-pre-wrap">
+              <Streamdown>{fullText}</Streamdown>
             </div>
           </div>
         ) : (
@@ -88,39 +98,30 @@ export function AIMessageItem({
 
             <div className="w-full rounded-2xl rounded-tl-xs border border-border/80 bg-card/90 p-5 sm:p-7 shadow-sm backdrop-blur-xs">
               {!fullText.trim() ? (
-                <div className="flex items-center gap-3 py-1 text-sm text-muted-foreground">
-                  <Loader2 className="size-5 animate-spin text-indigo-600 dark:text-indigo-400" />
-                  <span className="font-medium animate-pulse">
-                    Analyzing query...
-                  </span>
-                </div>
+                status === "streaming" || status === "submitted" ? (
+                  <div className="flex items-center gap-3 py-1 text-sm text-muted-foreground">
+                    <Loader2 className="size-5 animate-spin text-indigo-600 dark:text-indigo-400" />
+                    <span className="font-medium animate-pulse">
+                      Analyzing query...
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 py-1 text-sm text-rose-500">
+                    <span>Unable to generate response. Please check your connection and try again.</span>
+                  </div>
+                )
               ) : (
                 <div className="w-full ai-markdown-prose max-w-none break-words leading-relaxed overflow-x-auto">
-                  {textParts.length > 0 ? (
-                    textParts.map((text, index) => (
-                      <Streamdown
-                        key={index}
-                        animated={false}
-                        isAnimating={
-                          status === "streaming" &&
-                          message.role === "assistant" &&
-                          index === textParts.length - 1
-                        }
-                      >
-                        {text}
-                      </Streamdown>
-                    ))
-                  ) : (
-                    <Streamdown
-                      animated={false}
-                      isAnimating={
-                        status === "streaming" &&
-                        message.role === "assistant"
-                      }
-                    >
-                      {fullText}
-                    </Streamdown>
-                  )}
+                  <Streamdown
+                    animated={false}
+                    isAnimating={
+                      status === "streaming" &&
+                      message.role === "assistant" &&
+                      Boolean(isLast)
+                    }
+                  >
+                    {fullText}
+                  </Streamdown>
                 </div>
               )}
 
