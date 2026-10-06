@@ -1,13 +1,4 @@
-import { devToolsMiddleware } from "@ai-sdk/devtools";
-import { google } from "@ai-sdk/google";
-import {
-  pipeUIMessageStreamToResponse,
-  streamText,
-  toUIMessageStream,
-  type UIMessage,
-  convertToModelMessages,
-  wrapLanguageModel,
-} from "ai";
+
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import express from "express";
@@ -27,13 +18,15 @@ import educationRoutes from "./modules/education/education.routes";
 import projectRoutes from "./modules/projects/project.routes";
 import assessmentRoutes from "./modules/assessments/assessment.routes";
 import adminRoutes from "./modules/admin/admin.routes";
+import aiRoutes from "./modules/ai/ai.routes";
+import recruiterRoutes from "./modules/recruiter/recruiter.routes";
 
 const app = express();
 
 app.use(
   cors({
     origin: ENV.CORS_ORIGIN,
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
@@ -61,22 +54,9 @@ app.use("/api/education", educationRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/admin", adminRoutes);
-
-app.post("/ai", async (req, res) => {
-  const { messages = [] } = (req.body || {}) as { messages: UIMessage[] };
-  const model = wrapLanguageModel({
-    model: google("gemini-2.5-flash"),
-    middleware: devToolsMiddleware(),
-  });
-  const result = streamText({
-    model,
-    messages: await convertToModelMessages(messages),
-  });
-  pipeUIMessageStreamToResponse({
-    response: res,
-    stream: toUIMessageStream({ stream: result.stream }),
-  });
-});
+app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/ai", aiRoutes);
 
 app.use(errorMiddleware);
 

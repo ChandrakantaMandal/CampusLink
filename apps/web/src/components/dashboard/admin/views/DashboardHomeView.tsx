@@ -24,37 +24,52 @@ import {
   Award,
 } from "lucide-react";
 import {
-  mockStudents,
-  mockRecruiters,
-  mockPlacementDrives,
-  mockApplications,
-  mockOffers,
-} from "../mock-admin-data";
+  getDashboardStats,
+  getAdminDrives,
+  getAdminApplications,
+  type DashboardStats,
+} from "@/lib/api/admin.api";
+import { type PlacementDrive, type ApplicationItem } from "../mock-admin-data";
 
 export default function DashboardHomeView() {
+  const [stats, setStats] = React.useState<DashboardStats | null>(null);
+  const [drives, setDrives] = React.useState<PlacementDrive[]>([]);
+  const [applications, setApplications] = React.useState<ApplicationItem[]>([]);
+
+  React.useEffect(() => {
+    getDashboardStats().then(setStats).catch(console.error);
+    getAdminDrives().then(setDrives).catch(console.error);
+    getAdminApplications().then(setApplications).catch(console.error);
+  }, []);
+
+  const totalStudents = stats?.users.students || 0;
+  const placedStudents = applications.filter(a => a.status === "Offer" || a.status === "Joined").length;
+  const placementRate = totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
+  const activeRecruiters = stats?.users.recruiters || 0;
+
   const primaryKpis = [
     {
       label: "Total Students",
-      value: "1,240",
-      change: "+12%",
-      subtitle: "Eligible cohort 2026",
+      value: totalStudents.toLocaleString(),
+      change: "+0%",
+      subtitle: "Eligible cohort",
       icon: Users,
       color: "from-blue-600 to-indigo-600",
       href: "/admin/students",
     },
     {
       label: "Placed Students",
-      value: "184",
-      change: "+24%",
-      subtitle: "Offers accepted so far",
+      value: placedStudents.toLocaleString(),
+      change: "+0%",
+      subtitle: "Offers accepted",
       icon: GraduationCap,
       color: "from-emerald-600 to-teal-600",
       href: "/admin/offers",
     },
     {
       label: "Active Recruiters",
-      value: "42",
-      change: "+8",
+      value: activeRecruiters.toLocaleString(),
+      change: "+0",
       subtitle: "Participating companies",
       icon: Building,
       color: "from-purple-600 to-indigo-600",
@@ -62,8 +77,8 @@ export default function DashboardHomeView() {
     },
     {
       label: "Placement Rate",
-      value: "76%",
-      change: "+14%",
+      value: `${placementRate}%`,
+      change: "+0%",
       subtitle: "Target: 85% by Dec",
       icon: TrendingUp,
       color: "from-amber-600 to-orange-600",
@@ -72,14 +87,14 @@ export default function DashboardHomeView() {
   ];
 
   const secondaryStats = [
-    { label: "Registered Students", value: "1,180" },
-    { label: "Eligible Students", value: "980" },
-    { label: "Active Placement Drives", value: "12" },
-    { label: "Applications", value: "612" },
-    { label: "Interviews Conducted", value: "218" },
-    { label: "Offers Extended", value: "112" },
-    { label: "Average Package", value: "₹8.4 LPA" },
-    { label: "Highest Package", value: "₹44.0 LPA" },
+    { label: "Registered Students", value: (stats?.users.total || 0).toLocaleString() },
+    { label: "Eligible Students", value: totalStudents.toLocaleString() },
+    { label: "Active Placement Drives", value: drives.filter(d => d.status === "Open" || d.status === "Ongoing").length.toLocaleString() },
+    { label: "Applications", value: applications.length.toLocaleString() },
+    { label: "Assessments Conducted", value: (stats?.assessments || 0).toLocaleString() },
+    { label: "Offers Extended", value: placedStudents.toLocaleString() },
+    { label: "Total Companies", value: (stats?.companies || 0).toLocaleString() },
+    { label: "Total Jobs", value: (stats?.jobs || 0).toLocaleString() },
   ];
 
   const branchPlacement = [
@@ -99,13 +114,23 @@ export default function DashboardHomeView() {
     { skill: "Communication & Leadership", demand: 76, count: "All Drives" },
   ];
 
+  const stagesCount = {
+    Applied: applications.filter(a => a.status === "Applied").length,
+    Shortlisted: applications.filter(a => a.status === "Shortlisted").length,
+    Interview: applications.filter(a => a.status === "Interview").length,
+    Selected: applications.filter(a => a.status === "Selected").length,
+    Offer: applications.filter(a => a.status === "Offer").length,
+    Joined: applications.filter(a => a.status === "Joined").length,
+  };
+  const totalApps = applications.length || 1;
+
   const pipelineStages = [
-    { stage: "Applied", count: 612, pct: "100%", color: "bg-indigo-500" },
-    { stage: "Shortlisted", count: 342, pct: "55.8%", color: "bg-blue-500" },
-    { stage: "Interview", count: 218, pct: "35.6%", color: "bg-purple-500" },
-    { stage: "Selected", count: 112, pct: "18.3%", color: "bg-amber-500" },
-    { stage: "Offer", count: 96, pct: "15.6%", color: "bg-emerald-500" },
-    { stage: "Joined", count: 84, pct: "13.7%", color: "bg-teal-500" },
+    { stage: "Applied", count: stagesCount.Applied, pct: `${Math.round((stagesCount.Applied/totalApps)*100)}%`, color: "bg-indigo-500" },
+    { stage: "Shortlisted", count: stagesCount.Shortlisted, pct: `${Math.round((stagesCount.Shortlisted/totalApps)*100)}%`, color: "bg-blue-500" },
+    { stage: "Interview", count: stagesCount.Interview, pct: `${Math.round((stagesCount.Interview/totalApps)*100)}%`, color: "bg-purple-500" },
+    { stage: "Selected", count: stagesCount.Selected, pct: `${Math.round((stagesCount.Selected/totalApps)*100)}%`, color: "bg-amber-500" },
+    { stage: "Offer", count: stagesCount.Offer, pct: `${Math.round((stagesCount.Offer/totalApps)*100)}%`, color: "bg-emerald-500" },
+    { stage: "Joined", count: stagesCount.Joined, pct: `${Math.round((stagesCount.Joined/totalApps)*100)}%`, color: "bg-teal-500" },
   ];
 
   return (
@@ -125,7 +150,7 @@ export default function DashboardHomeView() {
               Good Morning, Admin 👋
             </h1>
             <p className="text-sm text-slate-300 max-w-xl">
-              Here&apos;s your comprehensive campus placement control center. 12 active drives are in progress, with 1 schedule conflict requiring immediate resolution.
+              Here&apos;s your comprehensive campus placement control center.
             </p>
           </div>
 
@@ -215,7 +240,7 @@ export default function DashboardHomeView() {
                 Placement Pipeline Conversion
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Total 612 student applications moving across 6 recruitment gates
+                Total {applications.length} student applications moving across 6 recruitment gates
               </p>
             </div>
             <Link
@@ -326,7 +351,7 @@ export default function DashboardHomeView() {
           </div>
 
           <div className="space-y-3.5">
-            {mockPlacementDrives.slice(0, 3).map((drive) => (
+            {drives.slice(0, 3).map((drive) => (
               <div
                 key={drive.id}
                 className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 hover:border-indigo-300 dark:hover:border-indigo-800/60 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -334,7 +359,7 @@ export default function DashboardHomeView() {
                 <div className="flex items-start gap-3.5">
                   <div className="h-10 w-10 rounded-xl bg-white p-1.5 shadow-2xs border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={drive.logo} alt={drive.company} className="h-6 w-6 object-contain" />
+                    <img src={drive.logo || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"} alt={drive.company} className="h-6 w-6 object-contain" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -343,15 +368,15 @@ export default function DashboardHomeView() {
                         {drive.tier}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{drive.role} &bull; <strong className="text-slate-800 dark:text-slate-200">{drive.salary}</strong></p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{drive.role} &bull; <strong className="text-slate-800 dark:text-slate-200">{drive.salary || "TBD"}</strong></p>
                     <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-400">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3 text-slate-400" />
-                        {drive.driveDate} at {drive.driveTime}
+                        {drive.driveDate} at {drive.driveTime || "TBD"}
                       </span>
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3 w-3 text-slate-400" />
-                        {drive.venue}
+                        {drive.venue || "TBD"}
                       </span>
                     </div>
                   </div>
@@ -441,17 +466,17 @@ export default function DashboardHomeView() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {mockOffers.map((offer) => (
+          {applications.filter(a => a.status === "Offer" || a.status === "Joined").slice(0, 4).map((offer) => (
             <div
               key={offer.id}
               className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 hover:border-emerald-300 dark:hover:border-emerald-800/60 transition-all space-y-3"
             >
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={offer.avatar} alt={offer.studentName} className="h-10 w-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                <img src={"https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"} alt={offer.studentName} className="h-10 w-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{offer.studentName}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{offer.rollNo} &bull; {offer.branch}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{offer.studentRoll} &bull; {offer.branch}</p>
                 </div>
               </div>
 
@@ -461,8 +486,8 @@ export default function DashboardHomeView() {
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">{offer.role}</p>
                 </div>
                 <div className="text-right">
-                  <span className="font-black text-emerald-600 dark:text-emerald-400">{offer.package}</span>
-                  <span className="block text-[10px] text-slate-400">Accepted</span>
+                  <span className="font-black text-emerald-600 dark:text-emerald-400">TBD</span>
+                  <span className="block text-[10px] text-slate-400">{offer.status}</span>
                 </div>
               </div>
             </div>

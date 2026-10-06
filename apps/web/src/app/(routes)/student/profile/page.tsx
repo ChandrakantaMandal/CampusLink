@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   LogIn,
 } from "lucide-react";
-import { useProfile } from "@/components/dashboard/student/student-profile/context/ProfileContext";
+import { useProfile } from "@/stores/profileStore";
 import type { Education, Certification } from "@/data/studentProfile";
 import { sampleDemoProfile } from "@/data/studentProfile";
 

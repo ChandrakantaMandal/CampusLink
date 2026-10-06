@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -15,16 +15,34 @@ import {
   Mail,
   FileCheck,
 } from "lucide-react";
-import { mockRecruiterCandidates, type RecruiterCandidate } from "../mock-recruiter-data";
+import type { RecruiterCandidate } from "../mock-recruiter-data";
+import { getShortlistedCandidates } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterShortlistedView() {
-  const [candidates, setCandidates] = useState<RecruiterCandidate[]>(
-    mockRecruiterCandidates.filter((c) =>
-      ["Shortlisted", "Interview", "Selected", "Offer"].includes(c.status)
-    )
-  );
+  const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    getShortlistedCandidates()
+      .then((data) => {
+        if (!cancelled) setCandidates(data);
+      })
+      .catch((error: Error) => {
+        if (!cancelled)
+          toast.error("Failed to load shortlisted candidates", {
+            description: error.message,
+          });
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = candidates.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -96,7 +114,20 @@ export default function RecruiterShortlistedView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-              {filtered.map((c) => (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-xs font-semibold text-slate-400">
+                    Loading shortlisted candidates...
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-xs font-semibold text-slate-400">
+                    No shortlisted candidates found.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50">
                   <td className="p-4">
                     <p className="font-bold text-slate-900 dark:text-white text-sm">{c.name}</p>
@@ -136,7 +167,8 @@ export default function RecruiterShortlistedView() {
                     </Link>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

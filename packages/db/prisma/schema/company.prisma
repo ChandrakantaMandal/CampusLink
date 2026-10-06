@@ -58,6 +58,8 @@ model RecruiterProfile {
   linkedinUrl     String?
   isLeadRecruiter Boolean     @default(false)
 
+  notificationPrefs Json?
+
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 

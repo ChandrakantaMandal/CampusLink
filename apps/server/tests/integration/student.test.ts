@@ -6,6 +6,12 @@ const mocks = vi.hoisted(() => ({
   getStudentByUserId: vi.fn(),
   getStudentById: vi.fn(),
   updateStudent: vi.fn(),
+  getStudentDashboard: vi.fn(),
+  getStudentReadiness: vi.fn(),
+  getStudentDrives: vi.fn(),
+  getStudentInterviews: vi.fn(),
+  getStudentOffers: vi.fn(),
+  getStudentNotifications: vi.fn(),
   userRole: "STUDENT",
 }));
 
@@ -49,6 +55,12 @@ vi.mock("../../src/modules/students/student.service", () => ({
   getStudentByUserId: mocks.getStudentByUserId,
   getStudentById: mocks.getStudentById,
   updateStudent: mocks.updateStudent,
+  getStudentDashboard: mocks.getStudentDashboard,
+  getStudentReadiness: mocks.getStudentReadiness,
+  getStudentDrives: mocks.getStudentDrives,
+  getStudentInterviews: mocks.getStudentInterviews,
+  getStudentOffers: mocks.getStudentOffers,
+  getStudentNotifications: mocks.getStudentNotifications,
 }));
 
 import studentRouter from "../../src/modules/students/student.routes";
@@ -251,6 +263,42 @@ describe("Student API Integration", () => {
       expect(mocks.updateStudent).not.toHaveBeenCalled();
     });
 
+    it("should accept location, isPublic and leetcodeUrl", async () => {
+      const updateData = {
+        location: "Bhubaneswar, India",
+        isPublic: false,
+        leetcodeUrl: "https://leetcode.com/johndoe",
+      };
+
+      const updatedStudent = {
+        id: "student-1",
+        userId: "user-1",
+        ...updateData,
+      };
+
+      mocks.updateStudent.mockResolvedValue(updatedStudent);
+
+      const response = await request(app)
+        .patch("/students/me")
+        .send(updateData);
+
+      expect(response.status).toBe(200);
+
+      expect(mocks.updateStudent).toHaveBeenCalledWith("user-1", updateData);
+    });
+
+    it("should return 400 for invalid leetcode URL", async () => {
+      const response = await request(app).patch("/students/me").send({
+        leetcodeUrl: "not-a-url",
+      });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body.success).toBe(false);
+
+      expect(mocks.updateStudent).not.toHaveBeenCalled();
+    });
+
     it("should return 500 when update service throws an error", async () => {
       mocks.updateStudent.mockRejectedValue(new Error("Database error"));
 
@@ -361,5 +409,116 @@ describe("Student API Integration", () => {
 
       expect(response.status).toBe(200);
     });
+  });
+
+  describe("Student aggregate endpoints", () => {
+    const aggregates: Array<{
+      path: string;
+      mock: keyof typeof mocks;
+      data: unknown;
+    }> = [
+      {
+        path: "/students/me/dashboard",
+        mock: "getStudentDashboard",
+        data: { stats: { applications: 3 }, recentApplications: [] },
+      },
+      {
+        path: "/students/me/readiness",
+        mock: "getStudentReadiness",
+        data: { score: 65, label: "GOOD", latest: null, history: [] },
+      },
+      {
+        path: "/students/me/drives",
+        mock: "getStudentDrives",
+        data: { registered: [], available: [] },
+      },
+      {
+        path: "/students/me/interviews",
+        mock: "getStudentInterviews",
+        data: { upcoming: [], past: [] },
+      },
+      {
+        path: "/students/me/offers",
+        mock: "getStudentOffers",
+        data: { offers: [], stats: { total: 0, accepted: 0, pending: 0 } },
+      },
+      {
+        path: "/students/me/notifications",
+        mock: "getStudentNotifications",
+        data: { notifications: [], unreadCount: 0, total: 0 },
+      },
+    ];
+
+    it.each(aggregates)(
+      "GET $path returns 200 with data",
+      async ({ path, mock, data }) => {
+        (mocks[mock] as ReturnType<typeof vi.fn>).mockResolvedValue(data);
+
+        const response = await request(app).get(path);
+
+        expect(response.status).toBe(200);
+
+        expect(response.body).toEqual({
+          success: true,
+          data,
+        });
+
+        expect(mocks[mock]).toHaveBeenCalledWith("user-1");
+      },
+    );
+
+    it.each(aggregates)(
+      "GET $path returns 404 when student profile is missing",
+      async ({ path, mock }) => {
+        (mocks[mock] as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+        const response = await request(app).get(path);
+
+        expect(response.status).toBe(404);
+
+        expect(response.body).toEqual({
+          success: false,
+          message: "Student profile not found",
+        });
+      },
+    );
+
+    it.each(aggregates)(
+      "GET $path returns 500 when service throws",
+      async ({ path, mock }) => {
+        (mocks[mock] as ReturnType<typeof vi.fn>).mockRejectedValue(
+          new Error("Database error"),
+        );
+
+        const response = await request(app).get(path);
+
+        expect(response.status).toBe(500);
+
+        expect(response.body).toEqual({
+          success: false,
+          message: "Database error",
+        });
+      },
+    );
+
+    it.each(aggregates)(
+      "GET $path returns 403 for non-STUDENT role",
+      async ({ path, mock }) => {
+        mocks.userRole = "RECRUITER";
+
+        (mocks[mock] as ReturnType<typeof vi.fn>).mockResolvedValue({});
+
+        const response = await request(app).get(path);
+
+        expect(response.status).toBe(403);
+
+        expect(response.body).toEqual({
+          success: false,
+          message: "Forbidden",
+        });
+
+        expect(mocks[mock]).not.toHaveBeenCalled();
+      },
+    );
   });
 });

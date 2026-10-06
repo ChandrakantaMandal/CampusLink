@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Briefcase,
   Search,
@@ -17,19 +17,61 @@ import {
   ArrowRight,
   Filter,
 } from "lucide-react";
-import { mockPlacementDrives, type PlacementDrive } from "../mock-admin-data";
+import { type PlacementDrive } from "../mock-admin-data";
+import {
+  getAdminDrives,
+  getCompaniesForDrive,
+  getAdminJobs,
+  createPlacementDrive,
+  updatePlacementDrive,
+  VIEW_TO_DRIVE_STATUS,
+  VIEW_TO_TIER,
+  type CompanyRaw,
+} from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function PlacementDrivesView() {
-  const [drives, setDrives] = useState<PlacementDrive[]>(mockPlacementDrives);
+  const [drives, setDrives] = useState<PlacementDrive[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [companies, setCompanies] = useState<CompanyRaw[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedDrive, setSelectedDrive] = useState<PlacementDrive | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [allJobs, setAllJobs] = useState<{ id: string; title: string; companyId: string }[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getAdminDrives()
+      .then((data) => {
+        if (!cancelled) setDrives(data);
+      })
+      .catch(() => toast.error("Failed to load placement drives"))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const openCreateModal = () => {
+    setIsCreateModalOpen(true);
+    if (companies.length === 0) {
+      getCompaniesForDrive()
+        .then(setCompanies)
+        .catch(() => toast.error("Failed to load companies"));
+    }
+    if (allJobs.length === 0) {
+      getAdminJobs()
+        .then(setAllJobs)
+        .catch(() => toast.error("Failed to load jobs"));
+    }
+  };
 
   // New Drive Form State
   const [newDrive, setNewDrive] = useState({
-    company: "",
+    companyId: "",
     role: "",
     salary: "₹10 LPA",
     description: "",
@@ -42,6 +84,7 @@ export default function PlacementDrivesView() {
     skills: "Python, DSA, React, SQL",
     rounds: "Online Test, Technical Round, HR Round",
     tier: "Dream" as const,
+    jobIds: [] as string[],
   });
 
   const filteredDrives = drives.filter((d) => {
@@ -53,47 +96,63 @@ export default function PlacementDrivesView() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleUpdateStatus = (id: string, newStatus: PlacementDrive["status"]) => {
-    setDrives((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, status: newStatus } : d))
-    );
-    if (selectedDrive?.id === id) {
-      setSelectedDrive((prev) => prev ? { ...prev, status: newStatus } : null);
+  const handleUpdateStatus = async (
+    id: string,
+    newStatus: PlacementDrive["status"],
+  ) => {
+    try {
+      const updated = await updatePlacementDrive(id, {
+        status: VIEW_TO_DRIVE_STATUS[newStatus],
+      });
+      setDrives((prev) => prev.map((d) => (d.id === id ? updated : d)));
+      if (selectedDrive?.id === id) {
+        setSelectedDrive(updated);
+      }
+      toast.success(`Drive status changed to ${newStatus}`);
+    } catch {
+      toast.error("Failed to update drive status");
     }
-    toast.success(`Drive status changed to ${newStatus}`);
   };
 
-  const handleCreateDrive = (e: React.FormEvent) => {
+  const handleCreateDrive = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDrive.company || !newDrive.role) {
-      toast.error("Please provide company name and job role");
+    if (!newDrive.companyId || !newDrive.role) {
+      toast.error("Please select a company and job role");
       return;
     }
 
-    const created: PlacementDrive = {
-      id: `drv-${Date.now()}`,
-      company: newDrive.company,
-      logo: "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg",
-      role: newDrive.role,
-      description: newDrive.description || "Exciting campus hiring drive for engineering graduates.",
-      requiredSkills: newDrive.skills.split(",").map((s) => s.trim()).filter(Boolean),
-      minCgpa: parseFloat(newDrive.minCgpa) || 7.0,
-      backlogsAllowed: parseInt(newDrive.backlogsAllowed) || 0,
-      salary: newDrive.salary,
-      deadline: "2026-10-08",
-      driveDate: newDrive.driveDate,
-      driveTime: newDrive.driveTime,
-      venue: newDrive.venue,
-      rounds: newDrive.rounds.split(",").map((r) => r.trim()).filter(Boolean),
-      openings: parseInt(newDrive.openings) || 10,
-      applicantsCount: 0,
-      status: "Open",
-      tier: newDrive.tier,
-    };
+    try {
+      const created = await createPlacementDrive({
+        companyId: newDrive.companyId,
+        title: newDrive.role,
+        role: newDrive.role,
+        description: newDrive.description || undefined,
+        tier: VIEW_TO_TIER[newDrive.tier],
+        status: "OPEN",
+        salary: newDrive.salary || undefined,
+        minCgpa: parseFloat(newDrive.minCgpa) || undefined,
+        backlogsAllowed: parseInt(newDrive.backlogsAllowed) || 0,
+        requiredSkills: newDrive.skills
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+        rounds: newDrive.rounds
+          .split(",")
+          .map((r) => r.trim())
+          .filter(Boolean),
+        openings: parseInt(newDrive.openings) || 10,
+        driveDate: newDrive.driveDate,
+        driveTime: newDrive.driveTime || undefined,
+        venue: newDrive.venue || undefined,
+        jobIds: newDrive.jobIds,
+      });
 
-    setDrives([created, ...drives]);
-    setIsCreateModalOpen(false);
-    toast.success(`Placement Drive for ${created.company} created successfully!`);
+      setDrives((prev) => [created, ...prev]);
+      setIsCreateModalOpen(false);
+      toast.success(`Placement Drive for ${created.company} created successfully!`);
+    } catch {
+      toast.error("Failed to create placement drive");
+    }
   };
 
   return (
@@ -112,7 +171,7 @@ export default function PlacementDrivesView() {
 
         <button
           type="button"
-          onClick={() => setIsCreateModalOpen(true)}
+          onClick={openCreateModal}
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-indigo-600/25 cursor-pointer shrink-0 self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
@@ -155,7 +214,16 @@ export default function PlacementDrivesView() {
 
       {/* Drives Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredDrives.map((drive) => (
+        {loading ? (
+          <div className="col-span-full rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-10 text-center text-sm font-bold text-slate-500 dark:text-slate-400">
+            Loading placement drives…
+          </div>
+        ) : filteredDrives.length === 0 ? (
+          <div className="col-span-full rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-10 text-center text-sm font-bold text-slate-500 dark:text-slate-400">
+            No placement drives found.
+          </div>
+        ) : null}
+        {!loading && filteredDrives.map((drive) => (
           <div
             key={drive.id}
             className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm hover:shadow-xl transition-all duration-200 flex flex-col justify-between space-y-4"
@@ -248,7 +316,12 @@ export default function PlacementDrivesView() {
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
               <select
                 value={drive.status}
-                onChange={(e) => handleUpdateStatus(drive.id, e.target.value as any)}
+                onChange={(e) =>
+                  handleUpdateStatus(
+                    drive.id,
+                    e.target.value as PlacementDrive["status"],
+                  )
+                }
                 className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
               >
                 <option value="Draft">Draft</option>
@@ -300,6 +373,21 @@ export default function PlacementDrivesView() {
             </p>
 
             <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Jobs in this Drive:</span>
+              <div className="flex flex-wrap gap-2">
+                {selectedDrive.jobs && selectedDrive.jobs.length > 0 ? (
+                  selectedDrive.jobs.map(j => (
+                    <span key={j.id} className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      {j.title}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-500">No jobs assigned</span>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Recruitment Rounds:</span>
               <div className="space-y-1.5">
                 {selectedDrive.rounds.map((round, idx) => (
@@ -347,15 +435,20 @@ export default function PlacementDrivesView() {
             <form onSubmit={handleCreateDrive} className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Company Name *</label>
-                  <input
-                    type="text"
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Company *</label>
+                  <select
                     required
-                    value={newDrive.company}
-                    onChange={(e) => setNewDrive({ ...newDrive, company: e.target.value })}
-                    placeholder="e.g. Google India"
+                    value={newDrive.companyId}
+                    onChange={(e) => setNewDrive({ ...newDrive, companyId: e.target.value })}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
-                  />
+                  >
+                    <option value="">Select a company…</option>
+                    {companies.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Job Role *</label>
@@ -369,6 +462,26 @@ export default function PlacementDrivesView() {
                   />
                 </div>
               </div>
+
+              {newDrive.companyId && (
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Select Jobs for this Drive</label>
+                  <select
+                    multiple
+                    value={newDrive.jobIds}
+                    onChange={(e) => {
+                      const options = Array.from(e.target.selectedOptions, option => option.value);
+                      setNewDrive({ ...newDrive, jobIds: options });
+                    }}
+                    className="w-full h-24 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2 text-slate-900 dark:text-white focus:outline-hidden"
+                  >
+                    {allJobs.filter(j => j.companyId === newDrive.companyId).map(j => (
+                      <option key={j.id} value={j.id}>{j.title}</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple jobs</p>
+                </div>
+              )}
 
               <div className="grid grid-cols-3 gap-3">
                 <div>

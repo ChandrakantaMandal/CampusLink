@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Gift,
   Search,
@@ -13,18 +13,41 @@ import {
   Building,
   UserCheck,
 } from "lucide-react";
-import { mockOffers, type OfferItem } from "../mock-admin-data";
+import { type OfferItem } from "../mock-admin-data";
+import { getAdminOffers } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function OffersManagementView() {
-  const [offers, setOffers] = useState<OfferItem[]>(mockOffers);
+  const [offers, setOffers] = useState<OfferItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const totalOffers = 112;
-  const acceptedOffers = 96;
-  const pendingOffers = 8;
-  const declinedOffers = 8;
+  useEffect(() => {
+    let cancelled = false;
+
+    getAdminOffers()
+      .then((data) => {
+        if (!cancelled) setOffers(data);
+      })
+      .catch(() => {
+        toast.error("Failed to load offers");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const totalOffers = offers.length;
+  const acceptedOffers = offers.filter((o) => o.status === "Accepted").length;
+  const pendingOffers = offers.filter((o) => o.status === "Pending").length;
+  const declinedOffers = offers.filter((o) => o.status === "Declined").length;
+  const acceptanceRate =
+    totalOffers > 0 ? Math.round((acceptedOffers / totalOffers) * 100) : 0;
 
   const filteredOffers = offers.filter((o) => {
     const matchesSearch =
@@ -82,7 +105,7 @@ export default function OffersManagementView() {
         <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs text-center">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Accepted</span>
           <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{acceptedOffers}</p>
-          <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">85.7% Acceptance</span>
+          <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">{acceptanceRate}% Acceptance</span>
         </div>
 
         <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-xs text-center">
@@ -141,7 +164,21 @@ export default function OffersManagementView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-              {filteredOffers.map((offer) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    Loading offers…
+                  </td>
+                </tr>
+              ) : filteredOffers.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    No offers found.
+                  </td>
+                </tr>
+              ) : null}
+              {!loading &&
+                filteredOffers.map((offer) => (
                 <tr
                   key={offer.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"

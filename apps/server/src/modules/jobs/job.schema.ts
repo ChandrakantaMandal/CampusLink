@@ -15,6 +15,8 @@ export const createJobSchema = z.object({
 
   salaryMax: z.number().nonnegative().optional(),
 
+  ctc: z.string().max(120).optional(),
+
   applicationDeadline: z.string().datetime().optional(),
 
   companyId: z.string().min(1, "Company ID is required"),

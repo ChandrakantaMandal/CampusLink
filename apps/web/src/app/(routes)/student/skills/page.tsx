@@ -4,7 +4,12 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import SkillGapCard from "@/components/dashboard/student/SkillGapCard";
-
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import { useStudentSkills } from "@/hooks/use-student";
+import { toSkillGaps } from "@/lib/dashboard-adapters";
 import { toast } from "sonner";
 
 import {

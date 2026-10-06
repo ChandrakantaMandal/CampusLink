@@ -1,0 +1,374 @@
+import type { NextFunction, Request, Response } from "express";
+
+import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
+
+import {
+  createInterview,
+  createMyJob,
+  createMyOffer,
+  getMyInterviews,
+  getMyJobs,
+  getMyNotifications,
+  getMyOffers,
+  getRecruiterProfile,
+  getRecruiterStats,
+  getShortlistedCandidates,
+  markAllNotificationsRead,
+  markNotificationRead,
+  updateRecruiterProfile,
+} from "./recruiter.service";
+
+import {
+  createInterviewSchema,
+  createMyJobSchema,
+  createMyOfferSchema,
+  updateRecruiterProfileSchema,
+} from "./recruiter.schema";
+
+export async function getRecruiterProfileController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const profile = await getRecruiterProfile(authenticatedReq.user.id);
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Recruiter profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: profile,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateRecruiterProfileController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const parsed = updateRecruiterProfileSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid recruiter profile data",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const profile = await updateRecruiterProfile(
+      authenticatedReq.user.id,
+      parsed.data,
+    );
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Recruiter profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Recruiter profile updated successfully",
+      data: profile,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getMyJobsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const jobs = await getMyJobs(authenticatedReq.user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: jobs,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createMyJobController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const parsed = createMyJobSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid job data",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const job = await createMyJob(authenticatedReq.user.id, parsed.data);
+
+    return res.status(201).json({
+      success: true,
+      message: "Job created successfully",
+      data: job,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getMyInterviewsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const interviews = await getMyInterviews(authenticatedReq.user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: interviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createInterviewController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const parsed = createInterviewSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid interview data",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const interview = await createInterview(
+      authenticatedReq.user.id,
+      parsed.data,
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Interview scheduled successfully",
+      data: interview,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getShortlistedController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const candidates = await getShortlistedCandidates(
+      authenticatedReq.user.id,
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: candidates,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getMyOffersController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const offers = await getMyOffers(authenticatedReq.user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: offers,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createMyOfferController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const parsed = createMyOfferSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid offer data",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const offer = await createMyOffer(authenticatedReq.user.id, parsed.data);
+
+    return res.status(201).json({
+      success: true,
+      message: "Offer issued successfully",
+      data: offer,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getMyNotificationsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const payload = await getMyNotifications(authenticatedReq.user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: payload,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function markNotificationReadController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid notification ID",
+      });
+    }
+
+    const notification = await markNotificationRead(
+      authenticatedReq.user.id,
+      id,
+    );
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Notification marked as read",
+      data: notification,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function markAllNotificationsReadController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const count = await markAllNotificationsRead(authenticatedReq.user.id);
+
+    if (count === null) {
+      return res.status(404).json({
+        success: false,
+        message: "Recruiter profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "All notifications marked as read",
+      data: { updated: count },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getRecruiterStatsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const stats = await getRecruiterStats(authenticatedReq.user.id);
+
+    if (!stats) {
+      return res.status(404).json({
+        success: false,
+        message: "Recruiter profile not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

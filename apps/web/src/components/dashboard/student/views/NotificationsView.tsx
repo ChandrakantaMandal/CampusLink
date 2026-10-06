@@ -21,104 +21,20 @@ import {
   Video
 } from "lucide-react";
 import { toast } from "sonner";
-
-interface DashboardNotification {
-  id: string;
-  title: string;
-  message: string;
-  category: "Drive" | "Interview" | "Offer" | "AI Coach" | "Notice";
-  urgency: "urgent" | "important" | "normal";
-  timestamp: string;
-  read: boolean;
-  actionLabel?: string;
-  targetTab?: string;
-  actionType?: "hallTicket" | "offerLetter" | "interviewSlot" | "driveBrochure" | "aiModule";
-}
+import type { DashboardNotification } from "@/lib/dashboard-adapters";
 
 interface NotificationsViewProps {
   onNavigateToTab?: (tab: string) => void;
+  initialNotifications?: DashboardNotification[];
 }
 
-export function NotificationsView({ onNavigateToTab }: NotificationsViewProps) {
-  const [notifications, setNotifications] = useState<DashboardNotification[]>([
-    {
-      id: "n-1",
-      title: "Google Campus Drive: Technical Assessment Shortlist Released",
-      message:
-        "Congratulations! You have cleared Round 1 algorithmic screening and are shortlisted for the SDE-1 Technical Round on Oct 12, 2026. Hall ticket is ready for download.",
-      category: "Interview",
-      urgency: "urgent",
-      timestamp: "10 mins ago",
-      read: false,
-      actionLabel: "Download Hall Ticket",
-      targetTab: "schedule",
-      actionType: "hallTicket",
-    },
-    {
-      id: "n-2",
-      title: "TCS Digital Cadre: Offer Letter (LOI) Verified by University TPO",
-      message:
-        "The training and placement department has validated your Letter of Intent from TCS Digital at ₹9.2 LPA. Please verify your documentation status.",
-      category: "Offer",
-      urgency: "urgent",
-      timestamp: "2 hours ago",
-      read: false,
-      actionLabel: "Review Offer Details",
-      targetTab: "offers",
-      actionType: "offerLetter",
-    },
-    {
-      id: "n-3",
-      title: "Microsoft IDC Campus Recruitment Drive Open",
-      message:
-        "Microsoft India Development Center has initiated campus recruitment registration for 2026 graduates. Cutoff: 7.5 CGPA.",
-      category: "Drive",
-      urgency: "important",
-      timestamp: "5 hours ago",
-      read: false,
-      actionLabel: "View Drive Details",
-      targetTab: "drives",
-      actionType: "driveBrochure",
-    },
-    {
-      id: "n-4",
-      title: "AI Skill Gap Alert: High Priority Practice Recommendation",
-      message:
-        "Based on your recent assessment in System Architecture, our AI placement coach recommends completing the Distributed Caching & Redis module before Oct 10.",
-      category: "AI Coach",
-      urgency: "normal",
-      timestamp: "Yesterday, 4:15 PM",
-      read: true,
-      actionLabel: "Practice Module",
-      targetTab: "skills",
-      actionType: "aiModule",
-    },
-    {
-      id: "n-5",
-      title: "Amazon AWS Solutions Architect: Eligibility Updated",
-      message:
-        "Amazon Web Services has expanded eligibility to include all CSE, IT, and ECE students with CGPA >= 7.0. Applications close on Oct 10, 2026.",
-      category: "Drive",
-      urgency: "important",
-      timestamp: "2 days ago",
-      read: true,
-      actionLabel: "Explore Opportunities",
-      targetTab: "jobs",
-      actionType: "driveBrochure",
-    },
-    {
-      id: "n-6",
-      title: "Placement Cell Notice: NIRF & NAAC Documentation Upload",
-      message:
-        "All final-year students are requested to update their active semester CGPA and upload their latest verified resume copy in the student profile.",
-      category: "Notice",
-      urgency: "normal",
-      timestamp: "3 days ago",
-      read: true,
-      actionLabel: "Open Student Profile",
-      actionType: "driveBrochure",
-    },
-  ]);
+export function NotificationsView({
+  onNavigateToTab,
+  initialNotifications = [],
+}: NotificationsViewProps) {
+  const [notifications, setNotifications] = useState<DashboardNotification[]>(
+    initialNotifications
+  );
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);

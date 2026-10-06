@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import {
@@ -18,11 +18,18 @@ import {
   ChevronRight,
   Layers,
 } from "lucide-react";
-import { mockRecruiterJobs, type RecruiterJob } from "../mock-recruiter-data";
+import type { RecruiterJob } from "../mock-recruiter-data";
+import {
+  getMyJobs,
+  createMyJob,
+  type CreateRecruiterJobInput,
+} from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterJobsView() {
-  const [jobs, setJobs] = useState<RecruiterJob[]>(mockRecruiterJobs);
+  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +50,23 @@ export default function RecruiterJobsView() {
     applicationDeadline: "2026-10-31",
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    getMyJobs()
+      .then((data) => {
+        if (!cancelled) setJobs(data);
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Failed to load job openings");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const filteredJobs = jobs.filter((job) => {
     const matchesStatus =
       statusFilter === "ALL" || job.status === statusFilter;
@@ -53,39 +77,35 @@ export default function RecruiterJobsView() {
     return matchesStatus && matchesSearch;
   });
 
-  const handleCreateJob = (e: React.FormEvent) => {
+  const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
-    const created: RecruiterJob = {
-      id: `job-0${jobs.length + 1}`,
+    const payload: CreateRecruiterJobInput = {
       title: newJob.title,
-      jobType: newJob.jobType,
+      description: newJob.description,
       location: newJob.location,
+      employmentType: newJob.jobType,
       ctc: newJob.ctc,
       openPositions: Number(newJob.openPositions),
       minCGPA: Number(newJob.minCGPA),
-      allowedBranches: newJob.allowedBranches,
       maxBacklogs: Number(newJob.maxBacklogs),
+      allowedBranches: newJob.allowedBranches,
       graduationYear: Number(newJob.graduationYear),
-      requiredSkills: newJob.requiredSkills.split(",").map((s) => s.trim()),
-      description: newJob.description,
       applicationDeadline: newJob.applicationDeadline,
-      status: "Applications Open",
-      applicantsCount: 0,
-      shortlistedCount: 0,
-      interviewCount: 0,
-      offersCount: 0,
-      rounds: [
-        { roundNumber: 1, name: "Online Aptitude Test", type: "Aptitude Test" },
-        { roundNumber: 2, name: "Technical Interview", type: "Technical Interview" },
-        { roundNumber: 3, name: "HR & Culture Round", type: "HR Interview" },
-      ],
     };
 
-    setJobs([created, ...jobs]);
-    setIsModalOpen(false);
-    toast.success("Job Opening Published 🎉", {
-      description: `"${newJob.title}" is now open for campus applications.`,
-    });
+    setIsCreating(true);
+    try {
+      const created = await createMyJob(payload);
+      setJobs((prev) => [created, ...prev]);
+      setIsModalOpen(false);
+      toast.success("Job Opening Published 🎉", {
+        description: `"${newJob.title}" is now open for campus applications.`,
+      });
+    } catch {
+      toast.error("Failed to create job opening");
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -147,7 +167,16 @@ export default function RecruiterJobsView() {
 
       {/* Jobs List */}
       <div className="space-y-4">
-        {filteredJobs.map((job) => (
+        {isLoading ? (
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+            Loading job openings...
+          </div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+            {jobs.length === 0 ? "No job openings found." : "No jobs match your filters."}
+          </div>
+        ) : (
+        filteredJobs.map((job) => (
           <div
             key={job.id}
             className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 shadow-xs hover:border-blue-400 dark:hover:border-blue-700 transition-all space-y-4"
@@ -265,7 +294,7 @@ export default function RecruiterJobsView() {
               </div>
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {/* Modal: Create Job Opening */}
@@ -353,9 +382,8 @@ export default function RecruiterJobsView() {
                   <input
                     type="text"
                     value={newJob.requiredSkills}
-                    onChange={(e) => setNewJob({ ...newJob, requiredSkills: e.target.value })}
-                    className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white"
-                    required
+                    disabled
+                    className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-2.5 text-xs text-slate-500 dark:text-slate-400"
                   />
                 </div>
 
@@ -403,9 +431,10 @@ export default function RecruiterJobsView() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer"
+                  disabled={isCreating}
+                  className="rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Publish Opening
+                  {isCreating ? "Publishing..." : "Publish Opening"}
                 </button>
               </div>
             </form>

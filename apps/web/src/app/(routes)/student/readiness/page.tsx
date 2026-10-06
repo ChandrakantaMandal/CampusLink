@@ -3,7 +3,18 @@
 import React, { useEffect, useState } from "react";
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
 import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
-import { mockDashboardData } from "@/data/dashboardData";
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+import {
+  useStudentDashboard,
+  useStudentReadiness,
+} from "@/hooks/use-student";
+import {
+  toStudentStats,
+  toReadinessCardProps,
+} from "@/lib/dashboard-adapters";
 import { toast } from "sonner";
 import {
   Sparkles,

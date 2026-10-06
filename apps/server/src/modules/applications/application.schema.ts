@@ -11,10 +11,13 @@ export const createApplicationSchema = z.object({
 export const updateApplicationStatusSchema = z.object({
   status: z.enum([
     "APPLIED",
+    "UNDER_REVIEW",
     "SHORTLISTED",
     "ASSESSMENT",
     "INTERVIEW",
     "SELECTED",
+    "OFFER_EXTENDED",
+    "ACCEPTED",
     "REJECTED",
     "WITHDRAWN",
   ]),

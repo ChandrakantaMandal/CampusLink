@@ -11,11 +11,6 @@ import { ApplicationsTracker } from "@/components/dashboard/student/Applications
 import { InterviewScheduleCard } from "@/components/dashboard/student/InterviewScheduleCard";
 import { OfferTrackingCard } from "@/components/dashboard/student/OfferTrackingCard";
 
-import {
-  mockDashboardData,
-  type ReadinessDimension,
-} from "@/data/dashboardData";
-
 import { toast } from "sonner";
 
 const SERVER_URL =
@@ -208,30 +203,29 @@ export default function StudentDashboard() {
         </div>
 
         <div className="lg:col-span-5 min-w-0 flex flex-col">
-          <SkillGapCard
-            skills={mockDashboardData.skillGaps}
-            variant="compact"
-            onPracticeSkill={(skill) =>
-              toast.info(
-                `Opening practice module for ${skill}`,
-              )
-            }
-          />
+          {skillGaps ? (
+            <SkillGapCard
+              skills={skillGaps}
+              variant="compact"
+              onPracticeSkill={(skill) =>
+                toast.info(`Opening practice module for ${skill}`)
+              }
+            />
+          ) : skills.error ? (
+            <AggregateError message={skills.error} onRetry={skills.refresh} />
+          ) : (
+            <AggregateLoading />
+          )}
         </div>
       </div>
 
       <div className="min-w-0">
-        <RecommendedJobsCard
-          jobs={mockDashboardData.recommendedJobs}
-          columns={3}
-        />
+       
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-6 min-w-0 flex flex-col">
-          <OfferTrackingCard
-            offers={mockDashboardData.offers}
-          />
+         
         </div>
 
         <div className="lg:col-span-6 min-w-0 flex flex-col">
@@ -242,9 +236,7 @@ export default function StudentDashboard() {
       </div>
 
       <div className="min-w-0">
-        <ApplicationsTracker
-          applications={mockDashboardData.applications}
-        />
+
       </div>
 
       <footer className="pt-8 pb-4 text-center text-xs text-slate-500 border-t border-slate-200/50 dark:border-slate-800/50">

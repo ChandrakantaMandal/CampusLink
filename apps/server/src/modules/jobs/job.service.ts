@@ -95,8 +95,7 @@ export async function createJob(
       location: data.location,
       employmentType: data.employmentType,
       workMode: data.workMode,
-      salaryMin: data.salaryMin,
-      salaryMax: data.salaryMax,
+      ctc: data.ctc,
       applicationDeadline: data.applicationDeadline
         ? new Date(data.applicationDeadline)
         : undefined,
@@ -222,6 +221,8 @@ export async function updateJob(
     },
     data: {
       ...data,
+      salaryMin: undefined,
+      salaryMax: undefined,
       applicationDeadline:
         data.applicationDeadline !== undefined
           ? new Date(data.applicationDeadline)

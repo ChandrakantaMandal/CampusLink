@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -17,16 +17,42 @@ import {
   ExternalLink,
   ChevronDown,
 } from "lucide-react";
-import { mockStudents, type AdminStudent } from "../mock-admin-data";
+import type { AdminStudent } from "../mock-admin-data";
+import { getAdminStudents } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function StudentsManagementView() {
-  const [students, setStudents] = useState<AdminStudent[]>(mockStudents);
+  const [students, setStudents] = useState<AdminStudent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [branchFilter, setBranchFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getAdminStudents()
+      .then((data) => {
+        if (!cancelled) setStudents(data);
+      })
+      .catch(() => {
+        toast.error("Failed to load students");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const branchOptions = [
+    "All",
+    ...Array.from(new Set(students.map((s) => s.branch))).filter(Boolean).sort(),
+  ];
 
   // New Student Form State
   const [newStudent, setNewStudent] = useState({
@@ -132,7 +158,7 @@ export default function StudentsManagementView() {
             Student Placement Management
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Monitor 1,240 registered candidates, verify eligibility, inspect readiness, and resolve documentation.
+            Monitor {loading ? "…" : students.length} registered candidates, verify eligibility, inspect readiness, and resolve documentation.
           </p>
         </div>
 
@@ -167,10 +193,11 @@ export default function StudentsManagementView() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
           >
             <option value="All">All Branches</option>
-            <option value="CSE">CSE</option>
-            <option value="IT">IT</option>
-            <option value="ECE">ECE</option>
-            <option value="EEE">EEE</option>
+            {branchOptions.slice(1).map((branch) => (
+              <option key={branch} value={branch}>
+                {branch}
+              </option>
+            ))}
           </select>
 
           {/* Status Filter */}
@@ -207,7 +234,21 @@ export default function StudentsManagementView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-              {filteredStudents.map((student) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    Loading students…
+                  </td>
+                </tr>
+              ) : filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                    No students found.
+                  </td>
+                </tr>
+              ) : null}
+              {!loading &&
+                filteredStudents.map((student) => (
                 <tr
                   key={student.id}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"

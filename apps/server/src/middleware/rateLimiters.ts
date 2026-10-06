@@ -22,6 +22,12 @@ export const createRateLimiter = ({
     next: NextFunction,
   ): Promise<void> => {
     try {
+      // Fail open immediately if Redis is offline or not connected (e.g., local development)
+      if (redis.status !== "ready") {
+        next();
+        return;
+      }
+
       const ip =
         req.ip ||
         req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ||
@@ -81,7 +87,17 @@ export const createRateLimiter = ({
         message: "Too many requests. Please try again later.",
         retryAfter: windowSeconds,
       });
-    } catch (error) {
+    } catch (error: any) {
+      // Don't spam console if Redis connection closed in development
+      if (
+        error?.message?.includes("Connection is closed") ||
+        error?.message?.includes("connect ECONNREFUSED") ||
+        error?.message?.includes("Stream isn't writeable")
+      ) {
+        next();
+        return;
+      }
+
       console.error("Rate limiter error:", error);
 
       // Fail open if Redis is unavailable

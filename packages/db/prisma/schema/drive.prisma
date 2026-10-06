@@ -43,6 +43,7 @@ model PlacementDrive {
   requiredSkills   String[]            @default([])
   rounds           String[]            @default([])
   openings         Int                 @default(1)
+  jobIds           String[]            @default([])
 
   driveDate        DateTime
   driveTime        String?
