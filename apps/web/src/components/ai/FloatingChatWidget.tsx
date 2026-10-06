@@ -117,7 +117,7 @@ export default function FloatingChatWidget({
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
-        api: `${SERVER_URL}/ai`,
+        api: `${SERVER_URL}/api/ai/chat`,
       }),
     [],
   );
@@ -288,22 +288,32 @@ export default function FloatingChatWidget({
               messages.map((message) => {
                 const isUser = message.role === "user";
 
-                const textParts =
-                  message.parts
-                    ?.filter(
-                      (p): p is { type: "text"; text: string } =>
-                        p.type === "text" && typeof (p as any).text === "string",
-                    )
-                    .map((p) => p.text) || [];
+                const extractedParts: string[] = [];
+                if (Array.isArray(message.parts)) {
+                  for (const p of message.parts) {
+                    if (typeof p === "string") {
+                      extractedParts.push(p);
+                    } else if (p && typeof p === "object") {
+                      if ("text" in p && typeof (p as any).text === "string" && (p as any).text) {
+                        extractedParts.push((p as any).text);
+                      } else if ("content" in p && typeof (p as any).content === "string" && (p as any).content) {
+                        extractedParts.push((p as any).content);
+                      } else if ("textDelta" in p && typeof (p as any).textDelta === "string" && (p as any).textDelta) {
+                        extractedParts.push((p as any).textDelta);
+                      } else if ("delta" in p && typeof (p as any).delta === "string" && (p as any).delta) {
+                        extractedParts.push((p as any).delta);
+                      }
+                    }
+                  }
+                }
 
                 const rawContent =
-                  (message as any).content &&
-                    typeof (message as any).content === "string"
+                  typeof (message as any).content === "string"
                     ? ((message as any).content as string)
                     : "";
 
                 const fullText =
-                  textParts.length > 0 ? textParts.join("\n") : rawContent;
+                  extractedParts.length > 0 ? extractedParts.join("\n") : rawContent || "";
 
                 return (
                   <div

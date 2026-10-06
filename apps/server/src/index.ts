@@ -25,9 +25,21 @@ const app = express();
 
 app.use(
   cors({
-    origin: ENV.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow any localhost/127.0.0.1 port, the configured CORS_ORIGIN, or server-to-server requests
+      if (
+        !origin ||
+        origin === ENV.CORS_ORIGIN ||
+        origin.startsWith("http://localhost:") ||
+        origin.startsWith("http://127.0.0.1:")
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-gemini-api-key"],
     credentials: true,
   }),
 );
@@ -40,6 +52,10 @@ app.get("/health", (_req, res) => {
     message: "Server is healthy",
   });
 });
+
+// AI Routes mounted universally on both /api/ai and /ai before rate-limiting
+app.use("/api/ai", aiRoutes);
+app.use("/ai", aiRoutes);
 
 app.use(globalLimiter);
 
@@ -56,6 +72,7 @@ app.use("/api/assessments", assessmentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/recruiter", recruiterRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/ai", aiRoutes);
 
 app.use(errorMiddleware);
 
