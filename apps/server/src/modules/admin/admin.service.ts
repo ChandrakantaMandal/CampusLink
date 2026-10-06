@@ -73,6 +73,10 @@ async function invalidateAdminCaches(): Promise<void> {
   );
 }
 
+export async function invalidateInterviewCache(): Promise<void> {
+  await redis.del(CACHE_KEYS.interviews);
+}
+
 export async function getDashboardStats() {
   const cached = await getCache(CACHE_KEYS.dashboardStats);
 
@@ -726,6 +730,63 @@ export async function deletePlacementDrive(driveId: string) {
   return { id: driveId };
 }
 
+export async function verifyStudent(studentId: string, verified: boolean) {
+  const student = await db.studentProfile.findUnique({
+    where: {
+      id: studentId,
+    },
+  });
+
+  if (!student) {
+    throw new Error("Student not found");
+  }
+
+  const updated = await db.studentProfile.update({
+    where: {
+      id: studentId,
+    },
+    data: {
+      isVerified: verified,
+    },
+  });
+
+  await invalidateAdminCaches();
+
+  return updated;
+}
+
+export async function verifyRecruiter(
+  recruiterId: string,
+  status: "VERIFIED" | "REJECTED",
+) {
+  const recruiter = await db.recruiterProfile.findUnique({
+    where: {
+      id: recruiterId,
+    },
+  });
+
+  if (!recruiter) {
+    throw new Error("Recruiter not found");
+  }
+
+  const company = await db.company.update({
+    where: {
+      id: recruiter.companyId,
+    },
+    data: {
+      verifiedStatus: status,
+    },
+  });
+
+  await invalidateAdminCaches();
+
+  return {
+    id: recruiterId,
+    companyId: company.id,
+    verifiedStatus: company.verifiedStatus,
+  };
+}
+
 export async function getOffers() {
   const cached = await getCache(CACHE_KEYS.offers);
 
@@ -1032,7 +1093,7 @@ export async function updateInterviewSchedule(
     },
   });
 
-  await redis.del(CACHE_KEYS.interviews);
+  await invalidateInterviewCache();
 
   return updated;
 }
@@ -1132,6 +1193,25 @@ export async function broadcastAdminNotification(
         message: data.message,
       })),
     });
+  }
+
+  if (data.audience === "RECRUITERS" && targetUsers.length > 0) {
+    const recruiterProfiles = await db.recruiterProfile.findMany({
+      where: { userId: { in: targetUsers.map((u) => u.id) } },
+      select: { id: true },
+    });
+
+    if (recruiterProfiles.length > 0) {
+      await db.recruiterNotification.createMany({
+        data: recruiterProfiles.map((profile) => ({
+          recruiterId: profile.id,
+          type: "SYSTEM" as const,
+          priority: data.priority,
+          title: data.title,
+          message: data.message,
+        })),
+      });
+    }
   }
 
   const notification = await db.adminNotification.create({

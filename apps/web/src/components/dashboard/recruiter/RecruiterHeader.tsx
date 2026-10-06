@@ -19,17 +19,16 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
-import type { RecruiterNotification } from "./mock-recruiter-data";
+import type { RecruiterNotification } from "./recruiter.types";
 import { getMyNotifications, getRecruiterProfile } from "@/lib/api/recruiter.api";
 
 interface RecruiterHeaderProps {
   onToggleSidebar: () => void;
-  onPostJobClick?: () => void;
+
 }
 
 export default function RecruiterHeader({
-  onToggleSidebar,
-  onPostJobClick,
+  onToggleSidebar
 }: RecruiterHeaderProps) {
   const router = useRouter();
   const [showNotifMenu, setShowNotifMenu] = useState(false);
@@ -90,15 +89,7 @@ export default function RecruiterHeader({
 
       {/* Right: Quick CTA, Alerts, Notifications, Theme, Profile */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
-        {/* Post Job Quick CTA */}
-        <Link
-          href="/recruiter/jobs"
-          onClick={() => onPostJobClick?.()}
-          className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Post New Job</span>
-        </Link>
+        
 
         {/* Company Verified Badge */}
         <div className="hidden lg:flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/60 dark:border-blue-900/40 dark:bg-blue-950/20 px-3 py-1.5">

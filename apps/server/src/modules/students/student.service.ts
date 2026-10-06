@@ -624,6 +624,56 @@ export async function getStudentOffers(userId: string) {
   );
 }
 
+type OfferRecord = NonNullable<
+  Awaited<ReturnType<typeof db.offer.findUnique>>
+>;
+
+export type AcceptOfferResult =
+  | { ok: true; offer: OfferRecord }
+  | { ok: false; status: 404 | 409; message: string };
+
+export async function acceptStudentOffer(
+  userId: string,
+  offerId: string,
+): Promise<AcceptOfferResult> {
+  const student = await resolveStudentForAggregates(userId);
+
+  if (!student) {
+    return { ok: false, status: 404, message: "Student profile not found" };
+  }
+
+  const offer = await db.offer.findUnique({ where: { id: offerId } });
+
+  if (!offer || offer.studentId !== student.id) {
+    return { ok: false, status: 404, message: "Offer not found" };
+  }
+
+  if (offer.status === "ACCEPTED") {
+    return { ok: true, offer };
+  }
+
+  if (offer.status !== "SENT" && offer.status !== "PENDING_ACCEPTANCE") {
+    return {
+      ok: false,
+      status: 409,
+      message: `Offer cannot be accepted (status: ${offer.status})`,
+    };
+  }
+
+  const updated = await db.offer.update({
+    where: { id: offer.id },
+    data: { status: "ACCEPTED" },
+    include: {
+      company: { select: companyCompactSelect },
+      job: { select: { id: true, title: true } },
+    },
+  });
+
+  await redis.del(aggregateCacheKey(userId, "offers"));
+
+  return { ok: true, offer: updated };
+}
+
 export async function getStudentNotifications(userId: string) {
   return withAggregateCache(
     aggregateCacheKey(userId, "notifications"),
@@ -654,4 +704,41 @@ export async function getStudentNotifications(userId: string) {
       };
     },
   );
+}
+
+export async function markStudentNotificationRead(
+  userId: string,
+  id: string,
+) {
+  const notification = await db.userNotification.findUnique({
+    where: { id },
+  });
+
+  if (!notification || notification.userId !== userId) {
+    return null;
+  }
+
+  if (notification.isRead) {
+    return notification;
+  }
+
+  const updated = await db.userNotification.update({
+    where: { id },
+    data: { isRead: true, readAt: new Date() },
+  });
+
+  await redis.del(aggregateCacheKey(userId, "notifications"));
+
+  return updated;
+}
+
+export async function markAllStudentNotificationsRead(userId: string) {
+  const result = await db.userNotification.updateMany({
+    where: { userId, isRead: false },
+    data: { isRead: true, readAt: new Date() },
+  });
+
+  await redis.del(aggregateCacheKey(userId, "notifications"));
+
+  return result.count;
 }

@@ -22,15 +22,21 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { DashboardNotification } from "@/lib/dashboard-adapters";
+import {
+  markMyNotificationRead,
+  markMyNotificationsReadAll,
+} from "@/lib/api/student.api";
 
 interface NotificationsViewProps {
   onNavigateToTab?: (tab: string) => void;
   initialNotifications?: DashboardNotification[];
+  onRefresh?: () => void;
 }
 
 export function NotificationsView({
   onNavigateToTab,
   initialNotifications = [],
+  onRefresh,
 }: NotificationsViewProps) {
   const [notifications, setNotifications] = useState<DashboardNotification[]>(
     initialNotifications
@@ -38,18 +44,41 @@ export function NotificationsView({
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const [mutating, setMutating] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    toast.success("All notifications marked as read");
+  const handleMarkAllRead = async () => {
+    if (mutating) return;
+    setMutating(true);
+    try {
+      await markMyNotificationsReadAll();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      toast.success("All notifications marked as read");
+      onRefresh?.();
+    } catch {
+      toast.error("Failed to mark notifications as read");
+    } finally {
+      setMutating(false);
+    }
   };
 
-  const handleToggleRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n))
-    );
+  const handleToggleRead = async (id: string) => {
+    if (mutating) return;
+    const current = notifications.find((n) => n.id === id);
+    if (!current) return;
+    setMutating(true);
+    try {
+      await markMyNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: !current.read } : n))
+      );
+      onRefresh?.();
+    } catch {
+      toast.error("Failed to update notification");
+    } finally {
+      setMutating(false);
+    }
   };
 
   const handleAction = (item: DashboardNotification) => {

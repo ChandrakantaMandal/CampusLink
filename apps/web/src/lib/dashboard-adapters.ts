@@ -223,6 +223,7 @@ export function toRecommendedJobs(data: StudentJobsData): RecommendedJob[] {
       ? `Your profile meets the eligibility criteria for ${job.title} at ${job.company.name}.`
       : `You currently do not meet all eligibility criteria for ${job.title} at ${job.company.name}.`,
     driveDate: job.applicationDeadline ? formatDate(job.applicationDeadline) : "Open",
+    hasApplied: job.hasApplied,
   }));
 }
 

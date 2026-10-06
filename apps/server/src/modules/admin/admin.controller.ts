@@ -9,6 +9,8 @@ import {
   updateInterviewScheduleSchema,
   broadcastNotificationSchema,
   updateAdminSettingsSchema,
+  verifyStudentSchema,
+  verifyRecruiterSchema,
 } from "./admin.schema";
 
 import {
@@ -27,6 +29,8 @@ import {
   createPlacementDrive,
   updatePlacementDrive,
   deletePlacementDrive,
+  verifyStudent,
+  verifyRecruiter,
   createRecruiter,
   getOffers,
   getInterviews,
@@ -415,6 +419,69 @@ export async function deletePlacementDriveController(
         error instanceof Error
           ? error.message
           : "Failed to delete placement drive",
+    });
+  }
+}
+
+export async function verifyStudentController(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student ID",
+      });
+    }
+
+    const { verified } = verifyStudentSchema.parse(req.body);
+
+    const student = await verifyStudent(id, verified);
+
+    return res.json({
+      success: true,
+      message: verified
+        ? "Student verified successfully"
+        : "Student verification revoked",
+      data: student,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to update student",
+    });
+  }
+}
+
+export async function verifyRecruiterController(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid recruiter ID",
+      });
+    }
+
+    const { status } = verifyRecruiterSchema.parse(req.body);
+
+    const recruiter = await verifyRecruiter(id, status);
+
+    return res.json({
+      success: true,
+      message:
+        status === "VERIFIED"
+          ? "Recruiter approved successfully"
+          : "Recruiter rejected",
+      data: recruiter,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to update recruiter",
     });
   }
 }

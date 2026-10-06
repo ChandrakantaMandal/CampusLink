@@ -17,6 +17,7 @@ export default function StudentNotifications() {
       {notifications.data ? (
         <NotificationsView
           initialNotifications={toDashboardNotifications(notifications.data)}
+          onRefresh={notifications.refresh}
         />
       ) : notifications.error ? (
         <AggregateError

@@ -342,6 +342,21 @@ describe("application.service", () => {
                   image: true,
                 },
               },
+              skills: {
+                include: {
+                  skill: true,
+                },
+              },
+              education: true,
+              projects: {
+                include: {
+                  skills: {
+                    include: {
+                      skill: true,
+                    },
+                  },
+                },
+              },
             },
           },
           matchResult: true,

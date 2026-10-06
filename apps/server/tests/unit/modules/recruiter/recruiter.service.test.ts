@@ -1,3 +1,4 @@
+import { Prisma } from "@CampusLink/db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -15,6 +16,14 @@ const mocks = vi.hoisted(() => ({
     job: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
+      findUniqueOrThrow: vi.fn(),
+      create: vi.fn(),
+    },
+    skill: {
+      findMany: vi.fn(),
+      create: vi.fn(),
+    },
+    jobSkill: {
       create: vi.fn(),
     },
     application: {
@@ -28,6 +37,7 @@ const mocks = vi.hoisted(() => ({
     interview: {
       findMany: vi.fn(),
       create: vi.fn(),
+      updateMany: vi.fn(),
     },
   },
 }));
@@ -265,6 +275,7 @@ describe("recruiter.service", () => {
 
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.job.create.mockResolvedValue(job);
+      mocks.db.job.findUniqueOrThrow.mockResolvedValue(job);
 
       const result = await createMyJob("user-123", {
         title: "SDE",
@@ -290,6 +301,7 @@ describe("recruiter.service", () => {
     it("should omit status when not provided so the Prisma default applies", async () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.job.create.mockResolvedValue({ id: "job-456" });
+      mocks.db.job.findUniqueOrThrow.mockResolvedValue({ id: "job-456" });
 
       await createMyJob("user-123", {
         title: "Analyst",
@@ -303,6 +315,52 @@ describe("recruiter.service", () => {
       expect(createArgs.data).not.toHaveProperty("status");
       expect(createArgs.data.companyId).toBe("company-123");
       expect(createArgs.data.recruiterId).toBe("recruiter-123");
+    });
+
+    it("should dedupe, reuse and link required skills for the job", async () => {
+      const job = { id: "job-789", title: "SDE" };
+
+      mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
+      mocks.db.job.create.mockResolvedValue(job);
+      mocks.db.skill.findMany.mockResolvedValue([
+        { id: "skill-python", name: "Python", normalized: "python" },
+      ]);
+      mocks.db.skill.create.mockResolvedValue({
+        id: "skill-sql",
+        name: "SQL",
+        normalized: "sql",
+      });
+      mocks.db.job.findUniqueOrThrow.mockResolvedValue({
+        ...job,
+        skills: [],
+      });
+
+      await createMyJob("user-123", {
+        title: "SDE",
+        description: "A full stack software engineer role",
+        requiredSkills: ["Python", "SQL", "python"],
+      });
+
+      expect(mocks.db.skill.findMany).toHaveBeenCalledWith({
+        where: { normalized: { in: ["python", "sql"] } },
+      });
+
+      expect(mocks.db.skill.create).toHaveBeenCalledTimes(1);
+      expect(mocks.db.skill.create).toHaveBeenCalledWith({
+        data: { name: "SQL", normalized: "sql", type: "OTHER" },
+      });
+
+      expect(mocks.db.jobSkill.create).toHaveBeenCalledTimes(2);
+      expect(mocks.db.jobSkill.create).toHaveBeenCalledWith({
+        data: { jobId: "job-789", skillId: "skill-sql" },
+      });
+
+      expect(mocks.db.job.findUniqueOrThrow).toHaveBeenCalledWith({
+        where: { id: "job-789" },
+        include: {
+          skills: { include: { skill: { select: { name: true } } } },
+        },
+      });
     });
   });
 
@@ -619,6 +677,15 @@ describe("recruiter.service", () => {
       expect(createArgs.data.recruiterId).toBe("recruiter-123");
       expect(createArgs.data.jobId).toBe("job-123");
       expect(createArgs.data.mode).toBe("VIRTUAL");
+
+      expect(mocks.db.interview.updateMany).toHaveBeenCalledTimes(1);
+      expect(mocks.db.interview.updateMany).toHaveBeenCalledWith({
+        where: { id: "int-existing" },
+        data: {
+          hasConflict: true,
+          conflictDetails: expect.any(String),
+        },
+      });
     });
 
     it("should create an interview without conflicts when the slot is free", async () => {
@@ -642,11 +709,12 @@ describe("recruiter.service", () => {
       };
 
       expect(createArgs.data.hasConflict).toBe(false);
-      expect(createArgs.data.conflictDetails).toBeUndefined();
+      expect(createArgs.data.conflictDetails).toBe(Prisma.DbNull);
       expect(createArgs.data.mode).toBe("IN_PERSON");
       expect(createArgs.data.venue).toBe("Campus Hall 2");
       expect(createArgs.data.jobId).toBeUndefined();
       expect(createArgs.data.interviewerPanel).toBeUndefined();
+      expect(mocks.db.interview.updateMany).not.toHaveBeenCalled();
     });
   });
 

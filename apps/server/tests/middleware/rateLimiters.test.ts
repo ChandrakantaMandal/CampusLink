@@ -2,10 +2,12 @@ import type { NextFunction, Request, Response } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const redisMock = vi.hoisted(() => ({
+  status: "ready",
   get: vi.fn(),
   incr: vi.fn(),
   expire: vi.fn(),
   set: vi.fn(),
+  ttl: vi.fn(),
 }));
 
 vi.mock("../../src/services", () => ({
@@ -28,6 +30,7 @@ function createMockResponse(): Response {
   const res = {
     status: vi.fn(),
     json: vi.fn(),
+    setHeader: vi.fn(),
   } as unknown as Response;
 
   vi.mocked(res.status).mockReturnValue(res);
@@ -60,6 +63,7 @@ describe("createRateLimiter", () => {
     redisMock.incr.mockResolvedValue(1);
     redisMock.expire.mockResolvedValue(1);
     redisMock.set.mockResolvedValue("OK");
+    redisMock.ttl.mockResolvedValue(0);
   });
 
   it("allows requests under the rate limit", async () => {

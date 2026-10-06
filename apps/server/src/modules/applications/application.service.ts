@@ -228,6 +228,21 @@ export async function getApplicationById(applicationId: string) {
               image: true,
             },
           },
+          skills: {
+            include: {
+              skill: true,
+            },
+          },
+          education: true,
+          projects: {
+            include: {
+              skills: {
+                include: {
+                  skill: true,
+                },
+              },
+            },
+          },
         },
       },
       matchResult: true,
@@ -313,4 +328,30 @@ export async function updateApplicationStatus(
   );
 
   return updatedApplication;
+}
+
+export async function invalidateApplicationCaches(applicationId: string) {
+  const application = await db.application.findUnique({
+    where: { id: applicationId },
+    select: {
+      userId: true,
+      studentId: true,
+      jobId: true,
+      job: { select: { companyId: true } },
+    },
+  });
+
+  if (!application) {
+    return;
+  }
+
+  await redis.del(
+    `application:${applicationId}`,
+    `applications:user:${application.userId}`,
+    `applications:student:${application.studentId}`,
+    `application:job:${application.jobId}`,
+    `applications:company:${application.job.companyId}`,
+    "admin:applications",
+    "admin:dashboard:stats",
+  );
 }

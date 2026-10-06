@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ClipboardList,
   Search,
@@ -13,13 +14,14 @@ import {
   Users,
   ChevronDown,
 } from "lucide-react";
-import type { ApplicationItem } from "../mock-admin-data";
+import type { ApplicationItem } from "../admin.types";
 import {
   getAdminApplications,
 } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function ApplicationsPipelineView() {
+  const router = useRouter();
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -250,7 +252,8 @@ export default function ApplicationsPipelineView() {
                 filteredApplications.map((app) => (
                 <tr
                   key={app.id}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                  onClick={() => router.push(`/admin/applications/${app.id}`)}
+                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
                 >
                   <td className="px-5 py-3.5">
                     <span className="font-bold text-slate-900 dark:text-white block">

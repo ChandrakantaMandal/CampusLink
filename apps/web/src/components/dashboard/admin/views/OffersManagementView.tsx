@@ -13,7 +13,7 @@ import {
   Building,
   UserCheck,
 } from "lucide-react";
-import { type OfferItem } from "../mock-admin-data";
+import { type OfferItem } from "../admin.types";
 import { getAdminOffers } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
@@ -187,7 +187,7 @@ export default function OffersManagementView() {
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={offer.avatar}
+                        src={offer.avatar || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"}
                         alt={offer.studentName}
                         className="h-8 w-8 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                       />

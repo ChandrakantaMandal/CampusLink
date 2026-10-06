@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
 import {
+  acceptStudentOffer,
   getStudentById,
   getStudentByUserId,
   getStudentDashboard,
@@ -11,6 +12,8 @@ import {
   getStudentNotifications,
   getStudentOffers,
   getStudentReadiness,
+  markAllStudentNotificationsRead,
+  markStudentNotificationRead,
   updateStudent,
 } from "./student.service";
 
@@ -146,3 +149,94 @@ export const getMyStudentOffers = makeAggregateHandler(getStudentOffers);
 export const getMyStudentNotifications = makeAggregateHandler(
   getStudentNotifications,
 );
+
+export async function acceptMyStudentOffer(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid offer ID",
+      });
+    }
+
+    const result = await acceptStudentOffer(authenticatedReq.user.id, id);
+
+    if (!result.ok) {
+      return res.status(result.status).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Offer accepted successfully",
+      data: result.offer,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function markMyStudentNotificationRead(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid notification ID",
+      });
+    }
+
+    const notification = await markStudentNotificationRead(
+      authenticatedReq.user.id,
+      id,
+    );
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: notification,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function markMyStudentNotificationsReadAll(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const count = await markAllStudentNotificationsRead(authenticatedReq.user.id);
+
+    return res.status(200).json({
+      success: true,
+      data: { updated: count },
+    });
+  } catch (error) {
+    next(error);
+  }
+}

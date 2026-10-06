@@ -50,6 +50,7 @@ export const createMyJobSchema = z.object({
   requiredDegree: z.string().max(120).optional(),
   requiredBranch: z.string().max(120).optional(),
   allowedBranches: z.array(z.string().max(120)).max(50).optional(),
+  requiredSkills: z.array(z.string().min(1).max(60)).max(30).optional(),
   graduationYear: z.number().int().min(2000).max(2100).optional(),
 
   minExperience: z.number().int().min(0).optional(),
@@ -93,6 +94,21 @@ export const createInterviewSchema = z.object({
   interviewerPanel: z.array(z.string().max(150)).max(20).optional(),
 });
 
+export const updateInterviewSchema = z.object({
+  scheduledDate: z.coerce.date().optional(),
+  startTime: z.string().max(10).optional(),
+  endTime: z.string().max(10).optional(),
+  durationMinutes: z.number().int().min(5).max(600).optional(),
+
+  mode: z.enum(["VIRTUAL", "IN_PERSON", "HYBRID"]).optional(),
+  venue: z.string().max(300).optional(),
+  meetingLink: z.string().url().max(500).optional(),
+
+  status: z
+    .enum(["SCHEDULED", "COMPLETED", "RESCHEDULED", "CANCELLED", "NO_SHOW"])
+    .optional(),
+});
+
 export const createMyOfferSchema = z.object({
   studentId: z.string().min(1, "Student ID is required"),
 
@@ -118,3 +134,5 @@ export type CreateMyJobInput = z.infer<typeof createMyJobSchema>;
 export type CreateInterviewInput = z.infer<typeof createInterviewSchema>;
 
 export type CreateMyOfferInput = z.infer<typeof createMyOfferSchema>;
+
+export type UpdateInterviewInput = z.infer<typeof updateInterviewSchema>;

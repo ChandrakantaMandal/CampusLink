@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ClipboardList,
   Search,
@@ -16,7 +17,7 @@ import {
   FileText,
   Loader2,
 } from "lucide-react";
-import { type RecruiterCandidate } from "../mock-recruiter-data";
+import { type RecruiterCandidate } from "../recruiter.types";
 import { getApplications, updateApplicationStatus } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
@@ -30,6 +31,7 @@ const STAGES = [
 ] as const;
 
 export default function RecruiterApplicationsView() {
+  const router = useRouter();
   const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<string>("ALL");
@@ -265,6 +267,14 @@ export default function RecruiterApplicationsView() {
                 </p>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => router.push(`/recruiter/applications/${selectedCandidate.id}`)}
+              className="w-full rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 px-3.5 py-2 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-950/70 transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5"
+            >
+              View Full Details <ArrowRight className="h-3.5 w-3.5" />
+            </button>
 
             {/* Transition Stage Buttons */}
             <div>
