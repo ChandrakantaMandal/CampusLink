@@ -1,0 +1,1051 @@
+Student_ID,Gender,Branch,CGPA,Internships,Backlogs,Programming_Skills,Aptitude_Score,Communication_Skills,Extra_Certifications,Placement_Status
+STU0001,Male,IT,7.66,2,0,Beginner,97.6,Average,0,Placed
+STU0002,Female,IT,8.44,1,2,Advanced,75.5,Average,3,Placed
+STU0003,Female,ECE,7.16,1,2,Beginner,76.8,Average,1,Not Placed
+STU0004,Male,ME,6.14,1,1,Intermediate,55.4,Good,3,Placed
+STU0005,Male,ME,6.82,2,0,Advanced,65.9,Poor,2,Placed
+STU0006,Male,CE,8.02,2,1,Beginner,99.6,Average,4,Placed
+STU0007,Male,IT,7.21,1,1,Intermediate,46.8,Average,2,Not Placed
+STU0008,Female,CSE,5.79,2,2,Intermediate,71.8,Good,1,Placed
+STU0009,Female,IT,7.6,0,0,Advanced,89.2,Average,3,Placed
+STU0010,Female,IT,7.77,1,0,Advanced,79.5,Average,0,Placed
+STU0011,Male,CE,6.64,1,0,Intermediate,92.0,Poor,5,Placed
+STU0012,Female,CSE,7.61,1,0,Intermediate,68.2,Average,3,Placed
+STU0013,Female,CE,7.25,2,1,Advanced,74.1,Good,1,Placed
+STU0014,Male,CSE,6.8,2,0,Intermediate,66.6,Average,0,Not Placed
+STU0015,Male,ECE,5.71,0,4,Intermediate,73.0,Good,2,Not Placed
+STU0016,Male,CSE,8.08,1,0,Intermediate,51.3,Poor,4,Placed
+STU0017,Male,CE,7.76,1,0,Intermediate,76.9,Good,4,Placed
+STU0018,Male,IT,7.58,0,2,Beginner,69.4,Average,3,Not Placed
+STU0019,Male,CSE,8.54,0,0,Beginner,65.9,Poor,2,Not Placed
+STU0020,Male,CSE,7.95,1,2,Beginner,91.2,Average,5,Placed
+STU0021,Female,ME,7.69,0,2,Advanced,61.0,Good,5,Placed
+STU0022,Male,IT,4.79,0,0,Intermediate,83.1,Good,1,Not Placed
+STU0023,Male,ECE,8.2,0,0,Intermediate,84.6,Average,4,Placed
+STU0024,Male,CE,7.08,1,0,Intermediate,77.8,Good,2,Placed
+STU0025,Male,ECE,7.31,2,0,Beginner,50.5,Poor,3,Not Placed
+STU0026,Female,IT,7.32,1,0,Intermediate,70.4,Poor,0,Placed
+STU0027,Male,CSE,7.77,3,0,Intermediate,94.4,Average,3,Placed
+STU0028,Male,CSE,8.12,1,0,Intermediate,37.7,Average,3,Placed
+STU0029,Male,IT,7.63,2,1,Advanced,62.2,Good,2,Placed
+STU0030,Male,CSE,7.48,2,2,Intermediate,82.4,Average,4,Placed
+STU0031,Female,CSE,7.23,1,1,Intermediate,63.3,Poor,2,Not Placed
+STU0032,Male,CSE,4.0,1,0,Intermediate,77.1,Average,0,Placed
+STU0033,Male,CE,6.71,2,0,Advanced,86.1,Poor,2,Placed
+STU0034,Female,CE,6.06,0,4,Intermediate,68.5,Poor,1,Not Placed
+STU0035,Female,ME,8.21,1,1,Beginner,72.6,Average,3,Placed
+STU0036,Female,ECE,7.62,1,4,Intermediate,66.4,Average,4,Placed
+STU0037,Male,IT,6.54,1,0,Intermediate,69.5,Average,5,Placed
+STU0038,Male,IT,6.64,0,2,Intermediate,96.5,Average,0,Not Placed
+STU0039,Female,IT,6.61,3,1,Beginner,64.0,Poor,5,Not Placed
+STU0040,Male,ME,6.59,1,0,Advanced,59.7,Poor,3,Placed
+STU0041,Male,CE,5.56,1,1,Advanced,80.6,Average,2,Placed
+STU0042,Male,ME,5.34,3,1,Beginner,52.4,Poor,5,Not Placed
+STU0043,Male,IT,7.03,1,0,Advanced,55.8,Average,1,Placed
+STU0044,Female,ECE,8.08,3,0,Beginner,55.9,Poor,2,Placed
+STU0045,Male,CSE,6.46,1,3,Beginner,61.2,Average,3,Not Placed
+STU0046,Female,CE,7.3,0,4,Beginner,61.8,Poor,5,Not Placed
+STU0047,Male,CE,7.73,2,0,Beginner,75.5,Poor,0,Placed
+STU0048,Male,ME,6.01,1,0,Advanced,59.9,Average,5,Placed
+STU0049,Male,CE,6.98,2,0,Beginner,76.1,Good,5,Placed
+STU0050,Male,IT,6.33,3,2,Beginner,78.0,Poor,4,Not Placed
+STU0051,Female,IT,8.61,2,0,Beginner,55.2,Average,5,Placed
+STU0052,Female,ME,8.56,1,5,Beginner,77.6,Good,3,Placed
+STU0053,Female,IT,6.01,2,0,Beginner,79.0,Average,0,Not Placed
+STU0054,Female,ECE,7.39,1,0,Intermediate,38.6,Good,3,Placed
+STU0055,Male,ME,8.07,1,2,Beginner,69.4,Poor,1,Not Placed
+STU0056,Female,ECE,7.85,2,3,Advanced,57.4,Good,2,Placed
+STU0057,Male,CSE,7.08,0,1,Advanced,84.5,Average,5,Not Placed
+STU0058,Male,ECE,8.31,2,1,Beginner,57.3,Average,4,Placed
+STU0059,Male,CSE,6.1,2,5,Advanced,44.9,Good,0,Placed
+STU0060,Male,CSE,6.7,2,0,Beginner,64.6,Average,4,Not Placed
+STU0061,Male,ECE,6.12,1,4,Beginner,51.5,Average,4,Not Placed
+STU0062,Male,ME,7.78,2,0,Beginner,77.7,Good,4,Placed
+STU0063,Female,IT,6.42,1,3,Intermediate,52.9,Average,5,Not Placed
+STU0064,Male,IT,6.83,2,2,Intermediate,64.7,Poor,0,Not Placed
+STU0065,Male,CSE,7.62,0,0,Intermediate,88.2,Average,0,Placed
+STU0066,Male,CSE,7.7,0,4,Intermediate,81.5,Poor,4,Placed
+STU0067,Male,ME,6.09,0,0,Intermediate,72.2,Good,2,Not Placed
+STU0068,Female,CE,8.06,1,0,Beginner,63.1,Good,5,Placed
+STU0069,Male,ECE,7.46,1,1,Intermediate,70.7,Average,5,Placed
+STU0070,Female,CSE,5.92,2,0,Beginner,75.3,Average,3,Placed
+STU0071,Female,IT,5.67,1,2,Beginner,50.2,Poor,5,Not Placed
+STU0072,Male,ME,6.98,1,0,Beginner,77.8,Poor,4,Placed
+STU0073,Male,ECE,7.85,0,0,Beginner,48.5,Good,1,Not Placed
+STU0074,Female,ME,7.88,1,0,Intermediate,73.6,Poor,4,Placed
+STU0075,Female,ECE,7.36,1,0,Advanced,48.4,Average,0,Placed
+STU0076,Female,ECE,7.05,0,1,Beginner,94.4,Good,5,Not Placed
+STU0077,Female,CSE,7.51,0,3,Intermediate,76.5,Good,5,Placed
+STU0078,Male,ME,6.14,0,4,Intermediate,41.7,Average,3,Not Placed
+STU0079,Male,ME,8.69,0,3,Advanced,65.0,Average,1,Not Placed
+STU0080,Male,IT,8.67,1,0,Beginner,57.2,Average,5,Placed
+STU0081,Female,IT,7.43,0,1,Intermediate,55.4,Good,3,Not Placed
+STU0082,Female,CSE,7.2,2,0,Advanced,67.2,Average,3,Placed
+STU0083,Male,CSE,6.59,2,0,Intermediate,51.1,Average,1,Not Placed
+STU0084,Male,CE,7.53,1,1,Intermediate,76.4,Poor,4,Placed
+STU0085,Male,IT,6.31,3,0,Beginner,75.6,Poor,4,Placed
+STU0086,Male,ECE,4.78,1,0,Beginner,70.3,Average,4,Placed
+STU0087,Female,ME,4.29,1,4,Intermediate,64.7,Good,2,Not Placed
+STU0088,Female,CSE,6.2,3,1,Intermediate,74.9,Good,4,Placed
+STU0089,Female,ME,7.16,0,1,Beginner,76.9,Good,1,Not Placed
+STU0090,Male,ME,7.33,3,0,Intermediate,71.8,Average,2,Placed
+STU0091,Male,CE,6.51,0,0,Intermediate,45.3,Good,4,Not Placed
+STU0092,Female,IT,7.14,1,4,Intermediate,53.2,Good,2,Not Placed
+STU0093,Female,CSE,6.73,0,0,Intermediate,61.0,Average,1,Not Placed
+STU0094,Male,ME,6.0,2,1,Advanced,42.9,Average,4,Placed
+STU0095,Female,CSE,6.95,1,0,Intermediate,68.4,Average,0,Not Placed
+STU0096,Male,ECE,7.81,2,1,Advanced,86.2,Good,5,Placed
+STU0097,Male,CE,6.05,1,0,Beginner,83.8,Average,1,Not Placed
+STU0098,Male,ECE,6.05,1,3,Beginner,76.1,Good,3,Placed
+STU0099,Male,CSE,5.93,0,3,Beginner,75.9,Average,3,Not Placed
+STU0100,Male,CSE,5.06,1,3,Beginner,98.2,Good,1,Not Placed
+STU0101,Male,IT,6.52,3,0,Beginner,77.7,Average,3,Placed
+STU0102,Female,ME,7.71,1,3,Beginner,78.9,Good,1,Placed
+STU0103,Male,ME,7.17,2,1,Advanced,43.4,Average,0,Not Placed
+STU0104,Male,ECE,6.83,2,0,Beginner,85.0,Good,1,Placed
+STU0105,Female,CE,7.13,1,2,Intermediate,71.0,Average,4,Placed
+STU0106,Male,ME,6.51,1,0,Beginner,63.8,Average,4,Not Placed
+STU0107,Male,IT,5.05,0,0,Advanced,60.1,Average,2,Not Placed
+STU0108,Female,ECE,7.78,0,2,Intermediate,56.8,Average,3,Not Placed
+STU0109,Male,ECE,8.07,0,0,Beginner,83.9,Average,5,Placed
+STU0110,Male,IT,6.27,1,1,Intermediate,64.6,Average,3,Not Placed
+STU0111,Male,CE,6.85,1,0,Intermediate,57.3,Good,1,Placed
+STU0112,Male,IT,6.76,1,4,Intermediate,53.4,Average,5,Not Placed
+STU0113,Female,CE,7.35,1,5,Intermediate,67.6,Average,5,Not Placed
+STU0114,Female,IT,8.69,1,4,Intermediate,59.6,Average,3,Placed
+STU0115,Female,IT,8.16,1,0,Intermediate,56.2,Average,5,Placed
+STU0116,Female,CSE,6.62,2,0,Intermediate,44.3,Good,5,Placed
+STU0117,Female,ECE,7.54,0,1,Beginner,79.4,Average,4,Not Placed
+STU0118,Male,IT,8.25,0,0,Advanced,62.9,Good,0,Placed
+STU0119,Female,IT,7.41,2,0,Intermediate,48.7,Average,1,Not Placed
+STU0120,Male,ME,7.0,1,1,Intermediate,60.9,Poor,3,Not Placed
+STU0121,Female,ECE,7.45,1,1,Beginner,73.2,Good,4,Placed
+STU0122,Female,ME,6.3,1,5,Intermediate,65.4,Average,2,Not Placed
+STU0123,Male,ECE,6.44,1,0,Advanced,67.9,Poor,5,Placed
+STU0124,Male,ME,5.94,0,0,Beginner,65.6,Average,5,Not Placed
+STU0125,Male,IT,7.31,0,0,Intermediate,45.8,Good,3,Not Placed
+STU0126,Male,IT,6.87,1,4,Intermediate,79.2,Average,0,Not Placed
+STU0127,Female,CSE,6.18,1,3,Advanced,39.4,Average,0,Not Placed
+STU0128,Female,ME,6.84,2,3,Intermediate,71.9,Average,3,Placed
+STU0129,Male,CE,7.47,2,4,Intermediate,74.2,Average,3,Placed
+STU0130,Male,CSE,8.91,1,1,Advanced,61.7,Good,4,Placed
+STU0131,Male,ME,8.01,2,1,Intermediate,70.3,Average,3,Placed
+STU0132,Male,ME,4.72,1,0,Beginner,60.8,Average,2,Not Placed
+STU0133,Male,CSE,7.24,1,1,Beginner,70.5,Good,4,Placed
+STU0134,Male,IT,8.43,2,1,Intermediate,79.9,Average,5,Placed
+STU0135,Female,ME,5.66,1,1,Beginner,53.1,Average,5,Not Placed
+STU0136,Male,IT,7.55,1,4,Beginner,75.1,Average,5,Placed
+STU0137,Male,CSE,6.76,0,5,Advanced,90.4,Average,5,Not Placed
+STU0138,Female,IT,8.15,1,3,Beginner,69.0,Average,1,Not Placed
+STU0139,Male,ECE,7.4,2,3,Intermediate,57.5,Average,2,Not Placed
+STU0140,Female,CE,6.12,2,2,Beginner,98.9,Average,4,Not Placed
+STU0141,Female,ME,6.8,2,0,Intermediate,66.3,Average,4,Placed
+STU0142,Male,CE,6.86,2,0,Intermediate,68.5,Average,5,Placed
+STU0143,Male,IT,6.88,1,2,Beginner,68.8,Poor,0,Not Placed
+STU0144,Male,ME,8.12,1,2,Intermediate,71.7,Average,4,Placed
+STU0145,Male,IT,6.16,0,0,Beginner,59.9,Good,2,Not Placed
+STU0146,Male,ECE,8.0,1,4,Advanced,67.8,Average,3,Placed
+STU0147,Female,CSE,6.7,1,0,Advanced,79.3,Good,2,Placed
+STU0148,Male,ME,7.22,3,0,Intermediate,59.4,Average,5,Placed
+STU0149,Male,ECE,7.07,1,2,Intermediate,58.7,Good,5,Placed
+STU0150,Male,ECE,6.98,1,0,Intermediate,60.6,Good,1,Placed
+STU0151,Female,ME,6.99,1,0,Intermediate,48.5,Poor,4,Placed
+STU0152,Male,IT,8.46,1,0,Intermediate,54.8,Average,4,Placed
+STU0153,Male,ECE,7.84,2,3,Beginner,54.1,Average,4,Placed
+STU0154,Male,CE,6.64,0,1,Intermediate,65.0,Average,5,Not Placed
+STU0155,Female,ECE,8.58,1,2,Beginner,77.5,Poor,4,Placed
+STU0156,Male,IT,7.27,2,1,Intermediate,86.8,Good,0,Placed
+STU0157,Female,IT,7.36,1,0,Beginner,65.9,Poor,0,Not Placed
+STU0158,Female,CE,6.16,0,5,Intermediate,71.8,Average,3,Not Placed
+STU0159,Male,ECE,6.5,1,0,Beginner,68.7,Average,4,Not Placed
+STU0160,Female,IT,6.31,2,5,Beginner,33.6,Average,1,Not Placed
+STU0161,Male,ME,7.09,0,1,Intermediate,47.8,Good,3,Not Placed
+STU0162,Female,CSE,7.64,2,5,Advanced,76.4,Good,5,Placed
+STU0163,Female,CSE,7.37,2,0,Intermediate,77.9,Average,4,Placed
+STU0164,Male,CSE,8.59,1,1,Beginner,77.5,Average,0,Placed
+STU0165,Male,ECE,6.11,3,0,Beginner,62.3,Average,1,Not Placed
+STU0166,Female,CE,7.11,2,0,Advanced,35.1,Good,3,Placed
+STU0167,Male,IT,5.72,2,2,Intermediate,49.6,Poor,1,Not Placed
+STU0168,Male,ME,6.08,2,0,Beginner,51.9,Average,4,Not Placed
+STU0169,Male,ME,8.26,0,1,Advanced,74.4,Good,2,Placed
+STU0170,Male,ECE,6.54,0,0,Advanced,59.6,Average,1,Not Placed
+STU0171,Female,CSE,6.2,1,0,Advanced,90.4,Good,1,Placed
+STU0172,Male,ECE,4.87,0,3,Advanced,87.0,Poor,5,Not Placed
+STU0173,Male,CE,6.19,1,1,Advanced,90.1,Good,0,Placed
+STU0174,Male,CE,6.79,2,2,Beginner,51.3,Poor,4,Not Placed
+STU0175,Female,IT,5.64,2,2,Beginner,72.4,Average,1,Not Placed
+STU0176,Male,IT,6.74,1,3,Intermediate,57.8,Average,4,Not Placed
+STU0177,Female,CE,8.27,2,0,Intermediate,69.9,Good,0,Placed
+STU0178,Male,CE,6.29,2,2,Intermediate,52.9,Average,5,Not Placed
+STU0179,Female,CE,6.06,1,5,Intermediate,83.4,Poor,4,Placed
+STU0180,Male,ECE,5.88,0,2,Intermediate,53.2,Average,0,Not Placed
+STU0181,Male,CE,5.86,1,1,Intermediate,35.8,Average,0,Not Placed
+STU0182,Male,ME,7.54,2,2,Beginner,95.5,Average,3,Placed
+STU0183,Female,CSE,7.05,1,2,Beginner,71.6,Good,5,Placed
+STU0184,Female,CE,7.96,1,2,Intermediate,49.0,Average,5,Placed
+STU0185,Male,CSE,9.02,0,0,Intermediate,62.6,Average,4,Placed
+STU0186,Female,ECE,5.17,2,0,Beginner,56.3,Poor,2,Not Placed
+STU0187,Female,CSE,7.38,2,3,Intermediate,65.1,Average,3,Not Placed
+STU0188,Male,ECE,5.88,2,0,Intermediate,77.0,Average,5,Placed
+STU0189,Male,ME,7.79,3,2,Intermediate,74.7,Average,0,Placed
+STU0190,Male,ECE,6.73,2,0,Beginner,68.8,Poor,5,Not Placed
+STU0191,Male,ECE,7.03,3,1,Intermediate,65.1,Average,2,Not Placed
+STU0192,Female,IT,5.72,3,0,Beginner,81.2,Good,1,Placed
+STU0193,Female,CE,6.57,2,0,Advanced,36.1,Average,1,Placed
+STU0194,Female,CE,7.09,1,5,Beginner,53.8,Average,5,Not Placed
+STU0195,Male,ME,8.36,0,4,Intermediate,50.3,Good,5,Placed
+STU0196,Male,ME,6.21,1,2,Beginner,80.1,Good,3,Placed
+STU0197,Female,CE,6.45,1,1,Intermediate,53.9,Average,5,Not Placed
+STU0198,Female,IT,7.94,1,2,Intermediate,45.7,Average,2,Placed
+STU0199,Female,CE,6.14,1,2,Beginner,73.2,Good,5,Placed
+STU0200,Female,IT,8.14,3,1,Intermediate,51.4,Poor,4,Placed
+STU0201,Female,ME,6.99,2,0,Beginner,59.7,Average,2,Not Placed
+STU0202,Male,CSE,7.3,2,2,Intermediate,100.0,Average,3,Placed
+STU0203,Male,ME,7.37,1,3,Intermediate,76.8,Average,4,Placed
+STU0204,Female,ME,6.38,0,5,Intermediate,61.8,Average,4,Not Placed
+STU0205,Female,ECE,7.39,0,0,Advanced,63.2,Good,1,Not Placed
+STU0206,Male,ECE,6.23,1,2,Intermediate,78.6,Poor,2,Not Placed
+STU0207,Male,ECE,6.5,0,1,Intermediate,74.9,Average,4,Not Placed
+STU0208,Female,ECE,7.56,0,1,Beginner,66.1,Average,3,Not Placed
+STU0209,Male,IT,7.29,3,0,Intermediate,66.6,Average,1,Not Placed
+STU0210,Male,CE,6.93,2,1,Intermediate,42.8,Good,4,Placed
+STU0211,Male,CSE,5.74,1,0,Beginner,39.6,Average,2,Not Placed
+STU0212,Female,ME,5.99,0,0,Advanced,62.3,Good,1,Not Placed
+STU0213,Female,IT,7.28,1,2,Beginner,55.5,Average,2,Not Placed
+STU0214,Male,CSE,7.73,0,2,Advanced,73.8,Average,2,Placed
+STU0215,Female,IT,5.89,3,1,Beginner,68.0,Good,2,Not Placed
+STU0216,Male,IT,6.16,1,4,Advanced,53.4,Average,1,Not Placed
+STU0217,Male,ME,7.13,1,0,Intermediate,67.4,Poor,4,Placed
+STU0218,Female,CE,7.11,1,0,Beginner,58.7,Good,5,Placed
+STU0219,Female,ECE,5.38,0,2,Beginner,96.0,Average,0,Not Placed
+STU0220,Female,CE,7.16,1,0,Intermediate,70.8,Good,4,Placed
+STU0221,Female,ME,6.4,2,0,Advanced,41.6,Good,1,Placed
+STU0222,Male,ME,8.64,1,0,Beginner,92.3,Average,0,Placed
+STU0223,Male,ME,7.25,0,0,Beginner,55.5,Average,0,Not Placed
+STU0224,Male,CSE,7.42,1,3,Intermediate,50.4,Average,0,Not Placed
+STU0225,Male,CE,7.45,1,0,Intermediate,97.2,Average,5,Placed
+STU0226,Male,CE,5.79,2,1,Intermediate,70.2,Good,3,Placed
+STU0227,Female,IT,8.94,1,0,Intermediate,75.5,Good,1,Placed
+STU0228,Male,IT,5.38,1,2,Beginner,76.0,Average,5,Not Placed
+STU0229,Female,IT,7.8,1,0,Advanced,61.9,Poor,5,Placed
+STU0230,Female,ME,7.62,1,2,Intermediate,56.4,Average,3,Placed
+STU0231,Female,CE,6.52,1,1,Beginner,58.9,Average,0,Not Placed
+STU0232,Male,ME,7.67,1,0,Intermediate,89.1,Good,3,Placed
+STU0233,Male,CSE,6.68,1,1,Intermediate,68.1,Poor,3,Not Placed
+STU0234,Male,IT,6.32,2,0,Intermediate,84.7,Good,5,Placed
+STU0235,Male,ME,7.47,1,1,Intermediate,63.9,Average,1,Not Placed
+STU0236,Female,ME,5.99,3,0,Beginner,53.7,Good,2,Not Placed
+STU0237,Male,CSE,6.78,1,4,Intermediate,43.4,Average,3,Not Placed
+STU0238,Male,ECE,6.41,3,0,Advanced,74.7,Average,3,Placed
+STU0239,Female,CE,6.66,2,2,Beginner,90.4,Average,0,Not Placed
+STU0240,Male,ECE,7.43,1,0,Intermediate,51.7,Good,0,Placed
+STU0241,Female,IT,6.41,2,0,Advanced,72.7,Average,5,Placed
+STU0242,Female,ME,6.81,0,1,Advanced,44.4,Average,0,Not Placed
+STU0243,Female,CSE,6.5,3,4,Intermediate,56.7,Average,4,Not Placed
+STU0244,Male,CSE,8.44,1,0,Intermediate,69.0,Poor,3,Placed
+STU0245,Male,CE,7.34,0,0,Intermediate,39.1,Average,0,Not Placed
+STU0246,Female,ECE,7.22,1,0,Advanced,64.7,Good,1,Placed
+STU0247,Male,CE,7.68,3,0,Advanced,52.4,Poor,4,Placed
+STU0248,Female,ME,6.41,0,0,Beginner,74.1,Average,5,Not Placed
+STU0249,Female,CE,7.86,1,1,Intermediate,62.5,Average,2,Placed
+STU0250,Female,CSE,7.35,2,0,Intermediate,79.1,Average,3,Placed
+STU0251,Male,CSE,5.44,2,0,Intermediate,60.8,Poor,3,Placed
+STU0252,Male,IT,5.57,1,2,Intermediate,44.6,Average,1,Not Placed
+STU0253,Female,IT,6.43,0,0,Intermediate,42.7,Poor,2,Not Placed
+STU0254,Male,ME,5.68,0,0,Advanced,36.4,Poor,2,Not Placed
+STU0255,Male,ECE,6.76,1,0,Beginner,74.5,Good,5,Placed
+STU0256,Male,CE,5.99,1,2,Beginner,100.0,Average,5,Not Placed
+STU0257,Female,ME,6.9,3,0,Intermediate,71.5,Good,4,Placed
+STU0258,Female,IT,8.41,0,1,Intermediate,90.1,Poor,3,Placed
+STU0259,Male,CE,6.95,1,0,Beginner,82.0,Average,0,Not Placed
+STU0260,Male,IT,6.7,0,1,Beginner,57.2,Poor,5,Not Placed
+STU0261,Female,CE,7.39,0,0,Intermediate,84.0,Average,1,Not Placed
+STU0262,Female,ECE,6.3,1,2,Advanced,57.8,Good,1,Placed
+STU0263,Male,ME,7.84,1,3,Intermediate,58.1,Good,1,Placed
+STU0264,Male,CE,7.5,1,2,Intermediate,61.9,Poor,5,Not Placed
+STU0265,Female,CSE,7.04,3,0,Beginner,62.6,Average,5,Not Placed
+STU0266,Female,CSE,7.15,1,0,Intermediate,74.9,Average,1,Placed
+STU0267,Female,CE,9.04,3,0,Intermediate,54.9,Average,5,Placed
+STU0268,Female,CE,7.94,2,0,Intermediate,78.3,Poor,0,Placed
+STU0269,Male,CE,9.2,1,0,Beginner,78.1,Good,0,Placed
+STU0270,Male,CSE,7.53,2,3,Beginner,70.1,Good,4,Placed
+STU0271,Female,CSE,5.53,1,0,Beginner,94.1,Good,3,Placed
+STU0272,Female,CE,6.74,0,1,Intermediate,84.3,Good,0,Not Placed
+STU0273,Female,IT,5.3,2,1,Advanced,81.0,Average,4,Placed
+STU0274,Female,IT,7.53,0,1,Advanced,66.0,Average,2,Not Placed
+STU0275,Male,ECE,7.75,1,0,Intermediate,70.3,Poor,3,Placed
+STU0276,Male,ME,6.11,2,3,Intermediate,72.9,Poor,0,Not Placed
+STU0277,Female,IT,6.34,0,0,Advanced,65.2,Average,2,Not Placed
+STU0278,Female,CSE,7.15,0,2,Beginner,59.4,Good,4,Not Placed
+STU0279,Female,IT,5.8,3,3,Intermediate,28.9,Good,0,Not Placed
+STU0280,Female,ECE,5.73,1,2,Advanced,75.8,Good,0,Placed
+STU0281,Female,ECE,8.24,0,1,Intermediate,80.6,Good,5,Placed
+STU0282,Male,ME,7.11,1,0,Advanced,47.6,Good,2,Placed
+STU0283,Male,IT,6.44,1,0,Advanced,74.1,Average,0,Placed
+STU0284,Male,CSE,5.31,1,2,Intermediate,56.1,Good,1,Not Placed
+STU0285,Male,CSE,7.85,3,0,Advanced,59.5,Average,5,Placed
+STU0286,Male,CE,6.32,1,4,Intermediate,84.7,Average,5,Placed
+STU0287,Male,CSE,8.86,1,0,Intermediate,50.1,Good,0,Placed
+STU0288,Male,ME,7.86,2,0,Intermediate,50.1,Good,5,Placed
+STU0289,Male,ME,6.19,2,0,Beginner,92.1,Poor,3,Placed
+STU0290,Male,CSE,6.28,0,0,Intermediate,62.8,Poor,2,Not Placed
+STU0291,Male,CSE,8.72,0,1,Intermediate,83.7,Average,3,Placed
+STU0292,Male,CE,6.92,0,2,Beginner,41.0,Average,4,Not Placed
+STU0293,Female,CSE,6.49,1,2,Beginner,42.2,Good,3,Not Placed
+STU0294,Male,CE,7.03,1,3,Beginner,51.3,Average,1,Not Placed
+STU0295,Male,CE,6.48,1,4,Intermediate,57.8,Poor,5,Not Placed
+STU0296,Male,CSE,7.24,3,3,Advanced,44.0,Average,5,Placed
+STU0297,Female,ECE,6.92,2,0,Advanced,70.5,Poor,1,Placed
+STU0298,Male,ECE,7.88,0,2,Intermediate,71.5,Poor,5,Placed
+STU0299,Female,CE,6.61,1,0,Advanced,51.5,Good,3,Placed
+STU0300,Male,CSE,6.12,1,0,Intermediate,52.7,Average,4,Placed
+STU0301,Male,ECE,6.65,1,2,Intermediate,54.7,Average,0,Not Placed
+STU0302,Male,CSE,6.64,1,0,Intermediate,47.5,Poor,1,Not Placed
+STU0303,Male,CSE,6.92,2,0,Beginner,21.6,Average,3,Not Placed
+STU0304,Female,CSE,7.63,1,0,Advanced,63.7,Good,3,Placed
+STU0305,Female,IT,7.58,1,0,Intermediate,58.5,Average,3,Placed
+STU0306,Female,CSE,8.2,2,4,Intermediate,60.1,Good,0,Placed
+STU0307,Male,IT,6.19,1,0,Intermediate,49.8,Average,2,Not Placed
+STU0308,Male,CE,7.39,0,0,Intermediate,77.2,Average,5,Not Placed
+STU0309,Female,ECE,7.73,1,1,Beginner,100.0,Average,5,Placed
+STU0310,Male,ECE,6.33,0,0,Intermediate,52.5,Average,4,Not Placed
+STU0311,Male,ECE,6.79,3,4,Beginner,86.0,Good,2,Not Placed
+STU0312,Male,ECE,5.25,0,0,Intermediate,70.5,Average,5,Not Placed
+STU0313,Male,ECE,7.91,1,1,Intermediate,65.5,Average,4,Placed
+STU0314,Female,ECE,6.78,1,2,Intermediate,59.8,Poor,4,Not Placed
+STU0315,Female,ECE,7.81,3,4,Intermediate,63.8,Average,3,Placed
+STU0316,Female,CE,7.21,0,2,Intermediate,82.2,Good,1,Not Placed
+STU0317,Male,CSE,6.81,0,3,Intermediate,47.9,Average,3,Not Placed
+STU0318,Male,ME,5.41,0,0,Intermediate,60.9,Average,0,Not Placed
+STU0319,Male,IT,5.59,0,0,Intermediate,83.7,Good,5,Placed
+STU0320,Male,ME,4.41,0,0,Intermediate,79.8,Average,4,Not Placed
+STU0321,Male,ME,6.44,1,4,Advanced,48.2,Average,1,Not Placed
+STU0322,Female,CSE,9.28,0,0,Beginner,62.3,Average,5,Not Placed
+STU0323,Female,CSE,5.71,0,0,Intermediate,75.9,Good,4,Placed
+STU0324,Male,CSE,4.37,2,0,Advanced,75.0,Good,4,Placed
+STU0325,Female,ECE,7.96,1,0,Intermediate,79.6,Average,3,Placed
+STU0326,Female,CE,9.36,1,0,Beginner,70.8,Average,1,Placed
+STU0327,Male,ECE,7.3,1,5,Intermediate,73.3,Good,1,Placed
+STU0328,Female,CE,7.29,3,1,Beginner,70.1,Poor,5,Not Placed
+STU0329,Male,CE,6.69,0,2,Beginner,88.7,Average,4,Not Placed
+STU0330,Male,ME,5.21,2,2,Advanced,58.7,Poor,1,Not Placed
+STU0331,Male,ME,5.55,2,0,Intermediate,65.7,Good,1,Placed
+STU0332,Female,CE,6.68,0,0,Beginner,49.8,Poor,5,Not Placed
+STU0333,Male,CE,6.49,3,0,Advanced,46.8,Average,3,Placed
+STU0334,Male,ECE,6.88,0,0,Advanced,69.9,Poor,2,Not Placed
+STU0335,Male,ECE,7.83,0,2,Intermediate,54.1,Average,0,Not Placed
+STU0336,Male,ME,6.42,2,0,Beginner,64.1,Good,2,Not Placed
+STU0337,Female,CSE,7.85,2,0,Advanced,89.3,Average,1,Placed
+STU0338,Female,CE,6.42,1,1,Intermediate,88.4,Average,4,Placed
+STU0339,Male,ECE,8.04,0,4,Intermediate,98.4,Average,0,Not Placed
+STU0340,Male,ME,7.09,1,3,Advanced,89.6,Average,0,Placed
+STU0341,Male,ECE,6.56,2,3,Intermediate,100.0,Good,4,Placed
+STU0342,Male,CE,7.07,1,3,Beginner,71.5,Average,0,Not Placed
+STU0343,Male,CE,6.71,1,0,Intermediate,51.5,Good,4,Placed
+STU0344,Male,IT,7.11,0,3,Intermediate,50.0,Average,0,Not Placed
+STU0345,Male,CSE,7.76,0,0,Intermediate,85.9,Average,5,Placed
+STU0346,Female,IT,6.91,2,2,Intermediate,65.8,Average,5,Not Placed
+STU0347,Female,ME,6.63,1,2,Beginner,66.9,Average,2,Not Placed
+STU0348,Male,ECE,5.88,3,0,Intermediate,56.8,Average,0,Not Placed
+STU0349,Male,ME,7.58,1,3,Intermediate,58.6,Good,3,Placed
+STU0350,Female,CE,7.35,2,4,Intermediate,70.8,Average,4,Placed
+STU0351,Male,IT,5.82,0,0,Intermediate,49.2,Poor,0,Not Placed
+STU0352,Female,IT,7.84,1,3,Intermediate,68.9,Good,5,Placed
+STU0353,Female,IT,5.8,0,0,Intermediate,87.7,Good,5,Placed
+STU0354,Male,ME,8.03,1,1,Beginner,33.0,Poor,4,Placed
+STU0355,Male,CE,7.69,1,1,Intermediate,41.9,Average,3,Placed
+STU0356,Female,ECE,7.42,3,1,Advanced,75.1,Average,0,Placed
+STU0357,Male,ECE,6.62,1,4,Intermediate,85.5,Good,0,Placed
+STU0358,Male,ME,7.58,0,4,Intermediate,57.7,Good,3,Placed
+STU0359,Female,IT,8.08,0,3,Advanced,35.0,Good,3,Placed
+STU0360,Male,CSE,7.59,0,0,Beginner,86.5,Good,3,Placed
+STU0361,Male,ME,6.33,1,4,Beginner,52.8,Average,5,Not Placed
+STU0362,Female,ME,7.27,2,0,Intermediate,59.6,Good,4,Placed
+STU0363,Male,CE,8.13,3,4,Beginner,69.8,Average,3,Placed
+STU0364,Male,ECE,9.2,0,0,Advanced,55.0,Poor,4,Placed
+STU0365,Female,ME,6.79,1,0,Beginner,51.9,Average,2,Not Placed
+STU0366,Male,ME,7.86,1,2,Intermediate,52.1,Good,0,Placed
+STU0367,Female,IT,8.13,1,0,Intermediate,92.9,Good,0,Placed
+STU0368,Female,IT,6.19,1,0,Beginner,82.4,Poor,1,Not Placed
+STU0369,Male,CSE,8.78,1,0,Intermediate,73.6,Good,2,Placed
+STU0370,Male,CE,5.93,1,0,Beginner,32.2,Good,3,Placed
+STU0371,Male,CSE,7.81,0,0,Intermediate,73.7,Average,3,Placed
+STU0372,Male,IT,7.31,2,0,Beginner,72.9,Average,5,Placed
+STU0373,Male,ECE,7.06,0,1,Advanced,45.8,Good,2,Not Placed
+STU0374,Female,IT,9.55,1,0,Advanced,68.9,Average,3,Placed
+STU0375,Male,CE,6.7,1,2,Beginner,80.8,Poor,1,Not Placed
+STU0376,Male,IT,6.68,1,0,Beginner,73.5,Good,4,Placed
+STU0377,Female,CE,8.33,3,4,Intermediate,54.8,Good,0,Placed
+STU0378,Male,CE,7.76,2,4,Beginner,65.2,Average,2,Not Placed
+STU0379,Female,CE,8.28,2,0,Advanced,76.0,Good,0,Placed
+STU0380,Male,CE,7.12,1,3,Intermediate,65.9,Average,4,Not Placed
+STU0381,Male,CE,7.32,2,3,Intermediate,83.8,Poor,2,Not Placed
+STU0382,Female,ECE,8.9,1,5,Advanced,70.9,Average,4,Placed
+STU0383,Female,CSE,6.16,2,1,Intermediate,76.3,Average,3,Placed
+STU0384,Female,ME,6.9,1,0,Advanced,77.3,Good,3,Placed
+STU0385,Female,CSE,7.8,3,2,Advanced,49.0,Poor,3,Placed
+STU0386,Female,CE,6.8,3,2,Beginner,65.7,Average,4,Not Placed
+STU0387,Male,ECE,6.43,2,2,Beginner,60.0,Average,4,Not Placed
+STU0388,Male,IT,7.62,0,0,Advanced,80.7,Good,4,Placed
+STU0389,Female,ECE,8.34,0,4,Advanced,71.9,Poor,0,Placed
+STU0390,Female,CE,6.86,2,5,Beginner,62.2,Poor,4,Not Placed
+STU0391,Female,ECE,6.83,0,0,Advanced,45.8,Average,3,Not Placed
+STU0392,Male,ECE,6.35,2,0,Intermediate,41.0,Good,1,Placed
+STU0393,Male,CE,6.7,1,0,Beginner,69.7,Average,4,Not Placed
+STU0394,Female,ECE,8.08,1,3,Advanced,54.2,Average,1,Placed
+STU0395,Male,ME,7.08,3,2,Beginner,75.0,Poor,3,Not Placed
+STU0396,Female,ME,6.2,1,2,Advanced,40.4,Good,4,Placed
+STU0397,Female,ECE,7.26,1,1,Beginner,88.9,Poor,0,Not Placed
+STU0398,Male,IT,8.05,1,1,Intermediate,75.0,Average,0,Placed
+STU0399,Female,CE,6.44,1,0,Beginner,66.5,Average,1,Not Placed
+STU0400,Female,ME,5.67,2,1,Intermediate,90.2,Average,5,Placed
+STU0401,Male,IT,9.19,0,3,Intermediate,79.2,Good,0,Placed
+STU0402,Female,ECE,5.62,3,5,Beginner,57.9,Average,0,Not Placed
+STU0403,Male,IT,6.64,2,4,Intermediate,66.2,Good,0,Not Placed
+STU0404,Female,CSE,7.23,1,4,Intermediate,35.5,Good,3,Placed
+STU0405,Male,ME,6.73,2,1,Beginner,81.0,Average,0,Not Placed
+STU0406,Female,ECE,6.93,1,1,Advanced,60.6,Good,2,Placed
+STU0407,Male,CE,7.58,1,2,Intermediate,35.3,Good,4,Placed
+STU0408,Male,ECE,4.61,3,4,Intermediate,47.3,Good,0,Not Placed
+STU0409,Female,CE,5.73,0,0,Intermediate,78.1,Average,5,Not Placed
+STU0410,Male,ECE,7.04,0,0,Intermediate,89.2,Average,5,Not Placed
+STU0411,Male,IT,6.6,1,0,Beginner,65.3,Average,0,Not Placed
+STU0412,Female,IT,7.13,1,2,Intermediate,50.3,Good,0,Not Placed
+STU0413,Female,IT,7.23,1,0,Intermediate,43.7,Average,2,Not Placed
+STU0414,Male,CSE,4.88,2,0,Intermediate,86.2,Average,0,Placed
+STU0415,Female,CE,8.27,1,0,Advanced,71.7,Average,0,Placed
+STU0416,Male,IT,6.5,1,0,Intermediate,60.0,Average,4,Placed
+STU0417,Male,CSE,6.13,0,4,Beginner,56.5,Average,5,Not Placed
+STU0418,Male,CE,7.21,1,0,Beginner,75.1,Poor,2,Not Placed
+STU0419,Female,ECE,7.11,0,2,Beginner,74.7,Average,5,Not Placed
+STU0420,Female,CSE,8.2,0,2,Beginner,51.6,Good,2,Not Placed
+STU0421,Female,ME,7.27,1,4,Intermediate,47.9,Average,5,Not Placed
+STU0422,Female,CSE,8.16,0,0,Beginner,48.6,Good,0,Not Placed
+STU0423,Male,CSE,6.06,0,5,Beginner,58.0,Poor,5,Not Placed
+STU0424,Male,CE,7.14,0,1,Beginner,54.7,Average,5,Not Placed
+STU0425,Male,ECE,5.89,3,5,Beginner,89.3,Good,2,Not Placed
+STU0426,Male,ME,7.1,3,4,Beginner,57.4,Good,1,Not Placed
+STU0427,Male,IT,6.89,1,0,Beginner,46.3,Average,2,Not Placed
+STU0428,Female,IT,6.84,3,0,Intermediate,47.1,Good,2,Placed
+STU0429,Male,CSE,6.85,2,0,Intermediate,62.2,Good,2,Placed
+STU0430,Male,CE,7.74,1,1,Beginner,37.7,Good,3,Placed
+STU0431,Male,CE,5.39,0,0,Intermediate,64.1,Average,3,Not Placed
+STU0432,Female,IT,6.1,2,0,Intermediate,45.0,Poor,3,Placed
+STU0433,Female,ME,6.96,2,1,Beginner,82.4,Average,2,Not Placed
+STU0434,Male,ECE,5.82,1,0,Beginner,66.7,Average,1,Not Placed
+STU0435,Male,ME,7.05,2,0,Intermediate,96.8,Poor,2,Placed
+STU0436,Female,ECE,6.95,1,1,Intermediate,61.6,Good,0,Not Placed
+STU0437,Male,IT,5.6,2,0,Beginner,20.0,Poor,1,Not Placed
+STU0438,Female,ECE,5.55,3,0,Beginner,86.9,Average,3,Placed
+STU0439,Female,CE,4.38,1,1,Advanced,72.5,Average,5,Placed
+STU0440,Male,CSE,5.78,2,1,Beginner,74.9,Good,5,Placed
+STU0441,Male,CSE,7.01,1,4,Beginner,50.0,Average,4,Not Placed
+STU0442,Female,IT,7.16,1,1,Advanced,64.4,Good,1,Placed
+STU0443,Male,CE,7.2,2,1,Advanced,67.8,Average,3,Placed
+STU0444,Male,ME,6.22,0,1,Intermediate,61.4,Good,1,Not Placed
+STU0445,Female,CE,6.98,1,3,Intermediate,39.0,Good,1,Not Placed
+STU0446,Female,CSE,7.4,0,4,Beginner,100.0,Average,5,Not Placed
+STU0447,Female,CSE,5.73,1,4,Beginner,77.5,Good,2,Not Placed
+STU0448,Female,CE,7.12,1,2,Intermediate,71.3,Poor,0,Not Placed
+STU0449,Male,CE,7.66,2,0,Beginner,84.7,Average,4,Placed
+STU0450,Male,CSE,6.51,0,0,Intermediate,74.7,Poor,3,Not Placed
+STU0451,Female,ME,8.06,1,0,Advanced,54.8,Average,1,Placed
+STU0452,Male,IT,6.53,0,4,Advanced,83.7,Good,4,Placed
+STU0453,Male,IT,6.14,2,2,Beginner,77.8,Poor,1,Not Placed
+STU0454,Female,CE,7.56,3,2,Intermediate,55.4,Average,5,Placed
+STU0455,Male,IT,9.03,3,0,Intermediate,76.9,Average,0,Placed
+STU0456,Male,CSE,7.09,2,3,Advanced,61.4,Average,5,Placed
+STU0457,Male,CSE,7.63,2,0,Beginner,68.1,Average,4,Placed
+STU0458,Male,CE,6.49,0,0,Beginner,74.0,Good,3,Not Placed
+STU0459,Male,CE,5.76,1,0,Beginner,85.5,Poor,1,Not Placed
+STU0460,Male,CE,7.17,1,1,Intermediate,55.3,Average,0,Not Placed
+STU0461,Male,ME,7.32,2,1,Intermediate,70.5,Average,5,Placed
+STU0462,Female,IT,6.64,3,4,Intermediate,95.2,Average,4,Placed
+STU0463,Female,CE,7.63,0,0,Intermediate,62.4,Average,5,Placed
+STU0464,Male,ECE,6.35,3,1,Beginner,67.9,Good,1,Not Placed
+STU0465,Female,ECE,6.1,1,1,Intermediate,95.2,Average,1,Not Placed
+STU0466,Male,CSE,8.06,1,0,Beginner,74.6,Average,3,Placed
+STU0467,Male,IT,8.07,0,3,Advanced,42.9,Poor,0,Not Placed
+STU0468,Female,CE,6.37,0,3,Advanced,53.1,Average,2,Not Placed
+STU0469,Male,ECE,8.72,1,2,Advanced,75.3,Good,5,Placed
+STU0470,Female,IT,6.71,1,4,Advanced,71.3,Poor,1,Placed
+STU0471,Male,CSE,7.08,0,2,Beginner,67.4,Average,4,Not Placed
+STU0472,Female,ME,6.92,1,0,Beginner,97.4,Good,5,Placed
+STU0473,Male,IT,7.52,2,2,Intermediate,55.7,Average,3,Placed
+STU0474,Female,IT,7.27,2,0,Advanced,63.9,Average,3,Placed
+STU0475,Male,ME,7.26,3,0,Beginner,35.6,Average,1,Not Placed
+STU0476,Female,IT,5.98,1,0,Beginner,82.4,Poor,1,Not Placed
+STU0477,Male,CSE,5.31,1,2,Advanced,53.0,Good,1,Placed
+STU0478,Male,CSE,8.14,2,2,Beginner,80.9,Poor,2,Placed
+STU0479,Female,ME,6.45,1,0,Intermediate,79.3,Good,1,Placed
+STU0480,Male,CE,6.95,0,2,Intermediate,100.0,Average,5,Not Placed
+STU0481,Female,ECE,7.33,0,4,Beginner,74.7,Good,5,Not Placed
+STU0482,Female,CE,8.63,1,0,Beginner,59.7,Poor,0,Placed
+STU0483,Male,IT,7.16,0,0,Intermediate,71.8,Average,4,Not Placed
+STU0484,Female,ECE,6.61,1,3,Intermediate,53.6,Average,1,Not Placed
+STU0485,Male,ME,6.48,0,0,Advanced,69.8,Average,5,Not Placed
+STU0486,Female,ME,6.96,0,2,Intermediate,62.0,Average,5,Not Placed
+STU0487,Male,ECE,6.09,1,0,Beginner,63.9,Good,5,Placed
+STU0488,Male,CSE,7.03,1,1,Intermediate,51.5,Good,2,Not Placed
+STU0489,Female,ECE,6.95,1,2,Intermediate,69.5,Poor,4,Not Placed
+STU0490,Female,IT,8.64,0,2,Beginner,77.4,Poor,3,Not Placed
+STU0491,Male,CSE,6.92,0,3,Intermediate,40.2,Good,5,Not Placed
+STU0492,Female,ME,5.08,1,4,Beginner,54.7,Poor,1,Not Placed
+STU0493,Male,ECE,9.67,1,3,Beginner,67.5,Good,5,Placed
+STU0494,Male,CE,7.96,1,2,Beginner,29.8,Average,4,Placed
+STU0495,Male,CE,9.08,1,0,Intermediate,91.1,Average,3,Placed
+STU0496,Male,IT,5.84,3,1,Intermediate,54.3,Poor,2,Not Placed
+STU0497,Male,CE,6.78,1,0,Intermediate,50.9,Average,0,Not Placed
+STU0498,Male,ECE,7.67,1,3,Intermediate,61.9,Average,1,Placed
+STU0499,Female,ECE,7.54,1,0,Advanced,67.1,Good,0,Placed
+STU0500,Female,CE,7.31,1,1,Beginner,53.7,Good,2,Not Placed
+STU0501,Female,ECE,4.8,1,0,Beginner,79.7,Poor,4,Placed
+STU0502,Male,IT,5.29,1,3,Beginner,71.0,Poor,4,Not Placed
+STU0503,Male,CSE,8.52,2,4,Beginner,52.4,Poor,2,Not Placed
+STU0504,Female,IT,8.7,0,0,Intermediate,57.2,Good,5,Placed
+STU0505,Female,IT,6.89,0,4,Intermediate,42.2,Average,2,Not Placed
+STU0506,Male,ECE,8.39,1,0,Intermediate,46.2,Poor,1,Placed
+STU0507,Female,CSE,5.98,2,1,Beginner,70.8,Average,3,Not Placed
+STU0508,Female,ECE,6.21,0,4,Intermediate,52.6,Average,0,Not Placed
+STU0509,Female,ME,5.9,3,0,Intermediate,92.1,Good,0,Placed
+STU0510,Female,ECE,6.15,1,5,Beginner,66.1,Average,4,Not Placed
+STU0511,Female,ECE,7.72,3,0,Intermediate,44.7,Average,5,Placed
+STU0512,Male,ECE,6.14,3,0,Advanced,47.8,Average,4,Placed
+STU0513,Female,CSE,9.24,1,4,Intermediate,80.8,Average,1,Placed
+STU0514,Female,ECE,7.46,0,0,Intermediate,63.9,Poor,2,Not Placed
+STU0515,Male,CSE,8.08,0,5,Intermediate,79.9,Poor,0,Not Placed
+STU0516,Male,CE,7.49,0,5,Beginner,59.5,Average,1,Not Placed
+STU0517,Male,ME,8.21,2,0,Intermediate,56.6,Poor,4,Placed
+STU0518,Female,CSE,6.13,0,1,Beginner,81.8,Average,4,Not Placed
+STU0519,Female,CE,8.45,1,0,Beginner,52.1,Average,0,Placed
+STU0520,Male,CSE,7.14,1,1,Intermediate,72.3,Good,4,Placed
+STU0521,Male,CSE,8.21,3,0,Advanced,61.8,Average,5,Placed
+STU0522,Male,ME,5.56,0,0,Intermediate,78.2,Average,4,Not Placed
+STU0523,Female,IT,7.18,0,0,Intermediate,92.3,Average,3,Not Placed
+STU0524,Female,IT,7.15,0,1,Advanced,59.1,Average,2,Not Placed
+STU0525,Female,CSE,6.38,3,5,Advanced,56.8,Poor,4,Placed
+STU0526,Male,ECE,7.31,1,3,Intermediate,75.0,Good,3,Placed
+STU0527,Male,CE,8.54,0,2,Beginner,48.8,Poor,1,Not Placed
+STU0528,Male,ECE,6.3,0,1,Advanced,89.2,Average,4,Not Placed
+STU0529,Male,ECE,7.96,0,3,Beginner,86.7,Good,5,Placed
+STU0530,Female,CSE,5.87,0,0,Intermediate,50.0,Average,1,Not Placed
+STU0531,Female,CSE,9.11,3,2,Beginner,41.3,Good,4,Placed
+STU0532,Female,CSE,7.78,2,5,Intermediate,47.6,Average,0,Placed
+STU0533,Female,CSE,8.73,1,0,Beginner,47.8,Good,3,Placed
+STU0534,Male,IT,7.67,2,2,Intermediate,77.0,Good,3,Placed
+STU0535,Female,CSE,7.39,0,3,Intermediate,88.2,Good,0,Not Placed
+STU0536,Female,IT,7.79,2,4,Beginner,76.9,Good,2,Placed
+STU0537,Female,IT,6.86,2,2,Intermediate,61.5,Good,5,Placed
+STU0538,Male,CSE,5.38,1,0,Advanced,70.1,Good,3,Placed
+STU0539,Male,ME,7.45,2,0,Advanced,52.0,Average,1,Placed
+STU0540,Male,CE,6.24,0,0,Beginner,81.5,Poor,5,Not Placed
+STU0541,Female,ECE,5.9,0,3,Intermediate,71.5,Average,3,Not Placed
+STU0542,Female,IT,7.64,0,0,Intermediate,76.6,Good,2,Placed
+STU0543,Male,CE,6.72,1,4,Intermediate,54.1,Good,1,Not Placed
+STU0544,Female,ME,8.03,2,0,Beginner,62.5,Good,5,Placed
+STU0545,Female,ECE,6.21,3,0,Intermediate,75.9,Good,1,Placed
+STU0546,Male,ECE,6.53,1,1,Advanced,86.7,Poor,0,Placed
+STU0547,Male,IT,8.15,2,2,Intermediate,55.9,Average,4,Placed
+STU0548,Female,CSE,7.28,2,0,Intermediate,76.7,Average,0,Placed
+STU0549,Male,ME,5.52,0,1,Intermediate,54.3,Poor,5,Not Placed
+STU0550,Female,IT,7.26,1,1,Beginner,96.8,Average,4,Not Placed
+STU0551,Male,ME,8.48,0,0,Intermediate,58.8,Good,0,Placed
+STU0552,Female,CSE,6.52,1,0,Intermediate,74.7,Good,4,Placed
+STU0553,Male,CSE,7.6,3,3,Beginner,67.5,Average,3,Placed
+STU0554,Male,IT,6.15,0,1,Advanced,100.0,Poor,1,Not Placed
+STU0555,Female,CSE,6.86,2,0,Beginner,68.4,Average,4,Not Placed
+STU0556,Male,CE,8.09,1,3,Advanced,57.3,Average,3,Placed
+STU0557,Male,ECE,7.22,1,5,Intermediate,74.6,Average,2,Not Placed
+STU0558,Male,IT,8.29,1,2,Beginner,74.3,Poor,0,Placed
+STU0559,Female,ME,7.43,1,1,Intermediate,62.6,Average,2,Not Placed
+STU0560,Female,CE,9.22,0,4,Intermediate,48.6,Average,5,Not Placed
+STU0561,Female,IT,5.44,0,5,Beginner,57.1,Good,3,Not Placed
+STU0562,Male,CSE,6.78,0,3,Intermediate,78.2,Poor,2,Not Placed
+STU0563,Male,CSE,5.92,1,1,Intermediate,38.8,Poor,2,Not Placed
+STU0564,Male,CSE,5.98,0,1,Intermediate,61.3,Poor,3,Not Placed
+STU0565,Male,CSE,5.99,2,2,Beginner,79.9,Average,1,Not Placed
+STU0566,Male,ME,7.17,1,0,Intermediate,63.6,Average,4,Placed
+STU0567,Male,CE,7.23,1,1,Beginner,97.6,Good,5,Placed
+STU0568,Male,ECE,7.43,1,3,Intermediate,38.8,Average,5,Not Placed
+STU0569,Female,ME,5.88,1,2,Beginner,50.6,Average,0,Not Placed
+STU0570,Male,ME,6.68,3,1,Advanced,30.3,Average,4,Placed
+STU0571,Male,ECE,6.04,0,2,Intermediate,94.9,Average,0,Not Placed
+STU0572,Female,ECE,7.94,0,0,Intermediate,50.8,Poor,5,Placed
+STU0573,Male,CSE,6.13,2,1,Intermediate,35.2,Average,4,Not Placed
+STU0574,Female,ME,6.79,0,3,Beginner,55.8,Good,2,Not Placed
+STU0575,Female,IT,7.56,0,0,Beginner,44.1,Good,1,Not Placed
+STU0576,Female,ECE,6.38,1,0,Advanced,55.9,Good,2,Placed
+STU0577,Male,ECE,7.69,0,5,Advanced,65.6,Average,1,Not Placed
+STU0578,Female,CE,8.6,1,0,Beginner,77.1,Average,3,Placed
+STU0579,Male,IT,7.19,0,0,Intermediate,62.4,Good,0,Not Placed
+STU0580,Male,IT,7.9,2,5,Intermediate,65.4,Poor,0,Placed
+STU0581,Male,ECE,4.93,2,2,Intermediate,56.3,Poor,3,Not Placed
+STU0582,Female,CSE,6.57,1,2,Beginner,42.3,Poor,4,Not Placed
+STU0583,Male,CE,7.18,1,4,Beginner,37.3,Average,3,Not Placed
+STU0584,Male,IT,5.95,2,0,Beginner,59.5,Average,5,Not Placed
+STU0585,Female,ECE,7.21,0,2,Advanced,66.3,Average,3,Not Placed
+STU0586,Male,IT,8.06,2,1,Intermediate,58.4,Average,1,Placed
+STU0587,Male,CE,5.12,2,3,Intermediate,37.9,Good,5,Placed
+STU0588,Male,CE,5.81,2,1,Advanced,68.0,Poor,3,Placed
+STU0589,Male,ME,7.18,1,2,Intermediate,89.4,Average,0,Not Placed
+STU0590,Male,ECE,7.46,0,1,Advanced,63.3,Average,2,Not Placed
+STU0591,Male,CE,7.74,1,1,Intermediate,56.3,Average,1,Placed
+STU0592,Female,ME,7.11,2,3,Beginner,64.1,Average,1,Not Placed
+STU0593,Male,ME,7.46,0,2,Advanced,48.4,Good,4,Not Placed
+STU0594,Male,IT,7.9,2,2,Intermediate,47.5,Poor,2,Placed
+STU0595,Female,IT,6.59,0,1,Beginner,71.8,Good,1,Not Placed
+STU0596,Male,ME,6.39,0,1,Intermediate,79.9,Average,3,Not Placed
+STU0597,Female,IT,6.83,0,2,Beginner,62.8,Poor,1,Not Placed
+STU0598,Male,CE,7.2,0,3,Intermediate,35.4,Good,1,Not Placed
+STU0599,Male,CSE,6.34,1,2,Advanced,70.3,Average,1,Placed
+STU0600,Male,CE,6.61,0,4,Advanced,96.0,Poor,4,Not Placed
+STU0601,Male,ME,7.4,3,3,Advanced,61.3,Poor,1,Not Placed
+STU0602,Male,ME,7.16,1,1,Beginner,62.3,Poor,1,Not Placed
+STU0603,Male,CE,6.81,0,2,Intermediate,51.9,Average,4,Not Placed
+STU0604,Male,IT,5.26,1,4,Beginner,72.2,Poor,5,Not Placed
+STU0605,Male,IT,7.0,2,2,Advanced,54.9,Average,2,Not Placed
+STU0606,Male,ME,6.03,2,3,Intermediate,80.3,Poor,5,Placed
+STU0607,Male,ECE,7.98,0,2,Intermediate,55.1,Good,0,Not Placed
+STU0608,Male,IT,6.69,2,1,Intermediate,70.1,Good,4,Placed
+STU0609,Male,CE,6.0,2,0,Intermediate,64.3,Good,4,Placed
+STU0610,Female,IT,6.94,0,1,Intermediate,88.3,Poor,1,Not Placed
+STU0611,Male,CE,8.27,0,5,Advanced,71.1,Good,1,Placed
+STU0612,Female,ME,7.63,1,2,Advanced,85.8,Average,0,Placed
+STU0613,Female,IT,7.22,0,1,Beginner,66.6,Good,1,Not Placed
+STU0614,Male,CE,5.67,2,4,Intermediate,62.4,Average,3,Not Placed
+STU0615,Female,ME,8.62,1,1,Advanced,64.4,Average,1,Placed
+STU0616,Female,ECE,6.38,3,1,Beginner,53.4,Good,1,Not Placed
+STU0617,Male,CE,7.93,1,3,Intermediate,73.0,Poor,3,Placed
+STU0618,Male,ECE,6.67,0,2,Beginner,54.6,Average,0,Not Placed
+STU0619,Female,ECE,7.84,0,0,Intermediate,66.7,Good,3,Placed
+STU0620,Female,CSE,8.31,1,1,Beginner,77.8,Good,4,Placed
+STU0621,Male,IT,7.65,2,1,Intermediate,88.8,Good,3,Placed
+STU0622,Male,CE,7.76,2,0,Beginner,67.4,Average,2,Placed
+STU0623,Male,ECE,6.9,0,1,Intermediate,77.9,Average,4,Not Placed
+STU0624,Male,CSE,6.57,0,1,Advanced,76.1,Poor,1,Not Placed
+STU0625,Female,ME,7.14,0,0,Advanced,59.3,Average,4,Not Placed
+STU0626,Male,CE,6.66,1,1,Advanced,96.6,Average,0,Placed
+STU0627,Male,ECE,9.47,0,0,Intermediate,56.4,Average,0,Not Placed
+STU0628,Female,IT,6.01,1,1,Beginner,66.4,Poor,3,Not Placed
+STU0629,Male,CSE,8.0,1,4,Beginner,86.8,Average,4,Placed
+STU0630,Male,ECE,7.52,3,2,Advanced,86.4,Good,1,Placed
+STU0631,Female,IT,7.23,1,0,Intermediate,65.2,Good,0,Placed
+STU0632,Female,ECE,8.48,0,0,Beginner,79.9,Good,5,Placed
+STU0633,Male,CE,7.3,1,0,Intermediate,61.6,Good,1,Placed
+STU0634,Male,CE,6.37,1,1,Beginner,57.7,Average,5,Not Placed
+STU0635,Male,CE,7.29,1,0,Beginner,46.8,Good,2,Not Placed
+STU0636,Male,CSE,6.82,3,1,Advanced,75.9,Average,5,Placed
+STU0637,Male,CE,7.5,2,0,Advanced,77.4,Good,0,Placed
+STU0638,Male,IT,7.81,0,3,Intermediate,56.5,Good,3,Placed
+STU0639,Male,ECE,6.14,0,0,Advanced,69.0,Good,2,Not Placed
+STU0640,Male,ME,8.2,1,0,Intermediate,100.0,Average,4,Placed
+STU0641,Male,IT,6.75,2,3,Intermediate,82.2,Poor,1,Not Placed
+STU0642,Male,IT,7.44,0,0,Beginner,51.5,Poor,0,Not Placed
+STU0643,Male,CE,7.62,1,0,Beginner,80.0,Poor,2,Placed
+STU0644,Male,CSE,7.37,1,1,Intermediate,51.5,Poor,2,Not Placed
+STU0645,Male,ECE,6.89,0,1,Advanced,21.6,Poor,0,Not Placed
+STU0646,Female,CSE,6.51,1,2,Intermediate,64.7,Average,4,Not Placed
+STU0647,Male,ECE,6.73,3,0,Beginner,88.4,Average,4,Placed
+STU0648,Female,ECE,8.57,0,1,Beginner,86.0,Good,3,Placed
+STU0649,Female,CSE,6.13,1,0,Advanced,70.7,Average,5,Placed
+STU0650,Male,IT,6.28,1,0,Beginner,56.9,Average,4,Not Placed
+STU0651,Male,ECE,6.24,2,4,Intermediate,72.3,Good,3,Placed
+STU0652,Male,CSE,7.14,3,2,Beginner,61.0,Average,5,Not Placed
+STU0653,Male,ECE,5.48,1,0,Beginner,57.3,Good,2,Not Placed
+STU0654,Female,ME,5.65,2,1,Intermediate,80.9,Poor,0,Not Placed
+STU0655,Male,IT,6.74,1,0,Intermediate,57.1,Poor,4,Placed
+STU0656,Male,CE,5.71,1,4,Intermediate,81.9,Average,3,Placed
+STU0657,Male,ECE,5.79,0,0,Beginner,56.1,Poor,2,Not Placed
+STU0658,Male,ME,5.72,0,0,Advanced,95.9,Average,4,Placed
+STU0659,Female,CE,6.15,0,1,Beginner,40.4,Average,1,Not Placed
+STU0660,Male,CE,7.73,1,1,Intermediate,50.6,Average,2,Placed
+STU0661,Male,ECE,7.96,0,1,Advanced,62.7,Poor,4,Placed
+STU0662,Female,CSE,8.92,3,0,Beginner,35.2,Average,2,Placed
+STU0663,Female,ECE,8.88,0,0,Advanced,26.4,Average,0,Placed
+STU0664,Male,ME,7.79,0,1,Beginner,35.4,Average,0,Not Placed
+STU0665,Male,CE,8.03,1,0,Intermediate,60.6,Poor,0,Placed
+STU0666,Male,ECE,7.13,2,4,Intermediate,61.0,Poor,5,Not Placed
+STU0667,Male,CSE,7.52,0,0,Advanced,70.0,Poor,1,Placed
+STU0668,Male,ECE,8.94,1,1,Beginner,62.0,Poor,0,Not Placed
+STU0669,Male,IT,7.37,3,2,Intermediate,69.5,Good,1,Not Placed
+STU0670,Male,CSE,8.15,0,0,Advanced,58.2,Poor,0,Placed
+STU0671,Male,ME,6.07,1,2,Intermediate,75.7,Good,5,Placed
+STU0672,Female,CE,6.33,2,3,Intermediate,73.9,Good,2,Placed
+STU0673,Male,ECE,7.31,0,0,Beginner,60.1,Poor,4,Not Placed
+STU0674,Male,CSE,7.15,1,4,Intermediate,73.0,Average,4,Placed
+STU0675,Male,IT,6.38,1,1,Beginner,62.1,Good,0,Not Placed
+STU0676,Female,CSE,9.41,1,0,Beginner,42.2,Good,4,Placed
+STU0677,Male,IT,7.17,0,1,Intermediate,78.6,Average,0,Not Placed
+STU0678,Male,ME,6.56,0,0,Intermediate,51.4,Good,0,Not Placed
+STU0679,Female,CE,7.15,1,2,Advanced,78.4,Good,3,Placed
+STU0680,Female,ME,7.03,0,3,Advanced,69.9,Average,3,Not Placed
+STU0681,Female,ECE,7.19,2,3,Intermediate,63.7,Good,3,Placed
+STU0682,Male,CSE,5.41,1,5,Advanced,36.8,Average,1,Not Placed
+STU0683,Male,IT,8.29,1,3,Intermediate,88.1,Average,3,Placed
+STU0684,Female,IT,8.35,2,2,Beginner,59.6,Good,0,Placed
+STU0685,Female,CSE,8.47,1,0,Intermediate,74.5,Good,5,Placed
+STU0686,Male,CSE,7.33,0,1,Beginner,63.3,Average,5,Not Placed
+STU0687,Male,ECE,7.66,3,0,Intermediate,60.9,Poor,2,Placed
+STU0688,Male,ME,6.13,0,2,Advanced,67.9,Average,3,Not Placed
+STU0689,Female,IT,7.83,0,1,Intermediate,65.4,Good,5,Placed
+STU0690,Male,ECE,7.25,2,0,Advanced,61.0,Average,3,Placed
+STU0691,Male,ME,6.54,1,0,Beginner,64.2,Good,2,Not Placed
+STU0692,Male,ECE,7.86,1,0,Intermediate,71.4,Good,5,Placed
+STU0693,Male,IT,7.9,0,1,Beginner,72.5,Average,0,Not Placed
+STU0694,Male,CSE,7.06,1,1,Intermediate,65.7,Poor,1,Not Placed
+STU0695,Male,CSE,7.44,0,2,Intermediate,74.3,Average,3,Not Placed
+STU0696,Female,ME,5.97,3,1,Intermediate,58.6,Average,5,Not Placed
+STU0697,Male,CE,8.24,0,2,Beginner,98.4,Average,5,Not Placed
+STU0698,Male,ME,6.1,2,0,Beginner,87.3,Average,2,Not Placed
+STU0699,Male,CE,6.29,1,0,Beginner,76.4,Average,0,Not Placed
+STU0700,Male,ECE,7.06,2,1,Intermediate,35.9,Average,4,Not Placed
+STU0701,Male,ECE,8.11,2,1,Advanced,74.1,Average,5,Placed
+STU0702,Male,IT,8.11,1,0,Beginner,60.0,Average,1,Placed
+STU0703,Male,CE,7.0,1,0,Intermediate,50.3,Poor,2,Not Placed
+STU0704,Male,IT,7.77,0,0,Advanced,59.6,Average,5,Placed
+STU0705,Male,CSE,5.31,0,1,Intermediate,52.0,Average,5,Not Placed
+STU0706,Female,CE,6.28,2,0,Intermediate,72.6,Average,2,Placed
+STU0707,Male,ME,6.3,2,2,Advanced,89.2,Poor,2,Placed
+STU0708,Female,CSE,8.25,1,3,Beginner,77.4,Good,3,Placed
+STU0709,Male,CSE,7.65,0,0,Beginner,100.0,Average,5,Placed
+STU0710,Female,ME,7.18,1,5,Beginner,41.7,Average,4,Not Placed
+STU0711,Female,CSE,7.28,1,1,Advanced,57.4,Good,1,Placed
+STU0712,Male,CE,8.57,1,2,Advanced,50.9,Average,0,Placed
+STU0713,Male,IT,6.83,2,2,Intermediate,83.4,Average,0,Not Placed
+STU0714,Male,CSE,5.69,3,2,Beginner,61.7,Good,4,Not Placed
+STU0715,Male,CE,8.09,0,1,Intermediate,67.8,Good,2,Not Placed
+STU0716,Female,ECE,7.18,1,1,Beginner,74.5,Good,2,Not Placed
+STU0717,Female,CE,7.95,1,0,Beginner,43.2,Good,2,Placed
+STU0718,Female,IT,6.96,1,0,Intermediate,55.7,Poor,5,Placed
+STU0719,Male,CE,6.16,0,0,Advanced,80.0,Poor,2,Not Placed
+STU0720,Female,ME,7.4,0,0,Advanced,56.8,Average,2,Not Placed
+STU0721,Female,IT,7.01,2,0,Intermediate,39.3,Average,5,Placed
+STU0722,Male,ECE,7.18,1,0,Beginner,51.5,Average,5,Not Placed
+STU0723,Male,ME,8.62,1,2,Beginner,60.7,Good,4,Placed
+STU0724,Female,CE,5.9,3,4,Intermediate,67.5,Average,3,Not Placed
+STU0725,Male,IT,7.29,2,4,Intermediate,63.9,Average,5,Not Placed
+STU0726,Female,ECE,6.18,0,1,Advanced,55.8,Good,1,Not Placed
+STU0727,Male,ME,4.41,1,2,Intermediate,79.1,Good,2,Placed
+STU0728,Female,ECE,6.95,1,4,Intermediate,63.1,Average,3,Not Placed
+STU0729,Male,CE,7.03,2,1,Beginner,68.1,Good,0,Not Placed
+STU0730,Male,ECE,7.62,2,0,Beginner,56.6,Good,4,Placed
+STU0731,Male,CSE,6.78,1,4,Intermediate,87.6,Average,3,Placed
+STU0732,Female,ME,5.51,1,1,Beginner,59.1,Poor,5,Not Placed
+STU0733,Female,ECE,6.18,2,1,Intermediate,66.1,Poor,2,Not Placed
+STU0734,Male,CE,8.32,0,0,Advanced,80.5,Average,2,Placed
+STU0735,Male,CE,6.16,0,0,Intermediate,69.2,Average,2,Not Placed
+STU0736,Female,ECE,8.58,1,3,Beginner,68.8,Good,3,Placed
+STU0737,Male,CE,8.05,0,2,Beginner,35.4,Good,2,Not Placed
+STU0738,Female,IT,6.68,0,0,Intermediate,75.2,Good,5,Placed
+STU0739,Male,IT,6.27,2,0,Intermediate,65.8,Good,3,Placed
+STU0740,Male,IT,8.05,3,1,Intermediate,73.1,Good,2,Placed
+STU0741,Male,CSE,6.76,1,1,Intermediate,67.7,Average,0,Not Placed
+STU0742,Male,ECE,5.45,0,0,Intermediate,56.6,Poor,0,Not Placed
+STU0743,Female,CSE,7.56,0,4,Intermediate,78.4,Good,1,Placed
+STU0744,Male,CE,7.42,0,0,Intermediate,68.0,Average,2,Not Placed
+STU0745,Male,CSE,8.14,0,0,Advanced,45.7,Average,2,Placed
+STU0746,Female,CE,7.35,3,2,Intermediate,84.6,Average,3,Placed
+STU0747,Male,CE,6.45,0,0,Beginner,43.5,Good,3,Not Placed
+STU0748,Male,ME,8.27,1,3,Intermediate,78.5,Average,2,Placed
+STU0749,Female,IT,8.37,0,2,Intermediate,87.3,Good,1,Placed
+STU0750,Female,CE,7.23,2,3,Advanced,48.4,Average,2,Not Placed
+STU0751,Male,ME,7.06,2,0,Intermediate,63.2,Average,5,Placed
+STU0752,Female,IT,5.68,3,0,Advanced,61.8,Poor,3,Placed
+STU0753,Female,CE,6.39,2,0,Advanced,62.4,Good,2,Placed
+STU0754,Male,CE,7.76,1,1,Intermediate,92.5,Poor,3,Placed
+STU0755,Male,CSE,6.44,0,2,Intermediate,48.6,Good,2,Not Placed
+STU0756,Female,CSE,5.54,1,3,Intermediate,60.4,Poor,4,Not Placed
+STU0757,Female,IT,10.0,1,2,Advanced,87.5,Average,3,Placed
+STU0758,Male,CE,5.54,1,4,Intermediate,60.2,Average,1,Not Placed
+STU0759,Female,ECE,9.26,0,2,Beginner,51.0,Average,4,Not Placed
+STU0760,Female,CSE,6.69,0,0,Intermediate,68.9,Poor,5,Not Placed
+STU0761,Male,IT,6.92,1,0,Beginner,77.1,Average,2,Not Placed
+STU0762,Male,CE,6.33,1,2,Intermediate,59.1,Good,5,Placed
+STU0763,Male,CE,7.78,2,0,Beginner,73.3,Average,3,Placed
+STU0764,Female,ECE,5.56,0,0,Intermediate,44.4,Poor,4,Not Placed
+STU0765,Male,IT,5.16,1,1,Advanced,45.2,Good,5,Placed
+STU0766,Male,CE,8.61,0,3,Beginner,58.4,Poor,1,Not Placed
+STU0767,Female,CSE,6.2,0,0,Beginner,73.9,Average,3,Not Placed
+STU0768,Female,ECE,7.75,1,3,Beginner,76.4,Average,4,Placed
+STU0769,Male,IT,5.91,0,3,Intermediate,47.3,Average,5,Not Placed
+STU0770,Female,ECE,7.71,0,1,Intermediate,75.9,Average,4,Placed
+STU0771,Male,CSE,8.68,1,0,Beginner,67.5,Good,4,Placed
+STU0772,Female,IT,6.47,0,0,Beginner,51.8,Average,5,Not Placed
+STU0773,Male,ECE,5.07,0,2,Intermediate,45.0,Average,0,Not Placed
+STU0774,Male,ME,8.69,0,2,Beginner,68.4,Average,2,Not Placed
+STU0775,Female,CSE,7.93,0,4,Intermediate,84.3,Good,3,Placed
+STU0776,Male,CSE,6.53,0,1,Beginner,65.5,Average,3,Not Placed
+STU0777,Male,CSE,6.78,1,0,Intermediate,51.0,Good,3,Placed
+STU0778,Female,ME,5.89,0,0,Beginner,37.0,Good,4,Not Placed
+STU0779,Female,ME,8.42,0,2,Intermediate,87.9,Good,5,Placed
+STU0780,Female,CE,6.47,1,0,Beginner,80.6,Good,2,Placed
+STU0781,Female,ECE,5.58,1,0,Intermediate,69.5,Poor,1,Not Placed
+STU0782,Male,CE,7.21,2,1,Advanced,87.2,Good,3,Placed
+STU0783,Male,ECE,6.14,2,0,Advanced,68.4,Average,5,Placed
+STU0784,Male,ME,5.97,2,0,Intermediate,57.0,Good,2,Placed
+STU0785,Male,ME,6.57,1,1,Intermediate,73.3,Average,2,Not Placed
+STU0786,Female,CE,7.09,1,0,Advanced,52.6,Good,0,Placed
+STU0787,Male,IT,5.62,1,0,Intermediate,50.1,Average,5,Placed
+STU0788,Male,CE,8.39,0,2,Beginner,76.6,Average,3,Not Placed
+STU0789,Male,ECE,7.68,0,3,Advanced,77.8,Good,4,Placed
+STU0790,Female,CE,6.63,0,0,Intermediate,45.9,Poor,2,Not Placed
+STU0791,Male,CSE,6.1,3,3,Beginner,46.4,Average,2,Not Placed
+STU0792,Male,ECE,6.91,1,0,Beginner,58.3,Average,1,Not Placed
+STU0793,Male,ECE,7.9,2,1,Beginner,54.3,Good,0,Placed
+STU0794,Female,IT,7.74,1,4,Intermediate,72.1,Poor,2,Placed
+STU0795,Male,ME,8.06,1,2,Beginner,65.7,Poor,2,Not Placed
+STU0796,Female,ECE,6.52,0,3,Beginner,82.5,Poor,4,Not Placed
+STU0797,Female,ME,4.08,0,0,Beginner,69.8,Poor,4,Not Placed
+STU0798,Male,CE,8.25,2,0,Intermediate,55.3,Good,1,Placed
+STU0799,Female,CSE,6.83,1,4,Intermediate,36.6,Good,5,Placed
+STU0800,Female,IT,7.67,1,0,Intermediate,67.7,Average,1,Placed
+STU0801,Female,ME,8.67,2,0,Beginner,39.3,Average,1,Placed
+STU0802,Male,ECE,9.43,0,2,Beginner,55.1,Good,4,Not Placed
+STU0803,Male,ME,6.35,3,3,Advanced,54.2,Poor,5,Placed
+STU0804,Female,ECE,7.13,1,4,Intermediate,57.4,Average,4,Not Placed
+STU0805,Male,ME,8.37,1,0,Intermediate,45.3,Average,0,Placed
+STU0806,Female,ECE,6.16,1,4,Beginner,54.1,Poor,3,Not Placed
+STU0807,Female,CE,6.42,0,0,Intermediate,82.2,Average,3,Not Placed
+STU0808,Female,ECE,6.41,0,0,Intermediate,82.1,Average,0,Not Placed
+STU0809,Male,ECE,6.97,1,2,Beginner,88.0,Poor,3,Not Placed
+STU0810,Male,CSE,6.78,2,0,Beginner,65.2,Poor,5,Not Placed
+STU0811,Female,ECE,6.41,2,0,Intermediate,69.1,Good,4,Placed
+STU0812,Female,CSE,6.03,0,2,Advanced,82.4,Poor,3,Not Placed
+STU0813,Male,IT,7.81,1,0,Advanced,42.9,Good,5,Placed
+STU0814,Female,CSE,8.34,0,0,Intermediate,77.1,Poor,4,Placed
+STU0815,Female,CE,8.48,0,0,Intermediate,84.5,Good,5,Placed
+STU0816,Male,CSE,6.52,1,1,Beginner,51.7,Good,0,Not Placed
+STU0817,Male,IT,7.85,1,1,Intermediate,85.7,Good,1,Placed
+STU0818,Male,CE,7.24,0,3,Intermediate,95.9,Good,0,Not Placed
+STU0819,Male,ME,6.43,0,3,Beginner,76.7,Average,3,Not Placed
+STU0820,Male,ME,7.73,3,1,Advanced,73.9,Average,4,Placed
+STU0821,Female,CSE,6.38,0,3,Beginner,48.2,Average,5,Not Placed
+STU0822,Male,CSE,6.62,1,0,Intermediate,81.0,Poor,3,Placed
+STU0823,Male,IT,5.62,1,0,Intermediate,49.6,Poor,3,Placed
+STU0824,Male,IT,6.54,0,3,Intermediate,70.5,Good,1,Not Placed
+STU0825,Male,ECE,7.25,0,0,Intermediate,72.1,Average,3,Not Placed
+STU0826,Female,IT,8.57,1,5,Beginner,20.0,Average,1,Not Placed
+STU0827,Male,ECE,6.65,2,1,Advanced,71.1,Good,4,Placed
+STU0828,Male,CE,5.96,1,3,Intermediate,100.0,Average,4,Placed
+STU0829,Female,CSE,8.5,1,1,Intermediate,33.6,Average,5,Placed
+STU0830,Male,CE,6.5,3,1,Advanced,64.2,Good,1,Placed
+STU0831,Male,IT,5.25,2,0,Intermediate,35.8,Poor,0,Not Placed
+STU0832,Male,CE,7.13,1,2,Beginner,51.6,Average,4,Not Placed
+STU0833,Male,CE,6.68,1,1,Intermediate,36.1,Good,5,Placed
+STU0834,Male,CE,9.3,1,4,Beginner,67.4,Good,0,Placed
+STU0835,Male,IT,7.48,1,0,Beginner,76.9,Good,4,Placed
+STU0836,Male,CE,6.85,1,0,Intermediate,71.1,Average,4,Placed
+STU0837,Female,ECE,6.08,1,0,Advanced,51.0,Good,5,Placed
+STU0838,Male,IT,7.33,0,2,Beginner,55.9,Poor,5,Not Placed
+STU0839,Male,CE,8.46,1,4,Intermediate,69.1,Poor,2,Placed
+STU0840,Female,IT,7.31,0,0,Beginner,51.5,Average,3,Not Placed
+STU0841,Male,ME,6.15,0,2,Intermediate,45.1,Average,3,Not Placed
+STU0842,Female,ECE,7.54,0,0,Intermediate,61.4,Average,0,Not Placed
+STU0843,Male,CE,6.95,1,2,Intermediate,50.8,Average,3,Not Placed
+STU0844,Female,ME,7.45,1,4,Beginner,71.2,Poor,0,Not Placed
+STU0845,Male,ME,6.65,0,0,Intermediate,84.5,Average,4,Not Placed
+STU0846,Male,IT,6.62,1,1,Advanced,100.0,Good,2,Placed
+STU0847,Male,ME,6.58,1,5,Intermediate,70.1,Average,2,Not Placed
+STU0848,Female,ECE,7.94,0,4,Intermediate,74.7,Poor,4,Placed
+STU0849,Male,ECE,6.63,1,1,Advanced,56.0,Average,5,Placed
+STU0850,Male,CSE,6.54,2,1,Beginner,56.9,Average,1,Not Placed
+STU0851,Male,ECE,6.06,2,0,Intermediate,84.3,Average,1,Placed
+STU0852,Female,ME,7.45,1,1,Advanced,60.9,Average,3,Placed
+STU0853,Male,ECE,7.31,1,3,Beginner,66.1,Average,5,Not Placed
+STU0854,Female,IT,6.55,0,2,Intermediate,83.3,Good,0,Not Placed
+STU0855,Male,CSE,6.29,0,0,Beginner,61.0,Poor,2,Not Placed
+STU0856,Male,ME,8.88,0,0,Intermediate,87.5,Average,3,Placed
+STU0857,Male,CSE,5.12,3,0,Intermediate,73.6,Average,4,Placed
+STU0858,Male,ME,7.49,0,0,Intermediate,71.8,Average,5,Not Placed
+STU0859,Male,IT,8.29,0,0,Intermediate,55.3,Poor,2,Not Placed
+STU0860,Male,CSE,4.0,2,1,Beginner,72.6,Poor,0,Not Placed
+STU0861,Female,CE,7.79,3,0,Intermediate,58.6,Average,0,Placed
+STU0862,Male,ME,6.78,2,0,Beginner,72.0,Good,1,Placed
+STU0863,Male,CE,7.26,0,1,Advanced,63.5,Good,3,Not Placed
+STU0864,Male,CSE,6.68,0,0,Beginner,79.5,Average,4,Not Placed
+STU0865,Male,CE,8.08,1,0,Advanced,64.5,Good,2,Placed
+STU0866,Male,CE,7.36,0,0,Intermediate,95.6,Poor,0,Not Placed
+STU0867,Male,CSE,7.13,0,0,Intermediate,60.9,Good,2,Not Placed
+STU0868,Male,IT,6.1,1,1,Intermediate,57.0,Average,4,Not Placed
+STU0869,Female,CE,8.88,3,0,Intermediate,70.2,Average,2,Placed
+STU0870,Female,CE,7.01,1,3,Intermediate,81.2,Good,3,Placed
+STU0871,Male,IT,9.29,1,4,Beginner,81.1,Good,1,Placed
+STU0872,Male,CE,8.93,1,2,Intermediate,67.5,Good,2,Placed
+STU0873,Female,CE,5.22,0,1,Beginner,70.1,Poor,5,Not Placed
+STU0874,Male,CE,6.35,1,4,Beginner,70.1,Good,1,Not Placed
+STU0875,Male,ECE,5.96,0,2,Intermediate,48.8,Good,4,Not Placed
+STU0876,Male,IT,6.95,0,0,Beginner,80.4,Average,1,Not Placed
+STU0877,Female,CE,7.19,2,0,Beginner,46.1,Poor,2,Not Placed
+STU0878,Female,IT,7.23,0,4,Beginner,48.9,Poor,2,Not Placed
+STU0879,Male,ME,8.05,3,0,Beginner,65.8,Good,5,Placed
+STU0880,Male,ME,8.49,0,0,Beginner,60.2,Average,0,Not Placed
+STU0881,Male,CE,7.97,1,2,Advanced,76.9,Average,5,Placed
+STU0882,Female,IT,6.44,1,3,Beginner,71.7,Average,2,Not Placed
+STU0883,Male,IT,6.22,0,0,Intermediate,67.1,Average,1,Not Placed
+STU0884,Male,IT,7.0,0,1,Beginner,48.1,Average,5,Not Placed
+STU0885,Female,ECE,7.43,1,0,Advanced,65.4,Average,5,Placed
+STU0886,Male,ME,6.82,2,2,Beginner,64.2,Good,0,Not Placed
+STU0887,Female,IT,5.65,2,0,Advanced,68.3,Average,2,Placed
+STU0888,Male,IT,7.68,1,0,Intermediate,58.5,Good,2,Placed
+STU0889,Male,ECE,6.61,2,3,Beginner,72.8,Average,4,Not Placed
+STU0890,Male,ECE,6.58,1,1,Advanced,59.8,Poor,0,Not Placed
+STU0891,Female,IT,6.95,2,2,Intermediate,71.4,Average,4,Placed
+STU0892,Female,CSE,6.76,1,1,Beginner,76.9,Average,4,Not Placed
+STU0893,Female,IT,6.63,1,0,Intermediate,57.0,Average,4,Placed
+STU0894,Male,IT,5.72,2,2,Advanced,53.4,Good,3,Placed
+STU0895,Female,ECE,6.89,1,0,Intermediate,72.1,Average,4,Placed
+STU0896,Male,ECE,7.7,2,0,Intermediate,45.2,Poor,5,Placed
+STU0897,Male,IT,7.26,1,0,Intermediate,81.7,Poor,1,Placed
+STU0898,Female,IT,7.95,0,2,Intermediate,65.2,Average,5,Not Placed
+STU0899,Male,IT,6.27,0,4,Advanced,63.3,Good,5,Not Placed
+STU0900,Male,ECE,5.72,1,5,Intermediate,73.2,Average,2,Not Placed
+STU0901,Male,IT,6.75,1,1,Beginner,72.3,Average,3,Not Placed
+STU0902,Male,IT,6.39,2,0,Advanced,65.1,Average,4,Placed
+STU0903,Male,CE,6.49,0,1,Beginner,78.2,Average,2,Not Placed
+STU0904,Male,CSE,7.21,2,3,Beginner,54.9,Average,0,Not Placed
+STU0905,Male,ME,6.5,2,0,Intermediate,75.7,Poor,0,Placed
+STU0906,Female,CSE,5.75,0,5,Intermediate,48.8,Average,2,Not Placed
+STU0907,Female,CE,6.44,2,0,Beginner,72.7,Poor,1,Not Placed
+STU0908,Male,ME,7.34,3,5,Intermediate,60.1,Poor,2,Not Placed
+STU0909,Male,IT,7.67,2,3,Intermediate,45.3,Good,2,Placed
+STU0910,Male,CE,7.66,2,3,Intermediate,68.8,Poor,3,Placed
+STU0911,Male,IT,7.42,3,0,Advanced,64.5,Good,0,Placed
+STU0912,Male,ECE,6.83,1,0,Intermediate,41.9,Good,0,Placed
+STU0913,Female,CE,7.4,1,0,Beginner,33.3,Average,4,Not Placed
+STU0914,Male,ECE,6.96,2,0,Beginner,62.7,Average,5,Not Placed
+STU0915,Male,CE,7.11,1,0,Advanced,89.3,Poor,2,Placed
+STU0916,Male,CE,6.06,1,1,Beginner,69.8,Good,2,Not Placed
+STU0917,Male,ECE,7.04,0,1,Intermediate,55.0,Average,1,Not Placed
+STU0918,Female,ME,7.38,2,2,Intermediate,81.2,Average,0,Not Placed
+STU0919,Female,CSE,7.34,0,2,Intermediate,78.6,Poor,1,Not Placed
+STU0920,Male,IT,5.71,3,0,Beginner,84.1,Good,3,Placed
+STU0921,Female,CE,7.1,1,5,Intermediate,75.3,Poor,4,Placed
+STU0922,Male,IT,5.56,0,0,Intermediate,78.3,Average,1,Not Placed
+STU0923,Female,ECE,7.17,1,1,Advanced,76.0,Average,0,Placed
+STU0924,Female,IT,6.3,0,1,Beginner,57.8,Poor,3,Not Placed
+STU0925,Male,ECE,8.71,1,3,Intermediate,40.4,Average,2,Placed
+STU0926,Male,IT,7.12,3,0,Intermediate,57.2,Good,3,Placed
+STU0927,Male,CSE,7.8,2,1,Intermediate,81.6,Good,5,Placed
+STU0928,Male,CSE,9.11,0,2,Intermediate,59.3,Good,1,Not Placed
+STU0929,Female,CSE,6.18,0,0,Beginner,62.8,Average,0,Not Placed
+STU0930,Male,CSE,7.44,2,2,Beginner,47.5,Average,1,Not Placed
+STU0931,Male,CSE,5.81,3,4,Intermediate,56.7,Poor,2,Not Placed
+STU0932,Female,CSE,7.34,1,5,Intermediate,64.9,Average,2,Not Placed
+STU0933,Female,ECE,8.77,1,0,Intermediate,72.4,Poor,0,Placed
+STU0934,Male,CE,6.37,1,0,Beginner,58.1,Average,5,Not Placed
+STU0935,Male,IT,6.11,2,0,Beginner,57.1,Average,4,Not Placed
+STU0936,Male,CSE,6.91,1,0,Beginner,77.6,Average,3,Placed
+STU0937,Male,ECE,9.05,0,0,Beginner,69.9,Average,3,Not Placed
+STU0938,Female,ECE,7.77,0,0,Intermediate,71.7,Good,2,Placed
+STU0939,Male,ECE,6.1,2,5,Advanced,87.9,Average,1,Placed
+STU0940,Male,CE,8.46,0,4,Beginner,57.4,Good,1,Not Placed
+STU0941,Male,IT,5.34,1,0,Intermediate,64.3,Good,5,Placed
+STU0942,Male,CE,9.14,1,0,Beginner,73.3,Average,4,Placed
+STU0943,Female,ME,7.86,0,1,Intermediate,51.9,Average,1,Not Placed
+STU0944,Female,ECE,8.76,0,0,Beginner,68.4,Poor,3,Not Placed
+STU0945,Male,ME,5.35,2,2,Advanced,65.3,Good,1,Placed
+STU0946,Male,CSE,7.17,2,2,Intermediate,100.0,Average,4,Placed
+STU0947,Male,CSE,6.87,2,4,Advanced,66.5,Good,3,Placed
+STU0948,Female,CE,5.99,2,2,Advanced,82.4,Average,1,Placed
+STU0949,Female,IT,5.7,1,1,Intermediate,77.4,Good,3,Placed
+STU0950,Male,ME,7.51,2,2,Intermediate,47.7,Good,2,Placed
+STU0951,Female,IT,7.6,1,0,Beginner,41.8,Average,2,Placed
+STU0952,Female,CE,8.3,1,1,Intermediate,68.7,Average,5,Placed
+STU0953,Male,CSE,6.5,3,1,Advanced,83.9,Average,2,Placed
+STU0954,Female,IT,6.86,0,0,Beginner,69.3,Average,1,Not Placed
+STU0955,Male,IT,5.62,1,0,Advanced,66.2,Average,4,Placed
+STU0956,Male,CSE,8.54,1,0,Intermediate,60.7,Good,3,Placed
+STU0957,Male,ME,7.07,0,4,Advanced,45.1,Average,0,Not Placed
+STU0958,Male,CSE,7.72,0,0,Advanced,50.6,Good,2,Placed
+STU0959,Male,IT,7.76,2,0,Intermediate,40.7,Good,2,Placed
+STU0960,Female,ME,8.46,3,0,Intermediate,48.5,Average,0,Placed
+STU0961,Male,ME,6.17,1,2,Intermediate,57.1,Good,0,Not Placed
+STU0962,Female,CSE,7.7,0,0,Advanced,76.6,Average,1,Placed
+STU0963,Male,IT,6.97,0,5,Advanced,58.3,Good,3,Not Placed
+STU0964,Male,CE,9.11,2,4,Intermediate,68.8,Average,2,Placed
+STU0965,Male,IT,6.17,1,1,Intermediate,67.0,Average,4,Not Placed
+STU0966,Male,ECE,8.17,1,2,Intermediate,72.5,Average,1,Placed
+STU0967,Female,CE,7.35,1,0,Advanced,49.5,Average,1,Placed
+STU0968,Male,ME,7.3,1,0,Intermediate,80.9,Average,4,Placed
+STU0969,Male,CE,7.05,1,3,Advanced,43.9,Average,4,Placed
+STU0970,Male,ME,8.35,2,0,Intermediate,58.3,Average,5,Placed
+STU0971,Female,ME,7.26,1,0,Beginner,64.7,Good,4,Placed
+STU0972,Female,CE,5.48,1,1,Intermediate,76.4,Average,0,Not Placed
+STU0973,Female,ME,8.22,1,0,Intermediate,85.7,Average,2,Placed
+STU0974,Male,ME,8.04,2,4,Beginner,76.5,Average,5,Placed
+STU0975,Male,ECE,7.59,1,0,Beginner,86.2,Good,0,Placed
+STU0976,Male,IT,5.87,0,3,Intermediate,52.6,Good,5,Not Placed
+STU0977,Male,IT,6.03,1,1,Beginner,82.9,Average,2,Not Placed
+STU0978,Male,ECE,5.12,0,3,Intermediate,80.3,Poor,5,Not Placed
+STU0979,Male,CE,7.46,2,0,Intermediate,29.1,Average,0,Not Placed
+STU0980,Male,CSE,5.65,1,1,Advanced,61.7,Average,3,Placed
+STU0981,Male,CSE,5.28,3,4,Intermediate,74.0,Good,2,Placed
+STU0982,Female,CSE,8.27,0,1,Advanced,57.3,Average,1,Not Placed
+STU0983,Male,ECE,7.77,2,0,Intermediate,48.7,Good,2,Placed
+STU0984,Male,ECE,6.67,1,1,Beginner,96.7,Average,2,Not Placed
+STU0985,Female,ME,6.87,2,2,Intermediate,66.7,Good,2,Not Placed
+STU0986,Male,CSE,4.59,1,1,Intermediate,67.1,Poor,3,Not Placed
+STU0987,Female,CE,7.92,1,4,Intermediate,45.4,Good,0,Placed
+STU0988,Male,CE,6.31,2,0,Beginner,55.8,Good,1,Not Placed
+STU0989,Male,CSE,7.33,0,1,Intermediate,51.5,Good,0,Not Placed
+STU0990,Female,CSE,4.51,0,3,Beginner,81.2,Poor,5,Not Placed
+STU0991,Female,CSE,7.98,1,2,Intermediate,72.6,Poor,5,Placed
+STU0992,Female,ECE,6.25,1,4,Beginner,56.4,Average,5,Not Placed
+STU0993,Male,ECE,5.62,0,5,Intermediate,73.4,Poor,0,Not Placed
+STU0994,Male,ECE,6.66,0,1,Intermediate,61.2,Poor,4,Not Placed
+STU0995,Male,IT,6.4,0,0,Beginner,68.5,Average,3,Not Placed
+STU0996,Male,CE,8.07,2,0,Intermediate,68.4,Average,4,Placed
+STU0997,Female,CE,6.58,1,2,Intermediate,71.3,Average,5,Placed
+STU0998,Male,ME,8.36,2,4,Advanced,69.5,Poor,3,Placed
+STU0999,Female,ECE,7.33,3,0,Advanced,71.3,Poor,0,Placed
+STU1000,Male,IT,7.89,1,0,Intermediate,83.8,Average,5,Placed
+STU1001,Male,IT,7.0,0,0,Intermediate,74.6,Average,0,Not Placed
+STU1002,Male,CE,8.27,0,3,Intermediate,59.9,Poor,3,Not Placed
+STU1003,Female,ECE,5.85,0,0,Intermediate,63.5,Average,0,Not Placed
+STU1004,Female,ME,7.11,3,1,Beginner,83.5,Good,0,Not Placed
+STU1005,Female,ECE,6.6,1,1,Intermediate,66.7,Good,1,Not Placed
+STU1006,Female,CSE,8.4,0,3,Intermediate,59.4,Good,4,Placed
+STU1007,Female,ECE,8.5,1,2,Beginner,55.5,Good,4,Placed
+STU1008,Female,CSE,7.0,1,2,Intermediate,69.1,Average,4,Not Placed
+STU1009,Male,CSE,5.71,1,0,Intermediate,52.2,Average,2,Not Placed
+STU1010,Male,ME,7.43,0,1,Intermediate,84.3,Average,1,Not Placed
+STU1011,Male,CE,5.34,3,2,Beginner,49.4,Average,5,Not Placed
+STU1012,Female,ECE,8.63,1,5,Intermediate,87.2,Average,5,Placed
+STU1013,Female,CSE,6.53,0,0,Intermediate,60.7,Average,5,Not Placed
+STU1014,Male,ECE,6.97,2,0,Intermediate,48.8,Average,4,Placed
+STU1015,Female,CE,6.32,0,0,Intermediate,67.8,Poor,4,Not Placed
+STU1016,Female,CE,6.1,3,0,Intermediate,50.7,Good,1,Placed
+STU1017,Male,IT,7.74,3,3,Advanced,65.5,Poor,0,Placed
+STU1018,Male,CE,6.84,2,0,Beginner,56.3,Average,4,Not Placed
+STU1019,Female,ME,7.04,2,1,Advanced,79.2,Poor,5,Placed
+STU1020,Male,CSE,6.0,1,0,Intermediate,67.1,Average,0,Not Placed
+STU1021,Female,IT,7.86,3,0,Beginner,47.2,Poor,4,Placed
+STU1022,Male,ME,7.96,1,1,Intermediate,56.0,Good,3,Placed
+STU1023,Female,ECE,6.79,2,0,Beginner,75.6,Average,2,Not Placed
+STU1024,Female,CSE,8.27,3,0,Beginner,84.3,Average,4,Placed
+STU1025,Female,CE,6.9,3,2,Intermediate,64.3,Average,3,Not Placed
+STU1026,Male,CSE,7.78,2,1,Intermediate,49.3,Average,1,Placed
+STU1027,Female,ECE,5.38,1,0,Advanced,80.8,Good,3,Placed
+STU1028,Female,IT,7.35,3,5,Intermediate,75.5,Average,1,Not Placed
+STU1029,Male,IT,6.73,1,2,Beginner,84.6,Good,4,Placed
+STU1030,Female,IT,7.16,3,3,Intermediate,69.4,Good,1,Not Placed
+STU1031,Male,CE,7.11,1,0,Intermediate,57.2,Good,3,Placed
+STU1032,Male,ME,7.13,1,0,Advanced,72.8,Average,2,Placed
+STU1033,Male,ME,7.62,1,0,Advanced,69.9,Average,0,Placed
+STU1034,Male,CSE,6.43,1,0,Advanced,56.4,Average,0,Placed
+STU1035,Male,CE,7.57,2,1,Intermediate,68.0,Average,2,Placed
+STU1036,Female,IT,8.23,1,4,Intermediate,62.1,Good,5,Placed
+STU1037,Male,IT,5.59,1,1,Beginner,76.2,Good,0,Not Placed
+STU1038,Female,ECE,6.22,1,0,Advanced,72.4,Good,4,Placed
+STU1039,Male,ECE,6.26,2,1,Beginner,49.2,Good,5,Not Placed
+STU1040,Male,IT,5.91,1,0,Beginner,47.7,Poor,4,Not Placed
+STU1041,Male,IT,6.53,0,2,Beginner,63.7,Poor,3,Not Placed
+STU1042,Female,CE,8.03,0,1,Intermediate,65.5,Average,3,Not Placed
+STU1043,Male,ME,8.45,0,3,Intermediate,76.4,Good,5,Placed
+STU1044,Female,ECE,7.11,1,5,Intermediate,72.7,Good,5,Placed
+STU1045,Female,ME,6.68,0,0,Advanced,86.9,Average,5,Placed
+STU1046,Female,CE,7.8,0,1,Advanced,58.0,Good,5,Placed
+STU1047,Male,IT,4.64,3,4,Intermediate,57.1,Good,1,Not Placed
+STU1048,Male,ME,5.94,2,3,Beginner,50.6,Good,5,Not Placed
+STU1049,Female,IT,4.68,1,1,Advanced,76.2,Good,5,Placed
+STU1050,Male,IT,5.93,3,4,Advanced,65.3,Average,3,Placed
