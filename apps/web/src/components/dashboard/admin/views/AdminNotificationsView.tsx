@@ -16,7 +16,7 @@ import {
   X,
   Filter,
 } from "lucide-react";
-import type { SystemNotification } from "../mock-admin-data";
+import type { SystemNotification } from "../admin.types";
 import {
   getAdminNotifications,
   markAdminNotificationRead,
@@ -29,6 +29,8 @@ import { toast } from "sonner";
 
 export default function AdminNotificationsView() {
   const [notifications, setNotifications] = useState<SystemNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState("all");
@@ -42,10 +44,16 @@ export default function AdminNotificationsView() {
 
   useEffect(() => {
     getAdminNotifications()
-      .then((result) => setNotifications(result.notifications))
+      .then((result) => {
+        setNotifications(result.notifications);
+        setUnreadCount(result.unreadCount);
+        setTotal(result.total);
+      })
       .catch(() => toast.error("Failed to load notifications"))
       .finally(() => setLoading(false));
   }, []);
+
+  const hasUnread = unreadCount > 0;
 
   const filtered = notifications.filter((n) => {
     if (filter === "unread") return !n.read;
@@ -53,14 +61,13 @@ export default function AdminNotificationsView() {
     return true;
   });
 
-  const hasUnread = notifications.some((n) => !n.read);
-
   const handleMarkAsRead = async (id: string) => {
     try {
       await markAdminNotificationRead(id);
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))
       );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
       toast.error("Failed to mark notification as read");
     }
@@ -70,6 +77,7 @@ export default function AdminNotificationsView() {
     try {
       await markAllAdminNotificationsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
       toast.success("All placement notifications marked as read!");
     } catch {
       toast.error("Failed to mark notifications as read");
@@ -93,6 +101,8 @@ export default function AdminNotificationsView() {
       });
 
       setNotifications((prev) => [notification, ...prev]);
+      setTotal((prev) => prev + 1);
+      if (!notification.read) setUnreadCount((prev) => prev + 1);
       setIsBroadcastModalOpen(false);
       setBroadcastMessage({
         title: "",
@@ -124,6 +134,11 @@ export default function AdminNotificationsView() {
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Real-time corporate recruiter alerts, schedule conflict collision warnings, and campus-wide broadcasts.
           </p>
+          {total > 0 && (
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">
+              {total} total · {unreadCount} unread
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">

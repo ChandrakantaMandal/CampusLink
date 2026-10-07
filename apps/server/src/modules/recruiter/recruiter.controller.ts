@@ -6,6 +6,7 @@ import {
   createInterview,
   createMyJob,
   createMyOffer,
+  deleteMyJob,
   getMyInterviews,
   getMyJobs,
   getMyNotifications,
@@ -15,6 +16,7 @@ import {
   getShortlistedCandidates,
   markAllNotificationsRead,
   markNotificationRead,
+  updateInterview,
   updateRecruiterProfile,
 } from "./recruiter.service";
 
@@ -22,6 +24,7 @@ import {
   createInterviewSchema,
   createMyJobSchema,
   createMyOfferSchema,
+  updateInterviewSchema,
   updateRecruiterProfileSchema,
 } from "./recruiter.schema";
 
@@ -121,9 +124,12 @@ export async function createMyJobController(
     const parsed = createMyJobSchema.safeParse(req.body);
 
     if (!parsed.success) {
+      const details = parsed.error.issues.map(
+        (issue) => `${issue.path.join(".") || "form"}: ${issue.message}`,
+      );
       return res.status(400).json({
         success: false,
-        message: "Invalid job data",
+        message: `Invalid job data: ${details.join("; ")}`,
         errors: parsed.error.flatten(),
       });
     }
@@ -134,6 +140,50 @@ export async function createMyJobController(
       success: true,
       message: "Job created successfully",
       data: job,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteMyJobController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid job ID",
+      });
+    }
+
+    const result = await deleteMyJob(authenticatedReq.user.id, id);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    if (!result.ok) {
+      return res.status(409).json({
+        success: false,
+        message: `Cannot delete: job has ${result.count} application(s). Archive the job instead.`,
+        reason: result.reason,
+        count: result.count,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Job deleted successfully",
     });
   } catch (error) {
     next(error);
@@ -185,6 +235,52 @@ export async function createInterviewController(
     return res.status(201).json({
       success: true,
       message: "Interview scheduled successfully",
+      data: interview,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateInterviewController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid interview ID",
+      });
+    }
+
+    const parsed = updateInterviewSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid interview data",
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const interview = await updateInterview(authenticatedReq.user.id, id, parsed.data);
+
+    if (!interview) {
+      return res.status(404).json({
+        success: false,
+        message: "Interview not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Interview updated successfully",
       data: interview,
     });
   } catch (error) {

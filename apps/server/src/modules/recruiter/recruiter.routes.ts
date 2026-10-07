@@ -7,6 +7,7 @@ import {
   createInterviewController,
   createMyJobController,
   createMyOfferController,
+  deleteMyJobController,
   getMyInterviewsController,
   getMyJobsController,
   getMyNotificationsController,
@@ -16,6 +17,7 @@ import {
   getShortlistedController,
   markAllNotificationsReadController,
   markNotificationReadController,
+  updateInterviewController,
   updateRecruiterProfileController,
 } from "./recruiter.controller";
 
@@ -53,6 +55,14 @@ router.post(
   createMyJobController,
 );
 
+// Recruiter deletes a job for their company
+router.delete(
+  "/jobs/:id",
+  requireAuth,
+  requireRole("RECRUITER"),
+  deleteMyJobController,
+);
+
 // Recruiter views interviews for their company
 router.get(
   "/interviews",
@@ -67,6 +77,14 @@ router.post(
   requireAuth,
   requireRole("RECRUITER"),
   createInterviewController,
+);
+
+// Recruiter reschedules / updates an interview
+router.patch(
+  "/interviews/:id",
+  requireAuth,
+  requireRole("RECRUITER"),
+  updateInterviewController,
 );
 
 // Recruiter views shortlisted candidates for their company

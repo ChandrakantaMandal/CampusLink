@@ -42,6 +42,11 @@ export const createRateLimiter = ({
       const blocked = await redis.get(blockedKey);
 
       if (blocked) {
+        const blockedTtl = await redis.ttl(blockedKey);
+        res.setHeader(
+          "Retry-After",
+          String(blockedTtl > 0 ? blockedTtl : blockSeconds),
+        );
         res.status(429).json({
           success: false,
           message: "Too many requests. Please try again later.",
@@ -73,6 +78,7 @@ export const createRateLimiter = ({
       // Repeated violations
       if (violations >= blockAfterViolations) {
         await redis.set(blockedKey, "1", "EX", blockSeconds);
+        res.setHeader("Retry-After", String(blockSeconds));
 
         res.status(429).json({
           success: false,
@@ -82,10 +88,13 @@ export const createRateLimiter = ({
         return;
       }
 
+      const windowTtl = await redis.ttl(requestKey);
+      res.setHeader("Retry-After", String(windowTtl > 0 ? windowTtl : windowSeconds));
+
       res.status(429).json({
         success: false,
         message: "Too many requests. Please try again later.",
-        retryAfter: windowSeconds,
+        retryAfter: windowTtl > 0 ? windowTtl : windowSeconds,
       });
     } catch (error: any) {
       // Don't spam console if Redis connection closed in development
@@ -109,5 +118,7 @@ export const createRateLimiter = ({
 export const globalLimiter = createRateLimiter({
   name: "global",
   windowSeconds: 15 * 60,
-  maxRequests: 1000,
+  maxRequests: 600,
+  blockAfterViolations: 10,
+  blockSeconds: 5 * 60,
 });

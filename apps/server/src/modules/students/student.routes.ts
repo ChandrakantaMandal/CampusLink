@@ -4,6 +4,7 @@ import { requireAuth } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
 
 import {
+  acceptMyStudentOffer,
   getMyStudentDashboard,
   getMyStudentDrives,
   getMyStudentInterviews,
@@ -12,6 +13,8 @@ import {
   getMyStudentReadiness,
   getMyStudentProfile,
   getStudent,
+  markMyStudentNotificationRead,
+  markMyStudentNotificationsReadAll,
   updateMyStudentProfile,
   getMyReadiness,
 } from "./student.controller";
@@ -40,8 +43,13 @@ router.get("/me/interviews", requireAuth, requireRole("STUDENT"), getMyStudentIn
 // Student offers + stats
 router.get("/me/offers", requireAuth, requireRole("STUDENT"), getMyStudentOffers);
 
+// Accept an offer (student's own)
+router.patch("/me/offers/:id/accept", requireAuth, requireRole("STUDENT"), acceptMyStudentOffer);
+
 // Student notifications + unread count
 router.get("/me/notifications", requireAuth, requireRole("STUDENT"), getMyStudentNotifications);
+router.patch("/me/notifications/read-all", requireAuth, requireRole("STUDENT"), markMyStudentNotificationsReadAll);
+router.patch("/me/notifications/:id/read", requireAuth, requireRole("STUDENT"), markMyStudentNotificationRead);
 
 router.get(
   "/readiness",

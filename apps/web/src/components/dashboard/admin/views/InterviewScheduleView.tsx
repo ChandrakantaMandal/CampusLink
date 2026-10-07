@@ -1,21 +1,33 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   MapPin,
   AlertTriangle,
   CheckCircle2,
+  RefreshCw,
   X,
   Loader2,
 } from "lucide-react";
-import type { InterviewScheduleItem } from "../mock-admin-data";
+import type { InterviewScheduleItem } from "../admin.types";
 import {
   getAdminInterviews,
   updateInterviewSchedule,
 } from "@/lib/api/admin.api";
 import { toast } from "sonner";
+
+const POLL_MS = 30_000;
+
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const MODE_OPTIONS = ["VIRTUAL", "IN_PERSON", "HYBRID"] as const;
+
+const inputClassName =
+  "w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60";
 
 function toTimeInput(value: string): string {
   const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i.exec(value.trim());
@@ -31,72 +43,169 @@ function toTimeInput(value: string): string {
   return `${String(hour).padStart(2, "0")}:${minute}`;
 }
 
-function dateChip(date: string): { day: string; label: string } {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-  if (!match || match[1] === undefined || match[2] === undefined || match[3] === undefined) {
-    return { day: date, label: date };
+function toDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+interface CalendarCell {
+  key: string;
+  date: string;
+  dayLabel: number;
+  inMonth: boolean;
+  count: number;
+  hasConflict: boolean;
+}
+
+function buildMonthGrid(
+  monthCursor: Date,
+  interviews: InterviewScheduleItem[],
+): CalendarCell[] {
+  const year = monthCursor.getFullYear();
+  const month = monthCursor.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const stats = new Map<string, { count: number; hasConflict: boolean }>();
+  for (const item of interviews) {
+    const entry = stats.get(item.date);
+    stats.set(item.date, {
+      count: (entry?.count ?? 0) + 1,
+      hasConflict: Boolean(entry?.hasConflict) || Boolean(item.hasConflict),
+    });
   }
-  const parsed = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-  if (Number.isNaN(parsed.getTime())) {
-    return { day: date, label: date };
+
+  const cells: CalendarCell[] = [];
+  for (let i = 0; i < firstDay; i++) {
+    cells.push({
+      key: `pad-${i}`,
+      date: "",
+      dayLabel: 0,
+      inMonth: false,
+      count: 0,
+      hasConflict: false,
+    });
   }
-  return {
-    day: parsed.toLocaleDateString("en-US", { weekday: "short" }),
-    label: String(parsed.getDate()),
-  };
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = toDateKey(new Date(year, month, day));
+    const meta = stats.get(date);
+    cells.push({
+      key: date,
+      date,
+      dayLabel: day,
+      inMonth: true,
+      count: meta?.count ?? 0,
+      hasConflict: Boolean(meta?.hasConflict),
+    });
+  }
+  while (cells.length % 7 !== 0) {
+    cells.push({
+      key: `tail-${cells.length}`,
+      date: "",
+      dayLabel: 0,
+      inMonth: false,
+      count: 0,
+      hasConflict: false,
+    });
+  }
+  return cells;
 }
 
 export default function InterviewScheduleView() {
   const [interviews, setInterviews] = useState<InterviewScheduleItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [monthCursor, setMonthCursor] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTargetId, setModalTargetId] = useState<string | null>(null);
+  const [newDate, setNewDate] = useState("");
   const [newStartTime, setNewStartTime] = useState("");
   const [newEndTime, setNewEndTime] = useState("");
+  const [newVenue, setNewVenue] = useState("");
+  const [newMeetingLink, setNewMeetingLink] = useState("");
+  const [newMode, setNewMode] = useState("");
+  const [newDuration, setNewDuration] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    getAdminInterviews()
-      .then((data) => {
-        if (cancelled) return;
+  const loadInterviews = useCallback(
+    async (options?: { silent?: boolean; pickDefaultDate?: boolean }) => {
+      const silent = options?.silent ?? false;
+      if (!silent) setRefreshing(true);
+      try {
+        const data = await getAdminInterviews();
         setInterviews(data);
-        setSelectedDate(data[0]?.date ?? "");
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        toast.error(
-          error instanceof Error ? error.message : "Failed to load interviews",
-        );
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        setLastUpdated(new Date());
+        if (options?.pickDefaultDate) {
+          setSelectedDate((prev) => {
+            if (prev && data.some((item) => item.date === prev)) return prev;
+            return data[0]?.date ?? "";
+          });
+        } else {
+          setSelectedDate((prev) => (prev ? prev : (data[0]?.date ?? "")));
+        }
+        return data;
+      } catch (error) {
+        if (!silent) {
+          toast.error(
+            error instanceof Error ? error.message : "Failed to load interviews",
+          );
+        }
+        return null;
+      } finally {
+        if (!silent) setRefreshing(false);
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    void loadInterviews({ pickDefaultDate: true });
+
+    const intervalId = setInterval(() => {
+      void loadInterviews({ silent: true });
+    }, POLL_MS);
+
+    const handleWake = () => {
+      if (document.visibilityState === "visible") {
+        void loadInterviews({ silent: true });
+      }
+    };
+
+    window.addEventListener("focus", handleWake);
+    document.addEventListener("visibilitychange", handleWake);
 
     return () => {
-      cancelled = true;
+      clearInterval(intervalId);
+      window.removeEventListener("focus", handleWake);
+      document.removeEventListener("visibilitychange", handleWake);
     };
-  }, []);
+  }, [loadInterviews]);
 
   const conflictingInterviews = useMemo(
     () => interviews.filter((item) => item.hasConflict),
     [interviews],
   );
 
-  const dateStrip = useMemo(() => {
-    const seen = new Map<string, { hasConflict: boolean }>();
-    for (const item of interviews) {
-      const entry = seen.get(item.date);
-      seen.set(item.date, {
-        hasConflict: Boolean(entry?.hasConflict) || Boolean(item.hasConflict),
-      });
-    }
-    return Array.from(seen.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, meta]) => ({ date, hasConflict: meta.hasConflict }));
-  }, [interviews]);
+  const calendarCells = useMemo(
+    () => buildMonthGrid(monthCursor, interviews),
+    [monthCursor, interviews],
+  );
+
+  const monthLabel = useMemo(
+    () =>
+      monthCursor.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      }),
+    [monthCursor],
+  );
 
   const modalTarget = useMemo(
     () => interviews.find((item) => item.id === modalTargetId) ?? null,
@@ -112,8 +221,15 @@ export default function InterviewScheduleView() {
     const target = interviews.find((item) => item.id === interviewId);
     if (!target) return;
     setModalTargetId(target.id);
+    setNewDate(target.date);
     setNewStartTime(toTimeInput(target.startTime));
     setNewEndTime(toTimeInput(target.endTime));
+    setNewVenue(target.venueRaw ?? "");
+    setNewMeetingLink(target.meetingLink ?? "");
+    setNewMode(target.mode ?? "");
+    setNewDuration(
+      target.durationMinutes != null ? String(target.durationMinutes) : "",
+    );
     setModalOpen(true);
   };
 
@@ -124,23 +240,48 @@ export default function InterviewScheduleView() {
   };
 
   const handleReschedule = async () => {
-    if (!modalTarget || !newStartTime) return;
+    if (!modalTarget) return;
+    const durationMinutes = newDuration ? Number(newDuration) : undefined;
+    const hasChange =
+      Boolean(newDate) ||
+      Boolean(newStartTime) ||
+      Boolean(newEndTime) ||
+      Boolean(newVenue) ||
+      Boolean(newMeetingLink) ||
+      Boolean(newMode) ||
+      Boolean(newDuration);
+    if (!hasChange) return;
 
     setSaving(true);
     try {
       await updateInterviewSchedule(modalTarget.id, {
-        startTime: newStartTime,
+        ...(newDate ? { scheduledDate: newDate } : {}),
+        ...(newStartTime ? { startTime: newStartTime } : {}),
         ...(newEndTime ? { endTime: newEndTime } : {}),
+        ...(newVenue ? { venue: newVenue } : {}),
+        ...(newMeetingLink ? { meetingLink: newMeetingLink } : {}),
+        ...(newMode
+          ? { mode: newMode as "VIRTUAL" | "IN_PERSON" | "HYBRID" }
+          : {}),
+        ...(durationMinutes !== undefined && Number.isFinite(durationMinutes)
+          ? { durationMinutes }
+          : {}),
       });
-      const data = await getAdminInterviews();
-      setInterviews(data);
-      if (selectedDate && !data.some((item) => item.date === selectedDate)) {
-        setSelectedDate(data[0]?.date ?? "");
+      const data = await loadInterviews({ silent: true });
+      if (data) {
+        setSelectedDate((prev) => {
+          if (!prev) return data[0]?.date ?? "";
+          return data.some((item) => item.date === prev)
+            ? prev
+            : (data[0]?.date ?? "");
+        });
       }
       setModalOpen(false);
       setModalTargetId(null);
       toast.success(
-        `Interview rescheduled to ${newStartTime}${newEndTime ? ` – ${newEndTime}` : ""}.`,
+        `Interview updated for ${newDate || modalTarget.date}${
+          newStartTime ? ` ${newStartTime}` : ""
+        }${newEndTime ? ` – ${newEndTime}` : ""}.`,
       );
     } catch (error) {
       toast.error(
@@ -150,6 +291,15 @@ export default function InterviewScheduleView() {
       setSaving(false);
     }
   };
+
+  const hasAnyChange =
+    Boolean(newDate) ||
+    Boolean(newStartTime) ||
+    Boolean(newEndTime) ||
+    Boolean(newVenue) ||
+    Boolean(newMeetingLink) ||
+    Boolean(newMode) ||
+    Boolean(newDuration);
 
   if (loading) {
     return (
@@ -170,20 +320,45 @@ export default function InterviewScheduleView() {
             Interview Schedule &amp; Calendar
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            All scheduled interviews with automatic schedule conflict collision detection.
+            All scheduled interviews with automatic schedule conflict collision
+            detection. Auto-refreshes every 30s.
           </p>
         </div>
 
-        {conflictingInterviews.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {lastUpdated && (
+            <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline">
+              Updated{" "}
+              {lastUpdated.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </span>
+          )}
           <button
             type="button"
-            onClick={() => openModal(conflictingInterviews[0]?.id)}
-            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-4 py-2.5 text-xs transition-all shadow-md shadow-amber-500/25 shrink-0 self-start sm:self-auto"
+            onClick={() => void loadInterviews({})}
+            disabled={refreshing}
+            data-testid="interviews-refresh"
+            className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 text-slate-700 dark:text-slate-300 font-bold px-4 py-2.5 text-xs transition-all disabled:opacity-60"
           >
-            <AlertTriangle className="h-4 w-4" />
-            <span>⚠ Resolve Conflict ({conflictingInterviews.length} Found)</span>
+            <RefreshCw
+              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
           </button>
-        )}
+          {conflictingInterviews.length > 0 && (
+            <button
+              type="button"
+              onClick={() => openModal(conflictingInterviews[0]?.id)}
+              className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-4 py-2.5 text-xs transition-all shadow-md shadow-amber-500/25"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              <span>⚠ Resolve Conflict ({conflictingInterviews.length})</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Conflict Warning Banner */}
@@ -196,11 +371,13 @@ export default function InterviewScheduleView() {
               </div>
               <div>
                 <h3 className="text-sm font-black text-amber-900 dark:text-amber-200">
-                  ⚠ Schedule Conflict Detected: {conflictingInterviews.length} overlapping interview
+                  ⚠ Schedule Conflict Detected: {conflictingInterviews.length}{" "}
+                  overlapping interview
                   {conflictingInterviews.length === 1 ? "" : "s"}
                 </h3>
                 <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
-                  Reschedule one of the overlapping interviews to clear the collision.
+                  Reschedule one of the overlapping interviews to clear the
+                  collision.
                 </p>
               </div>
             </div>
@@ -225,7 +402,8 @@ export default function InterviewScheduleView() {
                   {item.round ? ` • ${item.round}` : ""}
                 </span>
                 <p className="text-slate-800 dark:text-slate-200 font-semibold mt-0.5">
-                  {item.studentName} ({item.rollNo}) &bull; {item.startTime} – {item.endTime}
+                  {item.studentName} ({item.rollNo}) &bull; {item.startTime} –{" "}
+                  {item.endTime}
                 </p>
                 {item.conflictDetails && (
                   <p className="text-amber-700 dark:text-amber-400 font-bold mt-1">
@@ -238,48 +416,117 @@ export default function InterviewScheduleView() {
         </div>
       )}
 
-      {/* Date Strip (derived from actual interviews) */}
-      {dateStrip.length > 0 && (
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-5 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Placement Schedule
+      {/* Full Month Calendar */}
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-5 shadow-sm space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setMonthCursor(
+                  (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                )
+              }
+              aria-label="Previous month"
+              className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 text-slate-600 dark:text-slate-300 p-2 transition-all"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 min-w-[9rem] text-center">
+              {monthLabel}
             </h2>
+            <button
+              type="button"
+              onClick={() =>
+                setMonthCursor(
+                  (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                )
+              }
+              aria-label="Next month"
+              className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 text-slate-600 dark:text-slate-300 p-2 transition-all"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const now = new Date();
+                setMonthCursor(
+                  new Date(now.getFullYear(), now.getMonth(), 1),
+                );
+                setSelectedDate(toDateKey(now));
+              }}
+              className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 text-slate-700 dark:text-slate-300 font-bold px-3 py-2 text-xs transition-all"
+            >
+              Today
+            </button>
             <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
-              Selected: {selectedDate}
+              Selected: {selectedDate || "—"}
             </span>
           </div>
-
-          <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-            {dateStrip.map((d) => {
-              const chip = dateChip(d.date);
-              return (
-                <button
-                  key={d.date}
-                  type="button"
-                  onClick={() => setSelectedDate(d.date)}
-                  className={`cursor-pointer rounded-2xl p-3 text-center transition-all border ${
-                    selectedDate === d.date
-                      ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/25"
-                      : "bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800 hover:border-indigo-300 text-slate-700 dark:text-slate-300"
-                  }`}
-                >
-                  <span className="text-[10px] font-bold uppercase block opacity-80">
-                    {chip.day}
-                  </span>
-                  <span className="text-base font-black block mt-0.5">{chip.label}</span>
-                  {d.hasConflict && (
-                    <span
-                      className="mt-1 inline-block h-2 w-2 rounded-full bg-amber-400 animate-ping"
-                      title="Conflict"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
         </div>
-      )}
+
+        <div className="grid grid-cols-7 gap-1">
+          {WEEKDAY_LABELS.map((label) => (
+            <div
+              key={label}
+              className="text-center text-[10px] font-bold uppercase text-slate-400 pb-1"
+            >
+              {label.slice(0, 1)}
+            </div>
+          ))}
+          {calendarCells.map((cell) => {
+            if (!cell.inMonth) {
+              return (
+                <div
+                  key={cell.key}
+                  className="min-h-[3.25rem] rounded-xl bg-slate-50/50 dark:bg-slate-900/40"
+                />
+              );
+            }
+            const isSelected = cell.date === selectedDate;
+            const isToday = cell.date === toDateKey(new Date());
+            return (
+              <button
+                key={cell.key}
+                type="button"
+                onClick={() => setSelectedDate(cell.date)}
+                data-testid="calendar-day"
+                data-date={cell.date}
+                className={`cursor-pointer relative min-h-[3.25rem] rounded-xl border p-1.5 text-left transition-all ${
+                  isSelected
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/25"
+                    : cell.count > 0
+                      ? "bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-900/60 text-slate-800 dark:text-slate-200 hover:border-indigo-400"
+                      : "bg-slate-50/80 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-indigo-200 dark:hover:border-indigo-800"
+                } ${isToday && !isSelected ? "ring-2 ring-indigo-400/60" : ""}`}
+              >
+                <span className="text-sm font-black block">{cell.dayLabel}</span>
+                {cell.count > 0 && (
+                  <span
+                    className={`absolute bottom-1.5 right-1.5 inline-flex items-center justify-center rounded-full px-1.5 text-[10px] font-black ${
+                      isSelected ? "bg-white/20 text-white" : "bg-indigo-600 text-white"
+                    }`}
+                    data-testid="calendar-count"
+                  >
+                    {cell.count}
+                  </span>
+                )}
+                {cell.hasConflict && (
+                  <span
+                    className={`absolute top-1.5 right-1.5 h-2 w-2 rounded-full ${
+                      isSelected ? "bg-amber-300" : "bg-amber-400"
+                    }`}
+                    title="Conflict"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Scheduled Interviews List for Date */}
       <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4">
@@ -289,7 +536,8 @@ export default function InterviewScheduleView() {
             Interviews Roster for {selectedDate || "—"}
           </h2>
           <span className="text-xs text-slate-400 font-semibold">
-            {dayInterviews.length} Interview{dayInterviews.length === 1 ? "" : "s"} Scheduled
+            {dayInterviews.length} Interview{dayInterviews.length === 1 ? "" : "s"}{" "}
+            Scheduled
           </span>
         </div>
 
@@ -307,6 +555,7 @@ export default function InterviewScheduleView() {
             {dayInterviews.map((item) => (
               <div
                 key={item.id}
+                data-testid="roster-row"
                 className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
                   item.hasConflict
                     ? "border-amber-300 dark:border-amber-800/80 bg-amber-50/50 dark:bg-amber-950/20"
@@ -348,6 +597,11 @@ export default function InterviewScheduleView() {
                       <MapPin className="h-3.5 w-3.5 text-slate-400" />
                       {item.venue || "—"}
                     </span>
+                    {item.mode && (
+                      <span className="text-[11px] font-bold text-indigo-500">
+                        {item.mode}
+                      </span>
+                    )}
                     {item.interviewer && (
                       <span className="text-[11px] text-slate-400">
                         Interviewer: {item.interviewer}
@@ -391,7 +645,7 @@ export default function InterviewScheduleView() {
       {/* Reschedule / Resolve Modal */}
       {modalOpen && modalTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-lg rounded-3xl border border-amber-300 dark:border-amber-500/50 bg-white dark:bg-slate-900 p-6 shadow-2xl space-y-5">
+          <div className="relative w-full max-w-lg rounded-3xl border border-amber-300 dark:border-amber-500/50 bg-white dark:bg-slate-900 p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <button
               type="button"
               onClick={closeModal}
@@ -449,6 +703,13 @@ export default function InterviewScheduleView() {
                   {modalTarget.date}
                 </span>
               </div>
+              <div className="flex justify-between items-center text-slate-700 dark:text-slate-300">
+                <span className="font-bold">Venue / Mode:</span>
+                <span className="font-bold text-slate-900 dark:text-white">
+                  {modalTarget.venue || "—"}
+                  {modalTarget.mode ? ` (${modalTarget.mode})` : ""}
+                </span>
+              </div>
               {modalTarget.conflictDetails && (
                 <p className="text-amber-700 dark:text-amber-400 font-bold">
                   ⚠ {modalTarget.conflictDetails}
@@ -459,6 +720,18 @@ export default function InterviewScheduleView() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="space-y-1.5">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  New date
+                </span>
+                <input
+                  type="date"
+                  value={newDate}
+                  onChange={(event) => setNewDate(event.target.value)}
+                  disabled={saving}
+                  className={inputClassName}
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   New start time
                 </span>
                 <input
@@ -466,7 +739,7 @@ export default function InterviewScheduleView() {
                   value={newStartTime}
                   onChange={(event) => setNewStartTime(event.target.value)}
                   disabled={saving}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+                  className={inputClassName}
                 />
               </label>
               <label className="space-y-1.5">
@@ -478,10 +751,73 @@ export default function InterviewScheduleView() {
                   value={newEndTime}
                   onChange={(event) => setNewEndTime(event.target.value)}
                   disabled={saving}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+                  className={inputClassName}
                 />
               </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Duration (minutes)
+                </span>
+                <input
+                  type="number"
+                  min={5}
+                  max={600}
+                  value={newDuration}
+                  onChange={(event) => setNewDuration(event.target.value)}
+                  disabled={saving}
+                  placeholder="e.g. 45"
+                  className={inputClassName}
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Venue
+                </span>
+                <input
+                  type="text"
+                  value={newVenue}
+                  onChange={(event) => setNewVenue(event.target.value)}
+                  disabled={saving}
+                  placeholder="e.g. Hall 3"
+                  className={inputClassName}
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Meeting link
+                </span>
+                <input
+                  type="url"
+                  value={newMeetingLink}
+                  onChange={(event) => setNewMeetingLink(event.target.value)}
+                  disabled={saving}
+                  placeholder="https://…"
+                  className={inputClassName}
+                />
+              </label>
+              <label className="space-y-1.5 sm:col-span-2">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Mode
+                </span>
+                <select
+                  value={newMode}
+                  onChange={(event) => setNewMode(event.target.value)}
+                  disabled={saving}
+                  className={inputClassName}
+                >
+                  <option value="">Select mode</option>
+                  {MODE_OPTIONS.map((mode) => (
+                    <option key={mode} value={mode}>
+                      {mode}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
+
+            <p className="text-[11px] text-slate-400">
+              Only the fields you change will be updated.
+            </p>
 
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
               <button
@@ -495,11 +831,11 @@ export default function InterviewScheduleView() {
               <button
                 type="button"
                 onClick={handleReschedule}
-                disabled={saving || !newStartTime}
+                disabled={saving || !hasAnyChange}
                 className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 text-xs transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                {saving ? "Rescheduling…" : "Confirm Reschedule"}
+                {saving ? "Saving…" : "Confirm Changes"}
               </button>
             </div>
           </div>

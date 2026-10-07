@@ -6,7 +6,7 @@ import type {
   RecruiterJob,
   RecruiterNotification,
   RecruiterOffer,
-} from "@/components/dashboard/recruiter/mock-recruiter-data";
+} from "@/components/dashboard/recruiter/recruiter.types";
 
 interface Envelope<T> {
   success: boolean;
@@ -22,6 +22,7 @@ export interface RecruiterApplicationRaw {
   resumeUrl?: string | null;
   user: { id: string; name: string | null; email: string };
   student: {
+    id?: string;
     firstName?: string | null;
     lastName?: string | null;
     phone?: string | null;
@@ -91,6 +92,7 @@ function toRecruiterCandidate(raw: RecruiterApplicationRaw): RecruiterCandidate 
 
   return {
     id: raw.id,
+    studentId: student?.id,
     name: displayName(student?.firstName, student?.lastName, student?.user?.name ?? raw.user?.name),
     email: student?.user?.email ?? raw.user?.email ?? "",
     phone: student?.phone ?? "",
@@ -160,6 +162,7 @@ export interface RecruiterProfileRaw {
     location?: string | null;
     linkedinUrl?: string | null;
     verifiedStatus: string;
+    tier?: "TIER_1" | "TIER_2" | "TIER_3" | null;
     benefits?: string[];
   };
   user: { id: string; name: string | null; email: string; image?: string | null };
@@ -190,6 +193,7 @@ export interface RecruiterJobRaw {
   shortlistedCount?: number;
   interviewCount?: number;
   offersCount?: number;
+  skills?: Array<{ skill: { name: string } }>;
 }
 
 export interface RecruiterInterviewRaw {
@@ -304,7 +308,7 @@ function toRecruiterCompany(raw: RecruiterProfileRaw): RecruiterCompany {
     location: company.location ?? "",
     description: company.description ?? "",
     website: company.website ?? "",
-    companySize: "",
+    tier: company.tier ?? "TIER_3",
     recruiterName: raw.user.name ?? "",
     recruiterEmail: raw.user.email,
     recruiterPhone: raw.phone ?? "",
@@ -332,7 +336,7 @@ function toRecruiterJob(raw: RecruiterJobRaw): RecruiterJob {
     allowedBranches: raw.allowedBranches ?? [],
     applicationDeadline: raw.applicationDeadline ? dateOnly(raw.applicationDeadline) : "",
     status: JOB_STATUS_TO_VIEW[raw.status] ?? "Draft",
-    requiredSkills: [],
+    requiredSkills: raw.skills?.map((entry) => entry.skill.name) ?? [],
     rounds: [],
     applicantsCount: raw.applicantsCount ?? 0,
     shortlistedCount: raw.shortlistedCount ?? 0,
@@ -382,6 +386,7 @@ function toShortlistedCandidate(raw: ShortlistedApplicationRaw): RecruiterCandid
 
   return {
     id: student?.id ?? raw.id,
+    studentId: student?.id,
     name: displayName(student?.firstName, student?.lastName, student?.user?.name),
     email: student?.user?.email ?? "",
     phone: student?.phone ?? "",
@@ -422,11 +427,12 @@ export interface UpdateRecruiterProfileInput {
     name?: string;
     description?: string;
     website?: string;
-    logoUrl?: string;
+    logoUrl?: string | null;
     industry?: string;
     location?: string;
     linkedinUrl?: string;
     benefits?: string[];
+    tier?: "TIER_1" | "TIER_2" | "TIER_3";
   };
 }
 
@@ -443,6 +449,7 @@ export interface CreateRecruiterJobInput {
   requiredDegree?: string;
   requiredBranch?: string;
   allowedBranches?: string[];
+  requiredSkills?: string[];
   graduationYear?: number;
   minExperience?: number;
   maxExperience?: number;
@@ -466,6 +473,13 @@ export interface CreateRecruiterInterviewInput {
   interviewerName?: string;
   interviewerEmail?: string;
   interviewerPanel?: string[];
+}
+
+export interface UpdateRecruiterInterviewInput {
+  scheduledDate?: string;
+  startTime?: string;
+  endTime?: string;
+  durationMinutes?: number;
 }
 
 // ---------- Recruiter endpoints ----------
@@ -504,6 +518,10 @@ export async function createMyJob(
   return toRecruiterJob(response.data.data);
 }
 
+export async function deleteMyJob(jobId: string): Promise<void> {
+  await api.delete(`/api/recruiter/jobs/${jobId}`);
+}
+
 export async function getMyInterviews(): Promise<RecruiterInterview[]> {
   const response = await api.get<Envelope<RecruiterInterviewRaw[]>>(
     "/api/recruiter/interviews",
@@ -516,6 +534,17 @@ export async function createMyInterview(
 ): Promise<RecruiterInterview> {
   const response = await api.post<Envelope<RecruiterInterviewRaw>>(
     "/api/recruiter/interviews",
+    input,
+  );
+  return toRecruiterInterview(response.data.data);
+}
+
+export async function updateMyInterview(
+  interviewId: string,
+  input: UpdateRecruiterInterviewInput,
+): Promise<RecruiterInterview> {
+  const response = await api.patch<Envelope<RecruiterInterviewRaw>>(
+    `/api/recruiter/interviews/${interviewId}`,
     input,
   );
   return toRecruiterInterview(response.data.data);

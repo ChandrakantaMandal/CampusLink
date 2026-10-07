@@ -17,7 +17,7 @@ import {
   type RecruiterOffer,
   type RecruiterCandidate,
   type RecruiterJob,
-} from "../mock-recruiter-data";
+} from "../recruiter.types";
 import {
   getMyOffers,
   createMyOffer,
@@ -270,7 +270,9 @@ export default function RecruiterOffersView() {
                   {candidates.length === 0 && (
                     <option value="">No shortlisted candidates</option>
                   )}
-                  {candidates.map((c) => (
+                  {candidates
+                    .filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i)
+                    .map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.branch} - {c.cgpa} CGPA)
                     </option>

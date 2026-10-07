@@ -7,7 +7,7 @@ import type {
   PlacementDrive,
   InterviewScheduleItem,
   SystemNotification,
-} from "@/components/dashboard/admin/mock-admin-data";
+} from "@/components/dashboard/admin/admin.types";
 
 interface Envelope<T> {
   success: boolean;
@@ -424,6 +424,7 @@ function toAdminRecruiter(raw: RecruiterRaw): AdminRecruiter {
 function toPlacementDriveView(raw: DriveRaw): PlacementDrive {
   return {
     id: raw.id,
+    companyId: raw.companyId,
     company: raw.company?.name ?? "",
     logo: raw.company?.logoUrl ?? "",
     role: raw.role,
@@ -493,6 +494,10 @@ function toInterviewScheduleItem(raw: InterviewRaw): InterviewScheduleItem {
     venue: raw.venue || raw.meetingLink || MODE_TO_VENUE[raw.mode] || "",
     round: raw.roundName ?? "",
     status: INTERVIEW_STATUS_TO_VIEW[raw.status] ?? "Scheduled",
+    venueRaw: raw.venue ?? "",
+    meetingLink: raw.meetingLink ?? "",
+    mode: (raw.mode as InterviewScheduleItem["mode"]) ?? "",
+    durationMinutes: raw.durationMinutes,
     hasConflict: raw.hasConflict,
     conflictDetails: conflict,
   };
@@ -535,8 +540,19 @@ export async function getAdminOffers(): Promise<OfferItem[]> {
   return response.data.data.map(toOfferItem);
 }
 
-export async function getAdminJobs(): Promise<{ id: string; title: string; companyId: string }[]> {
-  const response = await api.get<Envelope<{ id: string; title: string; companyId: string }[]>>("/api/admin/jobs");
+export interface AdminJobOption {
+  id: string;
+  title: string;
+  companyId: string;
+  ctc?: string | null;
+  minCGPA?: number | null;
+  maxBacklogs?: number | null;
+  openPositions?: number;
+  skills?: { skill?: { name?: string | null } | null }[];
+}
+
+export async function getAdminJobs(): Promise<AdminJobOption[]> {
+  const response = await api.get<Envelope<AdminJobOption[]>>("/api/admin/jobs");
   return response.data.data;
 }
 
@@ -590,6 +606,20 @@ export async function updatePlacementDrive(
 
 export async function deletePlacementDrive(id: string): Promise<void> {
   await api.delete(`/api/admin/drives/${id}`);
+}
+
+export async function verifyAdminStudent(
+  id: string,
+  verified: boolean,
+): Promise<void> {
+  await api.patch(`/api/admin/students/${id}/verify`, { verified });
+}
+
+export async function verifyAdminRecruiter(
+  id: string,
+  status: "VERIFIED" | "REJECTED",
+): Promise<void> {
+  await api.patch(`/api/admin/recruiters/${id}/verify`, { status });
 }
 
 export interface UpdateInterviewSchedulePayload {

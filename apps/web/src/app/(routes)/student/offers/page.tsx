@@ -45,7 +45,7 @@ export default function StudentOffers() {
       {/* Main Offers Component */}
       <div className="min-w-0">
         {items ? (
-          <OfferTrackingCard offers={items} />
+          <OfferTrackingCard offers={items} onAccepted={offers.refresh} />
         ) : offers.error ? (
           <AggregateError message={offers.error} onRetry={offers.refresh} />
         ) : (

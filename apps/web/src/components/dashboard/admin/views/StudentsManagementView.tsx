@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import {
   Search,
   Filter,
@@ -17,8 +19,8 @@ import {
   ExternalLink,
   ChevronDown,
 } from "lucide-react";
-import type { AdminStudent } from "../mock-admin-data";
-import { getAdminStudents } from "@/lib/api/admin.api";
+import type { AdminStudent } from "../admin.types";
+import { getAdminStudents, verifyAdminStudent } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function StudentsManagementView() {
@@ -29,6 +31,8 @@ export default function StudentsManagementView() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     let cancelled = false;
@@ -75,14 +79,24 @@ export default function StudentsManagementView() {
     return matchesSearch && matchesBranch && matchesStatus;
   });
 
-  const handleVerifyStudent = (id: string) => {
-    setStudents((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, verified: true, status: "Eligible" } : s))
-    );
-    if (selectedStudent && selectedStudent.id === id) {
-      setSelectedStudent((prev) => prev ? { ...prev, verified: true, status: "Eligible" } : null);
+  const handleVerifyStudent = async (id: string) => {
+    if (verifyingId) return;
+    setVerifyingId(id);
+    try {
+      await verifyAdminStudent(id, true);
+      const data = await getAdminStudents();
+      setStudents(data);
+      setSelectedStudent((prev) =>
+        prev ? (data.find((s) => s.id === prev.id) ?? prev) : null
+      );
+      toast.success("Student profile verified and approved for campus drives!");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to verify student",
+      );
+    } finally {
+      setVerifyingId(null);
     }
-    toast.success("Student profile verified and approved for campus drives!");
   };
 
   const handleToggleDisable = (id: string) => {
@@ -168,7 +182,7 @@ export default function StudentsManagementView() {
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-indigo-600/25 cursor-pointer shrink-0 self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
-          <span>+ Add Student</span>
+          <span>Add Student</span>
         </button>
       </div>
 
@@ -251,13 +265,22 @@ export default function StudentsManagementView() {
                 filteredStudents.map((student) => (
                 <tr
                   key={student.id}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                  tabIndex={0}
+                  role="link"
+                  onClick={() => router.push(`/admin/students/${student.id}` as Route)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/admin/students/${student.id}` as Route);
+                    }
+                  }}
                 >
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={student.avatar}
+                        src={student.avatar || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"}
                         alt={student.name}
                         className="h-9 w-9 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                       />
@@ -326,7 +349,7 @@ export default function StudentsManagementView() {
                   <td className="px-5 py-3.5 text-right space-x-2">
                     <button
                       type="button"
-                      onClick={() => setSelectedStudent(student)}
+                      onClick={() => router.push(`/admin/students/${student.id}` as Route)}
                       className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 text-[11px] transition-all"
                     >
                       <Eye className="h-3 w-3" />
@@ -336,9 +359,10 @@ export default function StudentsManagementView() {
                       <button
                         type="button"
                         onClick={() => handleVerifyStudent(student.id)}
-                        className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all"
+                        disabled={verifyingId === student.id}
+                        className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait"
                       >
-                        Verify
+                        {verifyingId === student.id ? "Verifying…" : "Verify"}
                       </button>
                     )}
                   </td>
@@ -365,7 +389,7 @@ export default function StudentsManagementView() {
             <div className="flex items-start gap-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={selectedStudent.avatar}
+                src={selectedStudent.avatar || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"}
                 alt={selectedStudent.name}
                 className="h-16 w-16 rounded-2xl object-cover border-2 border-indigo-500 shadow-md"
               />
@@ -480,9 +504,10 @@ export default function StudentsManagementView() {
                   <button
                     type="button"
                     onClick={() => handleVerifyStudent(selectedStudent.id)}
-                    className="cursor-pointer rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 text-xs transition-all shadow-xs"
+                    disabled={verifyingId === selectedStudent.id}
+                    className="cursor-pointer rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 text-xs transition-all shadow-xs disabled:opacity-60 disabled:cursor-wait"
                   >
-                    Verify &amp; Approve Profile
+                    {verifyingId === selectedStudent.id ? "Verifying…" : "Verify & Approve Profile"}
                   </button>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
@@ -500,13 +525,23 @@ export default function StudentsManagementView() {
                 </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setSelectedStudent(null)}
-                className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold px-4 py-2 text-xs transition-all"
-              >
-                Close
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/admin/students/${selectedStudent.id}` as Route)}
+                  className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 text-xs transition-all shadow-xs"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  Full Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStudent(null)}
+                  className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold px-4 py-2 text-xs transition-all"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
