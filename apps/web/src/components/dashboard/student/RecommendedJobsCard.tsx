@@ -1,14 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { Briefcase, Sparkles, CheckCircle2, ArrowRight, MapPin, DollarSign, Calendar, Info, Loader2 } from "lucide-react";
+import {
+  Briefcase,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
+  MapPin,
+  DollarSign,
+  Calendar,
+  Info,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { RecommendedJob } from "@/data/dashboardData";
 import { applyToJob } from "@/lib/api/student.api";
 
 interface RecommendedJobsCardProps {
   jobs: RecommendedJob[];
-  onApplyJob?: (jobId: string) => void;
+  onApplyJob?: (jobId: string, matchPercentage: number | null) => void;
   columns?: 1 | 2 | 3;
 }
 
@@ -23,30 +33,49 @@ export default function RecommendedJobsCard({
   const handleApply = async (job: RecommendedJob) => {
     if (pendingJobs[job.id] || appliedJobs[job.id] || job.hasApplied) return;
 
-    setPendingJobs((prev) => ({ ...prev, [job.id]: true }));
+    setPendingJobs((prev) => ({
+      ...prev,
+      [job.id]: true,
+    }));
+
     try {
       await applyToJob({ jobId: job.id });
-      setAppliedJobs((prev) => ({ ...prev, [job.id]: true }));
+
+      setAppliedJobs((prev) => ({
+        ...prev,
+        [job.id]: true,
+      }));
+
       toast.success(`Application submitted to ${job.company}!`, {
         description: `Applied for ${job.title} (${job.ctc}). Confirmation sent to your student email.`,
       });
-      onApplyJob?.(job.id);
+
+      onApplyJob?.(job.id, job.matchPercentage);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Something went wrong";
+
       if (message.toLowerCase().includes("already applied")) {
-        setAppliedJobs((prev) => ({ ...prev, [job.id]: true }));
+        setAppliedJobs((prev) => ({
+          ...prev,
+          [job.id]: true,
+        }));
+
         toast.info(
           `You have already applied for ${job.title} at ${job.company}.`,
         );
-        onApplyJob?.(job.id);
+
+        onApplyJob?.(job.id, job.matchPercentage);
       } else {
         toast.error("Could not submit application", {
           description: message,
         });
       }
     } finally {
-      setPendingJobs((prev) => ({ ...prev, [job.id]: false }));
+      setPendingJobs((prev) => ({
+        ...prev,
+        [job.id]: false,
+      }));
     }
   };
 
@@ -68,12 +97,15 @@ export default function RecommendedJobsCard({
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20">
             <Briefcase className="h-5 w-5" />
           </div>
+
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               AI-Recommended Opportunities
             </h2>
+
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Matched against your verified coursework, project stack, and placement criteria
+              Matched against your verified coursework, project stack, and
+              placement criteria
             </p>
           </div>
         </div>
@@ -83,114 +115,164 @@ export default function RecommendedJobsCard({
         </span>
       </div>
 
-      {/* Jobs Grid */}
-      <div className={gridClass}>
-        {jobs.map((job) => {
-          const isApplied = appliedJobs[job.id] ?? job.hasApplied;
-          const isPending = pendingJobs[job.id] ?? false;
-          return (
-            <div
-              key={job.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-800/40 hover:border-indigo-300 dark:hover:border-indigo-700/60 transition-all shadow-xs overflow-hidden min-w-0"
-            >
-              <div className="space-y-3.5 min-w-0">
-                {/* Top Row: Company & Match Badge */}
-                <div className="flex items-start justify-between gap-2.5 min-w-0">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight break-words">
-                      {job.title}
-                    </h3>
-                    <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 truncate mt-0.5">
-                      {job.company}
+      {/* Empty State */}
+      {jobs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 py-12 text-center">
+          <Briefcase className="h-10 w-10 text-slate-400" />
+
+          <h3 className="mt-3 text-sm font-bold text-slate-800 dark:text-slate-200">
+            No recommended jobs found
+          </h3>
+
+          <p className="mt-1 max-w-md text-xs text-slate-500 dark:text-slate-400">
+            We&apos;ll show personalized opportunities here when suitable jobs
+            are available.
+          </p>
+        </div>
+      ) : (
+        /* Jobs Grid */
+        <div className={gridClass}>
+          {jobs.map((job) => {
+            const isApplied = appliedJobs[job.id] ?? job.hasApplied ?? false;
+
+            const isPending = pendingJobs[job.id] ?? false;
+
+            return (
+              <div
+                key={job.id}
+                className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-slate-50/50 p-5 dark:border-slate-800 dark:bg-slate-800/40 hover:border-indigo-300 dark:hover:border-indigo-700/60 transition-all shadow-xs overflow-hidden min-w-0"
+              >
+                <div className="space-y-3.5 min-w-0">
+                  {/* Top Row */}
+                  <div className="flex items-start justify-between gap-2.5 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight break-words">
+                        {job.title}
+                      </h3>
+
+                      <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 truncate mt-0.5">
+                        {job.company}
+                      </div>
+                    </div>
+
+                    {/* AI Match Badge */}
+                    {job.matchPercentage !== null && (
+                      <div className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 px-2.5 py-1 text-xs font-black text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0 whitespace-nowrap">
+                        <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+
+                        <span>{job.matchPercentage}% Match</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Compensation & Location */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 min-w-0">
+                    <div className="flex items-center gap-1 font-bold text-slate-800 dark:text-slate-200 shrink-0">
+                      <DollarSign className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+
+                      <span>{job.ctc}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1 min-w-0">
+                      <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+
+                      <span className="truncate">{job.location}</span>
                     </div>
                   </div>
 
-                  {/* AI Match Badge */}
-                  <div className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 px-2.5 py-1 text-xs font-black text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0 whitespace-nowrap">
-                    <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>{job.matchPercentage}% Match</span>
-                  </div>
-                </div>
-
-                {/* Compensation & Location */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 min-w-0">
-                  <div className="flex items-center gap-1 font-bold text-slate-800 dark:text-slate-200 shrink-0">
-                    <DollarSign className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                    <span>{job.ctc}</span>
-                  </div>
-                  <div className="flex items-center gap-1 min-w-0">
-                    <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                    <span className="truncate">{job.location}</span>
-                  </div>
-                </div>
-
-                {/* Skills Chips */}
-                <div className="flex flex-wrap gap-1.5 pt-1 min-w-0">
-                  {job.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-md bg-white dark:bg-slate-700/80 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 truncate max-w-full"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Eligibility Status */}
-                <div className="flex items-start gap-1.5 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200/60 dark:border-emerald-900/60 min-w-0 overflow-hidden">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
-                  <span className="text-[11px] font-semibold leading-snug break-words">{job.eligibility.criteria}</span>
-                </div>
-
-                {/* Why You Match Note */}
-                <div className="text-[11px] text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 leading-relaxed min-w-0 overflow-hidden break-words">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block mb-0.5">
-                    Why this match:
-                  </span>
-                  <p className="break-words">{job.whyMatch}</p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5 min-w-0">
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0">
-                  <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span>Drive: {job.driveDate}</span>
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => handleApply(job)}
-                  disabled={isApplied || isPending}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 ${isApplied
-                    ? "bg-emerald-600 text-white cursor-default"
-                    : isPending
-                      ? "bg-indigo-400 text-white cursor-wait"
-                      : "bg-[#6366F1] text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 active:scale-98"
-                    }`}
-                >
-                  {isApplied ? (
-                    <>
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span>Applied</span>
-                    </>
-                  ) : isPending ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      <span>Applying...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Apply Now</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </>
+                  {/* Skills */}
+                  {job.skills?.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1 min-w-0">
+                      {job.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="rounded-md bg-white dark:bg-slate-700/80 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 truncate max-w-full"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   )}
-                </button>
+
+                  {/* Eligibility */}
+                  <div
+                    className={`flex items-start gap-1.5 text-xs p-2.5 rounded-xl border min-w-0 overflow-hidden ${
+                      job.eligibility?.isEligible
+                        ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-900/60"
+                        : "text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-900/60"
+                    }`}
+                  >
+                    {job.eligibility?.isEligible ? (
+                      <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                    ) : (
+                      <span className="mt-0.5 h-4 w-4 shrink-0 text-center font-bold">
+                        !
+                      </span>
+                    )}
+
+                    <span className="text-[11px] font-semibold leading-snug break-words">
+                      {job.eligibility?.criteria}
+                    </span>
+                  </div>
+
+                  {/* Why Match */}
+                  {job.whyMatch && (
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 leading-relaxed min-w-0 overflow-hidden break-words">
+                      <span className="font-bold text-slate-800 dark:text-slate-200 block mb-0.5">
+                        Why this match:
+                      </span>
+
+                      <p className="break-words">{job.whyMatch}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="pt-4 mt-4 border-t border-slate-200/70 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5 min-w-0">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0">
+                    <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+
+                    <span>Drive: {job.driveDate}</span>
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => handleApply(job)}
+                    disabled={isApplied || isPending}
+                    className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
+                      isApplied
+                        ? "bg-emerald-600 text-white cursor-default"
+                        : isPending
+                          ? "bg-indigo-400 text-white cursor-wait"
+                          : "bg-[#6366F1] text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 active:scale-[0.98] cursor-pointer"
+                    }`}
+                  >
+                    {isApplied ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+
+                        <span>Applied</span>
+                      </>
+                    ) : isPending ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+
+                        <span>Applying...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Apply Now</span>
+
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

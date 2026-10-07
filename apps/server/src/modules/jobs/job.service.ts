@@ -36,7 +36,10 @@ function companyJobsCacheKey(companyId: string) {
 
 const JOBS_CACHE_KEY = "jobs:all";
 
-async function invalidateJobCaches(jobId?: string, companyId?: string) {
+async function invalidateJobCaches(
+  jobId?: string,
+  companyId?: string,
+) {
   const keys = [JOBS_CACHE_KEY];
 
   if (jobId) {
@@ -53,7 +56,22 @@ async function invalidateJobCaches(jobId?: string, companyId?: string) {
   await redis.del(...keys);
 }
 
-export async function createJob(userId: string, data: CreateJobInput) {
+/* =========================
+   JOB TYPE
+========================= */
+
+type JobWithDetails = Awaited<
+  ReturnType<typeof db.job.findMany>
+>[number];
+
+/* =========================
+   CREATE JOB
+========================= */
+
+export async function createJob(
+  userId: string,
+  data: CreateJobInput,
+) {
   const recruiter = await db.recruiterProfile.findUnique({
     where: {
       userId,
@@ -65,7 +83,9 @@ export async function createJob(userId: string, data: CreateJobInput) {
   }
 
   if (recruiter.companyId !== data.companyId) {
-    throw new Error("You are not authorized to create a job for this company");
+    throw new Error(
+      "You are not authorized to create a job for this company",
+    );
   }
 
   const job = await db.job.create({
@@ -86,13 +106,22 @@ export async function createJob(userId: string, data: CreateJobInput) {
     },
   });
 
-  await invalidateJobCaches(undefined, data.companyId);
+  await invalidateJobCaches(
+    undefined,
+    data.companyId,
+  );
 
   return job;
 }
 
-export async function getJobs() {
-  const cached = await getCache(JOBS_CACHE_KEY);
+/* =========================
+   GET ALL JOBS
+========================= */
+
+export async function getJobs(): Promise<JobWithDetails[]> {
+  const cached = await getCache<JobWithDetails[]>(
+    JOBS_CACHE_KEY,
+  );
 
   if (cached) {
     return cached;
@@ -117,8 +146,13 @@ export async function getJobs() {
   return jobs;
 }
 
+/* =========================
+   GET JOB BY ID
+========================= */
+
 export async function getJobById(id: string) {
   const cacheKey = jobCacheKey(id);
+
   const cached = await getCache(cacheKey);
 
   if (cached) {
@@ -146,6 +180,10 @@ export async function getJobById(id: string) {
   return job;
 }
 
+/* =========================
+   UPDATE JOB
+========================= */
+
 export async function updateJob(
   userId: string,
   jobId: string,
@@ -172,7 +210,9 @@ export async function updateJob(
   }
 
   if (job.companyId !== recruiter.companyId) {
-    throw new Error("You are not authorized to update this job");
+    throw new Error(
+      "You are not authorized to update this job",
+    );
   }
 
   const updatedJob = await db.job.update({
@@ -193,12 +233,22 @@ export async function updateJob(
     },
   });
 
-  await invalidateJobCaches(jobId, job.companyId);
+  await invalidateJobCaches(
+    jobId,
+    job.companyId,
+  );
 
   return updatedJob;
 }
 
-export async function deleteJob(userId: string, jobId: string) {
+/* =========================
+   DELETE JOB
+========================= */
+
+export async function deleteJob(
+  userId: string,
+  jobId: string,
+) {
   const recruiter = await db.recruiterProfile.findUnique({
     where: {
       userId,
@@ -220,7 +270,9 @@ export async function deleteJob(userId: string, jobId: string) {
   }
 
   if (job.companyId !== recruiter.companyId) {
-    throw new Error("You are not authorized to delete this job");
+    throw new Error(
+      "You are not authorized to delete this job",
+    );
   }
 
   await db.job.delete({
@@ -229,5 +281,8 @@ export async function deleteJob(userId: string, jobId: string) {
     },
   });
 
-  await invalidateJobCaches(jobId, job.companyId);
+  await invalidateJobCaches(
+    jobId,
+    job.companyId,
+  );
 }

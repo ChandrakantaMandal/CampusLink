@@ -16,13 +16,13 @@ import {
   markMyStudentNotificationRead,
   markMyStudentNotificationsReadAll,
   updateMyStudentProfile,
+  getMyReadiness,
 } from "./student.controller";
 
 const router = Router();
 
 
 
-// Get currently logged-in student's profile
 router.get("/me", requireAuth, requireRole("STUDENT"), getMyStudentProfile);
 
 // Update currently logged-in student's profile
@@ -51,7 +51,18 @@ router.get("/me/notifications", requireAuth, requireRole("STUDENT"), getMyStuden
 router.patch("/me/notifications/read-all", requireAuth, requireRole("STUDENT"), markMyStudentNotificationsReadAll);
 router.patch("/me/notifications/:id/read", requireAuth, requireRole("STUDENT"), markMyStudentNotificationRead);
 
-// Get a student by ID
-router.get("/:id", requireAuth,requireRole("RECRUITER", "ADMIN"), getStudent);
+router.get(
+  "/readiness",
+  requireAuth,
+  requireRole("STUDENT"),
+  getMyReadiness,
+);
+
+router.get(
+  "/:id",
+  requireAuth,
+  requireRole("RECRUITER", "ADMIN"),
+  getStudent,
+);
 
 export default router;

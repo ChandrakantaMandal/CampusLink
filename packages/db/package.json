@@ -23,6 +23,7 @@
     "@CampusLink/config": "workspace:*",
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
+    "tsx": "^4.23.15",
     "typescript": "catalog:",
     "varlock": "catalog:"
   }
