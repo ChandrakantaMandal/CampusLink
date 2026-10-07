@@ -1,28 +1,38 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
 import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
+
 import {
   AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
+
 import {
   useStudentDashboard,
   useStudentReadiness,
 } from "@/hooks/use-student";
+
 import {
   toStudentStats,
   toReadinessCardProps,
 } from "@/lib/dashboard-adapters";
+
 import { toast } from "sonner";
+
 import {
   Sparkles,
   TrendingUp,
   CheckCircle2,
   Target,
 } from "lucide-react";
-import type { ReadinessDimension } from "@/data/dashboardData";
+
+import {
+  mockDashboardData,
+  type ReadinessDimension,
+} from "@/data/dashboardData";
 
 const SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -31,6 +41,7 @@ const SERVER_URL =
 type ReadinessResponse = {
   overallScore: number;
   readinessLabel: string;
+
   breakdown: {
     technical: number;
     assessment: number;
@@ -38,6 +49,7 @@ type ReadinessResponse = {
     academics: number;
     resume: number;
   };
+
   weights: {
     technical: number;
     assessment: number;
@@ -45,6 +57,7 @@ type ReadinessResponse = {
     academics: number;
     resume: number;
   };
+
   explanation: string;
 };
 
@@ -175,10 +188,11 @@ export default function StudentReadiness() {
       : mockDashboardData.readinessDimensions;
 
   const weakestDimension = readiness
-    ? readinessDimensions.reduce((weakest, current) =>
-        current.score < weakest.score
-          ? current
-          : weakest,
+    ? readinessDimensions.reduce(
+        (weakest, current) =>
+          current.score < weakest.score
+            ? current
+            : weakest,
       )
     : null;
 
@@ -198,7 +212,9 @@ export default function StudentReadiness() {
           </div>
 
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real-time multi-dimensional scoring calculated from your verified coursework, project credentials, and mock assessments.
+            Real-time multi-dimensional scoring calculated
+            from your verified coursework, project
+            credentials, and mock assessments.
           </p>
         </div>
 
@@ -243,6 +259,7 @@ export default function StudentReadiness() {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-3">
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
             <Target className="h-4 w-4" />
+
             <span>
               Target Tier-1 Cutoff: 85%
             </span>
@@ -257,10 +274,11 @@ export default function StudentReadiness() {
           </p>
         </div>
 
-        {/* Strongest / Coding */}
+        {/* Strongest Dimension */}
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-3">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
             <CheckCircle2 className="h-4 w-4" />
+
             <span>
               Strongest Dimension
             </span>

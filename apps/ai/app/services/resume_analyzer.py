@@ -1,21 +1,53 @@
-import pymupdf
 import json
 import re
+
+import pymupdf
 
 from app.services.gemini import generate_gemini_response
 
 
+MAX_TEXT_LENGTH = 12000
+
+
 def extract_text_from_pdf(file_path: str) -> str:
-    document = pymupdf.open(file_path)
+    """
+    Safely extract text from a PDF.
+    """
 
-    pages_text = []
+    try:
+        document = pymupdf.open(file_path)
 
-    for page in document:
-        pages_text.append(page.get_text())
+        if document.page_count == 0:
+            document.close()
+            raise ValueError("PDF has no pages.")
 
-    document.close()
+        pages_text = []
 
-    return "\n".join(pages_text)
+        for page in document:
+            page_text = page.get_text()
+
+            if page_text:
+                pages_text.append(page_text)
+
+        document.close()
+
+    except ValueError:
+        raise
+
+    except Exception as error:
+        raise ValueError(
+            "Invalid or corrupted PDF file."
+        ) from error
+
+    text = "\n".join(pages_text).strip()
+
+    if not text:
+        raise ValueError(
+            "This PDF does not contain readable text. "
+            "Please upload a text-based resume PDF."
+        )
+
+    return text
 
 
 def analyze_resume_text(text: str) -> dict:
@@ -23,8 +55,14 @@ def analyze_resume_text(text: str) -> dict:
     Analyze resume text using Gemini.
     """
 
-    if not text.strip():
+    text = text.strip()
+
+    if not text:
         raise ValueError("Resume text is empty.")
+
+    # Prevent unnecessarily huge Gemini prompts.
+    if len(text) > MAX_TEXT_LENGTH:
+        text = text[:MAX_TEXT_LENGTH]
 
     prompt = f"""
 You are an AI resume analyzer for CampusLink.
@@ -66,24 +104,30 @@ Return exactly this structure:
 }}
 """
 
-    response = generate_gemini_response(prompt)
+    try:
+        response = generate_gemini_response(prompt)
+    except Exception as error:
+        raise ValueError(
+            "AI resume analysis is temporarily unavailable. "
+            "Please try again."
+        ) from error
 
     response = response.strip()
 
-    # Remove accidental markdown code fences
+    # Remove accidental markdown code fences.
     response = re.sub(
         r"^```json\s*|\s*```$",
         "",
         response,
-        flags=re.IGNORECASE
-    )
+        flags=re.IGNORECASE,
+    ).strip()
 
     try:
         result = json.loads(response)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as error:
         raise ValueError(
-            "Gemini returned an invalid JSON response."
-        )
+            "AI returned an invalid resume analysis."
+        ) from error
 
     return {
         "text": text,
@@ -94,7 +138,7 @@ Return exactly this structure:
         "certifications": result.get("certifications", []),
         "strengths": result.get("strengths", []),
         "weaknesses": result.get("weaknesses", []),
-        "recommendations": result.get("recommendations", [])
+        "recommendations": result.get("recommendations", []),
     }
 
 

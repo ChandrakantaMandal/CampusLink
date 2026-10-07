@@ -6,10 +6,18 @@ import WelcomeBanner from "@/components/dashboard/student/WelcomeBanner";
 import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
 import SkillGapCard from "@/components/dashboard/student/SkillGapCard";
-import RecommendedJobsCard from "@/components/dashboard/student/RecommendedJobsCard";
-import { ApplicationsTracker } from "@/components/dashboard/student/ApplicationsTracker";
 import { InterviewScheduleCard } from "@/components/dashboard/student/InterviewScheduleCard";
-import { OfferTrackingCard } from "@/components/dashboard/student/OfferTrackingCard";
+
+import {
+  AggregateLoading,
+  AggregateError,
+} from "@/components/dashboard/student/aggregate-feedback";
+
+import { mockDashboardData } from "@/data/dashboardData";
+import type { ReadinessDimension } from "@/data/dashboardData";
+
+import { useStudentSkills } from "@/hooks/use-student";
+import { toSkillGaps } from "@/lib/dashboard-adapters";
 
 import { toast } from "sonner";
 
@@ -57,6 +65,14 @@ function getStatus(
 export default function StudentDashboard() {
   const studentName = "Student";
 
+  // Student skills
+  const skills = useStudentSkills();
+
+  const skillGaps = skills.data
+    ? toSkillGaps(skills.data)
+    : null;
+
+  // Readiness
   const [readiness, setReadiness] =
     useState<ReadinessResponse | null>(null);
 
@@ -162,7 +178,8 @@ export default function StudentDashboard() {
       : mockDashboardData.readinessDimensions;
 
   return (
-    <>
+    <div className="space-y-6">
+      {/* Welcome Banner */}
       <WelcomeBanner
         studentName={studentName}
         readinessScore={readinessScore}
@@ -183,9 +200,12 @@ export default function StudentDashboard() {
         }
       />
 
+      {/* Key Statistics */}
       <KeyStatistics stats={dashboardStats} />
 
+      {/* Readiness + Skill Gap */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* AI Readiness */}
         <div className="lg:col-span-7 min-w-0 flex flex-col">
           <AIReadinessCard
             score={readinessScore}
@@ -202,30 +222,35 @@ export default function StudentDashboard() {
           />
         </div>
 
+        {/* Skill Gap */}
         <div className="lg:col-span-5 min-w-0 flex flex-col">
           {skillGaps ? (
             <SkillGapCard
               skills={skillGaps}
               variant="compact"
               onPracticeSkill={(skill) =>
-                toast.info(`Opening practice module for ${skill}`)
+                toast.info(
+                  `Opening practice module for ${skill}`,
+                )
               }
             />
           ) : skills.error ? (
-            <AggregateError message={skills.error} onRetry={skills.refresh} />
+            <AggregateError
+              message={skills.error}
+              onRetry={skills.refresh}
+            />
           ) : (
-            <AggregateLoading />
+            <AggregateLoading
+              label="Loading your skill gaps..."
+            />
           )}
         </div>
       </div>
 
-      <div className="min-w-0">
-       
-      </div>
-
+      {/* Interview Schedule */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-6 min-w-0 flex flex-col">
-         
+          {/* Reserved for future dashboard section */}
         </div>
 
         <div className="lg:col-span-6 min-w-0 flex flex-col">
@@ -234,22 +259,6 @@ export default function StudentDashboard() {
           />
         </div>
       </div>
-
-      <div className="min-w-0">
-
-      </div>
-
-      <footer className="pt-8 pb-4 text-center text-xs text-slate-500 border-t border-slate-200/50 dark:border-slate-800/50">
-        <p>
-          CAMPUSLINK AI Placement Intelligence
-          Platform &bull; All data securely
-          synchronized with University TPO.
-        </p>
-      </footer>
-    </>
+    </div>
   );
 }
-
-export {
-  StudentDashboard as StudentDashboardView,
-};

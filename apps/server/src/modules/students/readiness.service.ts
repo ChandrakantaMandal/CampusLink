@@ -1,6 +1,6 @@
 type StudentData = {
   cgpa: number | null;
-
+  resumeText: string | null;
   skills: Array<{
     level: string | null;
     years: number | null;
@@ -183,23 +183,11 @@ function calculateAcademicScore(
 function calculateResumeScore(
   student: StudentData,
 ): number {
-  if (student.resumes.length === 0) {
+  const text = student.resumeText?.trim() ?? "";
+
+  if (!text) {
     return 0;
   }
-
-  const primaryResume =
-    student.resumes[0];
-
-  if (!primaryResume) {
-    return 0;
-  }
-
-  if (!primaryResume.parsedText?.trim()) {
-    return 20;
-  }
-
-  const text =
-    primaryResume.parsedText.trim();
 
   let score = 40;
 
@@ -224,16 +212,14 @@ function calculateResumeScore(
     "sql",
   ];
 
-  const lowerText =
-    text.toLowerCase();
+  const lowerText = text.toLowerCase();
 
   const matchedKeywords =
     keywords.filter((keyword) =>
       lowerText.includes(keyword),
     );
 
-  score +=
-    matchedKeywords.length * 2;
+  score += matchedKeywords.length * 2;
 
   return clamp(score);
 }
