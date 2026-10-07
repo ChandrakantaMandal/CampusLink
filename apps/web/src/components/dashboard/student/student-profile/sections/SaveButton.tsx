@@ -19,8 +19,8 @@ export default function SaveButton({
   isAuthenticated = false,
 }: SaveButtonProps) {
   return (
-    <div className="sticky bottom-6 z-30 mt-8 flex flex-col sm:flex-row items-center justify-between rounded-2xl border border-slate-200 bg-white/95 dark:border-slate-800 dark:bg-slate-900/95 p-4 shadow-xl backdrop-blur-md transition-all gap-3 sm:gap-4 sm:px-6">
-      <div className="flex flex-wrap items-center gap-2.5">
+    <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all dark:border-slate-800 dark:bg-slate-900 sm:gap-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-center gap-2.5">
         <span
           className={`h-2.5 w-2.5 rounded-full transition-colors ${
             !isAuthenticated
@@ -45,7 +45,7 @@ export default function SaveButton({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+      <div className="flex items-center justify-center gap-3">
         {hasChanges && (
           <button
             type="button"

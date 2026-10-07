@@ -43,7 +43,7 @@ function splitName(name: string) {
   };
 }
 
-async function invalidateStudentCaches(
+export async function invalidateStudentCaches(
   userId?: string,
   studentId?: string,
 ) {
@@ -66,6 +66,7 @@ async function invalidateStudentCaches(
     await redis.del(...keys);
   }
 }
+
 export async function getStudentByUserId(userId: string) {
   const cacheKey = studentUserCacheKey(userId);
 
@@ -233,10 +234,7 @@ export async function getStudentById(id: string) {
   return student;
 }
 
-export async function updateStudent(
-  userId: string,
-  data: UpdateStudentInput,
-) {
+export async function updateStudent(userId: string, data: UpdateStudentInput) {
   const existingStudent = await db.studentProfile.findUnique({
     where: {
       userId,
@@ -321,10 +319,7 @@ export async function updateStudent(
     },
   });
 
-  await invalidateStudentCaches(
-    userId,
-    existingStudent.id,
-  );
+  await invalidateStudentCaches(userId, existingStudent.id);
 
   return student;
 }
@@ -333,6 +328,10 @@ const VOLATILE_TTL = 60;
 
 function aggregateCacheKey(userId: string, domain: string) {
   return `student:${domain}:${userId}`;
+}
+
+export function invalidateStudentNotificationsCache(userId: string) {
+  return redis.del(aggregateCacheKey(userId, "notifications"));
 }
 
 async function withAggregateCache<T>(
@@ -411,6 +410,7 @@ type ResolvedStudent = {
     role: string;
   } | null;
 };
+
 async function resolveStudentForAggregates(
   userId: string,
 ): Promise<ResolvedStudent | null> {
@@ -561,7 +561,9 @@ export async function getStudentDashboard(userId: string) {
               select: {
                 id: true,
                 title: true,
-                company: { select: companyTinySelect },
+                company: {
+                  select: companyTinySelect,
+                },
               },
             },
 
@@ -617,9 +619,7 @@ export async function getStudentDashboard(userId: string) {
       ]);
 
       const readinessScore =
-        latestReadiness?.overallScore ??
-        student.readinessScore ??
-        0;
+        latestReadiness?.overallScore ?? student.readinessScore ?? 0;
 
       return {
         student: {
@@ -675,11 +675,7 @@ export async function getStudentReadiness(userId: string) {
         resumes: student.resumes,
       });
 
-      const [
-        latest,
-        history,
-        recentAssessments,
-      ] = await Promise.all([
+      const [latest, history, recentAssessments] = await Promise.all([
         db.readinessResult.findFirst({
           where: {
             studentId: student.id,
@@ -754,10 +750,7 @@ export async function getStudentDrives(userId: string) {
         return null;
       }
 
-      const [
-        registrations,
-        openDrives,
-      ] = await Promise.all([
+      const [registrations, openDrives] = await Promise.all([
         db.driveRegistration.findMany({
           where: {
             studentId: student.id,
@@ -802,33 +795,23 @@ export async function getStudentDrives(userId: string) {
       ]);
 
       const registeredDriveIds = new Set(
-        registrations.map(
-          (registration) => registration.driveId,
-        ),
+        registrations.map((registration) => registration.driveId),
       );
 
       return {
-        registered: registrations.map(
-          (registration) => ({
-            ...registration,
-            eligible: isEligibleForDrive(
-              student,
-              registration.drive,
-            ),
-          }),
-        ),
+        registered: registrations.map((registration) => ({
+          ...registration,
+
+          eligible: isEligibleForDrive(student, registration.drive),
+        })),
 
         available: openDrives
-          .filter(
-            (drive) => !registeredDriveIds.has(drive.id),
-          )
+          .filter((drive) => !registeredDriveIds.has(drive.id))
           .map((drive) => ({
             ...drive,
             isRegistered: false,
-            eligible: isEligibleForDrive(
-              student,
-              drive,
-            ),
+
+            eligible: isEligibleForDrive(student, drive),
           })),
       };
     },
@@ -862,7 +845,9 @@ export async function getStudentInterviews(userId: string) {
             select: {
               id: true,
               title: true,
-              company: { select: companyTinySelect },
+              company: {
+                select: companyTinySelect,
+              },
             },
           },
 
@@ -888,14 +873,8 @@ export async function getStudentInterviews(userId: string) {
       );
 
       const past = interviews
-        .filter(
-          (interview) => !upcoming.includes(interview),
-        )
-        .sort(
-          (a, b) =>
-            b.scheduledDate.getTime() -
-            a.scheduledDate.getTime(),
-        );
+        .filter((interview) => !upcoming.includes(interview))
+        .sort((a, b) => b.scheduledDate.getTime() - a.scheduledDate.getTime());
 
       return {
         upcoming,
@@ -947,14 +926,12 @@ export async function getStudentOffers(userId: string) {
         stats: {
           total: offers.length,
 
-          accepted: offers.filter(
-            (offer) => offer.status === "ACCEPTED",
-          ).length,
+          accepted: offers.filter((offer) => offer.status === "ACCEPTED")
+            .length,
 
           pending: offers.filter(
             (offer) =>
-              offer.status === "SENT" ||
-              offer.status === "PENDING_ACCEPTANCE",
+              offer.status === "SENT" || offer.status === "PENDING_ACCEPTANCE",
           ).length,
         },
       };
@@ -962,13 +939,15 @@ export async function getStudentOffers(userId: string) {
   );
 }
 
-type OfferRecord = NonNullable<
-  Awaited<ReturnType<typeof db.offer.findUnique>>
->;
+type OfferRecord = NonNullable<Awaited<ReturnType<typeof db.offer.findUnique>>>;
 
 export type AcceptOfferResult =
   | { ok: true; offer: OfferRecord }
-  | { ok: false; status: 404 | 409; message: string };
+  | {
+      ok: false;
+      status: 404 | 409;
+      message: string;
+    };
 
 export async function acceptStudentOffer(
   userId: string,
@@ -977,17 +956,32 @@ export async function acceptStudentOffer(
   const student = await resolveStudentForAggregates(userId);
 
   if (!student) {
-    return { ok: false, status: 404, message: "Student profile not found" };
+    return {
+      ok: false,
+      status: 404,
+      message: "Student profile not found",
+    };
   }
 
-  const offer = await db.offer.findUnique({ where: { id: offerId } });
+  const offer = await db.offer.findUnique({
+    where: {
+      id: offerId,
+    },
+  });
 
   if (!offer || offer.studentId !== student.id) {
-    return { ok: false, status: 404, message: "Offer not found" };
+    return {
+      ok: false,
+      status: 404,
+      message: "Offer not found",
+    };
   }
 
   if (offer.status === "ACCEPTED") {
-    return { ok: true, offer };
+    return {
+      ok: true,
+      offer,
+    };
   }
 
   if (offer.status !== "SENT" && offer.status !== "PENDING_ACCEPTANCE") {
@@ -999,17 +993,34 @@ export async function acceptStudentOffer(
   }
 
   const updated = await db.offer.update({
-    where: { id: offer.id },
-    data: { status: "ACCEPTED" },
+    where: {
+      id: offer.id,
+    },
+
+    data: {
+      status: "ACCEPTED",
+    },
+
     include: {
-      company: { select: companyCompactSelect },
-      job: { select: { id: true, title: true } },
+      company: {
+        select: companyCompactSelect,
+      },
+
+      job: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
     },
   });
 
   await redis.del(aggregateCacheKey(userId, "offers"));
 
-  return { ok: true, offer: updated };
+  return {
+    ok: true,
+    offer: updated,
+  };
 }
 
 export async function getStudentNotifications(userId: string) {
@@ -1023,11 +1034,7 @@ export async function getStudentNotifications(userId: string) {
         return null;
       }
 
-      const [
-        notifications,
-        unreadCount,
-        total,
-      ] = await Promise.all([
+      const [notifications, unreadCount, total] = await Promise.all([
         db.userNotification.findMany({
           where: {
             userId,
@@ -1039,10 +1046,19 @@ export async function getStudentNotifications(userId: string) {
 
           take: 50,
         }),
+
         db.userNotification.count({
-          where: { userId, isRead: false },
+          where: {
+            userId,
+            isRead: false,
+          },
         }),
-        db.userNotification.count({ where: { userId } }),
+
+        db.userNotification.count({
+          where: {
+            userId,
+          },
+        }),
       ]);
 
       return {
@@ -1054,12 +1070,11 @@ export async function getStudentNotifications(userId: string) {
   );
 }
 
-export async function markStudentNotificationRead(
-  userId: string,
-  id: string,
-) {
+export async function markStudentNotificationRead(userId: string, id: string) {
   const notification = await db.userNotification.findUnique({
-    where: { id },
+    where: {
+      id,
+    },
   });
 
   if (!notification || notification.userId !== userId) {
@@ -1071,8 +1086,14 @@ export async function markStudentNotificationRead(
   }
 
   const updated = await db.userNotification.update({
-    where: { id },
-    data: { isRead: true, readAt: new Date() },
+    where: {
+      id,
+    },
+
+    data: {
+      isRead: true,
+      readAt: new Date(),
+    },
   });
 
   await redis.del(aggregateCacheKey(userId, "notifications"));
@@ -1082,8 +1103,15 @@ export async function markStudentNotificationRead(
 
 export async function markAllStudentNotificationsRead(userId: string) {
   const result = await db.userNotification.updateMany({
-    where: { userId, isRead: false },
-    data: { isRead: true, readAt: new Date() },
+    where: {
+      userId,
+      isRead: false,
+    },
+
+    data: {
+      isRead: true,
+      readAt: new Date(),
+    },
   });
 
   await redis.del(aggregateCacheKey(userId, "notifications"));

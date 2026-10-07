@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Building2,
   Globe,
@@ -15,11 +15,13 @@ import {
   X,
   ExternalLink,
   Award,
+  ImagePlus,
 } from "lucide-react";
 import type { RecruiterCompany } from "../recruiter.types";
 import {
   getRecruiterProfile,
   updateRecruiterProfile,
+  uploadCompanyLogo,
   type UpdateRecruiterProfileInput,
 } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
@@ -60,6 +62,45 @@ export default function RecruiterCompanyProfileView() {
     }
     setFormData({ ...formData, benefits: [...formData.benefits, value] });
     setBenefitDraft("");
+  };
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !company || !formData) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Invalid logo file type", {
+        description: "Allowed formats: JPG, PNG or WebP.",
+      });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Logo file too large", {
+        description: "Maximum allowed size is 2MB.",
+      });
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      const logoUrl = await uploadCompanyLogo(file);
+      setCompany({ ...company, logo: logoUrl });
+      setFormData({ ...formData, logo: logoUrl });
+      toast.success("Company logo uploaded", {
+        description: "Your new logo is live. Save changes to keep other edits.",
+      });
+    } catch (error) {
+      toast.error("Failed to upload logo", {
+        description: (error as Error).message,
+      });
+    } finally {
+      setIsUploadingLogo(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -237,14 +278,43 @@ export default function RecruiterCompanyProfileView() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Logo URL</label>
-                <input
-                  type="url"
-                  value={formData.logo}
-                  onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                  placeholder="https://..."
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
-                />
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Logo</label>
+                <div className="mt-1.5 flex items-center gap-3">
+                  {formData.logo ? (
+                    <img
+                      src={formData.logo}
+                      alt="Company logo preview"
+                      className="h-12 w-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white text-sm font-black">
+                      {(formData.name
+                        .split(" ")
+                        .map((word) => word[0] ?? "")
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase() || "CO")}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={isUploadingLogo}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                    <span>{isUploadingLogo ? "Uploading..." : "Upload Logo"}</span>
+                  </button>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleLogoFileChange}
+                    className="hidden"
+                  />
+                </div>
+                <p className="mt-1.5 text-[11px] text-slate-400">JPG, PNG or WebP — max 2MB.</p>
               </div>
 
               <div>

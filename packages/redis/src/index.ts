@@ -6,8 +6,7 @@ export const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379"
   connectTimeout: 2000,
   lazyConnect: false,
   retryStrategy(times) {
-    if (times > 3) return null;
-    return Math.min(times * 200, 2000);
+    return Math.min(times * 200, 5000);
   },
 });
 

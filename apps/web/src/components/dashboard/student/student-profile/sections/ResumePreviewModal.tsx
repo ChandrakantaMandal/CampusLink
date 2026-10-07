@@ -61,7 +61,13 @@ export default function ResumePreviewModal({
             </button>
             <button
               type="button"
-              onClick={() => alert("Downloading resume...")}
+              onClick={() => {
+                if (profile.resume?.url) {
+                  window.open(profile.resume.url, "_blank", "noopener,noreferrer");
+                } else {
+                  alert("Downloading resume...");
+                }
+              }}
               className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-xs cursor-pointer"
             >
               <Download className="h-3.5 w-3.5" />
@@ -79,6 +85,14 @@ export default function ResumePreviewModal({
 
         {/* Modal Document Viewer Canvas */}
         <div className="flex-1 overflow-y-auto bg-slate-100 dark:bg-slate-950 p-4 sm:p-8">
+          {profile.resume?.url ? (
+            /* Actual uploaded PDF */
+            <iframe
+              src={`${profile.resume.url}#toolbar=0`}
+              title={`Preview of ${profile.resume.fileName || "resume"}`}
+              className="mx-auto h-[75vh] w-full max-w-3xl rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800"
+            />
+          ) : (
           <div className="mx-auto max-w-2xl rounded-xl bg-white p-8 sm:p-12 shadow-lg border border-slate-200 text-slate-800 font-sans space-y-6 min-h-[700px]">
             {/* Resume Header */}
             <div className="border-b-2 border-slate-900 pb-5">
@@ -182,6 +196,7 @@ export default function ResumePreviewModal({
               ))}
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>

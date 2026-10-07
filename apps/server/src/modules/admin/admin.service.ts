@@ -2,6 +2,7 @@ import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
 import { hashPassword } from "better-auth/crypto";
 import { randomUUID } from "crypto";
+import { invalidateStudentNotificationsCache } from "../students/student.service";
 
 import type { Prisma } from "@CampusLink/db";
 
@@ -1193,6 +1194,12 @@ export async function broadcastAdminNotification(
         message: data.message,
       })),
     });
+
+    if (data.audience !== "RECRUITERS") {
+      await Promise.all(
+        targetUsers.map((user) => invalidateStudentNotificationsCache(user.id)),
+      );
+    }
   }
 
   if (data.audience === "RECRUITERS" && targetUsers.length > 0) {
