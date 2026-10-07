@@ -22,6 +22,8 @@
     "better-auth": "catalog:",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "imagekit": "^5.2.0",
+    "multer": "^2.0.2",
     "varlock": "catalog:",
     "zod": "catalog:"
   },
@@ -29,6 +31,7 @@
     "@CampusLink/config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
     "@types/node": "catalog:",
     "tsdown": "^0.23.0",
     "tsx": "^4.23.13",

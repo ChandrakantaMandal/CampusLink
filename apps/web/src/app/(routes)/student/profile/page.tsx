@@ -145,6 +145,7 @@ export default function ProfilePage() {
     fileName: string;
     fileSize: string;
     uploadDate: string;
+    url?: string;
   }) => {
     setProfile((prev) => ({ ...prev, resume: fileData }));
     toast.success(`Resume "${fileData.fileName}" attached successfully!`);

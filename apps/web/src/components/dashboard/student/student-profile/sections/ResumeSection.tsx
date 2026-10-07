@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   FileText,
+  Loader2,
   UploadCloud,
   Eye,
   RefreshCw,
@@ -10,11 +12,17 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import type { StudentProfileData } from "@/data/studentProfile";
+import { uploadStudentResume } from "@/lib/api/student.api";
 import ResumePreviewModal from "./ResumePreviewModal";
 
 interface ResumeSectionProps {
   profile: StudentProfileData;
-  onUploadResume: (fileData: { fileName: string; fileSize: string; uploadDate: string }) => void;
+  onUploadResume: (fileData: {
+    fileName: string;
+    fileSize: string;
+    uploadDate: string;
+    url?: string;
+  }) => void;
   onDeleteResume: () => void;
 }
 
@@ -25,10 +33,27 @@ export default function ResumeSection({
 }: ResumeSectionProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (file: File) => {
-    if (!file) return;
+  const handleFile = async (file: File) => {
+    if (!file || isUploading) return;
+
+    const isPdf =
+      file.type === "application/pdf" ||
+      file.name.toLowerCase().endsWith(".pdf");
+    if (!isPdf) {
+      toast.error("Invalid file type", {
+        description: "Please upload your resume as a PDF document.",
+      });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large", {
+        description: "Maximum resume size is 5MB.",
+      });
+      return;
+    }
 
     const sizeInMb = (file.size / (1024 * 1024)).toFixed(1);
     const today = new Date().toLocaleDateString("en-US", {
@@ -37,15 +62,27 @@ export default function ResumeSection({
       year: "numeric",
     });
 
-    onUploadResume({
-      fileName: file.name,
-      fileSize: `${sizeInMb} MB`,
-      uploadDate: today,
-    });
+    setIsUploading(true);
+    try {
+      const url = await uploadStudentResume(file);
+      onUploadResume({
+        fileName: file.name,
+        fileSize: `${sizeInMb} MB`,
+        uploadDate: today,
+        url,
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload resume",
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (file) {
       handleFile(file);
     }
@@ -138,10 +175,15 @@ export default function ResumeSection({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 shadow-xs transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer"
+                  disabled={isUploading}
+                  className="flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-indigo-600 shadow-xs transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer disabled:cursor-wait disabled:opacity-70"
                 >
-                  <RefreshCw className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                  <span>Replace</span>
+                  {isUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                  )}
+                  <span>{isUploading ? "Uploading..." : "Replace"}</span>
                 </button>
 
                 <button
@@ -169,19 +211,31 @@ export default function ResumeSection({
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`mt-6 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all ${
-              dragActive
-                ? "border-indigo-500 bg-indigo-50/50 dark:border-indigo-400 dark:bg-indigo-950/30"
-                : "border-slate-300 bg-slate-50/40 hover:border-indigo-400 hover:bg-indigo-50/20 dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-indigo-500 dark:hover:bg-indigo-950/20"
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+            className={`mt-6 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
+              isUploading
+                ? "border-indigo-400 bg-indigo-50/50 cursor-wait dark:border-indigo-500 dark:bg-indigo-950/30"
+                : dragActive
+                  ? "border-indigo-500 bg-indigo-50/50 cursor-pointer dark:border-indigo-400 dark:bg-indigo-950/30"
+                  : "border-slate-300 bg-slate-50/40 hover:border-indigo-400 hover:bg-indigo-50/20 cursor-pointer dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-indigo-500 dark:hover:bg-indigo-950/20"
             }`}
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-3 shadow-xs dark:bg-indigo-950/60 dark:text-indigo-400">
-              <UploadCloud className="h-7 w-7" />
+              {isUploading ? (
+                <Loader2 className="h-7 w-7 animate-spin" />
+              ) : (
+                <UploadCloud className="h-7 w-7" />
+              )}
             </div>
             <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-              Drag &amp; drop your resume here, or{" "}
-              <span className="text-[#6366F1] dark:text-indigo-400 underline">browse files</span>
+              {isUploading ? (
+                "Uploading your resume..."
+              ) : (
+                <>
+                  Drag &amp; drop your resume here, or{" "}
+                  <span className="text-[#6366F1] dark:text-indigo-400 underline">browse files</span>
+                </>
+              )}
             </p>
             <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
               PDF format preferred • Maximum file size 5MB

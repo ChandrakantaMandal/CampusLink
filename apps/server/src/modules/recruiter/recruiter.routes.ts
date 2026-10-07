@@ -2,6 +2,9 @@ import { Router } from "express";
 
 import { requireAuth } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
+import { uploadImageFile } from "../../middleware/upload.middleware";
+
+import { uploadCompanyLogoController } from "../uploads/upload.controller";
 
 import {
   createInterviewController,
@@ -37,6 +40,15 @@ router.patch(
   requireAuth,
   requireRole("RECRUITER"),
   updateRecruiterProfileController,
+);
+
+// Recruiter uploads company logo
+router.post(
+  "/company/logo",
+  requireAuth,
+  requireRole("RECRUITER"),
+  uploadImageFile,
+  uploadCompanyLogoController,
 );
 
 // Recruiter views jobs for their company

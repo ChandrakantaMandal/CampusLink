@@ -2,6 +2,9 @@ import { Router } from "express";
 
 import { requireAuth } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
+import { uploadImageFile, uploadResumeFile } from "../../middleware/upload.middleware";
+
+import { uploadMyPhotoController, uploadMyResumeController } from "../uploads/upload.controller";
 
 import {
   acceptMyStudentOffer,
@@ -27,6 +30,12 @@ router.get("/me", requireAuth, requireRole("STUDENT"), getMyStudentProfile);
 
 // Update currently logged-in student's profile
 router.patch("/me",requireAuth,requireRole("STUDENT"),updateMyStudentProfile);
+
+// Upload student resume (PDF)
+router.post("/me/resume", requireAuth, requireRole("STUDENT"), uploadResumeFile, uploadMyResumeController);
+
+// Upload student photo (jpg/png/webp)
+router.post("/me/photo", requireAuth, requireRole("STUDENT"), uploadImageFile, uploadMyPhotoController);
 
 // Student dashboard aggregates
 router.get("/me/dashboard",requireAuth, requireRole("STUDENT"), getMyStudentDashboard);

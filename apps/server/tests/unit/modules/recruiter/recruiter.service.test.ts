@@ -40,10 +40,19 @@ const mocks = vi.hoisted(() => ({
       updateMany: vi.fn(),
     },
   },
+  redis: {
+    get: vi.fn(),
+    set: vi.fn(),
+    del: vi.fn(),
+  },
 }));
 
 vi.mock("../../../../src/services", () => ({
   db: mocks.db,
+}));
+
+vi.mock("@CampusLink/redis", () => ({
+  redis: mocks.redis,
 }));
 
 import {

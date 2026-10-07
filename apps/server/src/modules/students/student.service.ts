@@ -34,7 +34,7 @@ function studentCacheKey(studentId: string) {
   return `student:${studentId}`;
 }
 
-async function invalidateStudentCaches(userId?: string, studentId?: string) {
+export async function invalidateStudentCaches(userId?: string, studentId?: string) {
   const keys: string[] = [];
 
   if (userId) {
@@ -197,6 +197,10 @@ const VOLATILE_TTL = 60;
 
 function aggregateCacheKey(userId: string, domain: string) {
   return `student:${domain}:${userId}`;
+}
+
+export function invalidateStudentNotificationsCache(userId: string) {
+  return redis.del(aggregateCacheKey(userId, "notifications"));
 }
 
 async function withAggregateCache<T>(

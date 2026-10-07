@@ -124,6 +124,23 @@ function mergeApiIntoLocal(
     leetcode: api.leetcodeUrl ?? local.leetcode,
     hackerrank: api.hackerrankUrl ?? local.hackerrank,
     otherWebsite: api.otherWebsiteUrl ?? local.otherWebsite,
+    avatarUrl: api.user?.image || local.avatarUrl,
+    resume: api.resumeUrl
+      ? local.resume?.url === api.resumeUrl
+        ? local.resume
+        : {
+            fileName: decodeURIComponent(
+              api.resumeUrl.split("?")[0].split("/").pop() || "resume.pdf",
+            ),
+            fileSize: "PDF",
+            uploadDate: new Date(api.updatedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            url: api.resumeUrl,
+          }
+      : local.resume,
   };
 }
 
@@ -251,6 +268,7 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
     hydratedKeyRef.current = userKey;
 
     let cancelled = false;
+    let hydrated = false;
     const { setProfile, setSavedSnapshot, setIsLoaded } =
       useProfileStore.getState();
 
@@ -275,14 +293,17 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
           const merged: StudentProfileData = {
             ...mergeApiIntoLocal(api, local),
             email: session.user.email || local.email,
-            avatarUrl: session.user.image || local.avatarUrl,
+            avatarUrl:
+              api.user?.image || session.user.image || local.avatarUrl,
           };
+          hydrated = true;
           setProfile(merged);
           setSavedSnapshot(JSON.stringify(merged));
           saveStoredProfile(merged, userKey);
         })
         .catch(() => {
           // API unavailable or profile missing remotely — keep the local snapshot.
+          hydrated = true;
         });
     } else {
       clearStoredProfile("guest");
@@ -295,6 +316,9 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
 
     return () => {
       cancelled = true;
+      // If hydration never completed (session identity changed mid-fetch),
+      // clear the guard so the next run re-fetches instead of bailing out.
+      if (!hydrated) hydratedKeyRef.current = null;
     };
   }, [userKey, session, isSessionPending]);
 

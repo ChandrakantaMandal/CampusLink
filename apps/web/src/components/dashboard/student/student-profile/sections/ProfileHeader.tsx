@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   Camera,
   CheckCircle2,
@@ -8,11 +9,13 @@ import {
   Eye,
   EyeOff,
   GraduationCap,
+  Loader2,
   MapPin,
   Sparkles,
   BookOpen,
 } from "lucide-react";
 import type { StudentProfileData } from "@/data/studentProfile";
+import { uploadStudentPhoto } from "@/lib/api/student.api";
 
 interface ProfileHeaderProps {
   profile: StudentProfileData;
@@ -30,17 +33,37 @@ export default function ProfileHeader({
   onUpdateAvatar,
 }: ProfileHeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && onUpdateAvatar) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          onUpdateAvatar(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+    e.target.value = "";
+    if (!file || !onUpdateAvatar) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Invalid image type", {
+        description: "Please choose a JPG, PNG or WebP image.",
+      });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image too large", {
+        description: "Maximum file size is 2MB.",
+      });
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      const url = await uploadStudentPhoto(file);
+      onUpdateAvatar(url);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload photo",
+      );
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -91,16 +114,21 @@ export default function ProfileHeader({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-1 right-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg border border-slate-200 transition-all hover:scale-110 hover:bg-slate-50 hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer"
+              disabled={isUploadingPhoto}
+              className="absolute bottom-1 right-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg border border-slate-200 transition-all hover:scale-110 hover:bg-slate-50 hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-indigo-400 cursor-pointer disabled:cursor-wait disabled:opacity-70"
               title="Upload Profile Photo"
               aria-label="Upload profile photo"
             >
-              <Camera className="h-4 w-4" />
+              {isUploadingPhoto ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
               className="hidden"
               onChange={handleAvatarFileChange}
             />

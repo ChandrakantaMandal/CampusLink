@@ -89,6 +89,34 @@ export async function updateMyStudentProfile(
   return response.data.data;
 }
 
+interface UploadFileResponse {
+  success: boolean;
+  message?: string;
+  data: Record<string, string>;
+}
+
+export async function uploadStudentPhoto(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post<UploadFileResponse>(
+    "/api/students/me/photo",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data.data.image;
+}
+
+export async function uploadStudentResume(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post<UploadFileResponse>(
+    "/api/students/me/resume",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data.data.resumeUrl;
+}
+
 export async function getStudentById(id: string): Promise<StudentProfile> {
   const response = await api.get<StudentProfileResponse>(`/api/students/${id}`);
 

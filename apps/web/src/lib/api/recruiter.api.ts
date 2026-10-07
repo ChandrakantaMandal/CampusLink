@@ -501,6 +501,17 @@ export async function updateRecruiterProfile(
   return toRecruiterCompany(response.data.data);
 }
 
+export async function uploadCompanyLogo(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post<Envelope<{ logoUrl: string }>>(
+    "/api/recruiter/company/logo",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data.data.logoUrl;
+}
+
 export async function getMyJobs(): Promise<RecruiterJob[]> {
   const response = await api.get<Envelope<RecruiterJobRaw[]>>(
     "/api/recruiter/jobs",
