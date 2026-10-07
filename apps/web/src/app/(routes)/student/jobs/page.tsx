@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -26,6 +27,7 @@ type Job = {
       name: string;
     };
   }[];
+  hasApplied?: boolean;
 };
 
 type MatchResult = {
@@ -61,8 +63,7 @@ export default function StudentJobs() {
 
         if (!response.ok) {
           throw new Error(
-            result.message ||
-              "Failed to fetch jobs",
+            result.message || "Failed to fetch jobs",
           );
         }
 
@@ -150,9 +151,7 @@ export default function StudentJobs() {
           error,
         );
 
-        toast.error(
-          "Failed to load jobs",
-        );
+        toast.error("Failed to load jobs");
 
         setLoading(false);
       }
@@ -162,7 +161,7 @@ export default function StudentJobs() {
   }, []);
 
   /*
-   * Build recommended jobs
+   * Build recommended jobs.
    *
    * Jobs with higher AI match scores
    * appear first.
@@ -197,12 +196,8 @@ export default function StudentJobs() {
 
         // Required skills
         skills: job.skills
-          .filter(
-            (item) => item.required,
-          )
-          .map(
-            (item) => item.skill.name,
-          ),
+          .filter((item) => item.required)
+          .map((item) => item.skill.name),
 
         eligibility: {
           isEligible: true,
@@ -215,8 +210,10 @@ export default function StudentJobs() {
           match?.explanation ||
           "AI is analyzing your profile against this job.",
 
-        driveDate:
-          "Applications Open",
+        driveDate: "Applications Open",
+
+        // Application status
+        hasApplied: job.hasApplied ?? false,
       };
     })
     .sort((a, b) => {
@@ -252,16 +249,16 @@ export default function StudentJobs() {
           </div>
 
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Roles automatically curated for you based on verified skills,
-            academic eligibility, and career interests.
+            Roles automatically curated for you based on
+            verified skills, academic eligibility, and career
+            interests.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() =>
-            toast.success(
-              "Jobs refreshed",
-            )
+            toast.success("Jobs refreshed")
           }
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors"
         >
@@ -281,13 +278,20 @@ export default function StudentJobs() {
             <RecommendedJobsCard
               jobs={recommendedJobs}
               columns={3}
-              onApplyJob={(
-                jobId,
-                matchPercentage,
-              ) => {
-                if (
-                  matchPercentage === 100
-                ) {
+              onApplyJob={(jobId) => {
+                const selectedJob =
+                  recommendedJobs.find(
+                    (job) => job.id === jobId,
+                  );
+
+                if (!selectedJob) {
+                  return;
+                }
+
+                const matchPercentage =
+                  selectedJob.matchPercentage;
+
+                if (matchPercentage === 100) {
                   toast.success(
                     "100% Match! You are fully matched for this job.",
                   );
@@ -295,9 +299,7 @@ export default function StudentJobs() {
                   return;
                 }
 
-                if (
-                  matchPercentage === null
-                ) {
+                if (matchPercentage === null) {
                   toast.info(
                     "AI is still analyzing this job. Please wait.",
                   );
@@ -314,8 +316,8 @@ export default function StudentJobs() {
             {Object.keys(matches).length <
               jobs.length && (
               <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                ✨ AI is analyzing job
-                matches in the background...
+                ✨ AI is analyzing job matches in the
+                background...
               </p>
             )}
           </>
