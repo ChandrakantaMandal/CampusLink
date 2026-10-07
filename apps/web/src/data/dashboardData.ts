@@ -25,7 +25,7 @@ export interface RecommendedJob {
   company: string;
   location: string;
   ctc: string;
-  matchPercentage: number;
+  matchPercentage: number | null;
   skills: string[];
   eligibility: {
     isEligible: boolean;
