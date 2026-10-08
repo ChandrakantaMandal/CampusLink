@@ -7,6 +7,8 @@ import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
 import SkillGapCard from "@/components/dashboard/student/SkillGapCard";
 import { InterviewScheduleCard } from "@/components/dashboard/student/InterviewScheduleCard";
+import { OfferTrackingCard } from "@/components/dashboard/student/OfferTrackingCard";
+import { UpcomingDrivesCard } from "@/components/dashboard/student/UpcomingDrivesCard";
 
 import {
   AggregateLoading,
@@ -16,10 +18,19 @@ import {
 import { mockDashboardData } from "@/data/dashboardData";
 import type { ReadinessDimension } from "@/data/dashboardData";
 
-import { useStudentSkills } from "@/hooks/use-student";
-import { toSkillGaps } from "@/lib/dashboard-adapters";
+import {
+  useStudentSkills,
+  useStudentOffers,
+  useStudentDrives,
+  useStudentDashboard,
+  useStudentApplications,
+  useStudentJobs,
+  useStudentProfile,
+} from "@/hooks/use-student";
+import { toSkillGaps, toOfferDetails, toUpcomingDrives } from "@/lib/dashboard-adapters";
 
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -63,7 +74,13 @@ function getStatus(
 }
 
 export default function StudentDashboard() {
-  const studentName = "Student";
+  const router = useRouter();
+
+  // Student profile and aggregates
+  const profileQuery = useStudentProfile();
+  const dashboardQuery = useStudentDashboard();
+  const applicationsQuery = useStudentApplications();
+  const jobsQuery = useStudentJobs();
 
   // Student skills
   const skills = useStudentSkills();
@@ -71,6 +88,18 @@ export default function StudentDashboard() {
   const skillGaps = skills.data
     ? toSkillGaps(skills.data)
     : null;
+
+  // Student offers
+  const offers = useStudentOffers();
+  const offerItems = offers.data
+    ? toOfferDetails(offers.data)
+    : mockDashboardData.offers;
+
+  // Student drives
+  const drivesQuery = useStudentDrives();
+  const driveItems = drivesQuery.data
+    ? toUpcomingDrives(drivesQuery.data)
+    : mockDashboardData.upcomingDrives;
 
   // Readiness
   const [readiness, setReadiness] =
@@ -125,10 +154,56 @@ export default function StudentDashboard() {
     readiness?.readinessLabel ??
     mockDashboardData.stats.readinessLabel;
 
+  const studentName =
+    profileQuery.profile?.user?.name ||
+    (profileQuery.profile?.firstName
+      ? `${profileQuery.profile.firstName} ${profileQuery.profile.lastName ?? ""}`.trim()
+      : "Student");
+
+  // Real live statistics (0 if student has none submitted)
+  const activeApplications =
+    applicationsQuery.data?.stats.total ??
+    dashboardQuery.data?.stats.applications ??
+    0;
+
+  const aiJobMatches =
+    jobsQuery.data?.jobs.length ??
+    0;
+
+  const upcomingDrives =
+    drivesQuery.data
+      ? drivesQuery.data.registered.length + drivesQuery.data.available.length
+      : (dashboardQuery.data?.stats.drivesRegistered ?? 0);
+
   const dashboardStats = {
-    ...mockDashboardData.stats,
     readinessScore,
     readinessLabel,
+    activeApplications,
+    aiJobMatches,
+    upcomingDrives,
+  };
+
+  const aiCoachRecommendation = {
+    title: "AI Placement Coach Recommendation",
+    highlight:
+      readinessScore >= 80
+        ? "Tier-1 Competitive"
+        : readinessScore >= 40
+          ? "Placement Track"
+          : "Build Profile Foundation",
+    message:
+      readiness?.explanation ||
+      (readinessScore >= 80
+        ? "Your profile is competitive for high-paying product company drives. Continue practicing mock interviews."
+        : readinessScore >= 40
+          ? "Complete mock technical assessments and verify project demos to achieve Tier-1 placement readiness."
+          : "Add your technical skills, link live project repositories, and update academics to unlock AI job matching and company eligibility."),
+    actionText:
+      readinessScore >= 80
+        ? "Explore Drives"
+        : readinessScore >= 40
+          ? "Take Assessment"
+          : "Complete Profile",
   };
 
   const readinessDimensions: ReadinessDimension[] =
@@ -183,20 +258,14 @@ export default function StudentDashboard() {
       <WelcomeBanner
         studentName={studentName}
         readinessScore={readinessScore}
-        appliedCount={
-          mockDashboardData.stats.activeApplications
-        }
-        matchesCount={
-          mockDashboardData.stats.aiJobMatches
-        }
-        upcomingDrivesCount={
-          mockDashboardData.stats.upcomingDrives
-        }
+        appliedCount={activeApplications}
+        matchesCount={aiJobMatches}
+        upcomingDrivesCount={upcomingDrives}
         onExploreDrives={() =>
-          toast.info("Opening campus drives...")
+          router.push("/student/drives")
         }
         onCheckReadiness={() =>
-          toast.info("Opening readiness...")
+          router.push(readinessScore < 40 ? "/student/profile" : "/student/readiness")
         }
       />
 
@@ -211,13 +280,9 @@ export default function StudentDashboard() {
             score={readinessScore}
             label={readinessLabel}
             dimensions={readinessDimensions}
-            aiRecommendation={
-              mockDashboardData.aiCoachRecommendation
-            }
+            aiRecommendation={aiCoachRecommendation}
             onStartAction={() =>
-              toast.success(
-                "Starting System Architecture practice module!",
-              )
+              router.push(readinessScore < 40 ? "/student/profile" : "/student/readiness")
             }
           />
         </div>
@@ -247,10 +312,22 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {/* Interview Schedule */}
+      {/* Upcoming Campus Drives (Full-width Slidebar Track) */}
+      <div className="min-w-0">
+        <UpcomingDrivesCard
+          drives={driveItems}
+          layout="slidebar"
+          onViewAll={() => router.push("/student/drives")}
+        />
+      </div>
+
+      {/* Placement Milestones: Offers & Interview Schedule */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-6 min-w-0 flex flex-col">
-          {/* Reserved for future dashboard section */}
+          <OfferTrackingCard
+            offers={offerItems}
+            onAccepted={offers.refresh}
+          />
         </div>
 
         <div className="lg:col-span-6 min-w-0 flex flex-col">

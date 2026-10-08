@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
-import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
 
 import {
   AggregateLoading,
@@ -22,15 +21,16 @@ import {
 
 import { toast } from "sonner";
 
+import Link from "next/link";
 import {
   Sparkles,
   TrendingUp,
   CheckCircle2,
   Target,
+  LogIn,
 } from "lucide-react";
 
 import {
-  mockDashboardData,
   type ReadinessDimension,
 } from "@/data/dashboardData";
 
@@ -80,6 +80,7 @@ export default function StudentReadiness() {
     useState<ReadinessResponse | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   async function fetchReadiness() {
     try {
@@ -93,6 +94,12 @@ export default function StudentReadiness() {
           cache: "no-store",
         },
       );
+
+      if (response.status === 401) {
+        setIsGuest(true);
+        setReadiness(null);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -108,6 +115,7 @@ export default function StudentReadiness() {
         );
       }
 
+      setIsGuest(false);
       setReadiness(result.data);
     } catch (error) {
       console.error(
@@ -127,74 +135,75 @@ export default function StudentReadiness() {
     fetchReadiness();
   }, []);
 
-  const readinessScore =
-    readiness?.overallScore ??
-    mockDashboardData.stats.readinessScore;
+  const readinessScore = readiness?.overallScore ?? 0;
 
   const readinessLabel =
     readiness?.readinessLabel ??
-    mockDashboardData.stats.readinessLabel;
+    (readinessScore > 0 ? "Placement Track" : "Profile Unscored");
 
-  const dashboardStats = {
-    ...mockDashboardData.stats,
-    readinessScore,
-    readinessLabel,
+  const aiCoachRecommendation = {
+    title: "AI Placement Coach Recommendation",
+    highlight:
+      readinessScore >= 80
+        ? "Tier-1 Placement Ready"
+        : readinessScore >= 40
+          ? "Placement Track"
+          : "Build Profile Foundation",
+    message:
+      readiness?.explanation ||
+      (readinessScore >= 80
+        ? "Your profile is highly competitive across technical, academic, and project dimensions. Continue practicing advanced mock interviews."
+        : readinessScore >= 40
+          ? "Strengthen practical full-stack projects, take standardized mock assessments, and target high-demand skills to reach Tier-1 readiness."
+          : "Add your technical skills, link live project repositories, upload your resume, and complete profile details to unlock AI job matching and company eligibility."),
+    actionText:
+      readinessScore >= 80
+        ? "Explore Drives"
+        : readinessScore >= 40
+          ? "Take Assessment"
+          : "Complete Profile",
   };
 
-  const readinessDimensions: ReadinessDimension[] =
-    readiness
-      ? [
-          {
-            category: "Technical Skills",
-            score: readiness.breakdown.technical,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.technical,
-            ),
-          },
-          {
-            category: "Mock Assessments",
-            score: readiness.breakdown.assessment,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.assessment,
-            ),
-          },
-          {
-            category: "Verified Projects",
-            score: readiness.breakdown.projects,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.projects,
-            ),
-          },
-          {
-            category: "Academics / CGPA",
-            score: readiness.breakdown.academics,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.academics,
-            ),
-          },
-          {
-            category: "ATS Resume",
-            score: readiness.breakdown.resume,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.resume,
-            ),
-          },
-        ]
-      : mockDashboardData.readinessDimensions;
+  const readinessDimensions: ReadinessDimension[] = [
+    {
+      category: "Technical Skills",
+      score: readiness?.breakdown.technical ?? 0,
+      fullScore: 100,
+      status: getStatus(readiness?.breakdown.technical ?? 0),
+    },
+    {
+      category: "Mock Assessments",
+      score: readiness?.breakdown.assessment ?? 0,
+      fullScore: 100,
+      status: getStatus(readiness?.breakdown.assessment ?? 0),
+    },
+    {
+      category: "Verified Projects",
+      score: readiness?.breakdown.projects ?? 0,
+      fullScore: 100,
+      status: getStatus(readiness?.breakdown.projects ?? 0),
+    },
+    {
+      category: "Academics / CGPA",
+      score: readiness?.breakdown.academics ?? 0,
+      fullScore: 100,
+      status: getStatus(readiness?.breakdown.academics ?? 0),
+    },
+    {
+      category: "ATS Resume",
+      score: readiness?.breakdown.resume ?? 0,
+      fullScore: 100,
+      status: getStatus(readiness?.breakdown.resume ?? 0),
+    },
+  ];
 
-  const weakestDimension = readiness
-    ? readinessDimensions.reduce(
-        (weakest, current) =>
-          current.score < weakest.score
-            ? current
-            : weakest,
-      )
-    : null;
+  const weakestDimension =
+    readinessDimensions.reduce(
+      (weakest, current) =>
+        current.score < weakest.score
+          ? current
+          : weakest,
+    );
 
   return (
     <div className="space-y-6">
@@ -233,8 +242,30 @@ export default function StudentReadiness() {
         </div>
       </div>
 
-      {/* Summary Stats */}
-      <KeyStatistics stats={dashboardStats} />
+      {isGuest && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4 dark:border-indigo-900/50 dark:bg-indigo-950/30">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-900 dark:text-white">
+                Guest / Preview Mode Active
+              </p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                You are viewing the readiness engine in bypass mode. All dimensions reflect original unconfigured baselines (0%). Sign in with your student account to compute your live 5-factor placement index.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/login?role=student"
+            className="inline-flex shrink-0 items-center gap-1.5 self-start sm:self-auto rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-500 transition-all"
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            <span>Sign In</span>
+          </Link>
+        </div>
+      )}
 
       {/* Main Readiness Component */}
       <div className="min-w-0">
@@ -242,12 +273,10 @@ export default function StudentReadiness() {
           score={readinessScore}
           label={readinessLabel}
           dimensions={readinessDimensions}
-          aiRecommendation={
-            mockDashboardData.aiCoachRecommendation
-          }
+          aiRecommendation={aiCoachRecommendation}
           onStartAction={() =>
             toast.success(
-              "Starting System Architecture practice module!",
+              "Opening profile action roadmap!",
             )
           }
         />

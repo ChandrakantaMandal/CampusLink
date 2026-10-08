@@ -180,11 +180,11 @@ export default function ApplicationsPipelineView() {
           <select
             value={companyFilter}
             onChange={(e) => setCompanyFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All">All Companies</option>
+            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Companies</option>
             {companyOptions.slice(1).map((company) => (
-              <option key={company} value={company}>
+              <option key={company} value={company} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {company}
               </option>
             ))}
@@ -193,11 +193,11 @@ export default function ApplicationsPipelineView() {
           <select
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All">All Branches</option>
+            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Branches</option>
             {branchOptions.slice(1).map((branch) => (
-              <option key={branch} value={branch}>
+              <option key={branch} value={branch} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {branch}
               </option>
             ))}
@@ -206,15 +206,15 @@ export default function ApplicationsPipelineView() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All">All Stages</option>
-            <option value="Applied">Applied</option>
-            <option value="Shortlisted">Shortlisted</option>
-            <option value="Interview">Interview</option>
-            <option value="Selected">Selected</option>
-            <option value="Offer">Offer</option>
-            <option value="Joined">Joined</option>
+            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Stages</option>
+            <option value="Applied" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Applied</option>
+            <option value="Shortlisted" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Shortlisted</option>
+            <option value="Interview" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Interview</option>
+            <option value="Selected" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Selected</option>
+            <option value="Offer" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Offer</option>
+            <option value="Joined" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Joined</option>
           </select>
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function ApplicationsPipelineView() {
       {/* Applications Table */}
       <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[720px] text-left text-xs">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
               <tr>
                 <th className="px-5 py-3.5">Student</th>
@@ -237,13 +237,13 @@ export default function ApplicationsPipelineView() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
                     Loading applications…
                   </td>
                 </tr>
               ) : filteredApplications.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
                     No applications found.
                   </td>
                 </tr>
@@ -252,7 +252,7 @@ export default function ApplicationsPipelineView() {
                 filteredApplications.map((app) => (
                 <tr
                   key={app.id}
-                  onClick={() => router.push(`/admin/applications/${app.id}`)}
+                  onClick={() => router.push(`/admin/applications/${app.id}` as any)}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
                 >
                   <td className="px-5 py-3.5">

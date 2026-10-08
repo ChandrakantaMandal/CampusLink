@@ -824,7 +824,7 @@ export default function InterviewScheduleView() {
                 type="button"
                 onClick={closeModal}
                 disabled={saving}
-                className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-slate-700 dark:text-slate-300 text-xs hover:bg-slate-200 disabled:opacity-60"
+                className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-slate-700 dark:text-slate-300 text-xs hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white disabled:opacity-60"
               >
                 Cancel
               </button>

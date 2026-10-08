@@ -3,8 +3,56 @@
 @source "../node_modules/streamdown/dist/*.js";
 
 /* ==========================================================================
-   Student Profile Workspace: Adaptive Light / Dark Form Input System
+   Global Color Scheme & Form Controls (Light & Dark Theme)
    ========================================================================== */
+
+:root {
+  color-scheme: light;
+}
+
+html.dark,
+.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html:not(.dark),
+:root:not(.dark) {
+  color-scheme: light;
+}
+
+/* Global Select and Option Styling across light and dark modes */
+select {
+  color-scheme: light;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+html.dark select,
+.dark select,
+select:where(.dark *) {
+  color-scheme: dark;
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+html.dark select option,
+.dark select option,
+select:where(.dark *) option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+html.dark select option:checked,
+.dark select option:checked,
+select:where(.dark *) option:checked {
+  background-color: #4f46e5;
+  color: #ffffff;
+}
 
 /* Color scheme follows theme */
 .student-profile-workspace {

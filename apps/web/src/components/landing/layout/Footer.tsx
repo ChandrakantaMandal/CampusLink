@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { GraduationCap, ShieldCheck, Heart, ExternalLink, Code2 } from "lucide-react";
+import { ShieldCheck, Heart, ExternalLink, Code2 } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 export default function Footer() {
   return (
@@ -13,17 +14,7 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="space-y-4 lg:col-span-2">
             <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white shadow-md shadow-indigo-500/25">
-                <GraduationCap className="h-5 w-5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                  CAMPUSLINK
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                  Placement Platform
-                </span>
-              </div>
+              <BrandLogo size={40} showText subtitle="Placement Platform" />
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed">
