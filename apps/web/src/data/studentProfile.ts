@@ -38,6 +38,7 @@ export interface StudentProfileData {
     uploadDate: string;
     url?: string;
   } | null;
+  resumeText: string | null;
   github: string;
   linkedin: string;
   portfolio: string;
@@ -66,6 +67,7 @@ export function createEmptyStudentProfile(
     education: [],
     certifications: [],
     resume: null,
+    resumeText: null,
     github: "",
     linkedin: "",
     portfolio: "",
@@ -130,6 +132,7 @@ export const sampleDemoProfile: StudentProfileData = {
     fileSize: "1.2 MB",
     uploadDate: "Sep 15, 2024",
   },
+  resumeText: null,
   github: "https://github.com/HimanshuKumarRout",
   linkedin: "https://linkedin.com/in/himanshu-rout",
   portfolio: "https://himanshurout.dev",

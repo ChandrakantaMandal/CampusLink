@@ -51,6 +51,7 @@ export default function StudentDrives() {
             drives={items}
             layout="grid"
             onViewAll={() => toast.info("Showing all drives")}
+            onRegistered={drives.refresh}
           />
         ) : drives.error ? (
           <AggregateError message={drives.error} onRetry={drives.refresh} />

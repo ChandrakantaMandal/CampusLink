@@ -83,7 +83,7 @@ def match_student_to_job(
 
     # Calculate score
     if total_required == 0:
-        match_score = 0
+        match_score = 100
     else:
         match_score = round(
             (total_matched / total_required) * 100,
@@ -91,7 +91,13 @@ def match_student_to_job(
         )
 
     # Generate explanation locally
-    if match_score == 100:
+    if total_required == 0:
+        explanation = (
+            "The job does not list any required skills, "
+            "so the student matches all listed requirements."
+        )
+
+    elif match_score == 100:
         explanation = (
             "The student possesses all required skills "
             "for the job, resulting in a perfect match."

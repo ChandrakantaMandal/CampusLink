@@ -3,6 +3,7 @@ import { Prisma } from "@CampusLink/db";
 import { db } from "../../services";
 import { invalidateApplicationCaches } from "../applications/application.service";
 import { invalidateInterviewCache } from "../admin/admin.service";
+import { invalidateJobCaches } from "../jobs/job.service";
 
 import type {
   CreateInterviewInput,
@@ -276,15 +277,6 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
 
   const { status, requiredSkills, ...rest } = data;
 
-  const job = await db.job.create({
-    data: {
-      ...rest,
-      companyId: recruiter.companyId,
-      recruiterId: recruiter.id,
-      ...(status ? { status } : {}),
-    },
-  });
-
   const skillNames = [
     ...new Map(
       (requiredSkills ?? [])
@@ -294,29 +286,44 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
     ).values(),
   ];
 
-  if (skillNames.length > 0) {
-    const existing = await db.skill.findMany({
-      where: {
-        normalized: { in: skillNames.map((name) => name.toLowerCase()) },
+  const job = await db.$transaction(async (tx) => {
+    const created = await tx.job.create({
+      data: {
+        ...rest,
+        companyId: recruiter.companyId,
+        recruiterId: recruiter.id,
+        ...(status ? { status } : {}),
       },
     });
-    const byNormalized = new Map(
-      existing.map((skill) => [skill.normalized, skill]),
-    );
 
-    for (const name of skillNames) {
-      const key = name.toLowerCase();
-      const skill =
-        byNormalized.get(key) ??
-        (await db.skill.create({
-          data: { name, normalized: key, type: "OTHER" },
-        }));
-      byNormalized.set(key, skill);
-      await db.jobSkill.create({
-        data: { jobId: job.id, skillId: skill.id },
+    if (skillNames.length > 0) {
+      const existing = await tx.skill.findMany({
+        where: {
+          normalized: { in: skillNames.map((name) => name.toLowerCase()) },
+        },
       });
+      const byNormalized = new Map(
+        existing.map((skill) => [skill.normalized, skill]),
+      );
+
+      for (const name of skillNames) {
+        const key = name.toLowerCase();
+        const skill =
+          byNormalized.get(key) ??
+          (await tx.skill.create({
+            data: { name, normalized: key, type: "OTHER" },
+          }));
+        byNormalized.set(key, skill);
+        await tx.jobSkill.create({
+          data: { jobId: created.id, skillId: skill.id },
+        });
+      }
     }
-  }
+
+    return created;
+  });
+
+  await invalidateJobCaches(job.id, recruiter.companyId);
 
   return db.job.findUniqueOrThrow({
     where: { id: job.id },
@@ -356,6 +363,8 @@ export async function deleteMyJob(
   }
 
   await db.job.delete({ where: { id: job.id } });
+
+  await invalidateJobCaches(job.id, job.companyId);
 
   return { ok: true };
 }

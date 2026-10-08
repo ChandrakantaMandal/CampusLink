@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   db: {
+    $transaction: vi.fn(),
     recruiterProfile: {
       findUnique: vi.fn(),
       update: vi.fn(),
@@ -54,6 +55,10 @@ vi.mock("../../../../src/services", () => ({
 vi.mock("@CampusLink/redis", () => ({
   redis: mocks.redis,
 }));
+
+mocks.db.$transaction.mockImplementation(
+  async (fn: (tx: typeof mocks.db) => Promise<unknown>) => fn(mocks.db),
+);
 
 import {
   createInterview,

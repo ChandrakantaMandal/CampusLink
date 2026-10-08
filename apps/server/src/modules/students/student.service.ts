@@ -1023,6 +1023,113 @@ export async function acceptStudentOffer(
   };
 }
 
+type DriveRegistrationRecord = NonNullable<
+  Awaited<ReturnType<typeof db.driveRegistration.findUnique>>
+>;
+
+export type RegisterDriveResult =
+  | {
+      ok: true;
+      registration: DriveRegistrationRecord & { eligible: boolean };
+    }
+  | {
+      ok: false;
+      status: 403 | 404 | 409;
+      message: string;
+    };
+
+export async function registerForDrive(
+  userId: string,
+  driveId: string,
+): Promise<RegisterDriveResult> {
+  const student = await resolveStudentForAggregates(userId);
+
+  if (!student) {
+    return {
+      ok: false,
+      status: 404,
+      message: "Student profile not found",
+    };
+  }
+
+  const drive = await db.placementDrive.findUnique({
+    where: {
+      id: driveId,
+    },
+  });
+
+  if (!drive) {
+    return {
+      ok: false,
+      status: 404,
+      message: "Drive not found",
+    };
+  }
+
+  const existing = await db.driveRegistration.findUnique({
+    where: {
+      driveId_studentId: {
+        driveId: drive.id,
+        studentId: student.id,
+      },
+    },
+  });
+
+  if (existing) {
+    return {
+      ok: true,
+      registration: {
+        ...existing,
+        eligible: isEligibleForDrive(student, drive),
+      },
+    };
+  }
+
+  if (drive.status !== "OPEN" && drive.status !== "ONGOING") {
+    return {
+      ok: false,
+      status: 409,
+      message: `Drive registration is closed (status: ${drive.status})`,
+    };
+  }
+
+  if (!isEligibleForDrive(student, drive)) {
+    return {
+      ok: false,
+      status: 403,
+      message: "You are not eligible for this drive",
+    };
+  }
+
+  const registration = await db.driveRegistration.create({
+    data: {
+      driveId: drive.id,
+      studentId: student.id,
+    },
+
+    include: {
+      drive: {
+        include: {
+          company: {
+            select: companyCompactSelect,
+          },
+        },
+      },
+    },
+  });
+
+  await redis.del(aggregateCacheKey(userId, "drives"));
+  await redis.del(aggregateCacheKey(userId, "dashboard"));
+
+  return {
+    ok: true,
+    registration: {
+      ...registration,
+      eligible: true,
+    },
+  };
+}
+
 export async function getStudentNotifications(userId: string) {
   return withAggregateCache(
     aggregateCacheKey(userId, "notifications"),

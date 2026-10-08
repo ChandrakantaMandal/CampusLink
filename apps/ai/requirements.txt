@@ -9,3 +9,4 @@ scikit-learn
 
 google-genai
 PyMuPDF
+python-multipart

@@ -64,6 +64,7 @@ export interface UpdateStudentPayload {
   leetcodeUrl?: string;
   hackerrankUrl?: string;
   otherWebsiteUrl?: string;
+  resumeText?: string | null;
 }
 
 interface StudentProfileResponse {
@@ -563,6 +564,19 @@ export async function getMySkills(): Promise<StudentSkillsData> {
   return { skills, count: skills.length };
 }
 
+export async function addMySkill(skillName: string): Promise<StudentSkillData> {
+  const response = await api.post<AggregateResponse<StudentSkillData>>(
+    "/api/skills/student/me",
+    { skillName },
+  );
+
+  return response.data.data;
+}
+
+export async function removeMySkill(skillId: string): Promise<void> {
+  await api.delete(`/api/skills/student/me/${skillId}`);
+}
+
 export async function getMyJobs(): Promise<StudentJobsData> {
   const [jobsResponse, applicationsResponse, profile] = await Promise.all([
     api.get<AggregateResponse<JobData[]>>("/api/jobs"),
@@ -648,6 +662,15 @@ export async function getMyOffers(): Promise<StudentOffersData> {
 export async function acceptMyOffer(id: string): Promise<OfferData> {
   const response = await api.patch<AggregateResponse<OfferData>>(
     `/api/students/me/offers/${id}/accept`,
+  );
+  return response.data.data;
+}
+
+export async function registerForDrive(
+  driveId: string,
+): Promise<DriveRegistrationData> {
+  const response = await api.post<AggregateResponse<DriveRegistrationData>>(
+    `/api/students/me/drives/${driveId}/register`,
   );
   return response.data.data;
 }

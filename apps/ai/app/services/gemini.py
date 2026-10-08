@@ -13,11 +13,14 @@ def generate_gemini_response(prompt: str) -> str:
     Retries automatically if Gemini is temporarily unavailable.
     """
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = (
+        os.getenv("GOOGLE_GENERATIVE_AI_API_KEY")
+        or os.getenv("GEMINI_API_KEY")
+    )
 
     if not api_key:
         raise ValueError(
-            "GEMINI_API_KEY is not configured."
+            "GOOGLE_GENERATIVE_AI_API_KEY is not configured."
         )
 
     client = genai.Client(

@@ -10,12 +10,17 @@ import {
 } from "@/components/dashboard/student/aggregate-feedback";
 import { useStudentSkills } from "@/hooks/use-student";
 import { toSkillGaps } from "@/lib/dashboard-adapters";
+import { applyToJob } from "@/lib/api/student.api";
 import { toast } from "sonner";
 
 import {
   Layers,
   Sparkles,
   BookOpen,
+  Target,
+  CheckCircle2,
+  Loader2,
+  AlertTriangle,
 } from "lucide-react";
 
 type SkillGapItem = {
@@ -36,16 +41,108 @@ type Job = {
   title: string;
 };
 
+const SERVER_URL =
+  process.env.NEXT_PUBLIC_SERVER_URL ||
+  "http://localhost:3000";
+
+const FIT_THRESHOLD = 70;
+
 export default function StudentSkills() {
   const searchParams = useSearchParams();
-const jobId = searchParams.get("jobId");
+  const jobId = searchParams.get("jobId");
   const [skills, setSkills] = useState<SkillGapItem[]>([]);
   const [jobTitle, setJobTitle] = useState("AI Engineer");
   const [loading, setLoading] = useState(true);
+  const [skillGap, setSkillGap] =
+    useState<SkillGapResult | null>(null);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [applying, setApplying] = useState(false);
+
+  const fitPercent = skillGap
+    ? Math.round(100 - skillGap.skill_gap_score)
+    : null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchApplicationState() {
+      setHasApplied(false);
+
+      if (!jobId) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${SERVER_URL}/api/applications/my`,
+          {
+            credentials: "include",
+          },
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const result = await response.json();
+        const applications: { jobId: string }[] =
+          result.data || [];
+
+        if (
+          !cancelled &&
+          applications.some(
+            (application) => application.jobId === jobId,
+          )
+        ) {
+          setHasApplied(true);
+        }
+      } catch {
+        return;
+      }
+    }
+
+    fetchApplicationState();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jobId]);
+
+  async function handleApplyToJob() {
+    if (!jobId || applying || hasApplied) {
+      return;
+    }
+
+    try {
+      setApplying(true);
+
+      await applyToJob({ jobId });
+
+      setHasApplied(true);
+      toast.success("Application submitted successfully");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to submit application";
+
+      if (
+        message.toLowerCase().includes("already applied")
+      ) {
+        setHasApplied(true);
+        toast.info("You have already applied to this job");
+      } else {
+        toast.error(message);
+      }
+    } finally {
+      setApplying(false);
+    }
+  }
 
   async function analyzeSkillGap() {
     try {
       setLoading(true);
+      setSkillGap(null);
 
 if (!jobId) {
   setSkills([]);
@@ -55,7 +152,7 @@ if (!jobId) {
 
 // Get available jobs
 const jobsResponse = await fetch(
-        "http://localhost:3000/api/jobs",
+        `${SERVER_URL}/api/jobs`,
         {
           credentials: "include",
         },
@@ -82,7 +179,7 @@ if (!selectedJob) {
 setJobTitle(selectedJob.title);
       // Call CampusLink server -> AI service -> Gemini
       const response = await fetch(
-        `http://localhost:3000/api/jobs/${selectedJob.id}/skill-gap`,
+        `${SERVER_URL}/api/jobs/${selectedJob.id}/skill-gap`,
         {
           method: "POST",
           credentials: "include",
@@ -117,6 +214,7 @@ setJobTitle(selectedJob.title);
      await new Promise((resolve) => setTimeout(resolve, 5000));
 
 setSkills(formattedSkills);
+setSkillGap(data);
     } catch (error) {
       console.error("Skill gap analysis failed:", error);
 
@@ -165,6 +263,115 @@ setSkills(formattedSkills);
           {loading ? "Analyzing..." : "Analyze New Skills"}
         </button>
       </div>
+
+      {/* Job Fit Gate */}
+      {jobId && !loading && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500 shrink-0">
+                <Target className="h-5 w-5" />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Job Fit
+                </p>
+
+                <h2 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                  {jobTitle}
+                </h2>
+              </div>
+            </div>
+
+            {fitPercent !== null && (
+              <div
+                className={`shrink-0 rounded-xl border px-4 py-2 text-xl font-black ${
+                  fitPercent >= FIT_THRESHOLD
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                {fitPercent}% Match
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4">
+            {skillGap === null ? (
+              <div className="flex flex-col items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-300">
+                  <AlertTriangle className="h-4 w-4" />
+
+                  <span>Skill gap analysis failed</span>
+                </div>
+
+                <p className="text-xs text-amber-700/80 dark:text-amber-300/80">
+                  We couldn't compute your match for this
+                  job. Retry the analysis to see your
+                  eligibility.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={analyzeSkillGap}
+                  className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-500 transition-colors"
+                >
+                  Retry analysis
+                </button>
+              </div>
+            ) : hasApplied ? (
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+
+                <span>
+                  You have already applied to this job.
+                </span>
+              </div>
+            ) : fitPercent !== null &&
+              fitPercent >= FIT_THRESHOLD ? (
+              <div className="flex flex-col items-start gap-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+
+                  <span>
+                    You meet the {FIT_THRESHOLD}% match
+                    threshold — you're eligible to apply.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleApplyToJob}
+                  disabled={applying}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#6366F1] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-[#4F46E5] transition-all disabled:opacity-60 disabled:cursor-wait"
+                >
+                  {applying ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+
+                      <span>Applying...</span>
+                    </>
+                  ) : (
+                    <span>Apply Now</span>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-700 dark:text-amber-300">
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+
+                <span>
+                  Your match is below the{" "}
+                  {FIT_THRESHOLD}% threshold. Don't apply
+                  now — build the missing skills below
+                  first, then come back and apply.
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Skill Gap Component */}
       <div className="min-w-0">
@@ -252,7 +459,8 @@ setSkills(formattedSkills);
       </button>
 
       <p className="mt-4 text-xs text-slate-500">
-        Apply to a job first → then view its personalized skill gap.
+        Click Apply on a job → check your match here before
+        submitting your application.
       </p>
 
     </div>

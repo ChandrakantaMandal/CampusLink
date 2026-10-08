@@ -13,6 +13,9 @@ import type { StudentProfileData } from "@/data/studentProfile";
 import {
   getMyStudentProfile,
   updateMyStudentProfile,
+  getMySkills,
+  addMySkill,
+  removeMySkill,
 } from "@/lib/api/student.api";
 import type { StudentProfile } from "@/lib/api/student.api";
 import {
@@ -141,6 +144,7 @@ function mergeApiIntoLocal(
             url: api.resumeUrl,
           }
       : local.resume,
+    resumeText: api.resumeText ?? local.resumeText,
   };
 }
 
@@ -149,6 +153,43 @@ function normalizeUrl(value: string): string {
   return trimmed && !/^https?:\/\//i.test(trimmed)
     ? `https://${trimmed}`
     : trimmed;
+}
+
+function canonicalSkill(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+async function syncSkillsToServer(desiredSkills: string[]): Promise<void> {
+  const server = await getMySkills();
+
+  const serverByCanonical = new Map<string, string>();
+  for (const row of server.skills) {
+    serverByCanonical.set(canonicalSkill(row.skill.name), row.skillId);
+  }
+
+  const wanted = new Map<string, string>();
+  for (const name of desiredSkills) {
+    const key = canonicalSkill(name);
+    if (key && !wanted.has(key)) {
+      wanted.set(key, name.trim());
+    }
+  }
+
+  const tasks: Promise<unknown>[] = [];
+
+  for (const [key, name] of wanted) {
+    if (!serverByCanonical.has(key)) {
+      tasks.push(addMySkill(name));
+    }
+  }
+
+  for (const [key, skillId] of serverByCanonical) {
+    if (!wanted.has(key)) {
+      tasks.push(removeMySkill(skillId));
+    }
+  }
+
+  await Promise.all(tasks);
 }
 
 export function useProfile(): ProfileValue {
@@ -209,6 +250,16 @@ export function useProfile(): ProfileValue {
         hackerrankUrl: normalizeUrl(profile.hackerrank),
         otherWebsiteUrl: normalizeUrl(profile.otherWebsite),
       });
+
+      try {
+        await syncSkillsToServer(profile.skills);
+      } catch (skillError) {
+        toast.warning(
+          `Profile saved, but skills failed to sync: ${
+            (skillError as Error).message
+          }`,
+        );
+      }
 
       saveStoredProfile(profile, userKey);
       setSavedSnapshot(JSON.stringify(profile));
@@ -288,10 +339,26 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
       if (!stored) saveStoredProfile(local, userKey);
 
       getMyStudentProfile()
-        .then((api) => {
+        .then(async (api) => {
           if (cancelled) return;
+
+          // Server-side skills are the source of truth when present;
+          // an empty server list keeps the local (legacy) skill list.
+          let skills = local.skills;
+          try {
+            const serverSkills = await getMySkills();
+            if (serverSkills.skills.length > 0) {
+              skills = serverSkills.skills.map((row) => row.skill.name);
+            }
+          } catch {
+            // Skills endpoint unavailable — keep the local list.
+          }
+
+          if (cancelled) return;
+
           const merged: StudentProfileData = {
             ...mergeApiIntoLocal(api, local),
+            skills,
             email: session.user.email || local.email,
             avatarUrl:
               api.user?.image || session.user.image || local.avatarUrl,
