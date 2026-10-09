@@ -1,6 +1,6 @@
 import type { StudentProfileData } from "@/data/studentProfile";
 
-const STORAGE_PREFIX = "hirebridge_student_profile_";
+const STORAGE_PREFIX = "campuslink_student_profile_";
 
 export function getStoredProfile(userKey = "guest"): StudentProfileData | null {
   if (typeof window === "undefined") return null;

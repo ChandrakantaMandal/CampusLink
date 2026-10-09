@@ -23,7 +23,7 @@ export default function Footer() {
 
             <div className="flex items-center gap-3 pt-2 text-slate-400">
               <a
-                href="https://github.com/HimanshuKumarRout/HireBridge"
+                href="https://github.com/HimanshuKumarRout/CampusLink"
                 target="_blank"
                 rel="noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:text-indigo-600 hover:border-indigo-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"

@@ -92,7 +92,7 @@ export function SettingsView({
   useEffect(() => {
     setMounted(true);
     try {
-      const saved = localStorage.getItem("hirebridge_student_settings");
+      const saved = localStorage.getItem("campuslink_student_settings");
       if (saved) {
         setSettings((prev) => ({ ...prev, ...JSON.parse(saved) }));
       }
@@ -135,7 +135,7 @@ export function SettingsView({
     profileDefaultsRef.current = seeded;
 
     try {
-      if (localStorage.getItem("hirebridge_student_settings")) return; // saved preferences win
+      if (localStorage.getItem("campuslink_student_settings")) return; // saved preferences win
     } catch {
       // storage unavailable — apply profile defaults anyway
     }
@@ -150,7 +150,7 @@ export function SettingsView({
 
   const handleSave = () => {
     try {
-      localStorage.setItem("hirebridge_student_settings", JSON.stringify(settings));
+      localStorage.setItem("campuslink_student_settings", JSON.stringify(settings));
       setHasChanges(false);
       toast.success("Settings saved successfully!", {
         description: "Your preferences and account settings have been updated.",
@@ -161,7 +161,7 @@ export function SettingsView({
   };
 
   const handleReset = () => {
-    localStorage.removeItem("hirebridge_student_settings");
+    localStorage.removeItem("campuslink_student_settings");
     setSettings({
       fullName: studentName,
       rollNumber: "220101124",
@@ -625,7 +625,7 @@ export function SettingsView({
                   Appearance & Interface Theme
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Customize the look and feel of your HireBridge dashboard interface.
+                  Customize the look and feel of your CampusLink dashboard interface.
                 </p>
               </div>
 
