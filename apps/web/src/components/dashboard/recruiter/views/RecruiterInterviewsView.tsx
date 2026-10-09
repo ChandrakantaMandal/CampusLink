@@ -61,6 +61,12 @@ const splitTimeRange = (time: string): [string, string] => {
   return [parts[0] ?? "", parts[1] ?? ""];
 };
 
+function getDefaultInterviewDate() {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 export default function RecruiterInterviewsView() {
   const [interviews, setInterviews] = useState<RecruiterInterview[]>([]);
   const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
@@ -78,9 +84,10 @@ export default function RecruiterInterviewsView() {
   // New Interview Form
   const [newInterview, setNewInterview] = useState({
     candidateId: "",
+    applicationId: "",
     jobId: "",
     round: "Round 2: Core Technical & DSA",
-    date: "2026-09-28",
+    date: getDefaultInterviewDate(),
     time: "03:00 PM – 04:00 PM",
     duration: "60 mins",
     mode: "Online Google Meet" as const,
@@ -94,12 +101,14 @@ export default function RecruiterInterviewsView() {
       .then(([interviewRows, candidateRows, jobRows]) => {
         if (cancelled) return;
         setInterviews(interviewRows);
-        setCandidates(candidateRows);
+        const eligibleCandidates = candidateRows.filter((candidate) => candidate.assessmentPassed === true);
+        setCandidates(eligibleCandidates);
         setJobs(jobRows);
         setNewInterview((prev) => ({
           ...prev,
-          candidateId: candidateRows[0]?.id ?? "",
-          jobId: jobRows[0]?.id ?? "",
+          candidateId: eligibleCandidates[0]?.studentId ?? eligibleCandidates[0]?.id ?? "",
+          applicationId: eligibleCandidates[0]?.applicationId ?? "",
+          jobId: eligibleCandidates[0]?.appliedJobId ?? jobRows[0]?.id ?? "",
         }));
       })
       .catch(() => {
@@ -137,6 +146,7 @@ export default function RecruiterInterviewsView() {
     const [slotStart = "", slotEnd = ""] = newInterview.time.split("–");
     const payload: CreateRecruiterInterviewInput = {
       studentId: newInterview.candidateId,
+      applicationId: newInterview.applicationId || undefined,
       jobId: newInterview.jobId,
       roundName: newInterview.round,
       roundNumber: Number(newInterview.round.match(/round\s*(\d+)/i)?.[1] ?? 1),
@@ -505,20 +515,21 @@ export default function RecruiterInterviewsView() {
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Select Candidate</label>
                 <select
-                  value={newInterview.candidateId}
-                  onChange={(e) => setNewInterview({ ...newInterview, candidateId: e.target.value })}
+                  value={newInterview.applicationId}
+                  onChange={(e) => {
+                    const selected = candidates.find((candidate) => candidate.applicationId === e.target.value);
+                    if (selected) setNewInterview({ ...newInterview, candidateId: selected.studentId ?? selected.id, applicationId: selected.applicationId ?? "", jobId: selected.appliedJobId });
+                  }}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                 >
                   {candidates.length === 0 && (
                     <option value="" disabled>
-                      No shortlisted candidates
+                      No candidates have passed an assessment
                     </option>
                   )}
-                  {candidates
-                    .filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i)
-                    .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.branch} - {c.cgpa} CGPA)
+                  {candidates.map((c) => (
+                    <option key={c.applicationId ?? c.id} value={c.applicationId ?? c.id}>
+                      {c.name} — {c.appliedJobTitle} ({c.assessmentPercentage ?? 0}% assessment)
                     </option>
                   ))}
                 </select>
@@ -529,6 +540,7 @@ export default function RecruiterInterviewsView() {
                 <select
                   value={newInterview.jobId}
                   onChange={(e) => setNewInterview({ ...newInterview, jobId: e.target.value })}
+                  disabled={Boolean(newInterview.applicationId)}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                 >
                   {jobs.length === 0 && (

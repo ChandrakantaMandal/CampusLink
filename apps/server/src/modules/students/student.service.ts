@@ -324,6 +324,14 @@ function aggregateCacheKey(userId: string, domain: string) {
   return `student:${domain}:${userId}`;
 }
 
+export function invalidateStudentInterviewCache(userId: string) {
+  return redis.del(aggregateCacheKey(userId, "interviews"));
+}
+
+export function invalidateStudentOfferCache(userId: string) {
+  return redis.del(aggregateCacheKey(userId, "offers"));
+}
+
 export function invalidateStudentNotificationsCache(userId: string) {
   return redis.del(aggregateCacheKey(userId, "notifications"));
 }
@@ -857,11 +865,12 @@ export async function getStudentInterviews(userId: string) {
         },
       });
 
-      const now = new Date();
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
 
       const upcoming = interviews.filter(
         (interview) =>
-          interview.scheduledDate >= now &&
+          interview.scheduledDate >= today &&
           (interview.status === "SCHEDULED" ||
             interview.status === "RESCHEDULED"),
       );
@@ -892,6 +901,7 @@ export async function getStudentOffers(userId: string) {
       const offers = await db.offer.findMany({
         where: {
           studentId: student.id,
+          status: { not: "DRAFT" },
         },
 
         orderBy: {

@@ -11,14 +11,17 @@ import {
   createRecruiterProfileController,
   createMyJobController,
   createMyOfferController,
+  downloadMyOfferPdfController,
   deleteMyJobController,
   getMyInterviewsController,
   getMyJobsController,
   getMyNotificationsController,
   getMyOffersController,
+  sendMyOfferController,
   getRecruiterProfileController,
   getRecruiterStatsController,
   getShortlistedController,
+  sendBatchAssessmentInvitesController,
   markAllNotificationsReadController,
   markNotificationReadController,
   updateInterviewController,
@@ -33,6 +36,13 @@ router.get(
   requireAuth,
   requireRole("RECRUITER"),
   getRecruiterProfileController,
+);
+
+router.post(
+  "/shortlisted/assessment-links",
+  requireAuth,
+  requireRole("RECRUITER"),
+  sendBatchAssessmentInvitesController,
 );
 
 router.post(
@@ -129,6 +139,20 @@ router.post(
   requireAuth,
   requireRole("RECRUITER"),
   createMyOfferController,
+);
+
+router.post(
+  "/offers/:id/send",
+  requireAuth,
+  requireRole("RECRUITER"),
+  sendMyOfferController,
+);
+
+router.get(
+  "/offers/:id/pdf",
+  requireAuth,
+  requireRole("RECRUITER"),
+  downloadMyOfferPdfController,
 );
 
 // Recruiter views own notifications (+ unread count)

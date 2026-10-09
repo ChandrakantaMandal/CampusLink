@@ -49,6 +49,7 @@ export default function StudentSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const dashboard = useStudentDashboard();
+  const readiness = useStudentReadiness();
   const profile = useStudentProfile();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -71,7 +72,7 @@ export default function StudentSidebar({
       id: "readiness",
       label: "Readiness Score",
       icon: TrendingUp,
-      badge: stats ? `${stats.readinessScore}%` : null,
+      badge: readiness.data ? `${readiness.data.score}%` : null,
       href: "/student/readiness",
     },
     {

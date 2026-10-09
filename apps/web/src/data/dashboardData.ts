@@ -43,6 +43,7 @@ export interface UpcomingDrive {
   date: string;
   time: string;
   venue: string;
+  meetingLink?: string | null;
   type: "In-Person" | "Virtual" | "Hybrid";
   status: "Registered" | "Open" | "Shortlisted";
   batchEligibility: string;

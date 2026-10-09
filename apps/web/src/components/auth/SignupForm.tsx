@@ -78,7 +78,7 @@ export default function SignupForm() {
             );
 
             router.push(
-              `/verify-email?email=${encodeURIComponent(email.trim())}` as Route,
+              `/verify-email?email=${encodeURIComponent(email.trim())}&role=${encodeURIComponent(role)}` as Route,
             );
           },
           onError: (err) => {

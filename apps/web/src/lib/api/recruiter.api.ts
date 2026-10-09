@@ -71,6 +71,7 @@ const STATUS_TO_VIEW: Record<string, RecruiterCandidate["status"]> = {
 const VIEW_TO_STATUS: Record<RecruiterCandidate["status"], string> = {
   Applied: "APPLIED",
   "Under Review": "UNDER_REVIEW",
+  Assessment: "ASSESSMENT",
   Shortlisted: "SHORTLISTED",
   Interview: "INTERVIEW",
   Selected: "SELECTED",
@@ -288,6 +289,7 @@ export interface ShortlistedApplicationRaw {
     user: { id: string; name: string | null; email: string; image?: string | null };
   } | null;
   matchResult: { matchScore?: number | null } | null;
+  assessmentOutcome?: { passed: boolean | null; percentage: number | null; takenAt: string } | null;
 }
 
 // ---------- Recruiter mapping ----------
@@ -418,6 +420,7 @@ function toShortlistedCandidate(raw: ShortlistedApplicationRaw): RecruiterCandid
 
   return {
     id: student?.id ?? raw.id,
+    applicationId: raw.id,
     studentId: student?.id,
     name: displayName(student?.firstName, student?.lastName, student?.user?.name),
     email: student?.user?.email ?? "",
@@ -430,7 +433,9 @@ function toShortlistedCandidate(raw: ShortlistedApplicationRaw): RecruiterCandid
     skills: [],
     matchScore: normalizeScore(raw.matchResult?.matchScore),
     readinessScore: normalizeScore(student?.readinessScore),
-    status: "Shortlisted",
+    status: raw.status === "ASSESSMENT" ? "Assessment" : "Shortlisted",
+    assessmentPassed: raw.assessmentOutcome?.passed ?? null,
+    assessmentPercentage: raw.assessmentOutcome?.percentage ?? null,
     appliedJobId: raw.job?.id ?? "",
     appliedJobTitle: raw.job?.title ?? "",
     appliedDate: dateOnly(raw.appliedAt),
@@ -614,6 +619,14 @@ export async function getShortlistedCandidates(): Promise<RecruiterCandidate[]> 
   return response.data.data.map(toShortlistedCandidate);
 }
 
+export async function sendBatchAssessmentLinks(applicationIds: string[]): Promise<{ sent: number; total: number }> {
+  const response = await api.post<Envelope<{ sent: number; total: number }>>(
+    "/api/recruiter/shortlisted/assessment-links",
+    { applicationIds },
+  );
+  return response.data.data;
+}
+
 // ---------- Offers / notifications / stats raw types ----------
 
 export interface RecruiterOfferRaw {
@@ -644,7 +657,7 @@ export interface RecruiterOfferRaw {
     firstName?: string | null;
     lastName?: string | null;
     branch?: string | null;
-    user: { id: string; name: string | null; image?: string | null };
+    user: { id: string; name: string | null; email: string; image?: string | null };
   };
   company: { id: string; name: string; logoUrl?: string | null };
   job?: { id: string; title: string } | null;
@@ -755,7 +768,9 @@ function toRecruiterOffer(raw: RecruiterOfferRaw): RecruiterOffer {
     id: raw.id,
     candidateId: raw.student.id,
     candidateName: fullName || raw.student.user.name || "Unknown Candidate",
+    candidateEmail: raw.student.user.email,
     candidateBranch: raw.student.branch ?? "",
+    companyName: raw.company.name,
     jobId: raw.jobId ?? "",
     role: raw.role,
     ctc: raw.ctc,
@@ -820,6 +835,21 @@ export async function createMyOffer(
     input,
   );
   return toRecruiterOffer(response.data.data);
+}
+
+export async function sendMyOffer(offerId: string): Promise<RecruiterOffer> {
+  const response = await api.post<Envelope<RecruiterOfferRaw>>(
+    `/api/recruiter/offers/${encodeURIComponent(offerId)}/send`,
+  );
+  return toRecruiterOffer(response.data.data);
+}
+
+export async function downloadMyOfferPdf(offerId: string): Promise<Blob> {
+  const response = await api.get<Blob>(
+    `/api/recruiter/offers/${encodeURIComponent(offerId)}/pdf`,
+    { responseType: "blob" },
+  );
+  return response.data;
 }
 
 export async function getMyNotifications(): Promise<NotificationFeed> {

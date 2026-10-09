@@ -1,26 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
 import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
 
 import {
-  AggregateLoading,
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
 
-import {
-  useStudentDashboard,
-  useStudentReadiness,
-} from "@/hooks/use-student";
-
-import {
-  toStudentStats,
-  toReadinessCardProps,
-} from "@/lib/dashboard-adapters";
+import { useStudentReadiness } from "@/hooks/use-student";
 
 import { toast } from "sonner";
+import type { StudentReadinessData } from "@/lib/api/student.api";
 
 import {
   Sparkles,
@@ -33,33 +25,6 @@ import {
   mockDashboardData,
   type ReadinessDimension,
 } from "@/data/dashboardData";
-
-const SERVER_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  "http://localhost:3000";
-
-type ReadinessResponse = {
-  overallScore: number;
-  readinessLabel: string;
-
-  breakdown: {
-    technical: number;
-    assessment: number;
-    projects: number;
-    academics: number;
-    resume: number;
-  };
-
-  weights: {
-    technical: number;
-    assessment: number;
-    projects: number;
-    academics: number;
-    resume: number;
-  };
-
-  explanation: string;
-};
 
 function getStatus(
   score: number,
@@ -76,64 +41,13 @@ function getStatus(
 }
 
 export default function StudentReadiness() {
-  const [readiness, setReadiness] =
-    useState<ReadinessResponse | null>(null);
+  const readinessQuery = useStudentReadiness();
+  const readiness: StudentReadinessData | null = readinessQuery.data;
+  const { loading, error, refresh } = readinessQuery;
+  const fetchReadiness = refresh;
 
-  const [loading, setLoading] = useState(true);
-
-  async function fetchReadiness() {
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        `${SERVER_URL}/api/students/readiness`,
-        {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Readiness API failed: ${response.status}`,
-        );
-      }
-
-      const result = await response.json();
-
-      if (!result.success || !result.data) {
-        throw new Error(
-          "Invalid readiness response",
-        );
-      }
-
-      setReadiness(result.data);
-    } catch (error) {
-      console.error(
-        "Failed to fetch readiness:",
-        error,
-      );
-
-      toast.error(
-        "Unable to load live readiness score.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchReadiness();
-  }, []);
-
-  const readinessScore =
-    readiness?.overallScore ??
-    mockDashboardData.stats.readinessScore;
-
-  const readinessLabel =
-    readiness?.readinessLabel ??
-    mockDashboardData.stats.readinessLabel;
+  const readinessScore = readiness?.score ?? 0;
+  const readinessLabel = readiness?.label ?? "Not Rated";
 
   const dashboardStats = {
     ...mockDashboardData.stats,
@@ -185,7 +99,7 @@ export default function StudentReadiness() {
             ),
           },
         ]
-      : mockDashboardData.readinessDimensions;
+      : [];
 
   const weakestDimension = readiness
     ? readinessDimensions.reduce(
@@ -234,6 +148,13 @@ export default function StudentReadiness() {
       </div>
 
       {/* Summary Stats */}
+      {error && (
+        <AggregateError
+          message={error}
+          onRetry={() => void fetchReadiness()}
+        />
+      )}
+
       <KeyStatistics stats={dashboardStats} />
 
       {/* Main Readiness Component */}

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Route } from "next";
 import {
   CheckCircle2,
   Users,
@@ -16,13 +15,15 @@ import {
   FileCheck,
 } from "lucide-react";
 import type { RecruiterCandidate } from "../recruiter.types";
-import { getShortlistedCandidates } from "@/lib/api/recruiter.api";
+import { getShortlistedCandidates, sendBatchAssessmentLinks } from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterShortlistedView() {
   const [candidates, setCandidates] = useState<RecruiterCandidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [sendingCandidateId, setSendingCandidateId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,11 +49,37 @@ export default function RecruiterShortlistedView() {
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.appliedJobTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const awaitingAssessment = filtered.filter((candidate) => candidate.status === "Shortlisted");
 
-  const handleBatchAssessment = () => {
-    toast.success("Batch Assessment Links Sent 🚀", {
-      description: `Evaluation assessment test links emailed to ${filtered.length} shortlisted candidates.`,
-    });
+  const handleBatchAssessment = async () => {
+    if (isSending || awaitingAssessment.length === 0) return;
+    setIsSending(true);
+    try {
+      const result = await sendBatchAssessmentLinks(awaitingAssessment.map((candidate) => candidate.applicationId!).filter(Boolean));
+      const sentIds = new Set(awaitingAssessment.map((candidate) => candidate.applicationId));
+      setCandidates((current) => current.map((candidate) => sentIds.has(candidate.applicationId) ? { ...candidate, status: "Assessment" } : candidate));
+      toast.success("Assessment links sent", {
+        description: `Sent to ${result.sent} of ${result.total} shortlisted candidates.`,
+      });
+    } catch (error) {
+      toast.error("Failed to send assessment links", { description: error instanceof Error ? error.message : "Please try again." });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleSendCandidateAssessment = async (candidate: RecruiterCandidate) => {
+    if (isSending || sendingCandidateId || candidate.status !== "Shortlisted" || !candidate.applicationId) return;
+    setSendingCandidateId(candidate.applicationId);
+    try {
+      await sendBatchAssessmentLinks([candidate.applicationId]);
+      setCandidates((current) => current.map((item) => item.applicationId === candidate.applicationId ? { ...item, status: "Assessment" } : item));
+      toast.success("Assessment link sent", { description: `Sent to ${candidate.email}.` });
+    } catch (error) {
+      toast.error("Failed to send assessment link", { description: error instanceof Error ? error.message : "Please try again." });
+    } finally {
+      setSendingCandidateId(null);
+    }
   };
 
   return (
@@ -73,10 +100,11 @@ export default function RecruiterShortlistedView() {
           <button
             type="button"
             onClick={handleBatchAssessment}
+            disabled={isSending || sendingCandidateId !== null || awaitingAssessment.length === 0}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-teal-600/25 hover:shadow-lg hover:shadow-teal-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
             <Mail className="h-4 w-4" />
-            <span>Send Batch Assessment Links</span>
+            <span>{isSending ? "Sending assessment links…" : "Send Batch Assessment Links"}</span>
           </button>
         </div>
       </div>
@@ -144,7 +172,11 @@ export default function RecruiterShortlistedView() {
                   </td>
                   <td className="p-4">
                     <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 text-[10px] font-bold px-2 py-0.5">
-                      {c.status}
+                      {c.status === "Assessment"
+                        ? c.assessmentPassed === true
+                          ? `Assessment passed${c.assessmentPercentage != null ? ` · ${c.assessmentPercentage}%` : ""}`
+                          : c.assessmentPassed === false ? "Assessment not passed" : "Assessment pending"
+                        : c.status}
                     </span>
                   </td>
                   <td className="p-4 font-medium text-slate-600 dark:text-slate-400 text-xs">
@@ -158,13 +190,16 @@ export default function RecruiterShortlistedView() {
                     {c.notes || "High priority candidate for engineering team."}
                   </td>
                   <td className="p-4 text-right">
-                    <Link
-                      href="/recruiter/interviews"
-                      className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      <span>Schedule</span>
-                      <Calendar className="h-3 w-3" />
-                    </Link>
+                    {c.status === "Shortlisted" ? (
+                      <button type="button" onClick={() => void handleSendCandidateAssessment(c)} disabled={isSending || sendingCandidateId !== null} className="inline-flex items-center gap-1 font-bold text-teal-700 dark:text-teal-400 hover:underline disabled:cursor-not-allowed disabled:opacity-50">
+                        <Mail className="h-3 w-3" />
+                        <span>{sendingCandidateId === c.applicationId ? "Sending…" : "Send Assessment"}</span>
+                      </button>
+                    ) : c.assessmentPassed === true ? (
+                      <Link href="/recruiter/interviews" className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                        <span>Schedule</span><Calendar className="h-3 w-3" />
+                      </Link>
+                    ) : <span className="text-[10px] font-semibold text-slate-400">{c.assessmentPassed === false ? "Not eligible" : "Assessment required"}</span>}
                   </td>
                 </tr>
               ))

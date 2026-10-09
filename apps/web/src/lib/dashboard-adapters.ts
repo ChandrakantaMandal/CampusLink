@@ -369,6 +369,7 @@ function toInterviewSlot(interview: StudentInterviewData): InterviewSlot {
     date: formatDate(interview.scheduledDate),
     time: interview.startTime ?? "TBD",
     venue: interview.venue ?? interview.meetingLink ?? "TBD",
+    meetingLink: interview.meetingLink,
     type: toInterviewType(interview.mode),
     interviewRound:
       interview.roundNumber > 1

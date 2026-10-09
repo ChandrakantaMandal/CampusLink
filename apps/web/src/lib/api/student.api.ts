@@ -332,6 +332,21 @@ export interface RecentAssessmentData {
 export interface StudentReadinessData {
   score: number;
   label: string | null;
+  breakdown: {
+    technical: number;
+    assessment: number;
+    projects: number;
+    academics: number;
+    resume: number;
+  };
+  weights: {
+    technical: number;
+    assessment: number;
+    projects: number;
+    academics: number;
+    resume: number;
+  };
+  explanation: string;
   latest: ReadinessResultData | null;
   history: ReadinessResultData[];
   recentAssessments: RecentAssessmentData[];

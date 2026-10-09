@@ -429,33 +429,38 @@ export async function updateApplicationStatus(
     throw new Error("You are not authorized to update this application");
   }
 
-  const updatedApplication = await db.application.update({
-    where: {
-      id: applicationId,
-    },
-    data: {
-      status: data.status,
-    },
-    include: {
-      job: {
-        include: {
-          company: true,
-        },
-      },
-      student: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-            },
+  const updatedApplication = await db.$transaction(async (tx) => {
+    const updated = await tx.application.update({
+      where: { id: applicationId },
+      data: { status: data.status },
+      include: {
+        job: { include: { company: true } },
+        student: {
+          include: {
+            user: { select: { id: true, name: true, email: true, image: true } },
           },
         },
+        matchResult: true,
       },
-      matchResult: true,
-    },
+    });
+
+    if (data.status === "OFFER_EXTENDED") {
+      await tx.offer.upsert({
+        where: { applicationId },
+        create: {
+          applicationId,
+          studentId: application.studentId,
+          companyId: application.job.companyId,
+          jobId: application.jobId,
+          role: application.job.title,
+          ctc: application.job.ctc ?? "To be discussed",
+          status: "DRAFT",
+        },
+        update: {},
+      });
+    }
+
+    return updated;
   });
 
   await redis.del(

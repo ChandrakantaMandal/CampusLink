@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   Award,
   FileCheck2,
-  Download,
   CheckCircle2,
   Sparkles,
   ArrowRight,
@@ -42,12 +41,6 @@ export function OfferTrackingCard({ offers, onAccepted }: OfferTrackingCardProps
     } finally {
       setPendingOfferId(null);
     }
-  };
-
-  const handleDownload = (offer: OfferDetails) => {
-    toast.info(`Downloading Letter of Intent for ${offer.company}`, {
-      description: `Official campus offer document with digital seal.`,
-    });
   };
 
   if (!offers || offers.length === 0) {
@@ -105,10 +98,6 @@ export function OfferTrackingCard({ offers, onAccepted }: OfferTrackingCardProps
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100/70 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 border border-emerald-300/60 dark:border-emerald-700/60">
-          <FileCheck2 className="w-3.5 h-3.5" />
-          <span>Documents Verified</span>
-        </div>
       </div>
 
       <div className="space-y-4">
@@ -169,14 +158,6 @@ export function OfferTrackingCard({ offers, onAccepted }: OfferTrackingCardProps
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleDownload(offer)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 transition-colors"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    Download LOI
-                  </button>
-
                   {isAccepted ? (
                     <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white shadow-xs">
                       <CheckCircle2 className="w-3.5 h-3.5" />
