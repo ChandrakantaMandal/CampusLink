@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
@@ -19,6 +19,7 @@ import {
   X,
   ShieldCheck,
   UserRound,
+  ChevronRight,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useStudentDashboard, useStudentReadiness, useStudentDrives, useStudentSkills, useStudentJobs, useStudentApplications, useStudentInterviews, useStudentOffers, useStudentNotifications } from "@/hooks/use-student";
@@ -54,6 +55,44 @@ export default function StudentSidebar({
   const profile = useStudentProfile();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const profileContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleProfileMouseEnter = () => {
+    if (profileTimeoutRef.current) {
+      clearTimeout(profileTimeoutRef.current);
+      profileTimeoutRef.current = null;
+    }
+    setIsProfileOpen(true);
+  };
+
+  const handleProfileMouseLeave = () => {
+    if (profileTimeoutRef.current) {
+      clearTimeout(profileTimeoutRef.current);
+    }
+    profileTimeoutRef.current = setTimeout(() => {
+      setIsProfileOpen(false);
+    }, 1000); // 1 full second delay
+  };
+
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (
+        profileContainerRef.current &&
+        !profileContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleDocumentClick);
+    return () => {
+      if (profileTimeoutRef.current) {
+        clearTimeout(profileTimeoutRef.current);
+      }
+      document.removeEventListener("mousedown", handleDocumentClick);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -236,39 +275,62 @@ export default function StudentSidebar({
         <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800/80 dark:bg-slate-900/40">
           {/* Profile Card + Flyout */}
           <div
+            ref={profileContainerRef}
             className="relative mb-3"
-            onMouseEnter={() => setIsProfileOpen(true)}
-            onMouseLeave={() => setIsProfileOpen(false)}
+            onMouseEnter={handleProfileMouseEnter}
+            onMouseLeave={handleProfileMouseLeave}
           >
-            <button
-              type="button"
-              onClick={() => router.push("/student/profile" as Route)}
-              className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white p-2.5 text-left transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
-              aria-label="Open student profile"
-            >
-              <div className="flex min-w-0 items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white">
-                  {profile.profile ? getInitials(profile.profile.firstName, profile.profile.lastName) : "ST"}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => router.push("/student/profile" as Route)}
+                className="flex-1 flex items-center justify-between rounded-xl border border-slate-200 bg-white p-2.5 text-left transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800 cursor-pointer min-w-0"
+                aria-label="Open student profile"
+              >
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white">
+                    {profile.profile ? getInitials(profile.profile.firstName, profile.profile.lastName) : "ST"}
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
+                      {profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName) : "Student Portal"}
+                    </p>
+
+                    <p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
+                      {profile.profile?.department ?? "CampusLink Student"}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="min-w-0">
-                  <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
-                    {profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName) : "Student Portal"}
-                  </p>
+                <UserRound className="h-4 w-4 shrink-0 text-slate-400" />
+              </button>
 
-                  <p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
-                    {profile.profile?.department ?? "CampusLink Student"}
-                  </p>
-                </div>
-              </div>
-
-              <UserRound className="h-4 w-4 shrink-0 text-slate-400" />
-            </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (profileTimeoutRef.current) {
+                    clearTimeout(profileTimeoutRef.current);
+                    profileTimeoutRef.current = null;
+                  }
+                  setIsProfileOpen((prev) => !prev);
+                }}
+                className={`p-2.5 rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer shrink-0 ${
+                  isProfileOpen ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800" : ""
+                }`}
+                title="Toggle profile menu"
+                aria-label="Toggle profile menu"
+              >
+                <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${isProfileOpen ? "rotate-90 text-indigo-600 dark:text-indigo-400" : ""}`} />
+              </button>
+            </div>
 
             <ProfileFlyout
               isOpen={isProfileOpen}
-              onMouseEnter={() => setIsProfileOpen(true)}
-              onMouseLeave={() => setIsProfileOpen(false)}
+              onMouseEnter={handleProfileMouseEnter}
+              onMouseLeave={handleProfileMouseLeave}
+              onClose={() => setIsProfileOpen(false)}
               isAuthenticated={true}
             />
           </div>
