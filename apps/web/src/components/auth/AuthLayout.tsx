@@ -16,6 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -45,17 +46,7 @@ export default function AuthLayout({
         {/* Top Branding */}
         <div className="relative z-10 space-y-2">
           <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-              <GraduationCap className="h-6 w-6" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-black tracking-tight text-white">
-                CAMPUS<span className="text-[#6366F1]">LINK</span>
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-300">
-                Placement Intelligence
-              </span>
-            </div>
+            <BrandLogo size={44} showText subtitle="Placement Intelligence" priority />
           </Link>
         </div>
 

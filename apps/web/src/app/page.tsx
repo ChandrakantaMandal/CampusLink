@@ -8,6 +8,7 @@ import WorkflowSteps from "@/components/landing/sections/WorkflowSteps";
 import TestimonialsAndPartners from "@/components/landing/sections/TestimonialsAndPartners";
 import FaqSection from "@/components/landing/sections/FaqSection";
 import CtaBanner from "@/components/landing/sections/CtaBanner";
+import FloatingChatWidget from "@/components/ai/FloatingChatWidget";
 
 export const metadata = {
   title: "CAMPUSLINK — AI-Powered Campus Placement Management Platform",
@@ -30,6 +31,7 @@ export default function Home() {
         <CtaBanner />
       </main>
       <Footer />
+      <FloatingChatWidget role="visitor" />
     </div>
   );
 }

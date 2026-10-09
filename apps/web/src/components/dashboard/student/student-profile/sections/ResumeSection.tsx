@@ -10,6 +10,14 @@ import {
   RefreshCw,
   Trash2,
   CheckCircle2,
+  Sparkles,
+  Code2,
+  FolderGit2,
+  GraduationCap,
+  Award,
+  AlertCircle,
+  Lightbulb,
+  ArrowRight,
 } from "lucide-react";
 
 import type { StudentProfileData } from "@/data/studentProfile";
@@ -32,6 +40,60 @@ interface ResumeAnalysis {
   strengths?: string[];
   weaknesses?: string[];
   recommendations?: string[];
+}
+
+function formatDisplayText(text: string): string {
+  if (!text) return "";
+  const trimmed = text.trim();
+
+  // If text is SCREAMING_SNAKE_CASE, SCREAMING-KEBAB-CASE, or ALL-CAPS words
+  const isScreaming =
+    trimmed === trimmed.toUpperCase() &&
+    /[A-Z]/.test(trimmed) &&
+    (trimmed.includes("-") || trimmed.includes("_") || trimmed.includes(" "));
+
+  if (isScreaming) {
+    return trimmed
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map((word) => {
+        const upper = word.toUpperCase();
+        if (
+          [
+            "AI",
+            "ML",
+            "API",
+            "APIS",
+            "UI",
+            "UX",
+            "SQL",
+            "DBMS",
+            "OS",
+            "IOT",
+            "AWS",
+            "HTML",
+            "CSS",
+            "JS",
+            "TS",
+          ].includes(upper)
+        ) {
+          return upper;
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(" ");
+  }
+
+  // Single word in all caps longer than 3 characters
+  if (
+    trimmed === trimmed.toUpperCase() &&
+    trimmed.length > 3 &&
+    !["HTML", "CSS", "SQL", "DBMS", "REST", "JAVA", "JSON", "HTTP"].includes(trimmed)
+  ) {
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  }
+
+  return trimmed;
 }
 
 interface ResumeSectionProps {
@@ -456,21 +518,27 @@ export default function ResumeSection({
 
             {/* AI Analysis */}
             {analysis && !isAnalyzing && (
-              <div className="mt-6 rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm dark:border-indigo-900/60 dark:bg-slate-900">
-                <div className="mb-5">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    AI Resume Analysis
-                  </h3>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    AI-generated insights from your uploaded resume.
-                  </p>
-                </div>
-
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/90">
+                <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                        AI Resume Analysis
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        AI-generated insights from your uploaded resume.
+                      </p>
+                    </div>
+                  </div>
+                </div>                {/* Primary Data Grid */}
                 <div className="grid gap-5 sm:grid-cols-2">
                   {/* Skills */}
-                  <div>
-                    <h4 className="mb-2 text-sm font-bold text-emerald-600">
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      <Code2 className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                       Skills
                     </h4>
 
@@ -478,93 +546,123 @@ export default function ResumeSection({
                       {analysis.skills?.map((skill, index) => (
                         <span
                           key={`${skill}-${index}`}
-                          className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                          className="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300"
                         >
-                          {skill}
+                          {formatDisplayText(skill)}
                         </span>
                       ))}
                     </div>
                   </div>
 
                   {/* Projects */}
-                  <div>
-                    <h4 className="mb-2 text-sm font-bold text-indigo-600">
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      <FolderGit2 className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                       Projects
                     </h4>
 
-                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                    <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.projects?.map((project, index) => (
-                        <li key={`${project}-${index}`}>• {project}</li>
+                        <li key={`${project}-${index}`} className="flex items-start gap-2.5">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                          <span>{formatDisplayText(project)}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
 
                   {/* Education */}
-                  <div>
-                    <h4 className="mb-2 text-sm font-bold text-blue-600">
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      <GraduationCap className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                       Education
                     </h4>
 
-                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                    <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {Array.isArray(analysis.education) ? (
                         analysis.education.map((item, index) => (
-                          <li key={`${item}-${index}`}>• {item}</li>
+                          <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                            <span>{formatDisplayText(item)}</span>
+                          </li>
                         ))
                       ) : analysis.education ? (
-                        <li>• {analysis.education}</li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                          <span>{formatDisplayText(analysis.education)}</span>
+                        </li>
                       ) : null}
                     </ul>
                   </div>
 
                   {/* Certifications */}
-                  <div>
-                    <h4 className="mb-2 text-sm font-bold text-violet-600">
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-950/40">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      <Award className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                       Certifications
                     </h4>
 
-                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                    <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.certifications?.map((item, index) => (
-                        <li key={`${item}-${index}`}>• {item}</li>
+                        <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                          <span>{formatDisplayText(item)}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
+                </div>
 
+                {/* Strengths & Areas to Improve Cards */}
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   {/* Strengths */}
-                  <div>
-                    <h4 className="mb-2 text-sm font-bold text-emerald-600">
+                  <div className="rounded-xl border border-emerald-500/25 bg-emerald-50/40 p-4 sm:p-5 dark:border-emerald-500/20 dark:bg-emerald-950/20">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
                       Strengths
                     </h4>
 
-                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                    <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.strengths?.map((item, index) => (
-                        <li key={`${item}-${index}`}>✓ {item}</li>
+                        <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500 dark:text-emerald-400" />
+                          <span>{formatDisplayText(item)}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
 
-                  {/* Weaknesses */}
-                  <div>
-                    <h4 className="mb-2 text-sm font-bold text-amber-600">
-                      Weaknesses
+                  {/* Areas to Improve */}
+                  <div className="rounded-xl border border-amber-500/25 bg-amber-50/40 p-4 sm:p-5 dark:border-amber-500/20 dark:bg-amber-950/20">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                      <AlertCircle className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+                      Areas to Improve
                     </h4>
 
-                    <ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                    <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.weaknesses?.map((item, index) => (
-                        <li key={`${item}-${index}`}>• {item}</li>
+                        <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
+                          <span>{formatDisplayText(item)}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
                 </div>
 
                 {/* Recommendations */}
-                <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
-                  <h4 className="mb-2 text-sm font-bold text-violet-600">
-                    Recommendations
+                <div className="mt-5 rounded-xl border border-indigo-500/25 bg-indigo-50/40 p-4 sm:p-5 dark:border-indigo-500/20 dark:bg-indigo-950/20">
+                  <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
+                    <Lightbulb className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                    AI Actionable Recommendations
                   </h4>
 
-                  <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                  <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                     {analysis.recommendations?.map((item, index) => (
-                      <li key={`${item}-${index}`}>→ {item}</li>
+                      <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                        <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-400" />
+                        <span>{formatDisplayText(item)}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>

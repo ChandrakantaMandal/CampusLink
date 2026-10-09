@@ -204,11 +204,13 @@ export default function StudentsManagementView() {
           <select
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All">All Branches</option>
+            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              All Branches
+            </option>
             {branchOptions.slice(1).map((branch) => (
-              <option key={branch} value={branch}>
+              <option key={branch} value={branch} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {branch}
               </option>
             ))}
@@ -218,12 +220,20 @@ export default function StudentsManagementView() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All">All Statuses</option>
-            <option value="Eligible">Eligible</option>
-            <option value="Placed">Placed</option>
-            <option value="Needs Attention">Needs Attention</option>
+            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              All Statuses
+            </option>
+            <option value="Eligible" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              Eligible
+            </option>
+            <option value="Placed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              Placed
+            </option>
+            <option value="Needs Attention" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              Needs Attention
+            </option>
           </select>
 
           <span className="text-xs text-slate-400 font-semibold hidden sm:inline">
@@ -235,7 +245,7 @@ export default function StudentsManagementView() {
       {/* Students Table */}
       <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[720px] text-left text-xs">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
               <tr>
                 <th className="px-5 py-3.5">Student</th>
@@ -519,7 +529,7 @@ export default function StudentsManagementView() {
                 <button
                   type="button"
                   onClick={() => handleToggleDisable(selectedStudent.id)}
-                  className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                  className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-all"
                 >
                   {selectedStudent.status === "Needs Attention" ? "Enable Account" : "Flag / Disable"}
                 </button>
@@ -537,7 +547,7 @@ export default function StudentsManagementView() {
                 <button
                   type="button"
                   onClick={() => setSelectedStudent(null)}
-                  className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold px-4 py-2 text-xs transition-all"
+                  className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white text-slate-700 dark:text-slate-200 font-bold px-4 py-2 text-xs transition-all"
                 >
                   Close
                 </button>
@@ -601,12 +611,12 @@ export default function StudentsManagementView() {
                   <select
                     value={newStudent.branch}
                     onChange={(e) => setNewStudent({ ...newStudent, branch: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500 cursor-pointer"
                   >
-                    <option value="CSE">CSE</option>
-                    <option value="IT">IT</option>
-                    <option value="ECE">ECE</option>
-                    <option value="EEE">EEE</option>
+                    <option value="CSE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">CSE</option>
+                    <option value="IT" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">IT</option>
+                    <option value="ECE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">ECE</option>
+                    <option value="EEE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">EEE</option>
                   </select>
                 </div>
               </div>
@@ -659,7 +669,7 @@ export default function StudentsManagementView() {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+                  className="cursor-pointer rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white"
                 >
                   Cancel
                 </button>

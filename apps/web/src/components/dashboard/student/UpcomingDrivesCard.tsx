@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Building2,
   Calendar,
@@ -28,6 +28,11 @@ export function UpcomingDrivesCard({
   onViewAll,
 }: UpcomingDrivesCardProps) {
   const [drives, setDrives] = useState<UpcomingDrive[]>(initialDrives);
+
+  useEffect(() => {
+    setDrives(initialDrives);
+  }, [initialDrives]);
+
   const [activeSlide, setActiveSlide] = useState(0);
   const [registeredIds, setRegisteredIds] = useState<Record<string, boolean>>({
     "drive-1": true,
@@ -87,6 +92,37 @@ export function UpcomingDrivesCard({
       description: `Venue: ${drive.venue} • Reporting: 30 mins prior`,
     });
   };
+
+  if (!drives || drives.length === 0) {
+    return (
+      <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-6 sm:p-7 shadow-xs flex flex-col justify-between overflow-hidden min-w-0">
+        <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0">
+            <Calendar className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-base">
+              Upcoming Campus Drives
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Scheduled on-campus &amp; virtual placement sessions
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            No upcoming drives scheduled
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+            Institutional recruitment drive schedules announced by the University TPO will appear here.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-6 sm:p-7 shadow-xs flex flex-col justify-between overflow-hidden min-w-0">

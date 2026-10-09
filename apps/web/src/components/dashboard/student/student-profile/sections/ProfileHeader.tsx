@@ -143,7 +143,7 @@ export default function ProfileHeader({
               className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all border shadow-xs cursor-pointer ${
                 profile.isPublic
                   ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 hover:bg-emerald-500/20 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-700"
-                  : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+                  : "bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white"
               }`}
               title="Toggle recruiter visibility"
             >

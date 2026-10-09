@@ -27,7 +27,7 @@ const SERVER_URL =
   ENV.NEXT_PUBLIC_SERVER_URL ||
   "http://localhost:3000";
 
-export type ChatRole = "student" | "recruiter" | "admin";
+export type ChatRole = "student" | "recruiter" | "admin" | "visitor";
 
 interface FloatingChatWidgetProps {
   role?: ChatRole;
@@ -100,6 +100,24 @@ const ROLE_CONFIG: Record<
     ],
     contextPrompt:
       "You are CampusLink AI, an expert placement coordinator and TPO copilot.",
+  },
+  visitor: {
+    title: "CampusLink AI",
+    subtitle: "Placement & Platform Copilot",
+    badge: "AI Assistant",
+    greeting: "Welcome to CampusLink! How can I help you?",
+    description:
+      "Ask me anything about campus placement readiness, AI resume parsing, eligibility cutoffs, or recruiting drives.",
+    tooltipText: "Chat with CampusLink AI",
+    avatarGradient: "from-indigo-600 via-purple-600 to-violet-600",
+    prompts: [
+      "🎯 How does CampusLink compute placement readiness?",
+      "🏢 How do recruiters post drives and shortlist candidates?",
+      "📄 How does the AI resume analyzer identify skill gaps?",
+      "⚡ Is CampusLink free for university students?",
+    ],
+    contextPrompt:
+      "You are CampusLink AI, an expert guide and placement intelligence copilot assisting students, recruiters, and placement officers on CampusLink.",
   },
 };
 
@@ -374,6 +392,19 @@ export default function FloatingChatWidget({
                 <span className="text-[11px]">AI is generating answer...</span>
               </div>
             )}
+
+            {error && (
+              <div className="mx-2 mb-2 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/70 dark:bg-rose-950/40 text-[11px] text-rose-600 dark:text-rose-400 flex items-center justify-between gap-2">
+                <span className="truncate">AI service unavailable. Ensure server is active.</span>
+                <button
+                  type="button"
+                  onClick={() => handleSend()}
+                  className="font-bold underline shrink-0 cursor-pointer hover:text-rose-700 dark:hover:text-rose-300"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Footer Input */}
@@ -406,10 +437,17 @@ export default function FloatingChatWidget({
             </div>
 
             <div className="mt-2 flex items-center justify-between px-1 text-[10px] text-slate-400">
-              <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                AI Online
-              </span>
+              {error ? (
+                <span className="flex items-center gap-1 text-rose-500 font-semibold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  AI Offline
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  AI Online
+                </span>
+              )}
               <Link
                 href={"/ai" as Route}
                 className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
@@ -422,12 +460,12 @@ export default function FloatingChatWidget({
       )}
 
       {/* Floating Action Button (The Chatbot Chat Symbol) */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-        {/* Hint Tooltip (only when closed) */}
+      <div className="group fixed bottom-6 right-6 z-50 flex items-center gap-3">
+        {/* Hint Tooltip (only when closed and hovered) */}
         {!isOpen && (
           <div
             onClick={() => setIsOpen(true)}
-            className="hidden sm:inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-900/60 bg-white/95 dark:bg-slate-900/95 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:border-indigo-400 active:scale-95"
+            className="pointer-events-none opacity-0 translate-x-2 group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-x-0 hidden sm:inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-900/60 bg-white/95 dark:bg-slate-900/95 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xl backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-indigo-400 active:scale-95"
           >
             <Sparkles className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
             <span>{config.tooltipText}</span>

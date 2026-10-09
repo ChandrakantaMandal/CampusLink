@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
+import BrandLogo from "@/components/brand/BrandLogo";
 import { Button } from "@CampusLink/ui/components/button";
 import { authClient } from "@/lib/auth-client";
 
@@ -45,28 +46,13 @@ export default function LandingNavbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md transition-all duration-200 dark:border-slate-800/80 dark:bg-slate-950/90 ${
-        isScrolled ? "shadow-md shadow-slate-900/5 dark:shadow-black/20" : ""
-      }`}
+      className={`sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md transition-all duration-200 dark:border-slate-800/80 dark:bg-slate-950/90 ${isScrolled ? "shadow-md shadow-slate-900/5 dark:shadow-black/20" : ""
+        }`}
     >
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <Link href="/" className="group flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white shadow-md shadow-indigo-500/25 transition-transform duration-300 group-hover:scale-105">
-            <GraduationCap className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-black tracking-tight text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-              CAMPUSLINK
-            </span>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-              Placement Platform
-            </span>
-          </div>
+          <BrandLogo size={42} showText subtitle="Placement Platform" priority />
         </Link>
 
         {/* Desktop Navigation Links */}
@@ -117,7 +103,7 @@ export default function LandingNavbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer"
             aria-label="Toggle Navigation Menu"
           >
             {mobileMenuOpen ? (

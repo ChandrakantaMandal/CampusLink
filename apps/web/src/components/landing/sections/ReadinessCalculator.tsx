@@ -152,7 +152,7 @@ export default function ReadinessCalculator() {
                       className={`rounded-xl py-2 text-xs font-bold transition-all ${
                         techLevel === lvl.val
                           ? "bg-indigo-600 text-white shadow-xs"
-                          : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                          : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
                       }`}
                     >
                       {lvl.label}
