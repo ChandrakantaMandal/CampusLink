@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/stores/profileStore";
 import type { Education, Certification } from "@/data/studentProfile";
-import { sampleDemoProfile } from "@/data/studentProfile";
 
 import ProfileHeader from "@/components/dashboard/student/student-profile/sections/ProfileHeader";
 import QuickSectionJumper from "@/components/dashboard/student/student-profile/sections/QuickSectionJumper";
@@ -166,15 +165,7 @@ export default function ProfilePage() {
     toast.success("Loaded blank student profile.");
   };
 
-  const handleLoadSample = () => {
-    setProfile({
-      ...sampleDemoProfile,
-      name: session?.user?.name || sampleDemoProfile.name,
-      email: session?.user?.email || sampleDemoProfile.email,
-    });
-    setErrors({});
-    toast.info("Loaded sample placement profile template!");
-  };
+
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -264,14 +255,7 @@ export default function ProfilePage() {
             <RotateCcw className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
             <span>Start Blank Profile</span>
           </button>
-          <button
-            type="button"
-            onClick={handleLoadSample}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/80 px-3.5 py-2 text-xs font-bold text-indigo-700 shadow-2xs hover:bg-indigo-100 hover:text-indigo-900 dark:border-indigo-900/60 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-950/80 transition-colors cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-            <span>Load Sample Template</span>
-          </button>
+
           {!session?.user && (
             <Link href="/login">
               <button

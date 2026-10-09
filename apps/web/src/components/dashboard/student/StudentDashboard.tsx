@@ -15,7 +15,6 @@ import {
   AggregateError,
 } from "@/components/dashboard/student/aggregate-feedback";
 
-import { mockDashboardData } from "@/data/dashboardData";
 import type { ReadinessDimension } from "@/data/dashboardData";
 
 import {
@@ -26,8 +25,14 @@ import {
   useStudentApplications,
   useStudentJobs,
   useStudentProfile,
+  useStudentInterviews,
 } from "@/hooks/use-student";
-import { toSkillGaps, toOfferDetails, toUpcomingDrives } from "@/lib/dashboard-adapters";
+import {
+  toSkillGaps,
+  toOfferDetails,
+  toUpcomingDrives,
+  toInterviewSlots,
+} from "@/lib/dashboard-adapters";
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -93,13 +98,19 @@ export default function StudentDashboard() {
   const offers = useStudentOffers();
   const offerItems = offers.data
     ? toOfferDetails(offers.data)
-    : mockDashboardData.offers;
+    : [];
 
   // Student drives
   const drivesQuery = useStudentDrives();
   const driveItems = drivesQuery.data
     ? toUpcomingDrives(drivesQuery.data)
-    : mockDashboardData.upcomingDrives;
+    : [];
+
+  // Student interviews
+  const interviewsQuery = useStudentInterviews();
+  const interviewItems = interviewsQuery.data
+    ? toInterviewSlots(interviewsQuery.data)
+    : [];
 
   // Readiness
   const [readiness, setReadiness] =
@@ -148,11 +159,16 @@ export default function StudentDashboard() {
 
   const readinessScore =
     readiness?.overallScore ??
-    mockDashboardData.stats.readinessScore;
+    dashboardQuery.data?.stats.readinessScore ??
+    0;
 
   const readinessLabel =
     readiness?.readinessLabel ??
-    mockDashboardData.stats.readinessLabel;
+    (readinessScore >= 80
+      ? "Tier-1 Ready"
+      : readinessScore >= 40
+        ? "Placement Track"
+        : "Building Profile");
 
   const studentName =
     profileQuery.profile?.user?.name ||
@@ -250,7 +266,13 @@ export default function StudentDashboard() {
             ),
           },
         ]
-      : mockDashboardData.readinessDimensions;
+      : [
+          { category: "Technical Skills", score: 0, fullScore: 100, status: "Needs Attention" },
+          { category: "Mock Assessments", score: 0, fullScore: 100, status: "Needs Attention" },
+          { category: "Verified Projects", score: 0, fullScore: 100, status: "Needs Attention" },
+          { category: "Academics / CGPA", score: 0, fullScore: 100, status: "Needs Attention" },
+          { category: "ATS Resume", score: 0, fullScore: 100, status: "Needs Attention" },
+        ];
 
   return (
     <div className="space-y-6">
@@ -332,7 +354,7 @@ export default function StudentDashboard() {
 
         <div className="lg:col-span-6 min-w-0 flex flex-col">
           <InterviewScheduleCard
-            interviews={mockDashboardData.interviews}
+            interviews={interviewItems}
           />
         </div>
       </div>
