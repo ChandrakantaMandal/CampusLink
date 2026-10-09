@@ -323,11 +323,11 @@ export default function StudentJobs() {
             {/* Background AI analysis status */}
             {Object.keys(matches).length <
               jobs.length && (
-              <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                ✨ AI is analyzing job matches in the
-                background...
-              </p>
-            )}
+                <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                  ✨ AI is analyzing job matches in the
+                  background...
+                </p>
+              )}
           </>
         )}
       </div>
