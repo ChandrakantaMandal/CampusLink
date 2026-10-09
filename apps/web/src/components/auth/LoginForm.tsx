@@ -63,23 +63,29 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotPasswordLoading, setIsForgotPasswordLoading] = useState(false);
 
-  const handleGoogleAuth = async () => {
-    try {
-      setIsLoading(true);
+  
+const handleGoogleAuth = async () => {
+  try {
+    setIsLoading(true);
 
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: new URL(
-          "/auth/callback",
-          window.location.origin,
-        ).toString(),
-      });
-    } catch (error) {
-      console.error("Google authentication error:", error);
-      toast.error("Unable to authenticate with Google. Please try again.");
-      setIsLoading(false);
-    }
-  };
+    const callbackURL = new URL(
+      "/auth/callback",
+      window.location.origin,
+    );
+
+    callbackURL.searchParams.set("role", role);
+
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: callbackURL.toString(),
+      errorCallbackURL: "/login?error=google_auth",
+    });
+  } catch (error) {
+    console.error("Google authentication error:", error);
+    toast.error("Unable to authenticate with Google. Please try again.");
+    setIsLoading(false);
+  }
+};
 
   const handleForgotPassword = async () => {
     const normalizedEmail = email.trim().toLowerCase();
