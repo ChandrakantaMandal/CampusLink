@@ -4,16 +4,10 @@ import React from "react";
 
 import AIReadinessCard from "@/components/dashboard/student/AIReadinessCard";
 import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
-
-import {
-  AggregateError,
-} from "@/components/dashboard/student/aggregate-feedback";
-
+import { AggregateError } from "@/components/dashboard/student/aggregate-feedback";
 import { useStudentReadiness } from "@/hooks/use-student";
 
 import { toast } from "sonner";
-import type { StudentReadinessData } from "@/lib/api/student.api";
-
 import {
   Sparkles,
   TrendingUp,
@@ -21,10 +15,7 @@ import {
   Target,
 } from "lucide-react";
 
-import {
-  mockDashboardData,
-  type ReadinessDimension,
-} from "@/data/dashboardData";
+import { mockDashboardData, type ReadinessDimension } from "@/data/dashboardData";
 
 function getStatus(
   score: number,
@@ -42,12 +33,16 @@ function getStatus(
 
 export default function StudentReadiness() {
   const readinessQuery = useStudentReadiness();
-  const readiness: StudentReadinessData | null = readinessQuery.data;
+  const readiness = readinessQuery.data;
   const { loading, error, refresh } = readinessQuery;
-  const fetchReadiness = refresh;
 
-  const readinessScore = readiness?.score ?? 0;
-  const readinessLabel = readiness?.label ?? "Not Rated";
+  const readinessScore =
+    readiness?.score ??
+    mockDashboardData.stats.readinessScore;
+
+  const readinessLabel =
+    readiness?.label ??
+    mockDashboardData.stats.readinessLabel;
 
   const dashboardStats = {
     ...mockDashboardData.stats,
@@ -99,16 +94,15 @@ export default function StudentReadiness() {
             ),
           },
         ]
-      : [];
+      : mockDashboardData.readinessDimensions;
 
-  const weakestDimension = readiness
-    ? readinessDimensions.reduce(
-        (weakest, current) =>
-          current.score < weakest.score
-            ? current
-            : weakest,
-      )
-    : null;
+  const weakestDimension =
+    readinessDimensions.reduce(
+      (weakest, current) =>
+        current.score < weakest.score
+          ? current
+          : weakest,
+    );
 
   return (
     <div className="space-y-6">
@@ -134,7 +128,7 @@ export default function StudentReadiness() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={fetchReadiness}
+          onClick={() => void refresh()}
             disabled={loading}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
@@ -149,12 +143,8 @@ export default function StudentReadiness() {
 
       {/* Summary Stats */}
       {error && (
-        <AggregateError
-          message={error}
-          onRetry={() => void fetchReadiness()}
-        />
+        <AggregateError message={error} onRetry={() => void refresh()} />
       )}
-
       <KeyStatistics stats={dashboardStats} />
 
       {/* Main Readiness Component */}
@@ -163,12 +153,10 @@ export default function StudentReadiness() {
           score={readinessScore}
           label={readinessLabel}
           dimensions={readinessDimensions}
-          aiRecommendation={
-            mockDashboardData.aiCoachRecommendation
-          }
+          aiRecommendation={mockDashboardData.aiCoachRecommendation}
           onStartAction={() =>
             toast.success(
-              "Starting System Architecture practice module!",
+              "Opening profile action roadmap!",
             )
           }
         />

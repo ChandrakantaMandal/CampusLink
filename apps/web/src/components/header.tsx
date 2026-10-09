@@ -22,8 +22,8 @@ export default function Header() {
 
   const links = [
     { to: "/" as Route, label: "Home" },
-    { to: "/profile" as Route, label: "Student Profile" },
-    { to: "/dashboard" as Route, label: "Dashboard" },
+    { to: "/student/profile" as Route, label: "Student Profile" },
+    { to: "/student/dashboard" as Route, label: "Student Dashboard" },
     { to: "/ai" as Route, label: "AI Chat" },
   ];
 

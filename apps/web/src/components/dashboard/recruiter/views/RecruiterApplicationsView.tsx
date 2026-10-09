@@ -270,7 +270,7 @@ export default function RecruiterApplicationsView() {
 
             <button
               type="button"
-              onClick={() => router.push(`/recruiter/applications/${selectedCandidate.id}`)}
+              onClick={() => router.push(`/recruiter/applications/${selectedCandidate.id}` as any)}
               className="w-full rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 px-3.5 py-2 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-950/70 transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5"
             >
               View Full Details <ArrowRight className="h-3.5 w-3.5" />

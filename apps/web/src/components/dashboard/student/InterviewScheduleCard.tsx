@@ -26,6 +26,8 @@ export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps
     });
   };
 
+  const conflictCount = interviews.filter((slot) => slot.hasConflict).length;
+
   return (
     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-6 shadow-sm flex flex-col justify-between">
       <div>
@@ -44,13 +46,35 @@ export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>0 Conflicts</span>
-          </div>
+          {conflictCount > 0 ? (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>
+                {conflictCount} Conflict{conflictCount > 1 ? "s" : ""}
+              </span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>0 Conflicts</span>
+            </div>
+          )}
         </div>
 
-        <div className="space-y-3.5 mt-2">
+        {interviews.length === 0 ? (
+          <div className="py-10 px-4 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 my-2 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+              No upcoming interviews scheduled
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
+              When recruiters shortlist your applications and schedule interview rounds, confirmed slots, venue details, and meeting links will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3.5 mt-2">
           {interviews.map((slot) => (
             <div
               key={slot.id}
@@ -133,6 +157,7 @@ export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps
             </div>
           ))}
         </div>
+        )}
       </div>
 
       <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-center">

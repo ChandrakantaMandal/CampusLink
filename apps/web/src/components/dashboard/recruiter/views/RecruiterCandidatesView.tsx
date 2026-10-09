@@ -132,27 +132,27 @@ export default function RecruiterCandidatesView() {
           <select
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           >
-            <option value="ALL">All Branches</option>
-            <option value="CSE">CSE</option>
-            <option value="IT">IT</option>
-            <option value="ECE">ECE</option>
+            <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Branches</option>
+            <option value="CSE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">CSE</option>
+            <option value="IT" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">IT</option>
+            <option value="ECE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">ECE</option>
           </select>
 
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           >
-            <option value="ALL">All Statuses</option>
-            <option value="Shortlisted">Shortlisted</option>
-            <option value="Interview">Interview</option>
-            <option value="Under Review">Under Review</option>
-            <option value="Applied">Applied</option>
-            <option value="Selected">Selected</option>
-            <option value="Offer">Offer</option>
+            <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Statuses</option>
+            <option value="Shortlisted" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Shortlisted</option>
+            <option value="Interview" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Interview</option>
+            <option value="Under Review" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Under Review</option>
+            <option value="Applied" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Applied</option>
+            <option value="Selected" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Selected</option>
+            <option value="Offer" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Offer</option>
           </select>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function RecruiterCandidatesView() {
       {/* Candidates Table */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[720px] text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               <tr>
                 <th className="p-4 font-bold">Candidate</th>

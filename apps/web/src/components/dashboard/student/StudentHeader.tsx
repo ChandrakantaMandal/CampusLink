@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import {
-  Search,
   Bell,
   Menu,
   TrendingUp,
@@ -31,7 +30,6 @@ export default function StudentHeader({
   onToggleSidebar,
 }: StudentHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const router = useRouter();
   const readiness = useStudentReadiness();
@@ -43,16 +41,6 @@ export default function StudentHeader({
     router.push("/login?role=student" as Route);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!searchQuery.trim()) return;
-
-    router.push(
-      `/student/jobs?q=${encodeURIComponent(searchQuery)}` as Route
-    );
-  };
-
   const unreadCount = notifications.data?.unreadCount ?? 0;
   const readinessScore = readiness.data?.score ?? 0;
   const studentName = profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName) : "Student Portal";
@@ -60,8 +48,8 @@ export default function StudentHeader({
 
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-2xs backdrop-blur-md transition-colors dark:border-slate-800 dark:bg-[#0B1120]/95 sm:px-6 lg:px-8">
-      {/* Left: Mobile Toggle & Search */}
-      <div className="flex max-w-xl flex-1 items-center gap-4">
+      {/* Left: Mobile Toggle */}
+      <div className="flex items-center gap-4">
         {onToggleSidebar && (
           <button
             type="button"
@@ -72,19 +60,6 @@ export default function StudentHeader({
             <Menu className="h-5 w-5" />
           </button>
         )}
-
-        {/* Student Search */}
-        <form onSubmit={handleSearchSubmit} className="relative w-full">
-          <Search className="pointer-events-none absolute inset-y-0 left-3.5 my-auto h-4 w-4 text-slate-400 dark:text-slate-500" />
-
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search jobs, drives, skills..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs text-slate-900 transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-hidden dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-100 dark:focus:bg-slate-900 sm:text-sm"
-          />
-        </form>
       </div>
 
       {/* Right Controls */}
@@ -109,7 +84,7 @@ export default function StudentHeader({
           <button
             type="button"
             onClick={() => setShowNotifications((previous) => !previous)}
-            className="relative cursor-pointer rounded-xl border border-slate-200 p-2.5 text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="relative cursor-pointer rounded-xl border border-slate-200 p-2.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Student Notifications"
             aria-expanded={showNotifications}
           >

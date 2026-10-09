@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import type { Route } from "next";
 import { TrendingUp, FileText, Sparkles, Calendar, ArrowUpRight } from "lucide-react";
 import type { StudentStats } from "@/data/dashboardData";
 
@@ -9,15 +11,36 @@ interface KeyStatisticsProps {
   onCardClick?: (type: string) => void;
 }
 
+interface StatCardItem {
+  id: string;
+  title: string;
+  href: Route;
+  value: string;
+  subtitle: string;
+  trend: string;
+  trendPositive: boolean;
+  icon: React.ComponentType<{ className?: string }>;
+  gradient: string;
+  iconColor: string;
+  iconBg: string;
+  accentBorder: string;
+}
+
 export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps) {
-  const cards = [
+  const cards: StatCardItem[] = [
     {
       id: "readiness",
       title: "Placement Readiness",
+      href: "/student/readiness",
       value: `${stats.readinessScore}%`,
       subtitle: stats.readinessLabel,
-      trend: "+4.5% this month",
-      trendPositive: true,
+      trend:
+        stats.readinessScore >= 75
+          ? "Tier-1 Competitive"
+          : stats.readinessScore >= 40
+            ? "Placement Track"
+            : "Needs Improvement",
+      trendPositive: stats.readinessScore >= 60,
       icon: TrendingUp,
       gradient: "from-indigo-500/10 to-indigo-500/5",
       iconColor: "text-indigo-600 dark:text-indigo-400",
@@ -27,10 +50,19 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
     {
       id: "applications",
       title: "Active Applications",
+      href: "/student/applications",
       value: stats.activeApplications.toString(),
-      subtitle: "3 under review • 2 shortlisted",
-      trend: "Across 12 tech firms",
-      trendPositive: true,
+      subtitle:
+        stats.activeApplications === 0
+          ? "0 in pipeline"
+          : stats.activeApplications === 1
+            ? "1 in review pipeline"
+            : `${stats.activeApplications} in review pipeline`,
+      trend:
+        stats.activeApplications === 0
+          ? "No active applications"
+          : "In recruiter pipeline",
+      trendPositive: stats.activeApplications > 0,
       icon: FileText,
       gradient: "from-blue-500/10 to-blue-500/5",
       iconColor: "text-blue-600 dark:text-blue-400",
@@ -40,10 +72,19 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
     {
       id: "jobs",
       title: "AI Job Matches",
+      href: "/student/jobs",
       value: stats.aiJobMatches.toString(),
-      subtitle: "5 high compatibility (>85%)",
-      trend: "3 eligible today",
-      trendPositive: true,
+      subtitle:
+        stats.aiJobMatches === 0
+          ? "0 matching roles"
+          : stats.aiJobMatches === 1
+            ? "1 role matched"
+            : `${stats.aiJobMatches} roles matched`,
+      trend:
+        stats.aiJobMatches === 0
+          ? "Add skills to discover jobs"
+          : "Eligible based on profile",
+      trendPositive: stats.aiJobMatches > 0,
       icon: Sparkles,
       gradient: "from-purple-500/10 to-purple-500/5",
       iconColor: "text-purple-600 dark:text-purple-400",
@@ -53,10 +94,19 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
     {
       id: "drives",
       title: "Upcoming Campus Drives",
+      href: "/student/drives",
       value: stats.upcomingDrives.toString(),
-      subtitle: "Next: Google (Oct 5)",
-      trend: "1 registration pending",
-      trendPositive: false,
+      subtitle:
+        stats.upcomingDrives === 0
+          ? "0 scheduled drives"
+          : stats.upcomingDrives === 1
+            ? "1 drive scheduled"
+            : `${stats.upcomingDrives} drives scheduled`,
+      trend:
+        stats.upcomingDrives === 0
+          ? "Awaiting TPO announcements"
+          : "Registration open",
+      trendPositive: stats.upcomingDrives > 0,
       icon: Calendar,
       gradient: "from-amber-500/10 to-amber-500/5",
       iconColor: "text-amber-600 dark:text-amber-400",
@@ -70,10 +120,11 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
       {cards.map((c) => {
         const Icon = c.icon;
         return (
-          <div
+          <Link
             key={c.id}
+            href={c.href}
             onClick={() => onCardClick?.(c.id)}
-            className={`group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900 cursor-pointer`}
+            className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-300 dark:hover:border-indigo-800 dark:border-slate-800 dark:bg-slate-900 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${c.iconBg} ${c.iconColor}`}>
@@ -82,7 +133,7 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
 
               <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 <span>View</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
+                <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </div>
 
@@ -106,7 +157,7 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
               </span>
               <span className="text-slate-400 dark:text-slate-500">Live</span>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>

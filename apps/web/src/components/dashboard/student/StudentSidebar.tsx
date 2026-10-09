@@ -24,6 +24,7 @@ import { authClient } from "@/lib/auth-client";
 import { useStudentDashboard, useStudentReadiness, useStudentDrives, useStudentSkills, useStudentJobs, useStudentApplications, useStudentInterviews, useStudentOffers, useStudentNotifications } from "@/hooks/use-student";
 import { useStudentProfile } from "@/hooks/use-student";
 import ProfileFlyout from "./ProfileFlyout";
+import BrandLogo from "@/components/brand/BrandLogo";
 
 interface StudentSidebarProps {
   isOpen?: boolean;
@@ -162,22 +163,7 @@ export default function StudentSidebar({
             onClick={() => onClose?.()}
             className="group flex items-center gap-3"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-purple-700 text-white shadow-lg shadow-indigo-600/30 transition-transform group-hover:scale-105">
-              <ShieldCheck className="h-6 w-6" />
-            </div>
-
-            <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                CAMPUS
-                <span className="text-indigo-600 dark:text-indigo-400">
-                  LINK
-                </span>
-              </span>
-
-              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
-                Student Portal
-              </span>
-            </div>
+            <BrandLogo size={38} showText subtitle="Student Portal" priority />
           </Link>
 
           {onClose && (

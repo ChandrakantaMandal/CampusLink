@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import {
   Menu,
-  Search,
   Bell,
   Plus,
   Building,
@@ -24,7 +23,6 @@ import { getMyNotifications, getRecruiterProfile } from "@/lib/api/recruiter.api
 
 interface RecruiterHeaderProps {
   onToggleSidebar: () => void;
-
 }
 
 export default function RecruiterHeader({
@@ -32,7 +30,6 @@ export default function RecruiterHeader({
 }: RecruiterHeaderProps) {
   const router = useRouter();
   const [showNotifMenu, setShowNotifMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [recentNotifications, setRecentNotifications] = useState<RecruiterNotification[]>([]);
   const [companyName, setCompanyName] = useState("TechCorp Innovations");
@@ -52,17 +49,10 @@ export default function RecruiterHeader({
     };
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/recruiter/candidates?search=${encodeURIComponent(searchQuery)}` as Route);
-    }
-  };
-
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full shrink-0 items-center justify-between border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-[#0B1120]/80 px-4 sm:px-6 lg:px-8 backdrop-blur-md transition-colors">
-      {/* Left: Mobile Toggle & Global Search */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl">
+      {/* Left: Mobile Toggle */}
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onToggleSidebar}
@@ -71,20 +61,6 @@ export default function RecruiterHeader({
         >
           <Menu className="h-6 w-6" />
         </button>
-
-        {/* Global Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md hidden sm:block">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search candidates, skills, jobs, USN..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-            />
-          </div>
-        </form>
       </div>
 
       {/* Right: Quick CTA, Alerts, Notifications, Theme, Profile */}
