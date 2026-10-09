@@ -168,7 +168,7 @@ export default function RecruiterCandidatesView() {
                 <th className="p-4 font-bold">Skills</th>
                 <th className="p-4 font-bold">Applied Job</th>
                 <th className="p-4 font-bold">AI Match</th>
-                <th className="p-4 font-bold">Readiness</th>
+                <th className="p-4 font-bold">AI Readiness</th>
                 <th className="p-4 font-bold">Status</th>
                 <th className="p-4 font-bold text-right">Actions</th>
               </tr>
@@ -208,14 +208,14 @@ export default function RecruiterCandidatesView() {
                   role="link"
                   onClick={() =>
                     cand.studentId
-                      ? router.push(`/recruiter/candidates/${cand.studentId}` as Route)
+                      ? router.push(`/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route)
                       : router.push(`/recruiter/applications/${cand.id}` as Route)
                   }
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       if (cand.studentId) {
-                        router.push(`/recruiter/candidates/${cand.studentId}` as Route);
+                        router.push(`/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route);
                       } else {
                         router.push(`/recruiter/applications/${cand.id}` as Route);
                       }
@@ -225,8 +225,16 @@ export default function RecruiterCandidatesView() {
                   {/* Candidate Name & Avatar */}
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs shrink-0">
-                        {cand.name.slice(0, 2).toUpperCase()}
+                      <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs shrink-0">
+                        <span>{cand.name.slice(0, 2).toUpperCase() || "?"}</span>
+                        {cand.avatarUrl && (
+                          <img
+                            src={cand.avatarUrl}
+                            alt={`${cand.name} profile`}
+                            className="absolute inset-0 h-full w-full object-cover"
+                            onError={(event) => { event.currentTarget.style.display = "none"; }}
+                          />
+                        )}
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-slate-900 dark:text-white text-sm truncate">
@@ -286,14 +294,14 @@ export default function RecruiterCandidatesView() {
                       }`}
                     >
                       <Sparkles className="h-3 w-3" />
-                      {cand.matchScore}%
+                      {cand.matchScoreAvailable ? `${cand.matchScore}%` : "—"}
                     </span>
                   </td>
 
                   {/* Readiness Score */}
                   <td className="p-4">
                     <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">
-                      {cand.readinessScore}%
+                      {cand.readinessAvailable ? `${cand.readinessScore}%` : "—"}
                     </span>
                   </td>
 
@@ -322,7 +330,7 @@ export default function RecruiterCandidatesView() {
                       type="button"
                       onClick={() =>
                         cand.studentId
-                          ? router.push(`/recruiter/candidates/${cand.studentId}` as Route)
+                          ? router.push(`/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route)
                           : router.push(`/recruiter/applications/${cand.id}` as Route)
                       }
                       className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-slate-50 hover:text-blue-700 dark:hover:bg-slate-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
@@ -345,8 +353,16 @@ export default function RecruiterCandidatesView() {
             {/* Top Bar */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-lg">
-                  {selectedCandidate.name.slice(0, 2).toUpperCase()}
+                <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-lg">
+                  <span>{selectedCandidate.name.slice(0, 2).toUpperCase() || "?"}</span>
+                  {selectedCandidate.avatarUrl && (
+                    <img
+                      src={selectedCandidate.avatarUrl}
+                      alt={`${selectedCandidate.name} profile`}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      onError={(event) => { event.currentTarget.style.display = "none"; }}
+                    />
+                  )}
                 </div>
                 <div>
                   <h2 className="text-xl font-black text-slate-900 dark:text-white">
@@ -381,7 +397,7 @@ export default function RecruiterCandidatesView() {
 
               <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40">
                 <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 uppercase">AI Match</span>
-                <p className="text-lg font-black text-purple-600 dark:text-purple-400">{selectedCandidate.matchScore}%</p>
+                <p className="text-lg font-black text-purple-600 dark:text-purple-400">{selectedCandidate.matchScoreAvailable ? `${selectedCandidate.matchScore}%` : "—"}</p>
               </div>
 
               <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40">
@@ -449,7 +465,7 @@ export default function RecruiterCandidatesView() {
                 {selectedCandidate.studentId && (
                   <button
                     type="button"
-                    onClick={() => router.push(`/recruiter/candidates/${selectedCandidate.studentId}` as Route)}
+                    onClick={() => router.push(`/recruiter/candidates/${selectedCandidate.studentId}?applicationId=${selectedCandidate.id}` as Route)}
                     className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />

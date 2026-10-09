@@ -6,6 +6,7 @@ import {
   createInterview,
   createMyJob,
   createMyOffer,
+  createRecruiterProfile,
   deleteMyJob,
   getMyInterviews,
   getMyJobs,
@@ -24,6 +25,7 @@ import {
   createInterviewSchema,
   createMyJobSchema,
   createMyOfferSchema,
+  createRecruiterProfileSchema,
   updateInterviewSchema,
   updateRecruiterProfileSchema,
 } from "./recruiter.schema";
@@ -87,6 +89,32 @@ export async function updateRecruiterProfileController(
     return res.status(200).json({
       success: true,
       message: "Recruiter profile updated successfully",
+      data: profile,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createRecruiterProfileController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const parsed = createRecruiterProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid recruiter profile data",
+        errors: parsed.error.flatten(),
+      });
+    }
+    const profile = await createRecruiterProfile(authenticatedReq.user.id, parsed.data);
+    return res.status(201).json({
+      success: true,
+      message: "Recruiter profile created successfully",
       data: profile,
     });
   } catch (error) {

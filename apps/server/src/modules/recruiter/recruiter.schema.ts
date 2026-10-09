@@ -30,6 +30,23 @@ export const updateRecruiterProfileSchema = z.object({
     .optional(),
 });
 
+export const createRecruiterProfileSchema = z.object({
+  designation: z.string().max(120).optional(),
+  phone: z.string().max(30).nullable().optional(),
+  linkedinUrl: z.string().url().max(300).optional(),
+  company: z.object({
+    name: z.string().min(2).max(150),
+    description: z.string().max(5000).optional(),
+    website: z.string().url().max(300).optional(),
+    logoUrl: z.string().max(500).nullable().optional(),
+    industry: z.string().max(120).optional(),
+    location: z.string().max(200).optional(),
+    linkedinUrl: z.string().url().max(300).optional(),
+    benefits: z.array(z.string().max(120)).max(30).optional(),
+    tier: z.enum(["TIER_1", "TIER_2", "TIER_3"]).optional(),
+  }),
+});
+
 export const createMyJobSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters").max(150),
   description: z
@@ -128,6 +145,7 @@ export const createMyOfferSchema = z.object({
 export type UpdateRecruiterProfileInput = z.infer<
   typeof updateRecruiterProfileSchema
 >;
+export type CreateRecruiterProfileInput = z.infer<typeof createRecruiterProfileSchema>;
 
 export type CreateMyJobInput = z.infer<typeof createMyJobSchema>;
 

@@ -1,5 +1,6 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
+import { invalidateStudentCaches } from "../students/student.service";
 
 import type {
   CreateEducationInput,
@@ -65,6 +66,7 @@ export async function createEducation(
   });
 
   await redis.del(educationCacheKey(student.id));
+  await invalidateStudentCaches(userId, student.id);
 
   return education;
 }
@@ -162,6 +164,7 @@ export async function updateEducation(
     educationCacheKey(student.id),
     educationDetailCacheKey(educationId),
   );
+  await invalidateStudentCaches(userId, student.id);
 
   return updatedEducation;
 }
@@ -201,4 +204,5 @@ export async function deleteEducation(userId: string, educationId: string) {
     educationCacheKey(student.id),
     educationDetailCacheKey(educationId),
   );
+  await invalidateStudentCaches(userId, student.id);
 }

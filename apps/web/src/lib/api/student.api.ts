@@ -51,7 +51,10 @@ export interface UpdateStudentPayload {
   firstName?: string;
   lastName?: string;
   phone?: string;
+  gender?: string;
   college?: string;
+  degree?: string;
+  branch?: string;
   department?: string;
   graduationYear?: number;
   cgpa?: number | null;
@@ -65,6 +68,7 @@ export interface UpdateStudentPayload {
   hackerrankUrl?: string;
   otherWebsiteUrl?: string;
   resumeText?: string | null;
+  resumeUrl?: string | null;
 }
 
 interface StudentProfileResponse {
@@ -88,6 +92,62 @@ export async function updateMyStudentProfile(
   );
 
   return response.data.data;
+}
+
+export interface StudentEducation {
+  id: string;
+  institution: string;
+  degree: string | null;
+  branch: string | null;
+  startYear: number | null;
+  endYear: number | null;
+  cgpa: number | null;
+  percentage: number | null;
+}
+
+interface EducationResponse<T> { success: boolean; data: T }
+
+export async function getMyEducationRecords(): Promise<StudentEducation[]> {
+  const response = await api.get<EducationResponse<StudentEducation[]>>("/api/education/my");
+  return response.data.data;
+}
+
+export async function saveEducationRecord(data: Omit<StudentEducation, "id">, id?: string): Promise<StudentEducation> {
+  const payload = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== null && value !== ""));
+  const response = id
+    ? await api.patch<EducationResponse<StudentEducation>>(`/api/education/${id}`, payload)
+    : await api.post<EducationResponse<StudentEducation>>("/api/education", payload);
+  return response.data.data;
+}
+
+export interface StudentProjectRecord {
+  id: string;
+  title: string;
+  description: string | null;
+  githubUrl: string | null;
+  liveUrl: string | null;
+  startDate: string | null;
+  endDate?: string | null;
+  skills: Array<{ skill: { id: string; name: string } }>;
+}
+
+export async function getMyProjectRecords(): Promise<StudentProjectRecord[]> {
+  const response = await api.get<EducationResponse<StudentProjectRecord[]>>("/api/projects/my");
+  return response.data.data;
+}
+
+export async function saveProjectRecord(
+  data: { title: string; description: string; githubUrl: string; liveUrl: string },
+  id?: string,
+): Promise<StudentProjectRecord> {
+  const response = id
+    ? await api.patch<EducationResponse<StudentProjectRecord>>(`/api/projects/${id}`, data)
+    : await api.post<EducationResponse<StudentProjectRecord>>("/api/projects", data);
+  return response.data.data;
+}
+
+export async function deleteProjectRecord(id: string): Promise<void> {
+  await api.delete(`/api/projects/${id}`);
 }
 
 interface UploadFileResponse {

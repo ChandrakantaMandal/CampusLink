@@ -32,13 +32,25 @@ export interface RecruiterApplicationRaw {
     backlogs?: number;
     graduationYear?: number | null;
     readinessScore?: number | null;
+    aiReadinessAvailable?: boolean;
     resumeUrl?: string | null;
     githubUrl?: string | null;
     linkedinUrl?: string | null;
+    skills?: Array<{ skill: { name: string }; level?: string | null }>;
+    education?: Array<{ institution: string; degree?: string | null; branch?: string | null; cgpa?: number | null }>;
     user: { id: string; name: string | null; email: string; image?: string | null };
   } | null;
-  job: { id: string; title: string };
-  matchResult: { matchScore?: number | null } | null;
+  job: { id: string; title: string; minCGPA?: number | null; maxBacklogs?: number | null; allowedBranches?: string[]; skills?: Array<{ required: boolean; skill: { name: string } }> };
+  matchResult: {
+    matchScore?: number | null;
+    skillMatchScore?: number | null;
+    projectScore?: number | null;
+    matchedSkills?: unknown;
+    missingSkills?: unknown;
+    positiveSignals?: unknown;
+    gaps?: unknown;
+    explanation?: string | null;
+  } | null;
 }
 
 // ---------- Status mapping ----------
@@ -74,6 +86,14 @@ function normalizeScore(raw: number | null | undefined): number {
   return Math.round(score);
 }
 
+function jsonStringList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string");
+  if (typeof value === "string") {
+    try { return jsonStringList(JSON.parse(value) as unknown); } catch { return []; }
+  }
+  return [];
+}
+
 function dateOnly(iso: string): string {
   return iso.slice(0, 10);
 }
@@ -94,6 +114,7 @@ function toRecruiterCandidate(raw: RecruiterApplicationRaw): RecruiterCandidate 
     id: raw.id,
     studentId: student?.id,
     name: displayName(student?.firstName, student?.lastName, student?.user?.name ?? raw.user?.name),
+    avatarUrl: student?.user?.image ?? null,
     email: student?.user?.email ?? raw.user?.email ?? "",
     phone: student?.phone ?? "",
     college: student?.college ?? "",
@@ -101,9 +122,20 @@ function toRecruiterCandidate(raw: RecruiterApplicationRaw): RecruiterCandidate 
     cgpa: student?.cgpa ?? 0,
     backlogs: student?.backlogs ?? 0,
     graduationYear: student?.graduationYear ?? 0,
-    skills: [],
+    skills: student?.skills?.map(({ skill }) => skill.name) ?? [],
     matchScore: normalizeScore(raw.matchResult?.matchScore),
+    matchScoreAvailable: raw.matchResult?.matchScore != null,
+    matchScoreSource: raw.matchResult?.matchScore != null ? "AI" : undefined,
     readinessScore: normalizeScore(student?.readinessScore),
+    readinessAvailable: student?.aiReadinessAvailable === true && student.readinessScore != null,
+    matchAnalysis: raw.matchResult ? {
+      skillMatchScore: normalizeScore(raw.matchResult.skillMatchScore),
+      matchedSkills: jsonStringList(raw.matchResult.matchedSkills),
+      missingSkills: jsonStringList(raw.matchResult.missingSkills),
+      positiveSignals: jsonStringList(raw.matchResult.positiveSignals),
+      gaps: jsonStringList(raw.matchResult.gaps),
+      explanation: raw.matchResult.explanation ?? undefined,
+    } : null,
     status: STATUS_TO_VIEW[raw.status] ?? "Applied",
     appliedJobId: raw.job?.id ?? "",
     appliedJobTitle: raw.job?.title ?? "",
@@ -436,6 +468,10 @@ export interface UpdateRecruiterProfileInput {
   };
 }
 
+export type CreateRecruiterProfileInput = Omit<UpdateRecruiterProfileInput, "company"> & {
+  company: NonNullable<UpdateRecruiterProfileInput["company"]> & { name: string };
+};
+
 export interface CreateRecruiterJobInput {
   title: string;
   description: string;
@@ -487,6 +523,16 @@ export interface UpdateRecruiterInterviewInput {
 export async function getRecruiterProfile(): Promise<RecruiterCompany> {
   const response = await api.get<Envelope<RecruiterProfileRaw>>(
     "/api/recruiter/profile",
+  );
+  return toRecruiterCompany(response.data.data);
+}
+
+export async function createRecruiterProfile(
+  input: CreateRecruiterProfileInput,
+): Promise<RecruiterCompany> {
+  const response = await api.post<Envelope<RecruiterProfileRaw>>(
+    "/api/recruiter/profile",
+    input,
   );
   return toRecruiterCompany(response.data.data);
 }

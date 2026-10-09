@@ -1,5 +1,6 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
+import { invalidateStudentCaches } from "../students/student.service";
 
 import type {
   AddStudentSkillInput,
@@ -277,6 +278,7 @@ export async function addStudentSkill(
   });
 
   await invalidateSkillCaches(skill.id, student.id);
+  await invalidateStudentCaches(userId, student.id);
 
   return studentSkill;
 }
@@ -355,6 +357,7 @@ export async function updateStudentSkill(
   });
 
   await invalidateSkillCaches(skillId, student.id);
+  await invalidateStudentCaches(userId, student.id);
 
   return updatedStudentSkill;
 }
@@ -390,4 +393,5 @@ export async function removeStudentSkill(userId: string, skillId: string) {
   });
 
   await invalidateSkillCaches(skillId, student.id);
+  await invalidateStudentCaches(userId, student.id);
 }

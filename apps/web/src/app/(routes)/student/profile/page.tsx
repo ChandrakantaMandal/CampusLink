@@ -13,6 +13,7 @@ import {
 import { useProfile } from "@/stores/profileStore";
 import type { Education, Certification } from "@/data/studentProfile";
 import { sampleDemoProfile } from "@/data/studentProfile";
+import { updateMyStudentProfile } from "@/lib/api/student.api";
 
 import ProfileHeader from "@/components/dashboard/student/student-profile/sections/ProfileHeader";
 import QuickSectionJumper from "@/components/dashboard/student/student-profile/sections/QuickSectionJumper";
@@ -21,6 +22,7 @@ import ProfileInsights from "@/components/dashboard/student/student-profile/sect
 import PersonalInformation from "@/components/dashboard/student/student-profile/sections/PersonalInformation";
 import SkillsSection from "@/components/dashboard/student/student-profile/sections/SkillsSection";
 import EducationSection from "@/components/dashboard/student/student-profile/sections/EducationSection";
+import ProjectsSection from "@/components/dashboard/student/student-profile/sections/ProjectsSection";
 import CertificationsSection from "@/components/dashboard/student/student-profile/sections/CertificationsSection";
 import ResumeSection from "@/components/dashboard/student/student-profile/sections/ResumeSection";
 import PortfolioLinks from "@/components/dashboard/student/student-profile/sections/PortfolioLinks";
@@ -151,9 +153,17 @@ export default function ProfilePage() {
     toast.success(`Resume "${fileData.fileName}" attached successfully!`);
   };
 
-  const handleDeleteResume = () => {
+  const handleDeleteResume = async () => {
+    if (session?.user) {
+      try {
+        await updateMyStudentProfile({ resumeUrl: null, resumeText: null });
+      } catch {
+        toast.error("Could not remove the saved resume. Please try again.");
+        return;
+      }
+    }
     setProfile((prev) => ({ ...prev, resume: null }));
-    toast.info("Resume detached from profile.");
+    toast.success("Resume removed from your profile.");
   };
 
   const handleStartBlank = () => {
@@ -361,6 +371,11 @@ export default function ProfilePage() {
         onAddEducation={handleAddEducation}
         onEditEducation={handleEditEducation}
         onDeleteEducation={handleDeleteEducation}
+      />
+
+      <ProjectsSection
+        projects={profile.projects ?? []}
+        onChange={(projects) => setProfile((prev) => ({ ...prev, projects }))}
       />
 
       <CertificationsSection

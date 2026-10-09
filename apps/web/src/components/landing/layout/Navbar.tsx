@@ -3,26 +3,24 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  Sparkles,
   Menu,
   X,
   ArrowRight,
   GraduationCap,
-  Building2,
-  Users,
-  Compass,
-  CheckCircle,
-  Briefcase,
-  Lock,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import UserMenu from "@/components/user-menu";
 import { Button } from "@CampusLink/ui/components/button";
 import { authClient } from "@/lib/auth-client";
 
 export default function LandingNavbar() {
   const { data: session } = authClient.useSession();
   const isAuthenticated = Boolean(session?.user);
+  const userRole = (session?.user as { role?: string } | undefined)?.role;
+  const dashboard = userRole === "ADMIN"
+    ? { href: "/admin/dashboard", label: "Admin Dashboard" }
+    : userRole === "RECRUITER"
+      ? { href: "/recruiter/dashboard", label: "Recruiter Dashboard" }
+      : { href: "/student/dashboard", label: "Student Dashboard" };
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -84,30 +82,35 @@ export default function LandingNavbar() {
 
         {/* Right CTA Actions */}
         <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href="/login?role=recruiter"
-            className="hidden lg:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 border border-slate-200/80 bg-white/60 dark:border-slate-800 dark:bg-slate-900/60 shadow-2xs hover:shadow-xs transition-all"
-          >
-            <Briefcase className="h-3.5 w-3.5 text-indigo-500" />
-            <span>Recruiter / TPO</span>
-          </Link>
           <ModeToggle />
-          <UserMenu />
           {isAuthenticated ? (
-            <Link href="/student/dashboard">
-              <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
-                <span>Student Dashboard</span>
-                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-              </Button>
-            </Link>
+            <>
+              <Link href="/signup">
+                <Button variant="outline" className="rounded-xl border-slate-200/80 bg-white/60 px-4 py-2 text-sm font-semibold text-slate-700 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:text-indigo-400">
+                  Sign Up
+                </Button>
+              </Link>
+              <Link href={dashboard.href}>
+                <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
+                  <span>{dashboard.label}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </Button>
+              </Link>
+            </>
           ) : (
-            <Link href="/login?role=student">
-              <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
-                <Lock className="h-4 w-4" />
-                <span>Student Login</span>
-                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/signup">
+                <Button variant="outline" className="rounded-xl border-slate-200/80 bg-white/60 px-4 py-2 text-sm font-semibold text-slate-700 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:text-indigo-400">
+                  Sign Up
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/35">
+                  <span>Sign In</span>
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -144,39 +147,30 @@ export default function LandingNavbar() {
               </a>
             ))}
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-3">
-              <Link
-                href="/login?role=recruiter"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/50 dark:bg-indigo-950/30 py-2.5 text-center text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center justify-center gap-1.5"
-              >
-                <Briefcase className="h-4 w-4" />
-                <span>Recruiter / TPO Portal Login 🔐</span>
-              </Link>
-              <div className="flex items-center justify-between px-2">
-                <span className="text-sm text-slate-500">Account</span>
-                <UserMenu />
-              </div>
               {isAuthenticated ? (
-                <Link
-                  href="/student/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
-                    <span>Open Student Dashboard</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <>
+                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full rounded-xl py-2.5 font-semibold">Sign Up</Button>
+                  </Link>
+                  <Link href={dashboard.href} onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
+                      <span>{dashboard.label}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </>
               ) : (
-                <Link
-                  href="/login?role=student"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    <span>Student Login to Access</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full rounded-xl py-2.5 font-semibold">Sign Up</Button>
+                  </Link>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2">
+                      <span>Sign In</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               )}
             </div>
           </div>

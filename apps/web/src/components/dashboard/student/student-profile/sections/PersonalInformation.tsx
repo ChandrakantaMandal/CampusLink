@@ -153,6 +153,29 @@ export default function PersonalInformation({
           )}
         </div>
 
+        {/* Gender */}
+        <div className="space-y-1.5">
+          <label htmlFor="gender-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Gender
+          </label>
+          <select
+            id="gender-select"
+            value={profile.gender}
+            onChange={(e) => onChange("gender", e.target.value)}
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 transition-all hover:border-slate-300 focus:border-indigo-500 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
+          >
+            <option value="">Select gender</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Non-binary">Non-binary</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+            {profile.gender && !["Female", "Male", "Non-binary", "Prefer not to say"].includes(profile.gender) && (
+              <option value={profile.gender}>{profile.gender}</option>
+            )}
+          </select>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">Shown on your recruiter-visible profile.</p>
+        </div>
+
         {/* Department */}
         <div className="space-y-1.5">
           <label htmlFor="department-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">

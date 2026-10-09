@@ -180,12 +180,6 @@ export async function getStudentByUserId(userId: string) {
 export async function getStudentById(id: string) {
   const cacheKey = studentCacheKey(id);
 
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
   const student = await db.studentProfile.findUnique({
     where: {
       id,

@@ -1,5 +1,7 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
+import { invalidateStudentCaches } from "../students/student.service";
+import { matchStudentWithJob } from "../jobs/job-ai.service";
 
 import type {
   CreateApplicationInput,
@@ -7,6 +9,7 @@ import type {
 } from "./application.schema";
 
 const CACHE_TTL = 300;
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
 
 async function getCache<T>(key: string): Promise<T | null> {
   const cached = await redis.get(key);
@@ -79,6 +82,7 @@ export async function createApplication(
       job: {
         include: {
           company: true,
+          skills: { include: { skill: true } },
         },
       },
     },
@@ -148,14 +152,6 @@ export async function getRecruiterApplications(userId: string) {
     return [];
   }
 
-  const cacheKey = `applications:company:${recruiter.companyId}`;
-
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
   const applications = await db.application.findMany({
     where: {
       job: {
@@ -166,6 +162,7 @@ export async function getRecruiterApplications(userId: string) {
       job: {
         include: {
           company: true,
+          skills: { include: { skill: true } },
         },
       },
       user: {
@@ -185,6 +182,11 @@ export async function getRecruiterApplications(userId: string) {
               image: true,
             },
           },
+          skills: { include: { skill: true } },
+          education: true,
+          projects: true,
+          certifications: true,
+          readiness: { orderBy: { createdAt: "desc" }, take: 1 },
         },
       },
       matchResult: true,
@@ -194,7 +196,146 @@ export async function getRecruiterApplications(userId: string) {
     },
   });
 
-  await setCache(cacheKey, applications);
+  // Use the same matcher and profile inputs as /student/jobs so recruiter
+  // scores include structured skills, resume skills, and project titles.
+  for (const application of applications) {
+    try {
+      const response = await matchStudentWithJob(application.student.userId, application.job.id) as {
+        data?: unknown;
+        match_score?: number;
+        matchScore?: number;
+        matched_skills?: string[];
+        matchedSkills?: string[];
+        missing_skills?: string[];
+        missingSkills?: string[];
+        explanation?: string;
+      };
+      const result = (response.data && typeof response.data === "object" ? response.data : response) as {
+        match_score?: number;
+        matchScore?: number;
+        matched_skills?: string[];
+        matchedSkills?: string[];
+        missing_skills?: string[];
+        missingSkills?: string[];
+        explanation?: string;
+      };
+      const matchScore = result.match_score ?? result.matchScore;
+      if (typeof matchScore !== "number") continue;
+      const matchedSkills = result.matched_skills ?? result.matchedSkills ?? [];
+      const missingSkills = result.missing_skills ?? result.missingSkills ?? [];
+      const saved = await db.matchResult.upsert({
+        where: { applicationId: application.id },
+        create: {
+          applicationId: application.id,
+          eligible: true,
+          matchScore,
+          skillMatchScore: matchScore,
+          matchedSkills,
+          missingSkills,
+          positiveSignals: matchedSkills,
+          gaps: missingSkills,
+          explanation: result.explanation ?? "",
+        },
+        update: {
+          eligible: true,
+          matchScore,
+          skillMatchScore: matchScore,
+          matchedSkills,
+          missingSkills,
+          positiveSignals: matchedSkills,
+          gaps: missingSkills,
+          explanation: result.explanation ?? "",
+        },
+      });
+      application.matchResult = saved;
+    } catch {
+      // Keep the application visible if the AI service is temporarily unavailable.
+    }
+  }
+
+  // Readiness is calculated once per student by the AI readiness endpoint and
+  // saved with its source marker so later candidate-list visits can reuse it.
+  // Every application row has a separate student object, so propagate the
+  // same student-level score to each row for candidates with multiple jobs.
+  const readinessByStudent = new Map<string, number | null>();
+  for (const application of applications) {
+    const student = application.student;
+    if (readinessByStudent.has(student.id)) {
+      const score = readinessByStudent.get(student.id) ?? null;
+      Object.assign(student, { aiReadinessAvailable: score !== null });
+      if (score !== null) student.readinessScore = score;
+      continue;
+    }
+    const latest = student.readiness[0];
+    const breakdown = latest?.breakdown;
+    if (
+      typeof breakdown === "object" && breakdown !== null &&
+      !Array.isArray(breakdown) && "source" in breakdown &&
+      breakdown.source === "ai-service-v2"
+    ) {
+      student.readinessScore = latest.overallScore;
+      Object.assign(student, { aiReadinessAvailable: true });
+      readinessByStudent.set(student.id, latest.overallScore);
+      continue;
+    }
+
+    try {
+      const response = await fetch(`${AI_SERVICE_URL}/readiness/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_id: student.id,
+          name: [student.firstName, student.lastName].filter(Boolean).join(" "),
+          skills: student.skills.map(({ skill }) => skill.name),
+          projects: student.projects.map(({ title }) => title),
+          education: student.education.map((item) => [item.degree, item.branch, item.institution].filter(Boolean).join(" ")).join("; "),
+          branch: student.branch,
+          cgpa: student.cgpa,
+          certifications: student.certifications.map(({ name }) => name),
+          target_role: student.targetRole,
+          resume_text: student.resumeText ?? "",
+        }),
+      });
+      if (!response.ok) {
+        readinessByStudent.set(student.id, null);
+        continue;
+      }
+      const result = await response.json() as {
+        readiness_score?: number;
+        strengths?: string[];
+        weaknesses?: string[];
+        recommendations?: string[];
+      };
+      if (typeof result.readiness_score !== "number") {
+        readinessByStudent.set(student.id, null);
+        continue;
+      }
+      await db.readinessResult.create({
+        data: {
+          studentId: student.id,
+          overallScore: result.readiness_score,
+          explanation: result.strengths?.join("; ") ?? null,
+          breakdown: {
+            source: "ai-service-v2",
+            strengths: result.strengths ?? [],
+            weaknesses: result.weaknesses ?? [],
+            recommendations: result.recommendations ?? [],
+          },
+        },
+      });
+      await db.studentProfile.update({
+        where: { id: student.id },
+        data: { readinessScore: result.readiness_score },
+      });
+      await invalidateStudentCaches(student.userId, student.id);
+      student.readinessScore = result.readiness_score;
+      Object.assign(student, { aiReadinessAvailable: true });
+      readinessByStudent.set(student.id, result.readiness_score);
+    } catch {
+      // Preserve candidate visibility when the AI service is temporarily down.
+      readinessByStudent.set(student.id, null);
+    }
+  }
 
   return applications;
 }

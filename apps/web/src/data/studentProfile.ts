@@ -18,10 +18,19 @@ export interface Certification {
   certificateUrl?: string;
 }
 
+export interface StudentProject {
+  id: string;
+  title: string;
+  description: string;
+  githubUrl: string;
+  liveUrl: string;
+}
+
 export interface StudentProfileData {
   name: string;
   email: string;
   phone: string;
+  gender: string;
   department: string;
   year: string;
   cgpa: string;
@@ -31,6 +40,7 @@ export interface StudentProfileData {
   avatarUrl?: string;
   skills: string[];
   education: Education[];
+  projects: StudentProject[];
   certifications: Certification[];
   resume: {
     fileName: string;
@@ -56,6 +66,7 @@ export function createEmptyStudentProfile(
     name,
     email,
     phone: "",
+    gender: "",
     department: "",
     year: "",
     cgpa: "",
@@ -65,6 +76,7 @@ export function createEmptyStudentProfile(
     avatarUrl,
     skills: [],
     education: [],
+    projects: [],
     certifications: [],
     resume: null,
     resumeText: null,
@@ -81,6 +93,7 @@ export const sampleDemoProfile: StudentProfileData = {
   name: "Himanshu Rout",
   email: "himanshu.rout@example.com",
   phone: "+91 98765 43210",
+  gender: "",
   department: "Computer Science Engineering",
   year: "2nd Year",
   cgpa: "8.6",
@@ -109,6 +122,7 @@ export const sampleDemoProfile: StudentProfileData = {
         "Relevant Coursework: Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Computer Networks, and Operating Systems.",
     },
   ],
+  projects: [],
   certifications: [
     {
       id: "cert-1",

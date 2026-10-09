@@ -9,6 +9,7 @@ import type {
   CreateInterviewInput,
   CreateMyJobInput,
   CreateMyOfferInput,
+  CreateRecruiterProfileInput,
   UpdateInterviewInput,
   UpdateRecruiterProfileInput,
 } from "./recruiter.schema";
@@ -176,6 +177,47 @@ export async function getRecruiterProfile(userId: string) {
       _count: { select: { jobs: true, interviews: true } },
     },
   });
+}
+
+export async function createRecruiterProfile(
+  userId: string,
+  data: CreateRecruiterProfileInput,
+) {
+  const existing = await db.recruiterProfile.findUnique({ where: { userId } });
+  if (existing) return getRecruiterProfile(userId);
+
+  const { company, ...profile } = data;
+  const created = await db.$transaction(async (tx) => {
+    const newCompany = await tx.company.create({
+      data: {
+        name: company.name,
+        description: company.description,
+        website: company.website,
+        logoUrl: company.logoUrl,
+        industry: company.industry,
+        location: company.location,
+        linkedinUrl: company.linkedinUrl,
+        benefits: company.benefits,
+        tier: company.tier,
+      },
+    });
+    return tx.recruiterProfile.create({
+      data: {
+        userId,
+        companyId: newCompany.id,
+        designation: profile.designation,
+        phone: profile.phone === "" ? null : profile.phone,
+        linkedinUrl: profile.linkedinUrl,
+        isLeadRecruiter: true,
+      },
+      include: {
+        company: true,
+        user: { select: { id: true, name: true, email: true, image: true } },
+        _count: { select: { jobs: true, interviews: true } },
+      },
+    });
+  });
+  return created;
 }
 
 export async function updateRecruiterProfile(

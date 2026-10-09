@@ -8,6 +8,7 @@ import { uploadCompanyLogoController } from "../uploads/upload.controller";
 
 import {
   createInterviewController,
+  createRecruiterProfileController,
   createMyJobController,
   createMyOfferController,
   deleteMyJobController,
@@ -32,6 +33,13 @@ router.get(
   requireAuth,
   requireRole("RECRUITER"),
   getRecruiterProfileController,
+);
+
+router.post(
+  "/profile",
+  requireAuth,
+  requireRole("RECRUITER"),
+  createRecruiterProfileController,
 );
 
 // Recruiter updates own profile / company

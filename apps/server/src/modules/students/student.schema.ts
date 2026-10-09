@@ -31,6 +31,10 @@ export const updateStudentSchema = z.object({
     .max(150)
     .optional(),
 
+  degree: z.string().max(100).optional(),
+
+  branch: z.string().max(100).optional(),
+
   department: z
     .string()
     .max(100)
@@ -61,7 +65,10 @@ export const updateStudentSchema = z.object({
 
   resumeText: z
     .string()
+    .nullable()
     .optional(),
+
+  resumeUrl: z.string().url().nullable().optional(),
 
   isPublic: z
     .boolean()
