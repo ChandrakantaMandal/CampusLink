@@ -223,7 +223,7 @@ export default function RecruiterCompanyProfileView() {
 
       {/* Main Profile Card */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-6 sm:p-8 shadow-xs">
-        {isEditing ? (
+        {isEditing || !company ? (
           <form onSubmit={handleSave} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

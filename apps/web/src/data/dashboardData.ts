@@ -76,6 +76,7 @@ export interface InterviewSlot {
   date: string;
   time: string;
   venue: string;
+  meetingLink?: string | null;
   type: "Virtual" | "Campus Auditorium" | "Lab 4";
   interviewRound: string;
   interviewerName: string;

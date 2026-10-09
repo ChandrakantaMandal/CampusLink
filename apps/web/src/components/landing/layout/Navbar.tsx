@@ -16,7 +16,7 @@ export default function LandingNavbar() {
   const { data: session } = authClient.useSession();
   const isAuthenticated = Boolean(session?.user);
   const userRole = (session?.user as { role?: string } | undefined)?.role;
-  const dashboard = userRole === "ADMIN"
+  const dashboard: { href: "/admin/dashboard" | "/recruiter/dashboard" | "/student/dashboard"; label: string } = userRole === "ADMIN"
     ? { href: "/admin/dashboard", label: "Admin Dashboard" }
     : userRole === "RECRUITER"
       ? { href: "/recruiter/dashboard", label: "Recruiter Dashboard" }

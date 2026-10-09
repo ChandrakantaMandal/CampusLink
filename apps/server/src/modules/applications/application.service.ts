@@ -269,6 +269,7 @@ export async function getRecruiterApplications(userId: string) {
     const latest = student.readiness[0];
     const breakdown = latest?.breakdown;
     if (
+      latest &&
       typeof breakdown === "object" && breakdown !== null &&
       !Array.isArray(breakdown) && "source" in breakdown &&
       breakdown.source === "ai-service-v2"
