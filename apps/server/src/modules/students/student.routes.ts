@@ -18,6 +18,7 @@ import {
   getStudent,
   markMyStudentNotificationRead,
   markMyStudentNotificationsReadAll,
+  registerMyStudentDrive,
   updateMyStudentProfile,
   getMyReadiness,
 } from "./student.controller";
@@ -45,6 +46,9 @@ router.get("/me/readiness", requireAuth, requireRole("STUDENT"), getMyStudentRea
 
 // Student placement drives (registered + available)
 router.get("/me/drives",requireAuth, requireRole("STUDENT"), getMyStudentDrives);
+
+// Register for a placement drive
+router.post("/me/drives/:id/register", requireAuth, requireRole("STUDENT"), registerMyStudentDrive);
 
 // Student interviews (upcoming + past)
 router.get("/me/interviews", requireAuth, requireRole("STUDENT"), getMyStudentInterviews);

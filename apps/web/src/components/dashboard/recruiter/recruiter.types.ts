@@ -44,8 +44,10 @@ export interface RecruiterJob {
 
 export interface RecruiterCandidate {
   id: string;
+  applicationId?: string;
   studentId?: string;
   name: string;
+  avatarUrl?: string | null;
   email: string;
   phone: string;
   college: string;
@@ -55,8 +57,21 @@ export interface RecruiterCandidate {
   graduationYear: number;
   skills: string[];
   matchScore: number;
+  matchScoreAvailable?: boolean;
+  matchScoreSource?: "AI";
   readinessScore: number;
-  status: "Applied" | "Under Review" | "Shortlisted" | "Interview" | "Selected" | "Offer" | "Rejected";
+  readinessAvailable?: boolean;
+  matchAnalysis?: {
+    skillMatchScore: number;
+    matchedSkills: string[];
+    missingSkills: string[];
+    positiveSignals: string[];
+    gaps: string[];
+    explanation?: string;
+  } | null;
+  status: "Applied" | "Under Review" | "Shortlisted" | "Assessment" | "Interview" | "Selected" | "Offer" | "Rejected";
+  assessmentPassed?: boolean | null;
+  assessmentPercentage?: number | null;
   appliedJobId: string;
   appliedJobTitle: string;
   appliedDate: string;
@@ -69,7 +84,9 @@ export interface RecruiterCandidate {
 export interface AIMatchAnalysis {
   candidateId: string;
   candidateName: string;
+  candidateEmail: string;
   candidateBranch: string;
+  companyName: string;
   candidateCGPA: number;
   jobId: string;
   jobTitle: string;
@@ -110,7 +127,9 @@ export interface RecruiterOffer {
   id: string;
   candidateId: string;
   candidateName: string;
+  candidateEmail: string;
   candidateBranch: string;
+  companyName: string;
   jobId: string;
   role: string;
   ctc: string;

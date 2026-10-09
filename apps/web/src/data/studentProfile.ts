@@ -18,10 +18,19 @@ export interface Certification {
   certificateUrl?: string;
 }
 
+export interface StudentProject {
+  id: string;
+  title: string;
+  description: string;
+  githubUrl: string;
+  liveUrl: string;
+}
+
 export interface StudentProfileData {
   name: string;
   email: string;
   phone: string;
+  gender: string;
   department: string;
   year: string;
   cgpa: string;
@@ -31,6 +40,7 @@ export interface StudentProfileData {
   avatarUrl?: string;
   skills: string[];
   education: Education[];
+  projects: StudentProject[];
   certifications: Certification[];
   resume: {
     fileName: string;
@@ -38,6 +48,7 @@ export interface StudentProfileData {
     uploadDate: string;
     url?: string;
   } | null;
+  resumeText: string | null;
   github: string;
   linkedin: string;
   portfolio: string;
@@ -55,6 +66,7 @@ export function createEmptyStudentProfile(
     name,
     email,
     phone: "",
+    gender: "",
     department: "",
     year: "",
     cgpa: "",
@@ -64,8 +76,10 @@ export function createEmptyStudentProfile(
     avatarUrl,
     skills: [],
     education: [],
+    projects: [],
     certifications: [],
     resume: null,
+    resumeText: null,
     github: "",
     linkedin: "",
     portfolio: "",
@@ -75,7 +89,71 @@ export function createEmptyStudentProfile(
   };
 }
 
-export const sampleDemoProfile: StudentProfileData = createEmptyStudentProfile();
+export const sampleDemoProfile: StudentProfileData = {
+  name: "Himanshu Rout",
+  email: "himanshu.rout@example.com",
+  phone: "+91 98765 43210",
+  gender: "",
+  department: "Computer Science Engineering",
+  year: "2nd Year",
+  cgpa: "8.6",
+  location: "Bhubaneswar, India",
+  bio: "Passionate Computer Science Engineering student specializing in full-stack web applications, cybersecurity fundamentals, and algorithms. Aspiring software engineer eager to tackle challenging real-world problems.",
+  isPublic: true,
+  avatarUrl: "",
+  skills: [
+    "Cybersecurity",
+    "Python",
+    "React",
+    "Networking",
+    "SQL",
+    "Git & GitHub",
+  ],
+  education: [
+    {
+      id: "edu-1",
+      degree: "B.Tech in Computer Science Engineering",
+      branch: "Computer Science & Engineering",
+      institution: "National Institute of Technology",
+      startYear: "2024",
+      endYear: "2028",
+      cgpa: "8.6/10",
+      description:
+        "Relevant Coursework: Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Computer Networks, and Operating Systems.",
+    },
+  ],
+  projects: [],
+  certifications: [
+    {
+      id: "cert-1",
+      name: "Cybersecurity Internship",
+      issuingOrg: "CTTC",
+      issueDate: "June 2024",
+      credentialId: "CTTC-CS-2024-892",
+      certificateUrl: "https://cttc.gov.in/verify/CTTC-CS-2024-892",
+    },
+    {
+      id: "cert-2",
+      name: "Python Foundation",
+      issuingOrg: "Infosys Springboard",
+      issueDate: "March 2024",
+      credentialId: "INF-SB-PY-4401",
+      certificateUrl: "https://springboard.infosys.com/verify/INF-SB-PY-4401",
+    },
+  ],
+  resume: {
+    fileName: "Resume.pdf",
+    fileSize: "1.2 MB",
+    uploadDate: "Sep 15, 2024",
+  },
+  resumeText: null,
+  github: "https://github.com/HimanshuKumarRout",
+  linkedin: "https://linkedin.com/in/himanshu-rout",
+  portfolio: "https://himanshurout.dev",
+  leetcode: "https://leetcode.com/himanshu_rout",
+  hackerrank: "https://hackerrank.com/himanshu_rout",
+  otherWebsite: "",
+};
 
 export const initialStudentProfile: StudentProfileData = createEmptyStudentProfile();
 

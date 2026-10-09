@@ -30,7 +30,7 @@ export default function StudentOffers() {
             </h1>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Official job offers verified by the university placement cell, digital Letters of Intent (LOI), and acceptance status.
+            Review your job offers and track your acceptance status.
           </p>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Briefcase,
   Sparkles,
@@ -10,11 +10,8 @@ import {
   DollarSign,
   Calendar,
   Info,
-  Loader2,
 } from "lucide-react";
-import { toast } from "sonner";
 import type { RecommendedJob } from "@/data/dashboardData";
-import { applyToJob } from "@/lib/api/student.api";
 
 interface RecommendedJobsCardProps {
   jobs: RecommendedJob[];
@@ -27,56 +24,10 @@ export default function RecommendedJobsCard({
   onApplyJob,
   columns = 3,
 }: RecommendedJobsCardProps) {
-  const [appliedJobs, setAppliedJobs] = useState<Record<string, boolean>>({});
-  const [pendingJobs, setPendingJobs] = useState<Record<string, boolean>>({});
+  const handleApply = (job: RecommendedJob) => {
+    if (job.hasApplied) return;
 
-  const handleApply = async (job: RecommendedJob) => {
-    if (pendingJobs[job.id] || appliedJobs[job.id] || job.hasApplied) return;
-
-    setPendingJobs((prev) => ({
-      ...prev,
-      [job.id]: true,
-    }));
-
-    try {
-      await applyToJob({ jobId: job.id });
-
-      setAppliedJobs((prev) => ({
-        ...prev,
-        [job.id]: true,
-      }));
-
-      toast.success(`Application submitted to ${job.company}!`, {
-        description: `Applied for ${job.title} (${job.ctc}). Confirmation sent to your student email.`,
-      });
-
-      onApplyJob?.(job.id, job.matchPercentage);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong";
-
-      if (message.toLowerCase().includes("already applied")) {
-        setAppliedJobs((prev) => ({
-          ...prev,
-          [job.id]: true,
-        }));
-
-        toast.info(
-          `You have already applied for ${job.title} at ${job.company}.`,
-        );
-
-        onApplyJob?.(job.id, job.matchPercentage);
-      } else {
-        toast.error("Could not submit application", {
-          description: message,
-        });
-      }
-    } finally {
-      setPendingJobs((prev) => ({
-        ...prev,
-        [job.id]: false,
-      }));
-    }
+    onApplyJob?.(job.id, job.matchPercentage);
   };
 
   const gridClass =
@@ -133,9 +84,7 @@ export default function RecommendedJobsCard({
         /* Jobs Grid */
         <div className={gridClass}>
           {jobs.map((job) => {
-            const isApplied = appliedJobs[job.id] ?? job.hasApplied ?? false;
-
-            const isPending = pendingJobs[job.id] ?? false;
+            const isApplied = job.hasApplied ?? false;
 
             return (
               <div
@@ -238,13 +187,11 @@ export default function RecommendedJobsCard({
                   <button
                     type="button"
                     onClick={() => handleApply(job)}
-                    disabled={isApplied || isPending}
+                    disabled={isApplied}
                     className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 ${
                       isApplied
                         ? "bg-emerald-600 text-white cursor-default"
-                        : isPending
-                          ? "bg-indigo-400 text-white cursor-wait"
-                          : "bg-[#6366F1] text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 active:scale-[0.98] cursor-pointer"
+                        : "bg-[#6366F1] text-white hover:bg-[#4F46E5] shadow-md shadow-indigo-600/20 active:scale-[0.98] cursor-pointer"
                     }`}
                   >
                     {isApplied ? (
@@ -252,12 +199,6 @@ export default function RecommendedJobsCard({
                         <CheckCircle2 className="h-3.5 w-3.5" />
 
                         <span>Applied</span>
-                      </>
-                    ) : isPending ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-
-                        <span>Applying...</span>
                       </>
                     ) : (
                       <>

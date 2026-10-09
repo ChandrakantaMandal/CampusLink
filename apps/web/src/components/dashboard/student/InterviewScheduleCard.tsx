@@ -20,12 +20,6 @@ interface InterviewScheduleCardProps {
 }
 
 export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps) {
-  const handleJoin = (slot: InterviewSlot) => {
-    toast.success(`Opening meeting room for ${slot.company}`, {
-      description: `Joining as candidate. Passcode copied to clipboard.`,
-    });
-  };
-
   const handleReminder = (slot: InterviewSlot) => {
     toast.info(`Reminder set for ${slot.company} interview`, {
       description: `Notification scheduled for 15 minutes before ${slot.time}`,
@@ -139,13 +133,26 @@ export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps
                   <span>No schedule overlap</span>
                 </div>
 
-                <button
-                  onClick={() => handleJoin(slot)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition-colors"
-                >
-                  {slot.type === "Virtual" ? "Join Meeting" : "Directions"}
-                  <ExternalLink className="w-3 h-3" />
-                </button>
+                {slot.type === "Virtual" && slot.meetingLink ? (
+                  <a
+                    href={slot.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
+                  >
+                    Join Meeting
+                    <ExternalLink className="size-3" aria-hidden="true" />
+                  </a>
+                ) : slot.type === "Virtual" ? (
+                  <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    Meeting link unavailable
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                    Check venue
+                    <ExternalLink className="size-3" aria-hidden="true" />
+                  </span>
+                )}
               </div>
             </div>
           ))}

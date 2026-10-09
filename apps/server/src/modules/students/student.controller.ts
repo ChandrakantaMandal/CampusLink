@@ -14,6 +14,7 @@ import {
   getStudentReadiness,
   markAllStudentNotificationsRead,
   markStudentNotificationRead,
+  registerForDrive,
   updateStudent,
 } from "./student.service";
 
@@ -215,6 +216,42 @@ export async function acceptMyStudentOffer(
       success: true,
       message: "Offer accepted successfully",
       data: result.offer,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function registerMyStudentDrive(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const { id } = req.params;
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid drive ID",
+      });
+    }
+
+    const result = await registerForDrive(authenticatedReq.user.id, id);
+
+    if (!result.ok) {
+      return res.status(result.status).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Registered for drive successfully",
+      data: result.registration,
     });
   } catch (error) {
     next(error);

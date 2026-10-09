@@ -13,6 +13,14 @@ import type { StudentProfileData } from "@/data/studentProfile";
 import {
   getMyStudentProfile,
   updateMyStudentProfile,
+  getMySkills,
+  addMySkill,
+  removeMySkill,
+  getMyEducationRecords,
+  saveEducationRecord,
+  getMyProjectRecords,
+  saveProjectRecord,
+  deleteProjectRecord,
 } from "@/lib/api/student.api";
 import type { StudentProfile } from "@/lib/api/student.api";
 import {
@@ -111,8 +119,11 @@ function mergeApiIntoLocal(
 
   return {
     ...local,
+    education: local.education ?? [],
+    projects: local.projects ?? [],
     name: name || local.name,
     phone: api.phone ?? local.phone,
+    gender: api.gender ?? local.gender ?? "",
     department: api.department ?? local.department,
     cgpa: api.cgpa != null ? String(api.cgpa) : local.cgpa,
     location: api.location ?? local.location,
@@ -140,7 +151,8 @@ function mergeApiIntoLocal(
             }),
             url: api.resumeUrl,
           }
-      : local.resume,
+      : null,
+    resumeText: api.resumeText ?? null,
   };
 }
 
@@ -149,6 +161,84 @@ function normalizeUrl(value: string): string {
   return trimmed && !/^https?:\/\//i.test(trimmed)
     ? `https://${trimmed}`
     : trimmed;
+}
+
+function canonicalSkill(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+async function syncSkillsToServer(desiredSkills: string[]): Promise<void> {
+  const server = await getMySkills();
+
+  const serverByCanonical = new Map<string, string>();
+  for (const row of server.skills) {
+    serverByCanonical.set(canonicalSkill(row.skill.name), row.skillId);
+  }
+
+  const wanted = new Map<string, string>();
+  for (const name of desiredSkills) {
+    const key = canonicalSkill(name);
+    if (key && !wanted.has(key)) {
+      wanted.set(key, name.trim());
+    }
+  }
+
+  const tasks: Promise<unknown>[] = [];
+
+  for (const [key, name] of wanted) {
+    if (!serverByCanonical.has(key)) {
+      tasks.push(addMySkill(name));
+    }
+  }
+
+  for (const [key, skillId] of serverByCanonical) {
+    if (!wanted.has(key)) {
+      tasks.push(removeMySkill(skillId));
+    }
+  }
+
+  await Promise.all(tasks);
+}
+
+async function syncEducationToServer(desired: StudentProfileData["education"]): Promise<void> {
+  const existing = await getMyEducationRecords();
+  const unused = new Set(existing.map((row) => row.id));
+  for (const item of desired) {
+    const match = existing.find((row) => unused.has(row.id) &&
+      row.institution.trim().toLowerCase() === item.institution.trim().toLowerCase() &&
+      (row.degree ?? "").trim().toLowerCase() === item.degree.trim().toLowerCase() &&
+      (row.branch ?? "").trim().toLowerCase() === item.branch.trim().toLowerCase());
+    const year = (value: string) => /^\d{4}$/.test(value) ? Number(value) : null;
+    const grade = Number.parseFloat(item.cgpa);
+    const data = {
+      institution: item.institution.trim(), degree: item.degree.trim() || null,
+      branch: item.branch.trim() || null, startYear: year(item.startYear),
+      endYear: year(item.endYear), cgpa: Number.isFinite(grade) && grade <= 10 ? grade : null,
+      percentage: null,
+    };
+    await saveEducationRecord(data, match?.id);
+    if (match) unused.delete(match.id);
+  }
+}
+
+async function syncProjectsToServer(desired: StudentProfileData["projects"] = []): Promise<StudentProfileData["projects"]> {
+  const existing = await getMyProjectRecords();
+  const remaining = new Map(existing.map((row) => [row.id, row]));
+  const saved = [] as StudentProfileData["projects"];
+  for (const project of desired) {
+    const match = remaining.get(project.id) ?? existing.find((row) =>
+      row.title.trim().toLowerCase() === project.title.trim().toLowerCase());
+    const result = await saveProjectRecord({
+      title: project.title.trim(),
+      description: project.description.trim(),
+      githubUrl: normalizeUrl(project.githubUrl),
+      liveUrl: normalizeUrl(project.liveUrl),
+    }, match?.id);
+    if (match) remaining.delete(match.id);
+    saved.push({ ...project, id: result.id });
+  }
+  await Promise.all([...remaining.keys()].map(deleteProjectRecord));
+  return saved;
 }
 
 export function useProfile(): ProfileValue {
@@ -188,16 +278,27 @@ export function useProfile(): ProfileValue {
     }
     setIsSaving(true);
     setErrors({});
+    let profileToStore = profile;
     try {
       const parts = profile.name.trim().split(/\s+/).filter(Boolean);
       const firstName = parts[0] ?? "";
       const lastName = parts.slice(1).join(" ");
+      const primaryEducation = [...profile.education].sort(
+        (a, b) => Number(b.endYear || 0) - Number(a.endYear || 0),
+      )[0];
 
       await updateMyStudentProfile({
         firstName,
         lastName,
         phone: profile.phone.trim(),
+        gender: profile.gender.trim() || undefined,
+        college: primaryEducation?.institution.trim() || undefined,
+        degree: primaryEducation?.degree.trim() || undefined,
+        branch: primaryEducation?.branch.trim() || profile.department.trim() || undefined,
         department: profile.department.trim(),
+        graduationYear: /^\d{4}$/.test(primaryEducation?.endYear ?? "")
+          ? Number(primaryEducation?.endYear)
+          : undefined,
         cgpa: profile.cgpa.trim() ? Number(profile.cgpa) : null,
         location: profile.location.trim(),
         bio: profile.bio.trim(),
@@ -210,8 +311,22 @@ export function useProfile(): ProfileValue {
         otherWebsiteUrl: normalizeUrl(profile.otherWebsite),
       });
 
-      saveStoredProfile(profile, userKey);
-      setSavedSnapshot(JSON.stringify(profile));
+      try {
+        await syncSkillsToServer(profile.skills);
+        await syncEducationToServer(profile.education);
+        const projects = await syncProjectsToServer(profile.projects ?? []);
+        profileToStore = { ...profile, projects };
+        useProfileStore.getState().setProfile(profileToStore);
+      } catch (skillError) {
+        toast.warning(
+          `Profile saved, but skills or education failed to sync: ${
+            (skillError as Error).message
+          }`,
+        );
+      }
+
+      saveStoredProfile(profileToStore, userKey);
+      setSavedSnapshot(JSON.stringify(profileToStore));
       setIsEditing(false);
       toast.success("Profile saved");
     } catch (e) {
@@ -288,10 +403,63 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
       if (!stored) saveStoredProfile(local, userKey);
 
       getMyStudentProfile()
-        .then((api) => {
+        .then(async (api) => {
           if (cancelled) return;
+
+          // Server-side skills are the source of truth when present;
+          // an empty server list keeps the local (legacy) skill list.
+          let skills = local.skills;
+          let education = local.education ?? [];
+          let projects = local.projects ?? [];
+          try {
+            const serverSkills = await getMySkills();
+            if (serverSkills.skills.length > 0) {
+              skills = serverSkills.skills.map((row) => row.skill.name);
+            }
+          } catch {
+            // Skills endpoint unavailable — keep the local list.
+          }
+
+          try {
+            const serverEducation = await getMyEducationRecords();
+            if (serverEducation.length > 0) {
+              education = serverEducation.map((row) => ({
+                id: row.id,
+                institution: row.institution,
+                degree: row.degree ?? "",
+                branch: row.branch ?? "",
+                startYear: row.startYear == null ? "" : String(row.startYear),
+                endYear: row.endYear == null ? "" : String(row.endYear),
+                cgpa: row.cgpa == null ? "" : String(row.cgpa),
+                description: "",
+              }));
+            }
+          } catch {
+            // Keep local education when the education endpoint is unavailable.
+          }
+
+          try {
+            const serverProjects = await getMyProjectRecords();
+            if (serverProjects.length > 0) {
+              projects = serverProjects.map((row) => ({
+                id: row.id,
+                title: row.title,
+                description: row.description ?? "",
+                githubUrl: row.githubUrl ?? "",
+                liveUrl: row.liveUrl ?? "",
+              }));
+            }
+          } catch {
+            // Keep local projects if the projects endpoint is unavailable.
+          }
+
+          if (cancelled) return;
+
           const merged: StudentProfileData = {
             ...mergeApiIntoLocal(api, local),
+            skills,
+            education,
+            projects,
             email: session.user.email || local.email,
             avatarUrl:
               api.user?.image || session.user.image || local.avatarUrl,

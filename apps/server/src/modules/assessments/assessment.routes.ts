@@ -15,9 +15,15 @@ import {
   getAssessmentResultController,
   updateAssessmentResultController,
   deleteAssessmentResultController,
+  getAssessmentInviteController,
+  submitAssessmentInviteController,
 } from "./assessment.controller";
 
 const router = Router();
+
+// Email invitation links are signed and time-limited; the token grants access to this one assessment.
+router.get("/invite/:token", getAssessmentInviteController);
+router.post("/invite/:token/submit", submitAssessmentInviteController);
 
 // Get current student's assessment results
 router.get(

@@ -32,13 +32,25 @@ export interface RecruiterApplicationRaw {
     backlogs?: number;
     graduationYear?: number | null;
     readinessScore?: number | null;
+    aiReadinessAvailable?: boolean;
     resumeUrl?: string | null;
     githubUrl?: string | null;
     linkedinUrl?: string | null;
+    skills?: Array<{ skill: { name: string }; level?: string | null }>;
+    education?: Array<{ institution: string; degree?: string | null; branch?: string | null; cgpa?: number | null }>;
     user: { id: string; name: string | null; email: string; image?: string | null };
   } | null;
-  job: { id: string; title: string };
-  matchResult: { matchScore?: number | null } | null;
+  job: { id: string; title: string; minCGPA?: number | null; maxBacklogs?: number | null; allowedBranches?: string[]; skills?: Array<{ required: boolean; skill: { name: string } }> };
+  matchResult: {
+    matchScore?: number | null;
+    skillMatchScore?: number | null;
+    projectScore?: number | null;
+    matchedSkills?: unknown;
+    missingSkills?: unknown;
+    positiveSignals?: unknown;
+    gaps?: unknown;
+    explanation?: string | null;
+  } | null;
 }
 
 // ---------- Status mapping ----------
@@ -59,6 +71,7 @@ const STATUS_TO_VIEW: Record<string, RecruiterCandidate["status"]> = {
 const VIEW_TO_STATUS: Record<RecruiterCandidate["status"], string> = {
   Applied: "APPLIED",
   "Under Review": "UNDER_REVIEW",
+  Assessment: "ASSESSMENT",
   Shortlisted: "SHORTLISTED",
   Interview: "INTERVIEW",
   Selected: "SELECTED",
@@ -72,6 +85,14 @@ function normalizeScore(raw: number | null | undefined): number {
   if (raw == null || Number.isNaN(raw)) return 0;
   const score = raw <= 1 ? raw * 100 : raw;
   return Math.round(score);
+}
+
+function jsonStringList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string");
+  if (typeof value === "string") {
+    try { return jsonStringList(JSON.parse(value) as unknown); } catch { return []; }
+  }
+  return [];
 }
 
 function dateOnly(iso: string): string {
@@ -94,6 +115,7 @@ function toRecruiterCandidate(raw: RecruiterApplicationRaw): RecruiterCandidate 
     id: raw.id,
     studentId: student?.id,
     name: displayName(student?.firstName, student?.lastName, student?.user?.name ?? raw.user?.name),
+    avatarUrl: student?.user?.image ?? null,
     email: student?.user?.email ?? raw.user?.email ?? "",
     phone: student?.phone ?? "",
     college: student?.college ?? "",
@@ -101,9 +123,20 @@ function toRecruiterCandidate(raw: RecruiterApplicationRaw): RecruiterCandidate 
     cgpa: student?.cgpa ?? 0,
     backlogs: student?.backlogs ?? 0,
     graduationYear: student?.graduationYear ?? 0,
-    skills: [],
+    skills: student?.skills?.map(({ skill }) => skill.name) ?? [],
     matchScore: normalizeScore(raw.matchResult?.matchScore),
+    matchScoreAvailable: raw.matchResult?.matchScore != null,
+    matchScoreSource: raw.matchResult?.matchScore != null ? "AI" : undefined,
     readinessScore: normalizeScore(student?.readinessScore),
+    readinessAvailable: student?.aiReadinessAvailable === true && student.readinessScore != null,
+    matchAnalysis: raw.matchResult ? {
+      skillMatchScore: normalizeScore(raw.matchResult.skillMatchScore),
+      matchedSkills: jsonStringList(raw.matchResult.matchedSkills),
+      missingSkills: jsonStringList(raw.matchResult.missingSkills),
+      positiveSignals: jsonStringList(raw.matchResult.positiveSignals),
+      gaps: jsonStringList(raw.matchResult.gaps),
+      explanation: raw.matchResult.explanation ?? undefined,
+    } : null,
     status: STATUS_TO_VIEW[raw.status] ?? "Applied",
     appliedJobId: raw.job?.id ?? "",
     appliedJobTitle: raw.job?.title ?? "",
@@ -256,6 +289,7 @@ export interface ShortlistedApplicationRaw {
     user: { id: string; name: string | null; email: string; image?: string | null };
   } | null;
   matchResult: { matchScore?: number | null } | null;
+  assessmentOutcome?: { passed: boolean | null; percentage: number | null; takenAt: string } | null;
 }
 
 // ---------- Recruiter mapping ----------
@@ -386,6 +420,7 @@ function toShortlistedCandidate(raw: ShortlistedApplicationRaw): RecruiterCandid
 
   return {
     id: student?.id ?? raw.id,
+    applicationId: raw.id,
     studentId: student?.id,
     name: displayName(student?.firstName, student?.lastName, student?.user?.name),
     email: student?.user?.email ?? "",
@@ -398,7 +433,9 @@ function toShortlistedCandidate(raw: ShortlistedApplicationRaw): RecruiterCandid
     skills: [],
     matchScore: normalizeScore(raw.matchResult?.matchScore),
     readinessScore: normalizeScore(student?.readinessScore),
-    status: "Shortlisted",
+    status: raw.status === "ASSESSMENT" ? "Assessment" : "Shortlisted",
+    assessmentPassed: raw.assessmentOutcome?.passed ?? null,
+    assessmentPercentage: raw.assessmentOutcome?.percentage ?? null,
     appliedJobId: raw.job?.id ?? "",
     appliedJobTitle: raw.job?.title ?? "",
     appliedDate: dateOnly(raw.appliedAt),
@@ -435,6 +472,10 @@ export interface UpdateRecruiterProfileInput {
     tier?: "TIER_1" | "TIER_2" | "TIER_3";
   };
 }
+
+export type CreateRecruiterProfileInput = Omit<UpdateRecruiterProfileInput, "company"> & {
+  company: NonNullable<UpdateRecruiterProfileInput["company"]> & { name: string };
+};
 
 export interface CreateRecruiterJobInput {
   title: string;
@@ -487,6 +528,16 @@ export interface UpdateRecruiterInterviewInput {
 export async function getRecruiterProfile(): Promise<RecruiterCompany> {
   const response = await api.get<Envelope<RecruiterProfileRaw>>(
     "/api/recruiter/profile",
+  );
+  return toRecruiterCompany(response.data.data);
+}
+
+export async function createRecruiterProfile(
+  input: CreateRecruiterProfileInput,
+): Promise<RecruiterCompany> {
+  const response = await api.post<Envelope<RecruiterProfileRaw>>(
+    "/api/recruiter/profile",
+    input,
   );
   return toRecruiterCompany(response.data.data);
 }
@@ -568,6 +619,14 @@ export async function getShortlistedCandidates(): Promise<RecruiterCandidate[]> 
   return response.data.data.map(toShortlistedCandidate);
 }
 
+export async function sendBatchAssessmentLinks(applicationIds: string[]): Promise<{ sent: number; total: number }> {
+  const response = await api.post<Envelope<{ sent: number; total: number }>>(
+    "/api/recruiter/shortlisted/assessment-links",
+    { applicationIds },
+  );
+  return response.data.data;
+}
+
 // ---------- Offers / notifications / stats raw types ----------
 
 export interface RecruiterOfferRaw {
@@ -598,7 +657,7 @@ export interface RecruiterOfferRaw {
     firstName?: string | null;
     lastName?: string | null;
     branch?: string | null;
-    user: { id: string; name: string | null; image?: string | null };
+    user: { id: string; name: string | null; email: string; image?: string | null };
   };
   company: { id: string; name: string; logoUrl?: string | null };
   job?: { id: string; title: string } | null;
@@ -709,7 +768,9 @@ function toRecruiterOffer(raw: RecruiterOfferRaw): RecruiterOffer {
     id: raw.id,
     candidateId: raw.student.id,
     candidateName: fullName || raw.student.user.name || "Unknown Candidate",
+    candidateEmail: raw.student.user.email,
     candidateBranch: raw.student.branch ?? "",
+    companyName: raw.company.name,
     jobId: raw.jobId ?? "",
     role: raw.role,
     ctc: raw.ctc,
@@ -774,6 +835,21 @@ export async function createMyOffer(
     input,
   );
   return toRecruiterOffer(response.data.data);
+}
+
+export async function sendMyOffer(offerId: string): Promise<RecruiterOffer> {
+  const response = await api.post<Envelope<RecruiterOfferRaw>>(
+    `/api/recruiter/offers/${encodeURIComponent(offerId)}/send`,
+  );
+  return toRecruiterOffer(response.data.data);
+}
+
+export async function downloadMyOfferPdf(offerId: string): Promise<Blob> {
+  const response = await api.get<Blob>(
+    `/api/recruiter/offers/${encodeURIComponent(offerId)}/pdf`,
+    { responseType: "blob" },
+  );
+  return response.data;
 }
 
 export async function getMyNotifications(): Promise<NotificationFeed> {

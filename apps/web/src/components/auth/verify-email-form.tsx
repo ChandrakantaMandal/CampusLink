@@ -10,6 +10,7 @@ export default function VerifyEmailForm() {
   const router = useRouter();
 
   const email = searchParams.get("email");
+  const role = searchParams.get("role")?.toUpperCase();
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,7 +78,12 @@ export default function VerifyEmailForm() {
 
       // Give the browser a moment to receive the session cookie
       setTimeout(() => {
-        router.push("/dashboard" as Route);
+        const dashboardByRole: Record<string, Route> = {
+          STUDENT: "/student/dashboard",
+          RECRUITER: "/recruiter/dashboard",
+          ADMIN: "/admin/dashboard",
+        };
+        router.replace(dashboardByRole[role ?? ""] ?? "/student/dashboard");
       }, 500);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Verification failed");

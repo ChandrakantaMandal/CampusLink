@@ -36,7 +36,7 @@ function companyJobsCacheKey(companyId: string) {
 
 const JOBS_CACHE_KEY = "jobs:all";
 
-async function invalidateJobCaches(
+export async function invalidateJobCaches(
   jobId?: string,
   companyId?: string,
 ) {

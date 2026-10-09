@@ -1,5 +1,6 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
+import { invalidateStudentCaches } from "../students/student.service";
 
 import type {
   AddStudentSkillInput,
@@ -154,6 +155,86 @@ export async function deleteSkill(skillId: string) {
   return skill;
 }
 
+function normalizeSkillName(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+async function resolveSkill(data: AddStudentSkillInput) {
+  if (data.skillId) {
+    const skill = await db.skill.findUnique({
+      where: {
+        id: data.skillId,
+      },
+    });
+
+    if (!skill) {
+      throw new Error("Skill not found");
+    }
+
+    return skill;
+  }
+
+  const name = data.skillName?.trim() ?? "";
+
+  if (!name) {
+    throw new Error("Either skillId or skillName is required");
+  }
+
+  const normalized = normalizeSkillName(name);
+
+  const byNormalized = await db.skill.findUnique({
+    where: {
+      normalized,
+    },
+  });
+
+  if (byNormalized) {
+    return byNormalized;
+  }
+
+  const byName = await db.skill.findFirst({
+    where: {
+      name: {
+        equals: name,
+        mode: "insensitive",
+      },
+    },
+  });
+
+  if (byName) {
+    return byName;
+  }
+
+  try {
+    const skill = await db.skill.create({
+      data: {
+        name,
+        normalized,
+        type: "OTHER",
+      },
+    });
+
+    await invalidateSkillCaches(skill.id);
+
+    return skill;
+  } catch {
+    const raced = await db.skill.findUnique({
+      where: {
+        normalized,
+      },
+    });
+
+    if (raced) {
+      return raced;
+    }
+
+    throw new Error("Failed to create skill");
+  }
+}
+
 export async function addStudentSkill(
   userId: string,
   data: AddStudentSkillInput,
@@ -168,21 +249,13 @@ export async function addStudentSkill(
     throw new Error("Student profile not found");
   }
 
-  const skill = await db.skill.findUnique({
-    where: {
-      id: data.skillId,
-    },
-  });
-
-  if (!skill) {
-    throw new Error("Skill not found");
-  }
+  const skill = await resolveSkill(data);
 
   const existing = await db.studentSkill.findUnique({
     where: {
       studentId_skillId: {
         studentId: student.id,
-        skillId: data.skillId,
+        skillId: skill.id,
       },
     },
   });
@@ -194,7 +267,7 @@ export async function addStudentSkill(
   const studentSkill = await db.studentSkill.create({
     data: {
       studentId: student.id,
-      skillId: data.skillId,
+      skillId: skill.id,
       level: data.level,
       years: data.years,
       source: data.source,
@@ -204,7 +277,8 @@ export async function addStudentSkill(
     },
   });
 
-  await invalidateSkillCaches(data.skillId, student.id);
+  await invalidateSkillCaches(skill.id, student.id);
+  await invalidateStudentCaches(userId, student.id);
 
   return studentSkill;
 }
@@ -283,6 +357,7 @@ export async function updateStudentSkill(
   });
 
   await invalidateSkillCaches(skillId, student.id);
+  await invalidateStudentCaches(userId, student.id);
 
   return updatedStudentSkill;
 }
@@ -318,4 +393,5 @@ export async function removeStudentSkill(userId: string, skillId: string) {
   });
 
   await invalidateSkillCaches(skillId, student.id);
+  await invalidateStudentCaches(userId, student.id);
 }

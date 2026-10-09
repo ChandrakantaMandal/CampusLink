@@ -25,9 +25,12 @@ const mocks = vi.hoisted(() => ({
     driveRegistration: {
       count: vi.fn(),
       findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
     },
     placementDrive: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
     },
     userNotification: {
       count: vi.fn(),
@@ -68,6 +71,7 @@ import {
   getStudentOffers,
   getStudentNotifications,
   isEligibleForDrive,
+  registerForDrive,
 } from "../../../../src/modules/students/student.service";
 
 const student = {
@@ -1048,6 +1052,171 @@ describe("Student Aggregates Service", () => {
           allowedBranches: [],
         }),
       ).toBe(true);
+    });
+  });
+
+  describe("registerForDrive", () => {
+    const drive = {
+      id: "drive-1",
+      title: "Campus Drive A",
+      status: "OPEN",
+      minCgpa: 7.0,
+      backlogsAllowed: 0,
+      allowedBranches: ["CSE"],
+    };
+
+    beforeEach(() => {
+      mocks.redis.get.mockResolvedValue(JSON.stringify(student));
+      mocks.db.placementDrive.findUnique.mockResolvedValue(drive);
+      mocks.db.driveRegistration.findUnique.mockResolvedValue(null);
+      mocks.db.driveRegistration.create.mockResolvedValue({
+        id: "reg-1",
+        driveId: "drive-1",
+        studentId: "student-1",
+        status: "REGISTERED",
+        drive,
+      });
+    });
+
+    it("should return 404 when the student profile is not found", async () => {
+      mocks.redis.get.mockResolvedValue(null);
+      mocks.db.studentProfile.findUnique.mockResolvedValue(null);
+      mocks.db.user.findUnique.mockResolvedValue(null);
+
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(result).toEqual({
+        ok: false,
+        status: 404,
+        message: "Student profile not found",
+      });
+      expect(mocks.db.placementDrive.findUnique).not.toHaveBeenCalled();
+      expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
+    });
+
+    it("should return 404 when the drive does not exist", async () => {
+      mocks.db.placementDrive.findUnique.mockResolvedValue(null);
+
+      const result = await registerForDrive("user-1", "missing-drive");
+
+      expect(result).toEqual({
+        ok: false,
+        status: 404,
+        message: "Drive not found",
+      });
+      expect(mocks.db.driveRegistration.findUnique).not.toHaveBeenCalled();
+      expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
+    });
+
+    it("should return the existing registration without creating a duplicate", async () => {
+      mocks.db.driveRegistration.findUnique.mockResolvedValue({
+        id: "reg-1",
+        driveId: "drive-1",
+        studentId: "student-1",
+        status: "REGISTERED",
+      });
+
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(result.ok).toBe(true);
+
+      if (result.ok) {
+        expect(result.registration).toMatchObject({
+          id: "reg-1",
+          eligible: true,
+        });
+      }
+
+      expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
+      expect(mocks.redis.del).not.toHaveBeenCalled();
+    });
+
+    it("should flag an existing registration as ineligible when criteria are no longer met", async () => {
+      mocks.db.placementDrive.findUnique.mockResolvedValue({
+        ...drive,
+        minCgpa: 9.5,
+      });
+      mocks.db.driveRegistration.findUnique.mockResolvedValue({
+        id: "reg-1",
+        driveId: "drive-1",
+        studentId: "student-1",
+        status: "REGISTERED",
+      });
+
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(result.ok).toBe(true);
+
+      if (result.ok) {
+        expect(result.registration.eligible).toBe(false);
+      }
+
+      expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
+    });
+
+    it("should return 409 when the drive is not open for registration", async () => {
+      mocks.db.placementDrive.findUnique.mockResolvedValue({
+        ...drive,
+        status: "CLOSED",
+      });
+
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(result).toEqual({
+        ok: false,
+        status: 409,
+        message: "Drive registration is closed (status: CLOSED)",
+      });
+      expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
+    });
+
+    it("should return 403 when the student is not eligible", async () => {
+      mocks.db.placementDrive.findUnique.mockResolvedValue({
+        ...drive,
+        minCgpa: 9.5,
+      });
+
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(result).toEqual({
+        ok: false,
+        status: 403,
+        message: "You are not eligible for this drive",
+      });
+      expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
+      expect(mocks.redis.del).not.toHaveBeenCalled();
+    });
+
+    it("should create a registration and invalidate drives/dashboard caches on success", async () => {
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(mocks.db.driveRegistration.create).toHaveBeenCalledWith({
+        data: {
+          driveId: "drive-1",
+          studentId: "student-1",
+        },
+        include: {
+          drive: {
+            include: {
+              company: {
+                select: expect.any(Object),
+              },
+            },
+          },
+        },
+      });
+
+      expect(mocks.redis.del).toHaveBeenCalledWith("student:drives:user-1");
+      expect(mocks.redis.del).toHaveBeenCalledWith("student:dashboard:user-1");
+
+      expect(result.ok).toBe(true);
+
+      if (result.ok) {
+        expect(result.registration).toMatchObject({
+          id: "reg-1",
+          eligible: true,
+        });
+      }
     });
   });
 });

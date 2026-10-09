@@ -180,12 +180,6 @@ export async function getStudentByUserId(userId: string) {
 export async function getStudentById(id: string) {
   const cacheKey = studentCacheKey(id);
 
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
   const student = await db.studentProfile.findUnique({
     where: {
       id,
@@ -328,6 +322,14 @@ const VOLATILE_TTL = 60;
 
 function aggregateCacheKey(userId: string, domain: string) {
   return `student:${domain}:${userId}`;
+}
+
+export function invalidateStudentInterviewCache(userId: string) {
+  return redis.del(aggregateCacheKey(userId, "interviews"));
+}
+
+export function invalidateStudentOfferCache(userId: string) {
+  return redis.del(aggregateCacheKey(userId, "offers"));
 }
 
 export function invalidateStudentNotificationsCache(userId: string) {
@@ -863,11 +865,12 @@ export async function getStudentInterviews(userId: string) {
         },
       });
 
-      const now = new Date();
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
 
       const upcoming = interviews.filter(
         (interview) =>
-          interview.scheduledDate >= now &&
+          interview.scheduledDate >= today &&
           (interview.status === "SCHEDULED" ||
             interview.status === "RESCHEDULED"),
       );
@@ -898,6 +901,7 @@ export async function getStudentOffers(userId: string) {
       const offers = await db.offer.findMany({
         where: {
           studentId: student.id,
+          status: { not: "DRAFT" },
         },
 
         orderBy: {
@@ -1020,6 +1024,113 @@ export async function acceptStudentOffer(
   return {
     ok: true,
     offer: updated,
+  };
+}
+
+type DriveRegistrationRecord = NonNullable<
+  Awaited<ReturnType<typeof db.driveRegistration.findUnique>>
+>;
+
+export type RegisterDriveResult =
+  | {
+      ok: true;
+      registration: DriveRegistrationRecord & { eligible: boolean };
+    }
+  | {
+      ok: false;
+      status: 403 | 404 | 409;
+      message: string;
+    };
+
+export async function registerForDrive(
+  userId: string,
+  driveId: string,
+): Promise<RegisterDriveResult> {
+  const student = await resolveStudentForAggregates(userId);
+
+  if (!student) {
+    return {
+      ok: false,
+      status: 404,
+      message: "Student profile not found",
+    };
+  }
+
+  const drive = await db.placementDrive.findUnique({
+    where: {
+      id: driveId,
+    },
+  });
+
+  if (!drive) {
+    return {
+      ok: false,
+      status: 404,
+      message: "Drive not found",
+    };
+  }
+
+  const existing = await db.driveRegistration.findUnique({
+    where: {
+      driveId_studentId: {
+        driveId: drive.id,
+        studentId: student.id,
+      },
+    },
+  });
+
+  if (existing) {
+    return {
+      ok: true,
+      registration: {
+        ...existing,
+        eligible: isEligibleForDrive(student, drive),
+      },
+    };
+  }
+
+  if (drive.status !== "OPEN" && drive.status !== "ONGOING") {
+    return {
+      ok: false,
+      status: 409,
+      message: `Drive registration is closed (status: ${drive.status})`,
+    };
+  }
+
+  if (!isEligibleForDrive(student, drive)) {
+    return {
+      ok: false,
+      status: 403,
+      message: "You are not eligible for this drive",
+    };
+  }
+
+  const registration = await db.driveRegistration.create({
+    data: {
+      driveId: drive.id,
+      studentId: student.id,
+    },
+
+    include: {
+      drive: {
+        include: {
+          company: {
+            select: companyCompactSelect,
+          },
+        },
+      },
+    },
+  });
+
+  await redis.del(aggregateCacheKey(userId, "drives"));
+  await redis.del(aggregateCacheKey(userId, "dashboard"));
+
+  return {
+    ok: true,
+    registration: {
+      ...registration,
+      eligible: true,
+    },
   };
 }
 

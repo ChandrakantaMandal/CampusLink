@@ -43,6 +43,7 @@ export interface UpcomingDrive {
   date: string;
   time: string;
   venue: string;
+  meetingLink?: string | null;
   type: "In-Person" | "Virtual" | "Hybrid";
   status: "Registered" | "Open" | "Shortlisted";
   batchEligibility: string;
@@ -75,6 +76,7 @@ export interface InterviewSlot {
   date: string;
   time: string;
   venue: string;
+  meetingLink?: string | null;
   type: "Virtual" | "Campus Auditorium" | "Lab 4";
   interviewRound: string;
   interviewerName: string;

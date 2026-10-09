@@ -6,6 +6,7 @@ const AI_SERVICE_URL =
 
 type StudentForAI = {
   id: string;
+  resumeText: string | null;
   skills: Array<{
     skill: {
       name: string;
@@ -30,6 +31,80 @@ type JobForAI = {
     };
   }>;
 };
+
+/* =========================
+   RESUME HELPERS
+========================= */
+
+const RESUME_SECTION_HEADERS = new Set([
+  "Skills",
+  "Projects",
+  "Education",
+  "Certifications",
+  "Strengths",
+  "Weaknesses",
+  "Recommendations",
+]);
+
+/**
+ * Extract the skill list from the structured text persisted by the student
+ * profile's resume analysis (`buildResumeText` in the web app). Only that
+ * exact format is accepted; free-form resume text yields nothing.
+ */
+function extractSkillsFromResumeText(
+  text: string | null | undefined,
+): string[] {
+  if (!text) return [];
+
+  const lines = text.split("\n");
+
+  if (lines[0]?.trim() !== "Resume Analysis") return [];
+
+  const skills: string[] = [];
+  let inSkills = false;
+
+  for (const raw of lines.slice(1)) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    const header = line.replace(/:$/, "");
+    if (RESUME_SECTION_HEADERS.has(header)) {
+      inSkills = header === "Skills";
+      continue;
+    }
+
+    if (inSkills) skills.push(line);
+  }
+
+  return skills;
+}
+
+/**
+ * DB skills plus any skills recovered from the persisted resume analysis,
+ * de-duplicated case-insensitively.
+ */
+function resolveStudentSkills(
+  student: StudentForAI,
+): string[] {
+  const dbSkills = student.skills.map(
+    (item) => item.skill.name,
+  );
+
+  const seen = new Set<string>();
+  const merged: string[] = [];
+
+  for (const name of [
+    ...dbSkills,
+    ...extractSkillsFromResumeText(student.resumeText),
+  ]) {
+    const key = name.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    merged.push(name.trim());
+  }
+
+  return merged;
+}
 
 /* =========================
    MATCH SINGLE JOB
@@ -64,9 +139,7 @@ export async function matchStudentWithJob(
     jobResult as JobForAI;
 
   const studentSkills =
-    student.skills.map(
-      (item) => item.skill.name,
-    );
+    resolveStudentSkills(student);
 
   const projects =
     student.projects.map(
@@ -95,7 +168,8 @@ export async function matchStudentWithJob(
           student_id: student.id,
           skills: studentSkills,
           projects,
-          resume_text: "",
+          resume_text:
+            student.resumeText ?? "",
         },
 
         job: {
@@ -157,9 +231,7 @@ export async function analyzeStudentSkillGap(
     jobResult as JobForAI;
 
   const studentSkills =
-    student.skills.map(
-      (item) => item.skill.name,
-    );
+    resolveStudentSkills(student);
 
   const requiredSkills =
     job.skills
@@ -183,7 +255,8 @@ export async function analyzeStudentSkillGap(
           student_id: student.id,
           skills: studentSkills,
           projects: [],
-          resume_text: "",
+          resume_text:
+            student.resumeText ?? "",
         },
 
         job: {
@@ -233,9 +306,7 @@ export async function matchStudentWithJobs(
     studentResult as StudentForAI;
 
   const studentSkills =
-    student.skills.map(
-      (item) => item.skill.name,
-    );
+    resolveStudentSkills(student);
 
   const projects =
     student.projects.map(
@@ -274,6 +345,7 @@ export async function matchStudentWithJobs(
                       studentSkills,
                     projects,
                     resume_text:
+                      student.resumeText ??
                       "",
                   },
 

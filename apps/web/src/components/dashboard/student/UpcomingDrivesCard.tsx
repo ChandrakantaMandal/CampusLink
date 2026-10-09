@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Building2,
   Calendar,
@@ -14,18 +14,21 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import type { UpcomingDrive } from "@/data/dashboardData";
+import { registerForDrive } from "@/lib/api/student.api";
 import { toast } from "sonner";
 
 interface UpcomingDrivesCardProps {
   drives: UpcomingDrive[];
   layout?: "slidebar" | "grid" | "stack";
   onViewAll?: () => void;
+  onRegistered?: () => void | Promise<void>;
 }
 
 export function UpcomingDrivesCard({
   drives: initialDrives,
   layout = "slidebar",
   onViewAll,
+  onRegistered,
 }: UpcomingDrivesCardProps) {
   const [drives, setDrives] = useState<UpcomingDrive[]>(initialDrives);
 
@@ -34,6 +37,7 @@ export function UpcomingDrivesCard({
   }, [initialDrives]);
 
   const [activeSlide, setActiveSlide] = useState(0);
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [registeredIds, setRegisteredIds] = useState<Record<string, boolean>>({
     "drive-1": true,
   });
@@ -80,11 +84,25 @@ export function UpcomingDrivesCard({
     }
   };
 
-  const handleRegister = (drive: UpcomingDrive) => {
-    setRegisteredIds((prev) => ({ ...prev, [drive.id]: true }));
-    toast.success(`Successfully registered for ${drive.company} drive!`, {
-      description: `Hall ticket generated for ${drive.role}. Check email for instructions.`,
-    });
+  const handleRegister = async (drive: UpcomingDrive) => {
+    if (pendingId) return;
+    setPendingId(drive.id);
+
+    try {
+      await registerForDrive(drive.id);
+      setRegisteredIds((prev) => ({ ...prev, [drive.id]: true }));
+      toast.success(`Successfully registered for ${drive.company} drive!`, {
+        description: `Hall ticket generated for ${drive.role}. Check email for instructions.`,
+      });
+      await onRegistered?.();
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Couldn't register for the drive";
+      toast.error("Couldn't register for the drive", { description: message });
+    } finally {
+      setPendingId(null);
+    }
   };
 
   const handleHallTicket = (drive: UpcomingDrive) => {
@@ -267,9 +285,10 @@ export function UpcomingDrivesCard({
                     ) : (
                       <button
                         onClick={() => handleRegister(drive)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all cursor-pointer"
+                        disabled={pendingId === drive.id}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all cursor-pointer disabled:opacity-60 disabled:cursor-wait"
                       >
-                        Register
+                        {pendingId === drive.id ? "Registering…" : "Register"}
                         <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     )}

@@ -1,13 +1,19 @@
 import { Prisma } from "@CampusLink/db";
+import { createMailer } from "@CampusLink/auth/sendMail/mailer";
+import { renderOfferLetterPdf } from "@CampusLink/auth/sendMail/offer-letter-pdf";
 
 import { db } from "../../services";
+import { ENV } from "../../env.server";
 import { invalidateApplicationCaches } from "../applications/application.service";
 import { invalidateInterviewCache } from "../admin/admin.service";
+import { invalidateJobCaches } from "../jobs/job.service";
+import { invalidateStudentInterviewCache, invalidateStudentOfferCache } from "../students/student.service";
 
 import type {
   CreateInterviewInput,
   CreateMyJobInput,
   CreateMyOfferInput,
+  CreateRecruiterProfileInput,
   UpdateInterviewInput,
   UpdateRecruiterProfileInput,
 } from "./recruiter.schema";
@@ -177,6 +183,47 @@ export async function getRecruiterProfile(userId: string) {
   });
 }
 
+export async function createRecruiterProfile(
+  userId: string,
+  data: CreateRecruiterProfileInput,
+) {
+  const existing = await db.recruiterProfile.findUnique({ where: { userId } });
+  if (existing) return getRecruiterProfile(userId);
+
+  const { company, ...profile } = data;
+  const created = await db.$transaction(async (tx) => {
+    const newCompany = await tx.company.create({
+      data: {
+        name: company.name,
+        description: company.description,
+        website: company.website,
+        logoUrl: company.logoUrl,
+        industry: company.industry,
+        location: company.location,
+        linkedinUrl: company.linkedinUrl,
+        benefits: company.benefits,
+        tier: company.tier,
+      },
+    });
+    return tx.recruiterProfile.create({
+      data: {
+        userId,
+        companyId: newCompany.id,
+        designation: profile.designation,
+        phone: profile.phone === "" ? null : profile.phone,
+        linkedinUrl: profile.linkedinUrl,
+        isLeadRecruiter: true,
+      },
+      include: {
+        company: true,
+        user: { select: { id: true, name: true, email: true, image: true } },
+        _count: { select: { jobs: true, interviews: true } },
+      },
+    });
+  });
+  return created;
+}
+
 export async function updateRecruiterProfile(
   userId: string,
   data: UpdateRecruiterProfileInput,
@@ -276,15 +323,6 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
 
   const { status, requiredSkills, ...rest } = data;
 
-  const job = await db.job.create({
-    data: {
-      ...rest,
-      companyId: recruiter.companyId,
-      recruiterId: recruiter.id,
-      ...(status ? { status } : {}),
-    },
-  });
-
   const skillNames = [
     ...new Map(
       (requiredSkills ?? [])
@@ -294,29 +332,44 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
     ).values(),
   ];
 
-  if (skillNames.length > 0) {
-    const existing = await db.skill.findMany({
-      where: {
-        normalized: { in: skillNames.map((name) => name.toLowerCase()) },
+  const job = await db.$transaction(async (tx) => {
+    const created = await tx.job.create({
+      data: {
+        ...rest,
+        companyId: recruiter.companyId,
+        recruiterId: recruiter.id,
+        ...(status ? { status } : {}),
       },
     });
-    const byNormalized = new Map(
-      existing.map((skill) => [skill.normalized, skill]),
-    );
 
-    for (const name of skillNames) {
-      const key = name.toLowerCase();
-      const skill =
-        byNormalized.get(key) ??
-        (await db.skill.create({
-          data: { name, normalized: key, type: "OTHER" },
-        }));
-      byNormalized.set(key, skill);
-      await db.jobSkill.create({
-        data: { jobId: job.id, skillId: skill.id },
+    if (skillNames.length > 0) {
+      const existing = await tx.skill.findMany({
+        where: {
+          normalized: { in: skillNames.map((name) => name.toLowerCase()) },
+        },
       });
+      const byNormalized = new Map(
+        existing.map((skill) => [skill.normalized, skill]),
+      );
+
+      for (const name of skillNames) {
+        const key = name.toLowerCase();
+        const skill =
+          byNormalized.get(key) ??
+          (await tx.skill.create({
+            data: { name, normalized: key, type: "OTHER" },
+          }));
+        byNormalized.set(key, skill);
+        await tx.jobSkill.create({
+          data: { jobId: created.id, skillId: skill.id },
+        });
+      }
     }
-  }
+
+    return created;
+  });
+
+  await invalidateJobCaches(job.id, recruiter.companyId);
 
   return db.job.findUniqueOrThrow({
     where: { id: job.id },
@@ -356,6 +409,8 @@ export async function deleteMyJob(
   }
 
   await db.job.delete({ where: { id: job.id } });
+
+  await invalidateJobCaches(job.id, job.companyId);
 
   return { ok: true };
 }
@@ -435,21 +490,45 @@ export async function createInterview(
     jobTitle = job.title;
   }
 
-  if (data.applicationId) {
-    const application = await db.application.findUnique({
-      where: { id: data.applicationId },
-      include: { job: { select: { title: true } } },
+  let applicationId = data.applicationId;
+  if (!applicationId && jobId) {
+    const matchingApplication = await db.application.findFirst({
+      where: { studentId: data.studentId, jobId },
+      select: { id: true },
     });
-
-    if (!application || application.studentId !== data.studentId) {
-      throw new Error("Application not found");
-    }
-
-    if (!jobId) {
-      jobId = application.jobId;
-      jobTitle = application.job.title;
-    }
+    applicationId = matchingApplication?.id;
   }
+  if (!applicationId) {
+    throw new Error("A passed assessment is required before scheduling an interview");
+  }
+
+  const applicationForInterview = await db.application.findUnique({
+    where: { id: applicationId },
+    include: { job: { select: { id: true, title: true, companyId: true } } },
+  });
+  if (
+    !applicationForInterview ||
+    applicationForInterview.studentId !== data.studentId ||
+    applicationForInterview.job.companyId !== recruiter.companyId ||
+    (jobId && applicationForInterview.jobId !== jobId)
+  ) {
+    throw new Error("Application not found for this candidate and role");
+  }
+
+  const passedAssessment = await db.assessmentResult.findFirst({
+    where: {
+      studentId: data.studentId,
+      passed: true,
+      feedback: { contains: `\"applicationId\":\"${applicationForInterview.id}\"` },
+    },
+    select: { id: true },
+  });
+  if (!passedAssessment) {
+    throw new Error("Candidate must pass the assessment before scheduling an interview");
+  }
+
+  jobId = applicationForInterview.jobId;
+  jobTitle = applicationForInterview.job.title;
 
   const startOfDay = new Date(data.scheduledDate);
   startOfDay.setUTCHours(0, 0, 0, 0);
@@ -499,7 +578,7 @@ export async function createInterview(
       studentId: data.studentId,
       recruiterId: recruiter.id,
       jobId: jobId ?? undefined,
-      applicationId: data.applicationId ?? undefined,
+      applicationId,
       roundName: data.roundName,
       roundNumber: data.roundNumber ?? 1,
       scheduledDate: data.scheduledDate,
@@ -576,6 +655,7 @@ export async function createInterview(
   }
 
   await invalidateInterviewCache();
+  await invalidateStudentInterviewCache(student.userId);
 
   return createdInterview;
 }
@@ -734,7 +814,7 @@ export async function getShortlistedCandidates(userId: string) {
 
   return db.application.findMany({
     where: {
-      status: "SHORTLISTED",
+      status: { in: ["SHORTLISTED", "ASSESSMENT"] },
       job: { companyId: recruiter.companyId },
     },
     include: {
@@ -744,12 +824,27 @@ export async function getShortlistedCandidates(userId: string) {
           user: {
             select: { id: true, name: true, email: true, image: true },
           },
+          assessments: {
+            where: { assessment: { description: { startsWith: "Assessment invitation " } } },
+            orderBy: { takenAt: "desc" },
+            select: { passed: true, percentage: true, takenAt: true, feedback: true },
+          },
         },
       },
       matchResult: true,
     },
     orderBy: { appliedAt: "desc" },
-  });
+  }).then((applications) => applications.map((application) => {
+    const result = application.student.assessments.find((assessment) => {
+      try {
+        return JSON.parse(assessment.feedback ?? "{}").applicationId === application.id;
+      } catch {
+        return false;
+      }
+    });
+    const { assessments: _assessments, ...student } = application.student;
+    return { ...application, student, assessmentOutcome: result ? { passed: result.passed, percentage: result.percentage, takenAt: result.takenAt } : null };
+  }));
 }
 
 const offerInclude = {
@@ -760,7 +855,7 @@ const offerInclude = {
       firstName: true,
       lastName: true,
       branch: true,
-      user: { select: { id: true, name: true, image: true } },
+      user: { select: { id: true, name: true, email: true, image: true } },
     },
   },
   company: { select: { id: true, name: true, logoUrl: true } },
@@ -813,9 +908,15 @@ export async function createMyOffer(userId: string, data: CreateMyOfferInput) {
   if (data.applicationId) {
     const application = await db.application.findUnique({
       where: { id: data.applicationId },
+      include: { job: { select: { id: true, companyId: true } } },
     });
 
-    if (!application || application.studentId !== data.studentId) {
+    if (
+      !application ||
+      application.studentId !== data.studentId ||
+      application.job.companyId !== recruiter.companyId ||
+      (jobId && application.jobId !== jobId)
+    ) {
       throw new Error("Application not found");
     }
 
@@ -843,7 +944,7 @@ export async function createMyOffer(userId: string, data: CreateMyOfferInput) {
           : undefined,
       joiningDate: data.joiningDate,
       notes: data.notes,
-      status: "SENT",
+      status: "DRAFT",
     },
     include: offerInclude,
   });
@@ -853,8 +954,8 @@ export async function createMyOffer(userId: string, data: CreateMyOfferInput) {
       recruiterId: recruiter.id,
       type: "OFFER",
       priority: "MEDIUM",
-      title: "Offer issued",
-      message: `Offer for the role of ${data.role} was issued to ${studentName}.`,
+      title: "Offer letter generated",
+      message: `A draft offer for ${data.role} was generated for ${studentName}. Send it when it is ready.`,
       actionUrl: "/recruiter/offers",
       actionLabel: "View offers",
       metadata: { offerId: offer.id },
@@ -862,6 +963,79 @@ export async function createMyOffer(userId: string, data: CreateMyOfferInput) {
   });
 
   return offer;
+}
+
+export async function sendMyOffer(userId: string, offerId: string) {
+  const recruiter = await db.recruiterProfile.findUnique({ where: { userId } });
+  if (!recruiter) throw new Error("Recruiter profile not found");
+
+  const offer = await db.offer.findFirst({
+    where: { id: offerId, companyId: recruiter.companyId },
+    include: offerInclude,
+  });
+  if (!offer) return null;
+  const email = offer.student.user.email;
+  if (!email) throw new Error("Candidate does not have an email address");
+
+  const candidateName = `${offer.student.firstName ?? ""} ${offer.student.lastName ?? ""}`.trim() || offer.student.user.name || "Candidate";
+  const companyName = offer.company.name;
+  const joiningDate = offer.joiningDate?.toLocaleDateString("en-IN", { dateStyle: "long" }) ?? "To be confirmed";
+  const baseSalary = offer.baseSalary == null ? "As specified in compensation details" : `₹${(offer.baseSalary / 100000).toFixed(1)} LPA`;
+  const variableBonus = offer.variableBonus == null ? "Not specified" : `₹${(offer.variableBonus / 100000).toFixed(1)} LPA`;
+  const pdf = renderOfferLetterPdf({ candidateName, companyName, role: offer.role, ctc: offer.ctc, baseSalary, variableBonus, joiningDate });
+
+  await createMailer(ENV).sendOfferLetter(email, candidateName, companyName, offer.role, offer.ctc, baseSalary, variableBonus, joiningDate, pdf);
+  const sentOffer = offer.status === "DRAFT"
+    ? await db.offer.update({
+      where: { id: offer.id },
+      data: { status: "SENT", offerDate: new Date() },
+      include: offerInclude,
+    })
+    : offer;
+  await invalidateStudentOfferCache(offer.student.user.id);
+  await db.recruiterNotification.create({
+    data: {
+      recruiterId: recruiter.id,
+      type: "OFFER",
+      priority: "MEDIUM",
+      title: "Offer letter sent",
+      message: `Offer for ${offer.role} was emailed to ${candidateName} (${email}).`,
+      actionUrl: "/recruiter/offers",
+      actionLabel: "View offers",
+      metadata: { offerId: offer.id },
+    },
+  });
+  return sentOffer;
+}
+
+export async function getMyOfferPdf(userId: string, offerId: string) {
+  const recruiter = await db.recruiterProfile.findUnique({ where: { userId } });
+  if (!recruiter) throw new Error("Recruiter profile not found");
+
+  const offer = await db.offer.findFirst({
+    where: { id: offerId, companyId: recruiter.companyId },
+    include: offerInclude,
+  });
+  if (!offer) return null;
+
+  const candidateName = `${offer.student.firstName ?? ""} ${offer.student.lastName ?? ""}`.trim() || offer.student.user.name || "Candidate";
+  const baseSalary = offer.baseSalary == null ? "As specified in compensation details" : `₹${(offer.baseSalary / 100000).toFixed(1)} LPA`;
+  const variableBonus = offer.variableBonus == null ? "Not specified" : `₹${(offer.variableBonus / 100000).toFixed(1)} LPA`;
+  const joiningDate = offer.joiningDate?.toLocaleDateString("en-IN", { dateStyle: "long" }) ?? "To be confirmed";
+  const filenamePart = (value: string) => value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+
+  return {
+    filename: `Offer-Letter-${filenamePart(offer.company.name)}-${filenamePart(candidateName)}-${filenamePart(offer.role)}.pdf`,
+    pdf: renderOfferLetterPdf({
+      candidateName,
+      companyName: offer.company.name,
+      role: offer.role,
+      ctc: offer.ctc,
+      baseSalary,
+      variableBonus,
+      joiningDate,
+    }),
+  };
 }
 
 export async function getMyNotifications(userId: string) {

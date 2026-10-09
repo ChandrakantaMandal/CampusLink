@@ -2,7 +2,10 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import tempfile
 import os
 
-from app.services.resume_analyzer import analyze_resume
+from app.services.resume_analyzer import (
+    analyze_resume_text,
+    extract_text_from_pdf,
+)
 
 
 router = APIRouter(
@@ -38,10 +41,29 @@ async def analyze_resume_endpoint(
             temp_file.write(file_content)
             temp_path = temp_file.name
 
-        result = analyze_resume(temp_path)
+        try:
+            text = extract_text_from_pdf(temp_path)
+        except ValueError as error:
+            raise HTTPException(
+                status_code=400,
+                detail=str(error),
+            ) from error
+
+        try:
+            result = analyze_resume_text(text)
+        except ValueError as error:
+            raise HTTPException(
+                status_code=502,
+                detail=str(error),
+            ) from error
 
         return result
 
     finally:
         if temp_path and os.path.exists(temp_path):
-            os.remove(temp_path)
+            try:
+                os.remove(temp_path)
+            except OSError:
+                # Best-effort cleanup: never mask the actual
+                # response/error with a Windows file lock.
+                pass

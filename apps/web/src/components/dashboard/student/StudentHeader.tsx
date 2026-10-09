@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
-import { useStudentDashboard, useStudentNotifications } from "@/hooks/use-student";
+import { useStudentNotifications, useStudentReadiness } from "@/hooks/use-student";
 import { useStudentProfile } from "@/hooks/use-student";
 
 interface StudentHeaderProps {
@@ -32,7 +32,7 @@ export default function StudentHeader({
   const [showNotifications, setShowNotifications] = useState(false);
 
   const router = useRouter();
-  const dashboard = useStudentDashboard();
+  const readiness = useStudentReadiness();
   const notifications = useStudentNotifications();
   const profile = useStudentProfile();
 
@@ -42,7 +42,7 @@ export default function StudentHeader({
   };
 
   const unreadCount = notifications.data?.unreadCount ?? 0;
-  const readinessScore = dashboard.data?.stats?.readinessScore ?? 0;
+  const readinessScore = readiness.data?.score ?? 0;
   const studentName = profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName) : "Student Portal";
   const studentDept = profile.profile?.department ?? "CampusLink Student";
 

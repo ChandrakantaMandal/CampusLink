@@ -47,17 +47,50 @@ export default function StudentJobs() {
     Record<string, MatchResult>
   >({});
   const [loading, setLoading] = useState(true);
+  const [appliedJobIds, setAppliedJobIds] = useState<
+    Set<string>
+  >(new Set());
 
   useEffect(() => {
-    async function fetchJobsAndMatches() {
+    async function fetchAppliedJobIds(): Promise<
+      Set<string>
+    > {
       try {
-        // 1. Get jobs from server
         const response = await fetch(
-          `${SERVER_URL}/api/jobs`,
+          `${SERVER_URL}/api/applications/my`,
           {
             credentials: "include",
           },
         );
+
+        if (!response.ok) {
+          return new Set();
+        }
+
+        const result = await response.json();
+        const applications: { jobId: string }[] =
+          result.data || [];
+
+        return new Set(
+          applications.map(
+            (application) => application.jobId,
+          ),
+        );
+      } catch {
+        return new Set();
+      }
+    }
+
+    async function fetchJobsAndMatches() {
+      try {
+        // 1. Get jobs from server
+        const [response, appliedIds] =
+          await Promise.all([
+            fetch(`${SERVER_URL}/api/jobs`, {
+              credentials: "include",
+            }),
+            fetchAppliedJobIds(),
+          ]);
 
         const result = await response.json();
 
@@ -66,6 +99,8 @@ export default function StudentJobs() {
             result.message || "Failed to fetch jobs",
           );
         }
+
+        setAppliedJobIds(appliedIds);
 
         // Only show first 20 jobs for demo
         const fetchedJobs: Job[] = (
@@ -213,7 +248,9 @@ export default function StudentJobs() {
         driveDate: "Applications Open",
 
         // Application status
-        hasApplied: job.hasApplied ?? false,
+        hasApplied:
+          appliedJobIds.has(job.id) ||
+          (job.hasApplied ?? false),
       };
     })
     .sort((a, b) => {
@@ -279,36 +316,7 @@ export default function StudentJobs() {
               jobs={recommendedJobs}
               columns={3}
               onApplyJob={(jobId) => {
-                const selectedJob =
-                  recommendedJobs.find(
-                    (job) => job.id === jobId,
-                  );
-
-                if (!selectedJob) {
-                  return;
-                }
-
-                const matchPercentage =
-                  selectedJob.matchPercentage;
-
-                if (matchPercentage === 100) {
-                  toast.success(
-                    "100% Match! You are fully matched for this job.",
-                  );
-
-                  return;
-                }
-
-                if (matchPercentage === null) {
-                  toast.info(
-                    "AI is still analyzing this job. Please wait.",
-                  );
-
-                  return;
-                }
-
-                window.location.href =
-                  `/student/skills?jobId=${jobId}`;
+                window.location.href = `/student/skills?jobId=${jobId}`;
               }}
             />
 

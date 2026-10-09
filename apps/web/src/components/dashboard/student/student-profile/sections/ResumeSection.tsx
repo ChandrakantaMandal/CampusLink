@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   FileText,
@@ -109,6 +109,62 @@ interface ResumeSectionProps {
   onDeleteResume: () => void;
 }
 
+/**
+ * Rebuild the analysis object from the persisted resume text.
+ *
+ * The server only stores the flat string produced by buildResumeText, so we
+ * reverse that exact format. Anything else (free-form text, partial writes)
+ * is rejected so we never render a half-parsed analysis.
+ */
+function parseResumeText(
+  text: string | null | undefined,
+): ResumeAnalysis | null {
+  if (!text) return null;
+
+  const lines = text.split("\n");
+
+  if (lines[0]?.trim() !== "Resume Analysis") return null;
+
+  const headers = new Set([
+    "Skills",
+    "Projects",
+    "Education",
+    "Certifications",
+    "Strengths",
+    "Weaknesses",
+    "Recommendations",
+  ]);
+
+  const sections: Record<string, string[]> = {};
+  let current: string | null = null;
+
+  for (const raw of lines.slice(1)) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    const header = line.replace(/:$/, "");
+    if (headers.has(header)) {
+      current = header;
+      sections[header] = [];
+      continue;
+    }
+
+    if (current) sections[current].push(line);
+  }
+
+  if (!sections.Skills?.length) return null;
+
+  return {
+    skills: sections.Skills,
+    projects: sections.Projects ?? [],
+    education: sections.Education ?? [],
+    certifications: sections.Certifications ?? [],
+    strengths: sections.Strengths ?? [],
+    weaknesses: sections.Weaknesses ?? [],
+    recommendations: sections.Recommendations ?? [],
+  };
+}
+
 export default function ResumeSection({
   profile,
   onUploadResume,
@@ -119,8 +175,21 @@ export default function ResumeSection({
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
+  // `undefined` = no local override (fall back to the analysis persisted in
+  // profile.resumeText), `null` = explicitly cleared (e.g. a new upload), and
+  // an object = the analysis produced by the most recent successful run.
+  const [userAnalysis, setUserAnalysis] = useState<
+    ResumeAnalysis | null | undefined
+  >(undefined);
   const [analysisError, setAnalysisError] = useState("");
+
+  const parsedFromProfile = useMemo(
+    () => parseResumeText(profile.resumeText),
+    [profile.resumeText],
+  );
+
+  const analysis =
+    userAnalysis === undefined ? parsedFromProfile : userAnalysis;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -189,6 +258,7 @@ export default function ResumeSection({
       .join("\n");
   };
 
+
   /**
    * Upload resume and then analyze it with the AI service.
    */
@@ -211,7 +281,7 @@ export default function ResumeSection({
 
     setIsUploading(true);
     setAnalysisError("");
-    setAnalysis(null);
+    setUserAnalysis(null);
 
     try {
       /*
@@ -249,8 +319,16 @@ export default function ResumeSection({
 
       if (!response.ok) {
         const errorText = await response.text();
+        let message = errorText || "Resume analysis failed.";
 
-        throw new Error(errorText || "Resume analysis failed.");
+        try {
+          const parsed = JSON.parse(errorText) as { detail?: string };
+          if (parsed.detail) message = parsed.detail;
+        } catch {
+          // Not JSON — fall back to the raw response text.
+        }
+
+        throw new Error(message);
       }
 
       const result: ResumeAnalysis = await response.json();
@@ -259,7 +337,7 @@ export default function ResumeSection({
        * STEP 3
        * Display the AI analysis.
        */
-      setAnalysis(result);
+      setUserAnalysis(result);
 
       /*
        * STEP 4

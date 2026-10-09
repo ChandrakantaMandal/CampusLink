@@ -32,15 +32,27 @@ export const createSkillSchema = z.object({
 
 export const updateSkillSchema = createSkillSchema.partial();
 
-export const addStudentSkillSchema = z.object({
-  skillId: z.string().min(1, "Skill ID is required"),
+export const addStudentSkillSchema = z
+  .object({
+    skillId: z.string().min(1, "Skill ID is required").optional(),
 
-  level: skillLevelSchema.default("BEGINNER"),
+    skillName: z
+      .string()
+      .trim()
+      .min(1, "Skill name is required")
+      .max(100)
+      .optional(),
 
-  years: z.number().min(0).optional(),
+    level: skillLevelSchema.default("BEGINNER"),
 
-  source: z.string().max(100).optional(),
-});
+    years: z.number().min(0).optional(),
+
+    source: z.string().max(100).optional(),
+  })
+  .refine((data) => Boolean(data.skillId ?? data.skillName), {
+    message: "Either skillId or skillName is required",
+    path: ["skillId"],
+  });
 
 export const updateStudentSkillSchema = z.object({
   level: skillLevelSchema.optional(),

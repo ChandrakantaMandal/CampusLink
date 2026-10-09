@@ -14,7 +14,12 @@ import { toast } from "sonner";
 export default function StudentInterviews() {
   const interviews = useStudentInterviews();
 
-  const items = interviews.data ? toInterviewSlots(interviews.data) : null;
+  const upcomingItems = interviews.data
+    ? toInterviewSlots({ upcoming: interviews.data.upcoming, past: [] })
+    : null;
+  const pastItems = interviews.data
+    ? toInterviewSlots({ upcoming: interviews.data.past, past: [] })
+    : null;
 
   return (
     <div className="space-y-6">
@@ -45,8 +50,36 @@ export default function StudentInterviews() {
 
       {/* Main Interviews Component */}
       <div className="min-w-0">
-        {items ? (
-          <InterviewScheduleCard interviews={items} />
+        {upcomingItems ? (
+          <div className="space-y-6">
+            {upcomingItems.length > 0 ? (
+              <InterviewScheduleCard interviews={upcomingItems} />
+            ) : (
+              <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">No upcoming interviews</h2>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">New recruiter interview invitations will appear here.</p>
+              </section>
+            )}
+            {pastItems && pastItems.length > 0 && (
+              <section className="space-y-3">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Past interviews</h2>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Your previous interview rounds.</p>
+                </div>
+                {pastItems.map((interview) => (
+                  <article key={interview.id} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                      <div>
+                        <h3 className="font-semibold text-slate-900 dark:text-white">{interview.company} · {interview.role}</h3>
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{interview.interviewRound}</p>
+                      </div>
+                      <p className="text-sm font-medium tabular-nums text-slate-600 dark:text-slate-300">{interview.date} · {interview.time}</p>
+                    </div>
+                  </article>
+                ))}
+              </section>
+            )}
+          </div>
         ) : interviews.error ? (
           <AggregateError
             message={interviews.error}
