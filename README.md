@@ -1,1073 +1,670 @@
-# CampusLink
+# CampusLink — AI-Powered Campus Placement Management Platform
 
-> **AI-powered placement management platform** built on a modern TypeScript monorepo architecture.
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)](https://expressjs.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Better Auth](https://img.shields.io/badge/Better_Auth-5E6AD2?style=for-the-badge)](https://www.better-auth.com/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://deepmind.google/technologies/gemini/)
 
-CampusLink is a full-stack placement management platform designed for students, recruiters, colleges, and administrators.
-
-The platform provides authentication, student and company management, job management, applications, assessments, readiness tracking, recommendations, and an extensible AI intelligence layer.
-
-The project is built on the **Better-T-Stack** foundation and uses Next.js, Express, PostgreSQL, Prisma, Better Auth, Docker, PWA support, and pnpm. The architecture is designed so that AI/NLP capabilities can evolve independently from the main application.
+> **CampusLink** is a comprehensive, production-grade placement management platform engineered to connect **Students**, **Recruiters**, and **Training & Placement Officers (TPO / Admins)**. Powered by a hybrid AI architecture that combines deterministic placement logic with Google Gemini generative intelligence, CampusLink automates campus drives, provides explainable job matching and skill-gap analysis, verifies candidate credentials, and tracks application pipelines from registration to final offer rollout.
 
 ---
 
-## ✨ Features
+## 📑 Table of Contents
 
-- **TypeScript** — End-to-end type safety
-- **Next.js** — Modern React frontend
-- **Express.js** — Backend API and business logic
-- **Node.js** — Backend runtime
-- **Tailwind CSS** — Utility-first styling
-- **shadcn/ui** — Shared UI primitives
-- **PostgreSQL** — Primary relational database
-- **Prisma** — Type-safe ORM
-- **Better Auth** — Authentication and session management
-- **Redis** — Caching, OTP/rate limiting, and supporting services
-- **Husky** — Git hooks and development quality checks
-- **PWA** — Progressive Web App support
-- **Docker** — Containerized development and deployment
-- **Varlock** — Environment configuration and validation
-- **AI-ready architecture** — Designed for custom AI/NLP services and Gemini integration
-- **Monorepo architecture** — Shared packages and centralized tooling
+- [Key Highlights](#-key-highlights)
+- [System Architecture](#-system-architecture)
+- [Monorepo Structure](#-monorepo-structure)
+- [Role-Based Portals & Features](#-role-based-portals--features)
+  - [1. Student Portal](#1-student-portal)
+  - [2. Recruiter Portal](#2-recruiter-portal)
+  - [3. Admin / TPO Portal](#3-admin--tpo-tpo-portal)
+- [AI & Placement Intelligence Engine](#-ai--placement-intelligence-engine)
+- [Database Schema & Models](#-database-schema--models)
+- [REST API Reference](#-rest-api-reference)
+- [Prerequisites & Requirements](#-prerequisites--requirements)
+- [Environment Configuration](#-environment-configuration)
+- [Local Setup & Installation](#-local-setup--installation)
+  - [Method 1: Manual Monorepo Setup (Recommended for Dev)](#method-1-manual-monorepo-setup-recommended-for-dev)
+  - [Method 2: Docker Compose Setup](#method-2-docker-compose-setup)
+- [Database Management & Seeding](#-database-management--seeding)
+- [Testing & Quality Assurance](#-testing--quality-assurance)
+- [Security & Architecture Principles](#-security--architecture-principles)
+- [Contributing & Commit Conventions](#-contributing--commit-conventions)
+- [License](#-license)
+
+---
+
+## 🌟 Key Highlights
+
+- **🎯 Deterministic + Generative Hybrid Intelligence**: Hard placement rules (CGPA, backlogs, branch, graduation year) are strictly enforced deterministically by code so LLMs never hallucinate eligibility; generative AI (Gemini) handles resume extraction, personalized recommendations, and conversational assistance.
+- **💼 End-to-End Recruitment Lifecycle**: Complete tracking from student profile creation, resume parsing, job listing, multi-round drives, assessment invitations via secure tokens, interview scheduling with conflict detection, to offer letter release and acceptance.
+- **⚡ Modern High-Performance Monorepo**: Built with **pnpm workspaces**, featuring a Next.js 16 (React 19) frontend, Express 5 REST server, Python FastAPI AI microservice, Prisma 7 multi-file schema, Better Auth with custom OTP plugin, and Redis sliding-window rate limiting.
+- **📱 Progressive Web App (PWA)**: Complete offline readiness and installable mobile app experience for students and recruiters on any device.
+- **🔒 Enterprise Security & Resiliency**: Email verification via OTP, password reset flows, Google OAuth 2.0, role-based route guards, ImageKit media storage, and fail-open Redis rate limiters for disruption-free local development.
+
+---
 
 ## 🏗️ System Architecture
 
-CampusLink follows a modular architecture that separates the web application, backend API, data layer, and AI intelligence layer.
+CampusLink separates presentation, business logic, persistent data, and AI workloads across isolated microservices and shared packages:
 
 ```mermaid
 flowchart TB
-    U["👥 Users"]
-
-    subgraph FRONTEND["Frontend"]
-        WEB["Next.js Web / PWA<br/>:3001"]
+    subgraph CLIENTS["🖥️ Client Applications"]
+        STUDENT["Student Web / PWA<br/>:3001/student/*"]
+        RECRUITER["Recruiter Web / PWA<br/>:3001/recruiter/*"]
+        ADMIN["Admin / TPO Portal<br/>:3001/admin/*"]
+        CHAT["AI Career Chatbot<br/>Floating Widget"]
     end
 
-    subgraph BACKEND["Backend"]
-        API["Express Server<br/>:3000"]
-        AUTH["Better Auth"]
-        PRISMA["Prisma ORM"]
+    subgraph API_LAYER["⚙️ Backend API & Auth (Express 5.2 :3000)"]
+        EXPRESS["Express Server"]
+        AUTH["Better Auth 1.7<br/>+ Custom Signup OTP Plugin"]
+        RATE["Redis Sliding-Window<br/>Rate Limiter"]
+        IMAGEKIT["ImageKit Storage Service<br/>Resumes, Photos, Logos"]
+        ROUTERS["Role Routers<br/>/students | /recruiters | /admin<br/>/jobs | /applications | /drives"]
     end
 
-    subgraph DATA["Data Layer"]
-        DB[("PostgreSQL")]
-        REDIS[("Redis")]
+    subgraph DATA_LAYER["🗄️ Persistence Layer"]
+        PG[("PostgreSQL 18<br/>Prisma ORM Multi-Schema")]
+        REDIS[("Redis 8-Alpine<br/>Rate Limits & Cache")]
     end
 
-    subgraph AI["AI Intelligence Layer"]
-        AIS["Python FastAPI<br/>AI Service"]
-
-        RESUME["Resume AI"]
-        JOB["Job Analysis"]
-        MATCH["Matching"]
-
-        INT["Skill / Eligibility<br/>Gap / Readiness"]
-        REC["Recommendation"]
-
-        GEMINI["Gemini"]
+    subgraph AI_LAYER["🤖 AI & ML Intelligence Layer (:8000)"]
+        FASTAPI["FastAPI Python Microservice"]
+        PYMUPDF["PyMuPDF<br/>Resume Text Parser"]
+        SKILL_NORM["Skill Normalization &<br/>Alias Mapping"]
+        GAP_ENGINE["Deterministic Skill-Gap<br/>& Match Engine"]
+        GEMINI["Google Gemini Generative AI<br/>Readiness & Career Advisor"]
     end
 
-    U --> WEB
-    WEB -->|"HTTP / REST"| API
+    CLIENTS -->|"HTTPS / REST"| EXPRESS
+    EXPRESS --> RATE
+    RATE --> REDIS
+    EXPRESS --> AUTH
+    AUTH --> PG
+    EXPRESS --> ROUTERS
+    ROUTERS --> PG
+    ROUTERS --> IMAGEKIT
+    ROUTERS -->|"Internal HTTP (:8000)"| FASTAPI
 
-    API --> AUTH
-    API --> PRISMA
-    PRISMA --> DB
-    API --> REDIS
+    FASTAPI --> PYMUPDF
+    FASTAPI --> SKILL_NORM
+    FASTAPI --> GAP_ENGINE
+    FASTAPI --> GEMINI
 
-    API -->|"Internal HTTP"| AIS
-
-    AIS --> RESUME
-    AIS --> JOB
-    AIS --> MATCH
-
-    RESUME --> INT
-    JOB --> INT
-    MATCH --> INT
-
-    INT --> REC
-    REC --> GEMINI
+    EXPRESS -->|"Fallback Direct SDK"| GEMINI
 ```
 
-## 📁 Project Structure
+---
+
+## 📁 Monorepo Structure
+
+The project is structured as a **pnpm monorepo** with separated concerns under `apps/` and shared packages under `packages/`:
 
 ```text
 CampusLink/
 │
 ├── apps/
-│   ├── web/                    # Next.js frontend / PWA
+│   ├── web/                          # Next.js 16 + React 19 Frontend (PWA)
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   │   ├── (routes)/
+│   │   │   │   │   ├── admin/        # Admin / TPO dashboard views
+│   │   │   │   │   ├── recruiter/    # Recruiter hiring views
+│   │   │   │   │   ├── student/      # Student career & drive views
+│   │   │   │   │   ├── assessment/   # Candidate test & invitation views
+│   │   │   │   │   └── (auth)/       # Login, Signup, OTP, Password Reset
+│   │   │   │   └── page.tsx          # Marketing landing page with persona tabs
+│   │   │   ├── components/
+│   │   │   │   ├── ai/               # Floating AI chat, message items, prompts
+│   │   │   │   ├── dashboard/        # Role-specific dashboard layouts & views
+│   │   │   │   ├── landing/          # Hero, Bento, Persona tabs, Calculator
+│   │   │   │   └── brand/            # Logos and typography
+│   │   │   └── lib/api/              # Axios API clients with auto-error parsing
+│   │   └── pwa.config.ts             # PWA manifest and caching service worker
 │   │
-│   └── server/                 # Express API + Better Auth
+│   ├── server/                       # Express 5 REST API Server
+│   │   ├── src/
+│   │   │   ├── middleware/           # auth, role, rateLimiters, upload, error
+│   │   │   ├── modules/
+│   │   │   │   ├── admin/            # TPO operations, statistics, user governance
+│   │   │   │   ├── ai/               # AI streaming chat proxy (Vercel AI SDK)
+│   │   │   │   ├── applications/     # Candidate application pipelines
+│   │   │   │   ├── assessments/      # Tests, invited tokens, evaluation
+│   │   │   │   ├── companies/        # Company registration & tiers
+│   │   │   │   ├── jobs/             # Job postings, AI match, skill-gap
+│   │   │   │   ├── recruiter/        # Recruiter workflow, shortlists, offers
+│   │   │   │   ├── students/         # Student profile, drives, readiness
+│   │   │   │   └── uploads/          # ImageKit upload controllers
+│   │   │   ├── lib/imagekit.ts       # ImageKit CDN integration
+│   │   │   └── services.ts           # Prisma, Redis, and Better Auth bindings
+│   │   └── Dockerfile
+│   │
+│   └── ai/                           # Python FastAPI AI Microservice (:8000)
+│       ├── app/
+│       │   ├── api/                  # matching, readiness, recommendation, resume, skill_gap
+│       │   ├── ml/                   # preprocessing, resume_sections, scoring, similarity
+│       │   ├── schemas/              # Pydantic request and response models
+│       │   └── services/
+│       │       ├── gemini.py         # Google Gemini LLM SDK client
+│       │       ├── job_matching.py   # Deterministic skill matching algorithm
+│       │       ├── readiness.py      # Composite career readiness scoring
+│       │       ├── resume_analyzer.py# PyMuPDF extraction + structured analysis
+│       │       └── skill_gap.py      # Missing skills & alias mapping
+│       ├── requirements.txt
+│       └── Dockerfile
 │
 ├── packages/
-│   ├── ui/                     # Shared shadcn/uicomponents
-│   │
-│   ├── auth/                   # Better Auth configuration
-│   │
-│   ├── db/                     # Prisma + PostgreSQL
-│   │
-│   └── redis/                  # Redis client/configuration
+│   ├── auth/                         # Better Auth config, custom OTP plugin, Nodemailer
+│   ├── db/                           # Prisma ORM with multi-file schemas & seeders
+│   │   └── prisma/
+│   │       ├── schema/               # Multi-file schemas (user, job, drive, auth, etc.)
+│   │       ├── seed.ts               # Complete demo seeder (companies, skills, jobs)
+│   │       └── setup-student.ts      # Automated student demo profile setup
+│   ├── redis/                        # Resilient ioredis client with auto-reconnect
+│   ├── ui/                           # Shared UI components (shadcn/ui + Radix UI)
+│   └── config/                       # Shared TypeScript tsconfig base
 │
-├── docker-compose.yml
-├── pnpm-workspace.yaml
-├── package.json
-├── bts.jsonc
+├── docker-compose.yml                # Multi-service production/dev orchestration
+├── pnpm-workspace.yaml               # Monorepo packages & dependency catalog
+├── package.json                      # Workspace scripts (dev, test, db, docker)
 └── README.md
 ```
 
-The architecture is designed to allow additional AI services to be added under `apps/` without coupling them to the frontend or authentication layer.
+---
+
+## 👥 Role-Based Portals & Features
+
+CampusLink provides tailored experiences across three dedicated portals:
+
+### 1. 🎓 Student Portal (`/student/*`)
+
+| Feature | Description |
+|---|---|
+| **Comprehensive Profile** | 13 structured sections: Personal details, 10th/12th/College education, Projects, Skills with proficiency level & experience years, Certifications, and Portfolio links (LeetCode, HackerRank, GitHub, LinkedIn). |
+| **Resume AI Analyzer** | Upload PDF resumes to ImageKit; PyMuPDF extracts text, and Gemini extracts validated skills, projects, strengths, weaknesses, and improvement steps with zero hallucination. |
+| **Placement Drives** | Browse active campus drives, view tier requirements (Tier 1, Tier 2, Tier 3), check real-time branch/CGPA eligibility, and register with 1 click. |
+| **Smart Job Matching** | Browse available positions with instant match percentages, matched skills tags, and detailed missing skill gap reports. |
+| **Application Pipeline** | Track application lifecycle across 10 distinct states: `APPLIED`, `UNDER_REVIEW`, `SHORTLISTED`, `ASSESSMENT`, `INTERVIEW`, `SELECTED`, `OFFER_EXTENDED`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`. |
+| **Interview Manager** | View scheduled technical and HR rounds, Google Meet / Zoom links, venue details, and track time conflicts across drives. |
+| **Offers & CTC Breakdown** | Review received offers with base salary, bonuses, role details, joining dates, and one-click offer acceptance. |
+| **Career Readiness Score** | Holistic readiness score (0-100) evaluating academics, technical skills, projects, and target role alignment. |
+| **AI Career Assistant** | Floating conversational chatbot answering placement queries, policy questions, and interview preparation tips. |
+
+### 2. 🏢 Recruiter Portal (`/recruiter/*`)
+
+| Feature | Description |
+|---|---|
+| **Company Profile** | Manage company profile, industry classification, recruitment contact details, and upload branding logos to ImageKit. |
+| **Job Posting Management** | Create and publish job openings with multi-round interview pipelines, salary brackets, open openings, and strict eligibility thresholds (minimum CGPA, allowed backlogs, eligible degree/branches, graduation year). |
+| **Candidate Discovery** | Filter and search student directory by skills, CGPA, department, and view verified academic profiles. |
+| **Shortlisting & Pipeline** | Move applicants through recruitment stages, add interviewer notes, and manage candidate shortlists. |
+| **Assessment Invitations** | Send batch assessment invitations with cryptographically signed, time-limited token links delivered straight to student emails. |
+| **Interview Scheduling** | Schedule rounds (virtual, in-person, or hybrid), assign interview panels, record candidate feedback and ratings, and automatically detect scheduling conflicts. |
+| **Offer Letter Release** | Draft and dispatch formal job offers with CTC breakdowns, response deadlines, and track acceptance status in real time. |
+| **Analytics & Badges** | Real-time recruiter dashboard displaying active jobs, pending applications, scheduled interviews, and candidate acceptances. |
+
+### 3. 🏛️ Admin / TPO (Training & Placement Officer) Portal (`/admin/*`)
+
+| Feature | Description |
+|---|---|
+| **Placement Command Center** | Macro metrics: Total students registered, placement percentage, average & highest CTC, active recruiters, and company visit schedules. |
+| **Student Directory & Verification** | Inspect student academic records, verify CGPA and backlog counts, approve or revoke verification badges. |
+| **Recruiter & Company Governance** | Review incoming company registrations, assign company tiers (Tier 1 / Tier 2 / Tier 3), and verify recruiter accounts. |
+| **Campus Drive Operations** | Schedule on-campus, virtual, or hybrid placement drives, configure date/time/venue, set eligible batches, and link jobs. |
+| **Interviews & Conflict Resolution** | Global schedule across all companies; detect overlapping interview slots for students and reallocate coordinators. |
+| **Offer Approvals & Policy Compliance** | Audit released offers, verify compensation details, and enforce institutional placement policies (e.g., dual-offer rules, dream job exceptions). |
+| **Broadcast Notification System** | Send broadcast notifications and urgent announcements to all students or recruiters via the notification engine. |
+| **System Settings** | Configure institutional placement rules, registration deadlines, and system security parameters. |
 
 ---
 
-# 🚀 Getting Started
+## 🤖 AI & Placement Intelligence Engine
 
-## Prerequisites
+CampusLink deliberately avoids delegating hard placement logic to black-box LLMs. It employs **Deterministic Intelligence for Rules** and **Generative Intelligence for Content & Advice**:
 
-Make sure you have installed:
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                   DETERMINISTIC PLACEMENT LOGIC                        │
+│                     (No LLM hallucination risk)                        │
+├────────────────────────────────────────────────────────────────────────┤
+│  • Eligibility Rules : CGPA >= minCGPA && backlogs <= maxBacklogs     │
+│  • Branch & Degree   : student.branch IN job.allowedBranches           │
+│  • Skill Extraction  : Canonical alias mapping                         │
+│                        (e.g., "fast-api" -> "fastapi")                 │
+│  • Skill-Gap Score   : (missing_skills.length / required.length) * 100 │
+│  • Match Calculation : Set-intersection between candidate and job     │
+└────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   GENERATIVE INTELLIGENCE (GEMINI)                     │
+│                     (Context-aware qualitative AI)                     │
+├────────────────────────────────────────────────────────────────────────┤
+│  • Resume Text Parse : Safe extraction via PyMuPDF with text clipping  │
+│  • Qualitative Advice: Contextual suggestions for missing skills       │
+│  • Readiness Report  : Holistic strengths, weaknesses, recommendations │
+│  • Streaming Chatbot : Natural language assistance for students/TPOs   │
+└────────────────────────────────────────────────────────────────────────┘
+```
 
-- Node.js
-- pnpm
-- Docker Desktop
-- PostgreSQL, or PostgreSQL through Docker
-- Git
+### Python FastAPI Endpoints (`apps/ai`)
 
-Check your versions:
+- `POST /match/` — Fast local skill matching comparing candidate skills against job requirements.
+- `POST /skill-gap/` — Deterministic skill-gap analysis with canonical skill alias normalization.
+- `POST /readiness/` — Calculates 0-100 career readiness score with qualitative strengths and recommendations via Gemini.
+- `POST /resume/analyze-text/` — Analyzes raw resume text and extracts structured JSON (skills, projects, education, certifications, feedback).
+- `POST /resume/analyze-pdf/` — Parses uploaded PDF using PyMuPDF and outputs structured analysis.
+- `POST /recommendation/` — Generates personalized learning paths and project ideas for missing competencies.
+- `GET /health` — Service health probe.
+
+---
+
+## 🗄️ Database Schema & Models
+
+CampusLink utilizes a **Prisma 7 multi-file schema** organized cleanly under `packages/db/prisma/schema/`:
+
+| Schema File | Core Models | Purpose |
+|---|---|---|
+| `auth.prisma` | `User`, `Session`, `Account`, `Verification` | Better Auth identity management with role support (`STUDENT`, `RECRUITER`, `ADMIN`). |
+| `user.prisma` | `StudentProfile`, `Skill`, `StudentSkill`, `Education`, `Project`, `Certification`, `StudentResume`, `ReadinessResult` | Complete student portfolio, academic records, and normalized skill associations. |
+| `company.prisma` | `Company`, `RecruiterProfile` | Company directories, tier categorization (`TIER_1`, `TIER_2`, `TIER_3`), and recruiter profiles. |
+| `job.prisma` | `Job`, `JobSkill`, `JobRound` | Job openings, requirements, CTC packages, status (`DRAFT`, `APPLICATIONS_OPEN`, `INTERVIEWING`, etc.), and hiring rounds. |
+| `drive.prisma` | `PlacementDrive`, `DriveRegistration` | Campus drives (In-person, Virtual, Hybrid), schedules, venues, and student registrations. |
+| `application.prisma` | `Application`, `MatchResult`, `Assessment`, `AssessmentResult` | Application workflow across 10 stages, AI match metrics, and assessment evaluations. |
+| `interview.prisma` | `Interview` | Technical and HR interview rounds, schedule timings, meeting URLs, ratings, feedback, and conflict flags. |
+| `offer.prisma` | `Offer` | Compensation packages (base salary, bonus, CTC), document verification, and joining status. |
+| `admin.prisma` | `AdminProfile`, `SystemSetting`, `AuditLog` | TPO credentials, global platform settings, and security audit logs. |
+| `notification.prisma` | `UserNotification`, `AdminNotification`, `RecruiterNotification` | Multi-priority notifications (`LOW`, `MEDIUM`, `HIGH`, `URGENT`) with read tracking. |
+
+---
+
+## 🔌 REST API Reference
+
+The Express server (`apps/server`) exposes an extensive, role-guarded REST API on port `3000`:
+
+### 🔐 Authentication (`/api/auth/*`)
+Handled natively via **Better Auth**:
+- `POST /api/auth/sign-up/email` — Email & password registration (triggers verification OTP email).
+- `POST /api/auth/verify-email-otp` — Verify 6-digit signup OTP.
+- `POST /api/auth/resend-verification-otp` — Resend verification OTP code.
+- `POST /api/auth/sign-in/email` — Email and password login.
+- `POST /api/auth/sign-in/social` — Google OAuth 2.0 authentication.
+- `POST /api/auth/forget-password` — Request password reset email.
+- `POST /api/auth/reset-password` — Reset password using verified token.
+- `GET /api/auth/get-session` — Retrieve active session and user role.
+- `POST /api/auth/sign-out` — Invalidate session and clear auth cookies.
+
+### 🎓 Students (`/api/students`)
+- `GET /api/students/me` — Retrieve current student profile.
+- `PATCH /api/students/me` — Update student profile details.
+- `POST /api/students/me/resume` — Upload resume PDF (stored on ImageKit).
+- `POST /api/students/me/photo` — Upload profile photo.
+- `GET /api/students/me/dashboard` — Aggregated dashboard statistics.
+- `GET /api/students/me/readiness` — Career readiness score and analysis.
+- `GET /api/students/me/drives` — List campus drives (registered and upcoming).
+- `POST /api/students/me/drives/:id/register` — Register for a placement drive.
+- `GET /api/students/me/interviews` — Student interview schedule.
+- `GET /api/students/me/offers` — Student job offers.
+- `PATCH /api/students/me/offers/:id/accept` — Accept a job offer.
+- `GET /api/students/me/notifications` — Student notifications.
+- `PATCH /api/students/me/notifications/read-all` — Mark all notifications read.
+- `GET /api/students/:id` — View specific student (Recruiter & Admin only).
+
+### 💼 Jobs (`/api/jobs`)
+- `GET /api/jobs` — Retrieve open job listings (with search and filters).
+- `GET /api/jobs/:id` — Retrieve specific job details.
+- `POST /api/jobs` — Create a new job posting (Recruiter & Admin).
+- `PATCH /api/jobs/:id` — Update job details (Recruiter & Admin).
+- `DELETE /api/jobs/:id` — Delete job posting (Recruiter & Admin).
+- `POST /api/jobs/match-all` — Run AI match for current student across all jobs.
+- `POST /api/jobs/:id/match` — Run AI match for a specific job.
+- `POST /api/jobs/:id/skill-gap` — Compute skill gap for a specific job.
+
+### 📝 Applications (`/api/applications`)
+- `POST /api/applications` — Submit application for a job (Student).
+- `GET /api/applications/my` — View student's applied jobs (Student).
+- `GET /api/applications` — View applications for company jobs (Recruiter).
+- `GET /api/applications/:id` — View application details.
+- `PATCH /api/applications/:id/status` — Update application hiring stage (Recruiter).
+
+### 🏢 Recruiters (`/api/recruiter`)
+- `GET /api/recruiter/profile` — Get recruiter profile & company details.
+- `PATCH /api/recruiter/profile` — Update recruiter profile.
+- `POST /api/recruiter/company/logo` — Upload company logo to ImageKit.
+- `GET /api/recruiter/jobs` — Get company's posted jobs.
+- `POST /api/recruiter/jobs` — Create job posting.
+- `GET /api/recruiter/shortlisted` — View shortlisted candidate pool.
+- `POST /api/recruiter/shortlisted/assessment-links` — Send batch assessment invitations.
+- `GET /api/recruiter/interviews` — Company's interview schedule.
+- `POST /api/recruiter/interviews` — Schedule a candidate interview.
+- `PATCH /api/recruiter/interviews/:id` — Reschedule interview.
+- `GET /api/recruiter/offers` — List issued offers.
+- `POST /api/recruiter/offers` — Create a job offer.
+- `POST /api/recruiter/offers/:id/send` — Dispatch offer letter to student.
+- `GET /api/recruiter/stats` — Dashboard counters and badge stats.
+
+### 🏛️ Admin / TPO (`/api/admin`)
+- `GET /api/admin/dashboard` — Global placement metrics and KPIs.
+- `GET /api/admin/students` — List all students with academic details.
+- `PATCH /api/admin/students/:id/verify` — Verify/unverify student profile.
+- `GET /api/admin/recruiters` — List all recruiters.
+- `PATCH /api/admin/recruiters/:id/verify` — Approve recruiter company verification.
+- `GET /api/admin/drives` — List all placement drives.
+- `POST /api/admin/drives` — Create placement drive.
+- `PATCH /api/admin/drives/:id` — Update placement drive.
+- `DELETE /api/admin/drives/:id` — Delete placement drive.
+- `GET /api/admin/interviews` — College-wide interview schedule.
+- `PATCH /api/admin/interviews/:id/schedule` — Reschedule interview (conflict override).
+- `GET /api/admin/offers` — All student offers across companies.
+- `POST /api/admin/notifications/broadcast` — Broadcast announcements to users.
+- `GET /api/admin/settings` — Get campus placement settings.
+- `PUT /api/admin/settings` — Update campus placement settings.
+
+### 🤖 AI Streaming & Chat (`/api/ai`)
+- `POST /api/ai/chat` — Streaming conversational AI chat via Vercel AI SDK & Gemini.
+
+---
+
+## 💻 Prerequisites & Requirements
+
+Ensure the following tools are installed on your machine:
+
+- **Node.js**: `v20.x` or later (LTS recommended)
+- **pnpm**: `v9.x` or `v10.x` (`corepack enable && corepack prepare pnpm@latest --activate`)
+- **Python**: `3.10+` or `3.11+` (for the AI microservice)
+- **PostgreSQL**: `v15+` or running via Docker
+- **Redis**: `v7+` or running via Docker
+- **Docker Desktop**: Optional, for running containerized services
+
+Verify your environment:
 
 ```bash
 node -v
 pnpm -v
+python --version
 docker --version
-git --version
 ```
 
 ---
 
-## 📦 Installation
+## ⚙️ Environment Configuration
 
-Clone the repository:
+CampusLink uses **Varlock** for type-safe environment variable validation. Each service has a `.env.schema` file.
 
-```bash
-git clone https://github.com/ChandrakantaMandal/CampusLink
-git clone https://github.com/HimanshuKumarRout/CampusLink
-cd CampusLink
+### 1. Backend Server (`apps/server/.env`)
+
+Create `apps/server/.env`:
+
+```env
+# Runtime
+NODE_ENV=development
+
+# Web Frontend URL
+CORS_ORIGIN=http://localhost:3001
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET=your_super_secret_better_auth_key_min_32_chars
+BETTER_AUTH_URL=http://localhost:3000
+
+# PostgreSQL Database
+DATABASE_URL=postgresql://postgres:password@localhost:5432/CampusLink?schema=public
+
+# Redis Cache & Rate Limiting
+REDIS_URL=redis://localhost:6379
+
+# AI Microservice URL
+AI_SERVICE_URL=http://localhost:8000
+
+# Google Gemini API Key (Server fallback & streaming)
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+
+# Email (SMTP / Nodemailer for OTP & Password Reset)
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_specific_password
+EMAIL_FROM="CampusLink <noreply@campuslink.edu>"
+
+# Google OAuth 2.0 (Optional)
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# ImageKit Storage (Resumes, Photos & Company Logos)
+IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
+IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
+IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_id/
+IMAGEKIT_FOLDER=campuslink
 ```
 
-Install dependencies:
+### 2. Frontend Web (`apps/web/.env`)
+
+Create `apps/web/.env`:
+
+```env
+NODE_ENV=development
+NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+```
+
+### 3. AI Service (`apps/ai/.env`)
+
+Create `apps/ai/.env`:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+> [!TIP]
+> After modifying any `.env.schema` files, regenerate environment types across the monorepo by running:
+> ```bash
+> pnpm run env:generate
+> ```
+
+---
+
+## 🚀 Local Setup & Installation
+
+### Method 1: Manual Monorepo Setup (Recommended for Dev)
+
+#### Step 1: Clone the Repository & Install Dependencies
 
 ```bash
+git clone https://github.com/HimanshuKumarRout/CampusLink.git
+cd CampusLink
 pnpm install
 ```
 
----
+#### Step 2: Start PostgreSQL and Redis
 
-# ⚙️ Environment Configuration
-
-CampusLink uses **Varlock** for environment configuration and validation.
-
-Each application owns its environment schema through `.env.schema`.
-
-After changing an environment schema, regenerate the environment types:
+Using Docker Compose to start only PostgreSQL and Redis:
 
 ```bash
-pnpm run env:generate
-```
-
-Environment schemas should be committed to Git.
-
-Secrets should remain inside ignored `.env` files or your deployment platform.
-
-### Typical services
-
-```text
-Next.js
-   │
-   └── NEXT_PUBLIC_SERVER_URL
-
-Express
-   │
-   ├── BETTER_AUTH_URL
-   ├── BETTER_AUTH_SECRET
-   ├── CORS_ORIGIN
-   ├── SMTP_*
-   └── GOOGLE_*
-
-PostgreSQL
-   │
-   └── DATABASE_URL
-
-Redis
-   │
-   ├── REDIS_URL
-   └── REDIS_TOKEN
-```
-
-Never expose private API keys, database credentials, SMTP passwords, or Gemini API keys to the browser.
-
----
-
-# 🗄️ Database
-
-CampusLink uses **PostgreSQL + Prisma**.
-
-Generate the Prisma client:
-
-```bash
-pnpm run db:generate
-```
-
-Push the current Prisma schema:
-
-```bash
-pnpm run db:push
-```
-
-Run migrations:
-
-```bash
-pnpm run db:migrate
-```
-
-Open Prisma Studio:
-
-```bash
-pnpm run db:studio
-```
-
-After modifying the Prisma schema, regenerate the client:
-
-```bash
-pnpm run db:generate
-```
-
----
-
-# 🔴 Redis
-
-Redis is used for supporting application services such as OTP handling and rate limiting.
-
-### Start Redis
-
-```bash
+# Start PostgreSQL & Redis in background
+pnpm run db:start
 pnpm run redis:start
 ```
 
-### Watch Redis logs
+*(Alternatively, you can connect your existing local PostgreSQL and Redis instances by pointing the `DATABASE_URL` and `REDIS_URL` in `apps/server/.env`.)*
+
+#### Step 3: Setup the Database
+
+Generate Prisma client, apply schema, and populate demo data:
 
 ```bash
-pnpm run redis:watch
+# Generate the Prisma Client
+pnpm run db:generate
+
+# Push schemas to PostgreSQL
+pnpm run db:push
+
+# Seed skills, companies, jobs, and drives
+pnpm --filter @CampusLink/db exec tsx prisma/seed.ts
 ```
 
-### Stop Redis
+#### Step 4: Setup the Python AI Microservice
+
+In a new terminal:
+
+**Windows (PowerShell):**
+```powershell
+cd apps/ai
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+**Linux / macOS:**
+```bash
+cd apps/ai
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+#### Step 5: Start the Web and Express Servers
+
+From the root project directory:
 
 ```bash
-pnpm run redis:stop
-```
-
-### Remove the Redis container
-
-```bash
-pnpm run redis:down
-```
-
----
-
-# 🔐 Authentication
-
-Authentication is handled by **Better Auth**.
-
-The authentication layer supports:
-
-- Email/password authentication
-- Email verification
-- Signup OTP
-- OTP resend
-- Password reset
-- Google OAuth
-- Session management
-- Secure cookies
-- Authentication rate limiting
-
-Better Auth manages identity and sessions. Application/business logic remains in the Express backend. The AI service does not implement its own user authentication.
-
----
-
-# 📧 Email System
-
-CampusLink uses SMTP/Nodemailer for transactional emails.
-
-Current email functionality includes:
-
-```text
-Signup
-   │
-   └── OTP verification email
-
-Forgot Password
-   │
-   └── Password reset email
-
-Google / verified signup
-   │
-   └── Welcome email
-```
-
-SMTP configuration is supplied through the application's environment configuration.
-
----
-
-# 🤖 AI Architecture
-
-The AI layer is designed as a separate service rather than putting all AI logic directly inside Express.
-
-The planned architecture uses:
-
-```text
-Next.js
-   ↓
-Express
-   ↓
-Python FastAPI
-   ↓
-AI/NLP Processing
-   ↓
-Structured JSON
-   ↓
-Express
-   ↓
-Next.js
-```
-
-The AI service can provide:
-
-- Resume parsing
-- Skill extraction
-- Skill normalization
-- Job analysis
-- Eligibility evaluation
-- Candidate matching
-- Skill-gap analysis
-- Readiness evaluation
-- Recommendations
-
-These responsibilities are defined as separate AI/placement engines in the architecture.
-
----
-
-# 🧠 Placement Intelligence
-
-CampusLink is designed around **deterministic placement intelligence**, rather than sending every operation directly to an LLM.
-
-### Eligibility
-
-Eligibility rules can evaluate:
-
-- CGPA
-- Degree
-- Branch
-- Graduation year
-- Backlogs
-- Experience
-
-For example:
-
-```text
-Job Requirement:
-CGPA >= 7.0
-
-Student:
-CGPA = 8.2
-
-Result:
-ELIGIBLE
-```
-
-Eligibility should remain rule-based so explicit placement requirements are not overridden by an LLM.
-
-### Matching
-
-Candidate and job requirements can be compared using:
-
-- Skills
-- Projects
-- Experience
-- Assessments
-- Other configurable factors
-
-Example:
-
-```text
-Student:
-Python, SQL, React, Git
-
-Job:
-Python, SQL, Git, Docker
-
-Matched:
-Python
-SQL
-Git
-
-Missing:
-Docker
-```
-
-### Skill Gap
-
-```text
-Required Skills - Candidate Skills = Skill Gap
-```
-
-Example:
-
-```text
-Required:
-Python, SQL, Docker, AWS
-
-Candidate:
-Python, SQL, React
-
-Skill Gap:
-Docker, AWS
-```
-
-### Readiness
-
-The readiness engine can combine configurable factors such as:
-
-```text
-Academics       20%
-Technical Skills 30%
-Projects        20%
-Resume          10%
-Assessments     20%
-```
-
-These values are product-defined configuration rather than an objective measurement of a student's overall ability.
-
----
-
-# ✨ Gemini Integration
-
-Gemini is intended to **complement** the custom placement intelligence rather than replace it.
-
-Potential Gemini use cases include:
-
-- AI chat
-- Resume improvement suggestions
-- Job-description summaries
-- Interview questions
-- Learning plans
-- Natural-language explanations
-- Presentation of structured recommendations
-
-The core eligibility, matching, skill-gap, and readiness calculations remain controlled by CampusLink's own application logic.
-
-The Google API key must remain server-side and must never be exposed to the browser.
-
----
-
-# 🔎 RAG
-
-RAG is an optional extension for unstructured institutional information such as:
-
-- Placement policies
-- College handbooks
-- Recruitment rules
-- Notices
-- FAQs
-- Long-form college documentation
-
-A possible architecture is:
-
-```text
-Documents
-   ↓
-Text Extraction
-   ↓
-Chunking
-   ↓
-Embeddings
-   ↓
-Vector Storage
-   ↓
-Similarity Search
-   ↓
-Relevant Context
-   ↓
-Gemini
-   ↓
-Grounded Answer
-```
-
-PostgreSQL with `pgvector` can be used if RAG is introduced because PostgreSQL is already the project's primary database.
-
----
-
-# 🎨 UI Customization
-
-Shared shadcn/ui components live inside:
-
-```text
-packages/ui
-```
-
-Global styles:
-
-```text
-packages/ui/src/styles/globals.css
-```
-
-Shared components:
-
-```text
-packages/ui/src/components/
-```
-
-Add additional shared shadcn components:
-
-```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
-```
-
-Use shared components:
-
-```tsx
-import { Button } from "@CampusLink/ui/components/button";
-```
-
-For application-specific components, run the shadcn CLI from:
-
-```text
-apps/web
-```
-
----
-
-# 🧪 Development
-
-Start the complete development environment:
-
-```bash
+# Run both Frontend (Next.js :3001) and Backend (Express :3000)
 pnpm run dev
 ```
 
-Frontend:
-
-```text
-http://localhost:3001
-```
-
-Backend API:
-
-```text
-http://localhost:3000
-```
-
-Start only the frontend:
-
+Or run them individually:
 ```bash
-pnpm run dev:web
-```
-
-Start only the backend:
-
-```bash
-pnpm run dev:server
+pnpm run dev:web     # Next.js on http://localhost:3001
+pnpm run dev:server  # Express API on http://localhost:3000
 ```
 
 ---
 
-# 🐳 Docker
+### Method 2: Docker Compose Setup
 
-CampusLink supports Docker Compose for local development and deployment.
-
-### Build images
+To spin up the entire orchestrated container stack (Frontend, Backend, AI Microservice, PostgreSQL, and Redis):
 
 ```bash
+# Build all Docker containers
 pnpm run docker:build
-```
 
-### Start services
-
-```bash
+# Start all containers in the background
 pnpm run docker:up
-```
 
-### View logs
-
-```bash
+# Check container logs
 pnpm run docker:logs
-```
 
-### Stop services
-
-```bash
+# Stop containers
 pnpm run docker:down
 ```
 
-The Docker architecture can include:
-
-```text
-docker-compose.yml
-│
-├── web
-├── server
-├── postgres
-├── redis
-└── ai
-```
-
-The AI service should normally remain private and communicate with Express through the internal Docker network. For example:
-
-```text
-http://ai:8000
-```
-
-rather than:
-
-```text
-http://localhost:8000
-```
-
-when communicating between containers.
+The services will be available at:
+- **Frontend Web / PWA**: `http://localhost:3001`
+- **Express Backend API**: `http://localhost:3000`
+- **Python AI Microservice**: `http://localhost:8000`
+- **PostgreSQL**: `localhost:5432`
+- **Redis**: `localhost:6379`
 
 ---
 
-# 🛡️ Security
+## 🗄️ Database Management & Seeding
 
-Important security principles:
+The `@CampusLink/db` package provides multiple scripts for maintaining the PostgreSQL database:
 
-- Keep Better Auth secrets server-side
-- Keep Google OAuth secrets server-side
-- Keep SMTP credentials server-side
-- Keep Gemini API keys server-side
-- Validate API request payloads
-- Rate-limit expensive operations
-- Validate uploaded resume file types
-- Limit uploaded file sizes
-- Add request timeouts
-- Keep the FastAPI AI service private in production
-- Use an internal API/service key between Express and FastAPI
-- Avoid logging sensitive resume information unnecessarily
-
-These controls are part of the recommended AI-service security architecture.
+| Command | Action |
+|---|---|
+| `pnpm run db:generate` | Generates the `@prisma/client` from the multi-file schema. |
+| `pnpm run db:push` | Pushes schema changes directly to the database without generating migration files. |
+| `pnpm run db:migrate` | Runs database migrations in development mode (`prisma migrate dev`). |
+| `pnpm run db:studio` | Opens **Prisma Studio** at `http://localhost:5555` to inspect and edit database records. |
+| `pnpm --filter @CampusLink/db exec tsx prisma/seed.ts` | Populates database with standard skills, Tier 1/2 companies, job postings, and placement drives. |
+| `pnpm --filter @CampusLink/db exec tsx prisma/setup-student.ts` | Populates complete academic profile, skills, and portfolio for a test student. |
 
 ---
 
-# 🪝 Git Hooks
+## 🧪 Testing & Quality Assurance
 
-Initialize Husky:
+CampusLink is equipped with an automated testing suite configured with **Vitest**:
 
 ```bash
+# Run all test suites across the monorepo
+pnpm run test
+
+# Run individual test suites
+pnpm run test:server   # Express server unit & integration tests
+pnpm run test:web      # Next.js web application tests
+pnpm run test:auth     # Better Auth configuration, plugins & OTP tests
+pnpm run test:db       # Prisma database client tests
+
+# Run tests in watch mode
+pnpm run test:watch
+
+# Generate test coverage reports
+pnpm run test:coverage
+```
+
+### Git Hooks & Code Quality
+
+Husky and lint-staged are configured to maintain code quality prior to commits:
+
+```bash
+# Initialize Husky git hooks
 pnpm run prepare
-```
 
-Husky can be used to run code-quality checks before commits.
-
----
-
-# 📱 PWA
-
-The web application supports Progressive Web App functionality.
-
-Generate PWA assets:
-
-```bash
-cd apps/web
-pnpm run generate-pwa-assets
-```
-
----
-
-# 🧰 Available Scripts
-
-| Command                                       | Description                        |
-| --------------------------------------------- | ---------------------------------- |
-| `pnpm run dev`                                | Start all applications             |
-| `pnpm run dev:web`                            | Start Next.js frontend             |
-| `pnpm run dev:server`                         | Start Express backend              |
-| `pnpm run build`                              | Build all applications             |
-| `pnpm run check-types`                        | Check TypeScript types             |
-| `pnpm run db:generate`                        | Generate Prisma client             |
-| `pnpm run db:push`                            | Push Prisma schema                 |
-| `pnpm run db:migrate`                         | Run database migrations            |
-| `pnpm run db:studio`                          | Open Prisma Studio                 |
-| `pnpm run env:generate`                       | Generate Varlock environment types |
-| `pnpm run auth:generate`                      | Generate Better Auth schema        |
-| `pnpm run prepare`                            | Initialize Husky                   |
-| `pnpm run redis:start`                        | Start Redis                        |
-| `pnpm run redis:watch`                        | Start Redis and show logs          |
-| `pnpm run redis:stop`                         | Stop Redis                         |
-| `pnpm run redis:down`                         | Remove Redis container             |
-| `pnpm run docker:build`                       | Build Docker images                |
-| `pnpm run docker:up`                          | Build and start Docker services    |
-| `pnpm run docker:logs`                        | Show Docker logs                   |
-| `pnpm run docker:down`                        | Stop Docker services               |
-| `cd apps/web && pnpm run generate-pwa-assets` | Generate PWA assets                |
-
----
-
-# 🔧 Better Auth Schema Generation
-
-After changing Better Auth plugins or schema configuration:
-
-```bash
-pnpm run auth:generate
-```
-
-Review the generated schema changes before applying them.
-
-Then use the Prisma migration workflow:
-
-```bash
-pnpm run db:migrate
-```
-
----
-
-# 🔄 Typical Development Workflow
-
-A typical development workflow is:
-
-```bash
-# Install dependencies
-pnpm install
-
-# Generate environment types
-pnpm run env:generate
-
-# Generate Prisma client
-pnpm run db:generate
-
-# Start PostgreSQL / application services
-docker compose up -d
-
-# Start Redis
-pnpm run redis:start
-
-# Apply database schema
-pnpm run db:push
-
-# Start development
-pnpm run dev
-```
-
----
-
-# 🧪 Testing
-
-The AI architecture supports multiple testing layers:
-
-### Unit Tests
-
-Test deterministic placement logic:
-
-- Skill normalization
-- Eligibility
-- Matching
-- Skill gaps
-- Readiness calculations
-
-### API Tests
-
-Test each FastAPI endpoint.
-
-### Integration Tests
-
-Test:
-
-```text
-Next.js
-   ↓
-Express
-   ↓
-FastAPI
-   ↓
-PostgreSQL
-```
-
-### AI Evaluation
-
-Maintain datasets containing:
-
-- Example resumes
-- Expected extracted skills
-- Job descriptions
-- Expected requirements
-- Expected matching results
-
-Regression tests can then verify that previously analyzed documents continue to produce acceptable results.
-
----
-
-# 🗺️ Development Roadmap
-
-### Phase 1 — Platform Foundation
-
-- Next.js
-- Express
-- PostgreSQL
-- Prisma
-- Better Auth
-- Docker
-
-### Phase 2 — Resume Intelligence
-
-- PDF upload
-- Text extraction
-- Resume section detection
-- Skill extraction
-- Skill normalization
-
-### Phase 3 — Job Intelligence
-
-- Job description analysis
-- Required skills
-- Preferred skills
-- Eligibility extraction
-
-### Phase 4 — Candidate Matching
-
-- Eligibility filtering
-- Skill matching
-- Explainable match results
-
-### Phase 5 — Skill Gap
-
-- Missing skills
-- Skill priorities
-- Target-job analysis
-
-### Phase 6 — Readiness
-
-- Academic factors
-- Technical skills
-- Projects
-- Resume
-- Assessments
-
-### Phase 7 — Recommendations
-
-- Learning recommendations
-- Project recommendations
-- Interview preparation
-
-### Phase 8 — Gemini
-
-- AI chat
-- Explanations
-- Interview preparation
-- Learning plans
-
-### Phase 9 — RAG
-
-- Document ingestion
-- Embeddings
-- Vector search
-- Grounded answers
-
-This phased architecture allows the platform to begin with deterministic algorithms and evolve toward more advanced AI capabilities without requiring a complete rewrite.
-
----
-
-# 🤝 Contributing
-
-1. Create a feature branch:
-
-```bash
-git switch -c feature/your-feature
-```
-
-2. Make your changes.
-
-3. Run type checking:
-
-```bash
+# TypeScript type checks across all workspaces
 pnpm run check-types
 ```
 
-4. Run the appropriate tests and builds.
+---
 
-5. Commit your changes:
+## 🛡️ Security & Architecture Principles
 
-```bash
-git add .
-git commit -m "feat: add your feature"
-```
-
-6. Push the branch:
-
-```bash
-git push -u origin feature/your-feature
-```
-
-7. Open a pull request.
+1. **Deterministic Rule Enforcement**: Academic eligibility (CGPA, active backlogs, allowable departments) is strictly evaluated in deterministic TypeScript and SQL logic. LLMs are never allowed to override admission/eligibility criteria.
+2. **Private AI Microservice**: In production, the FastAPI microservice runs on a private internal network (`http://ai:8000`) and is never exposed directly to the public internet; all traffic flows through the authenticated Express API.
+3. **Multi-Tier Rate Limiting**: Redis sliding-window rate limiters defend sensitive endpoints (login, OTP generation, AI chat, resume parsing) against brute force and DDoS attacks.
+4. **Secrets Isolation**: Google OAuth keys, SMTP passwords, Better Auth secrets, ImageKit private keys, and Gemini API keys reside exclusively in backend environment variables and are never bundled into client-side code.
+5. **Safe File Handling**: Resumes and images are strictly validated for MIME type and file size before being securely uploaded to ImageKit CDN; filenames are sanitized to prevent path traversal.
 
 ---
 
-## 📝 Commit Convention
+## 🤝 Contributing & Commit Conventions
 
-CampusLink follows the **Conventional Commits** specification to keep the Git history clean, consistent, and easy to understand.
+Contributions are welcome! Please adhere to the following workflow:
 
-### Commit Types
+1. **Fork and create a feature branch**:
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
+2. **Make your modifications and test**:
+   ```bash
+   pnpm run check-types
+   pnpm run test
+   ```
+3. **Commit using [Conventional Commits](https://www.conventionalcommits.org/)**:
+   ```bash
+   git commit -m "feat(student): add resume preview modal and download action"
+   ```
 
-| Type       | Purpose                                    | Example                                      |
-| ---------- | ------------------------------------------ | -------------------------------------------- |
-| `feat`     | Add a new feature                          | `feat: add Google OAuth authentication`      |
-| `fix`      | Fix a bug or issue                         | `fix: resolve password reset redirect`       |
-| `docs`     | Documentation, README, or license changes  | `docs: update project architecture`          |
-| `chore`    | Maintenance and configuration changes      | `chore: update Redis docker scripts`         |
-| `refactor` | Restructure code without changing behavior | `refactor: simplify mailer configuration`    |
-| `build`    | Build system or dependency configuration   | `build: update pnpm workspace configuration` |
-| `ci`       | CI/CD configuration                        | `ci: add GitHub Actions workflow`            |
-| `test`     | Add or modify tests                        | `test: add authentication tests`             |
-| `style`    | Formatting or code-style changes           | `style: format authentication service`       |
-| `perf`     | Performance improvements                   | `perf: optimize Redis rate limiting`         |
-| `revert`   | Revert a previous commit                   | `revert: revert OAuth authentication`        |
+### Commit Types:
+- `feat`: A new user-facing feature.
+- `fix`: A bug fix.
+- `docs`: Documentation updates.
+- `refactor`: Code reorganization with no behavior change.
+- `test`: Adding or updating test suites.
+- `chore`: Dependency updates, tooling, and build configuration.
 
-### Examples
-
-```text
-feat: add Google OAuth authentication
-fix: resolve password reset redirect
-docs: update project architecture
-docs: add MIT license information
-chore: update Redis docker scripts
-chore: update dependencies
-refactor: simplify mailer configuration
-feat: add signup OTP verification
-fix: resolve email verification flow
-build: update pnpm workspace configuration
-ci: add GitHub Actions workflow
-test: add authentication tests
-style: format authentication service
-perf: optimize Redis rate limiting
-```
-
-### Commit Format
-
-Use the following format:
-
-```text
-<type>: <short description>
-```
-
-For example:
-
-```text
-feat: add signup OTP verification
-```
-
-For more detailed commits, an optional scope can be used:
-
-```text
-feat(auth): add Google OAuth authentication
-fix(auth): resolve password reset redirect
-docs(readme): update project architecture
-chore(redis): update Docker configuration
-```
-
-### Recommended Guidelines
-
-- Use **imperative mood**: `add`, `fix`, `update`, `remove`
-- Keep the subject short and clear
-- Use lowercase for the commit type
-- Do not end the subject with a period
-- Use `feat` for user-facing functionality
-- Use `fix` for bug fixes
-- Use `docs` for README, documentation, and license changes
-- Use `chore` for maintenance that does not change application behavior
-- Use `refactor` when restructuring code without changing its behavior
-
-### Example Git Workflow
-
-```bash
-git add .
-git commit -m "feat: add Google OAuth authentication"
-git push origin main
-```
-
-For a documentation-only change:
-
-```bash
-git add README.md LICENSE
-git commit -m "docs: update README and add MIT license"
-git push origin main
-```
+4. **Push and open a Pull Request**:
+   ```bash
+   git push origin feat/your-feature-name
+   ```
 
 ---
 
-# 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🧱 Technology Stack
-
-| Layer                 | Technology       |
-| --------------------- | ---------------- |
-| Frontend              | Next.js          |
-| Styling               | Tailwind CSS     |
-| UI                    | shadcn/ui        |
-| Backend               | Express.js       |
-| Runtime               | Node.js          |
-| Database              | PostgreSQL       |
-| ORM                   | Prisma           |
-| Authentication        | Better Auth      |
-| Cache / Rate Limiting | Redis            |
-| AI Service            | Python + FastAPI |
-| Generative AI         | Google Gemini    |
-| AI SDK                | Vercel AI SDK    |
-| Package Manager       | pnpm             |
-| Containers            | Docker           |
-| Git Hooks             | Husky            |
-| PWA                   | Next.js PWA      |
-| Environment           | Varlock          |
-
----
-
-## 📌 Architecture Principle
-
-CampusLink is designed as a **placement intelligence system**, not simply an application that sends every task to an LLM.
-
-### Deterministic Intelligence
-
-```text
-Eligibility
-Matching
-Skill Gap
-Readiness
-Skill Normalization
-```
-
-### Generative Intelligence
-
-```text
-Explanations
-AI Chat
-Learning Plans
-Interview Preparation
-Document Understanding
-```
-
-The application architecture keeps PostgreSQL as the source of truth for structured placement data, while the AI service handles custom NLP and intelligence workloads. Gemini provides natural-language capabilities where they add value.
-
----
-
-## 🚀 Built for Evolution
-
-CampusLink is designed to evolve from an MVP into a larger placement intelligence platform.
-
-The architecture allows additional capabilities such as:
-
-- Advanced resume intelligence
-- Candidate ranking
-- AI-powered recommendations
-- Interview preparation
-- AI chat
-- Institutional document search
-- RAG
-- Vector search
-- Advanced analytics
-- Additional AI models
-
-without requiring the core Next.js, Express, PostgreSQL, Prisma, and Better Auth architecture to be replaced.
+<p align="center">
+  Built with ❤️ for college placement cells, ambitious students, and modern recruiters.
+</p>
