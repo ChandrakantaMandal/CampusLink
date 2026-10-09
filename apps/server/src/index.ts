@@ -10,7 +10,6 @@ import { globalLimiter } from "./middleware/rateLimiters";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 import studentRoutes from "./modules/students/student.routes";
-import companyRoutes from "./modules/companies/company.routes";
 import jobRoutes from "./modules/jobs/job.routes";
 import applicationRoutes from "./modules/applications/application.routes";
 import skillRoutes from "./modules/skills/skill.routes";
@@ -62,7 +61,6 @@ app.use(globalLimiter);
 app.all("/api/auth{/*path}", toNodeHandler(auth));
 
 app.use("/api/students", studentRoutes);
-app.use("/api/companies", companyRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/skills", skillRoutes);

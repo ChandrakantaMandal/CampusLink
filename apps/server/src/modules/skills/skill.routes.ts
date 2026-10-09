@@ -5,32 +5,11 @@ import { requireRole } from "../../middleware/role.middleware";
 
 import {
   addStudentSkillController,
-  createSkillController,
-  deleteSkillController,
   getMySkillsController,
-  getSkillController,
-  getSkillsController,
   removeStudentSkillController,
-  updateSkillController,
-  updateStudentSkillController,
 } from "./skill.controller";
 
 const router = Router();
-
-// Get all skills
-router.get("/", requireAuth, getSkillsController);
-
-// Get a single skill
-router.get("/:id", requireAuth, getSkillController);
-
-// Create a new skill
-router.post("/", requireAuth, requireRole("ADMIN"), createSkillController);
-
-// Update a skill
-router.patch("/:id", requireAuth, requireRole("ADMIN"), updateSkillController);
-
-// Delete a skill
-router.delete("/:id", requireAuth, requireRole("ADMIN"), deleteSkillController);
 
 // Get current student's skills
 router.get(
@@ -46,14 +25,6 @@ router.post(
   requireAuth,
   requireRole("STUDENT"),
   addStudentSkillController,
-);
-
-// Update current student's skill
-router.patch(
-  "/student/me/:skillId",
-  requireAuth,
-  requireRole("STUDENT"),
-  updateStudentSkillController,
 );
 
 // Remove current student's skill

@@ -5,8 +5,6 @@ import { requireRole } from "../../middleware/role.middleware";
 
 import {
   createEducationController,
-  deleteEducationController,
-  getEducationController,
   getMyEducationController,
   updateEducationController,
 } from "./education.controller";
@@ -29,23 +27,12 @@ router.post(
   createEducationController,
 );
 
-// Get education record
-router.get("/:id", requireAuth, requireRole("STUDENT"), getEducationController);
-
 // Update education record
 router.patch(
   "/:id",
   requireAuth,
   requireRole("STUDENT"),
   updateEducationController,
-);
-
-// Delete education record
-router.delete(
-  "/:id",
-  requireAuth,
-  requireRole("STUDENT"),
-  deleteEducationController,
 );
 
 export default router;

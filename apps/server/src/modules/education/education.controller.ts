@@ -2,13 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
-import {
-  createEducation,
-  deleteEducation,
-  getEducationById,
-  getMyEducation,
-  updateEducation,
-} from "./education.service";
+import { createEducation, getMyEducation, updateEducation } from "./education.service";
 
 import {
   createEducationSchema,
@@ -67,39 +61,6 @@ export async function getMyEducationController(
   }
 }
 
-export async function getEducationController(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid education ID",
-      });
-    }
-
-    const education = await getEducationById(id);
-
-    if (!education) {
-      return res.status(404).json({
-        success: false,
-        message: "Education record not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: education,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function updateEducationController(
   req: Request,
   res: Response,
@@ -137,34 +98,6 @@ export async function updateEducationController(
       success: true,
       message: "Education updated successfully",
       data: education,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function deleteEducationController(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid education ID",
-      });
-    }
-
-    await deleteEducation(authenticatedReq.user.id, id);
-
-    return res.status(200).json({
-      success: true,
-      message: "Education deleted successfully",
     });
   } catch (error) {
     next(error);

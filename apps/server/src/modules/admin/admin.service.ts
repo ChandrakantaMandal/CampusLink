@@ -3,6 +3,7 @@ import { redis } from "@CampusLink/redis";
 import { hashPassword } from "better-auth/crypto";
 import { randomUUID } from "crypto";
 import { invalidateStudentNotificationsCache } from "../students/student.service";
+import { calculateReadiness } from "../students/readiness.service";
 
 import type { Prisma } from "@CampusLink/db";
 
@@ -129,98 +130,6 @@ export async function getDashboardStats() {
   return stats;
 }
 
-export async function getUsers() {
-  const cached = await getCache(CACHE_KEYS.users);
-
-  if (cached) {
-    return cached;
-  }
-
-  const users = await db.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      emailVerified: true,
-      image: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  await setCache(CACHE_KEYS.users, users);
-
-  return users;
-}
-
-export async function getUserById(userId: string) {
-  const cacheKey = `admin:user:${userId}`;
-
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const user = await db.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      emailVerified: true,
-      image: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-      student: true,
-      recruiter: {
-        include: {
-          company: true,
-        },
-      },
-      admin: true,
-    },
-  });
-
-  if (user) {
-    await setCache(cacheKey, user);
-  }
-
-  return user;
-}
-
-export async function deleteUser(userId: string) {
-  const user = await db.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  await db.user.delete({
-    where: {
-      id: userId,
-    },
-  });
-
-  await invalidateAdminCaches();
-  await redis.del(`admin:user:${userId}`);
-
-  return {
-    id: userId,
-  };
-}
-
 export async function getStudents() {
   const cached = await getCache(CACHE_KEYS.students);
 
@@ -254,6 +163,8 @@ export async function getStudents() {
           },
         },
       },
+      assessments: true,
+      resumes: true,
       _count: {
         select: {
           applications: true,
@@ -266,9 +177,29 @@ export async function getStudents() {
     },
   });
 
-  await setCache(CACHE_KEYS.students, students);
+  const studentsWithReadiness = students.map((student) => {
+    const readiness = calculateReadiness({
+      cgpa: student.cgpa,
+      resumeText: student.resumeText,
+      skills: student.skills,
+      projects: student.projects,
+      assessments: student.assessments.map((item) => ({
+        percentage: item.percentage ?? 0,
+        passed: item.passed ?? false,
+      })),
+      resumes: student.resumes,
+    });
 
-  return students;
+    return {
+      ...student,
+      readinessScore: readiness.overallScore,
+      readinessBreakdown: readiness.breakdown,
+    };
+  });
+
+  await setCache(CACHE_KEYS.students, studentsWithReadiness);
+
+  return studentsWithReadiness;
 }
 
 export async function getRecruiters() {
@@ -506,41 +437,6 @@ export async function getApplications() {
   return applications;
 }
 
-export async function getAssessmentStats() {
-  const cached = await getCache(CACHE_KEYS.assessmentStats);
-
-  if (cached) {
-    return cached;
-  }
-
-  const [totalAssessments, totalResults, passedResults, failedResults] =
-    await Promise.all([
-      db.assessment.count(),
-      db.assessmentResult.count(),
-      db.assessmentResult.count({
-        where: {
-          passed: true,
-        },
-      }),
-      db.assessmentResult.count({
-        where: {
-          passed: false,
-        },
-      }),
-    ]);
-
-  const stats = {
-    totalAssessments,
-    totalResults,
-    passedResults,
-    failedResults,
-  };
-
-  await setCache(CACHE_KEYS.assessmentStats, stats);
-
-  return stats;
-}
-
 export async function getDrives() {
   const cached = await getCache(CACHE_KEYS.drives);
 
@@ -580,61 +476,6 @@ export async function getDrives() {
   await setCache(CACHE_KEYS.drives, drives);
 
   return drives;
-}
-
-export async function getDriveById(driveId: string) {
-  const cacheKey = getDriveCacheKey(driveId);
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const drive = await db.placementDrive.findUnique({
-    where: {
-      id: driveId,
-    },
-    include: {
-      company: true,
-      registrations: {
-        include: {
-          student: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          registeredAt: "desc",
-        },
-      },
-      _count: {
-        select: {
-          registrations: true,
-          jobs: true,
-        },
-      },
-      jobs: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-    },
-  });
-
-  if (drive) {
-    await setCache(cacheKey, drive);
-  }
-
-  return drive;
 }
 
 export async function createPlacementDrive(data: CreatePlacementDriveInput) {

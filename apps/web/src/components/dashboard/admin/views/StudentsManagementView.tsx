@@ -140,11 +140,11 @@ export default function StudentsManagementView() {
       resumeUrl: "#",
       targetRole: newStudent.targetRole,
       readinessBreakdown: {
-        technical: 85,
-        projects: 80,
-        certifications: 82,
-        assessments: 84,
-        communication: 86,
+        technical: 0,
+        assessment: 0,
+        projects: 0,
+        academics: 0,
+        resume: 0,
       },
     };
 
@@ -452,20 +452,20 @@ export default function StudentsManagementView() {
                   <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.technical}%</strong>
                 </div>
                 <div>
+                  <span className="text-slate-400 block text-[10px]">Assessments</span>
+                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.assessment}%</strong>
+                </div>
+                <div>
                   <span className="text-slate-400 block text-[10px]">Projects</span>
                   <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.projects}%</strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Certifications</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.certifications}%</strong>
+                  <span className="text-slate-400 block text-[10px]">Academics</span>
+                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.academics}%</strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Assessments</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.assessments}%</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block text-[10px]">Communication</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.communication}%</strong>
+                  <span className="text-slate-400 block text-[10px]">Resume</span>
+                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.resume}%</strong>
                 </div>
               </div>
             </div>

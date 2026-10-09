@@ -103,27 +103,6 @@ export async function getMyEducation(userId: string) {
   return education;
 }
 
-export async function getEducationById(educationId: string) {
-  const cacheKey = educationDetailCacheKey(educationId);
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const education = await db.education.findUnique({
-    where: {
-      id: educationId,
-    },
-  });
-
-  if (education) {
-    await setCache(cacheKey, education);
-  }
-
-  return education;
-}
-
 export async function updateEducation(
   userId: string,
   educationId: string,
@@ -167,42 +146,4 @@ export async function updateEducation(
   await invalidateStudentCaches(userId, student.id);
 
   return updatedEducation;
-}
-
-export async function deleteEducation(userId: string, educationId: string) {
-  const student = await db.studentProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!student) {
-    throw new Error("Student profile not found");
-  }
-
-  const education = await db.education.findUnique({
-    where: {
-      id: educationId,
-    },
-  });
-
-  if (!education) {
-    throw new Error("Education record not found");
-  }
-
-  if (education.studentId !== student.id) {
-    throw new Error("You are not authorized to delete this education record");
-  }
-
-  await db.education.delete({
-    where: {
-      id: educationId,
-    },
-  });
-
-  await redis.del(
-    educationCacheKey(student.id),
-    educationDetailCacheKey(educationId),
-  );
-  await invalidateStudentCaches(userId, student.id);
 }

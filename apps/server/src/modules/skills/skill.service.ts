@@ -2,12 +2,7 @@ import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
 import { invalidateStudentCaches } from "../students/student.service";
 
-import type {
-  AddStudentSkillInput,
-  CreateSkillInput,
-  UpdateSkillInput,
-  UpdateStudentSkillInput,
-} from "./skill.schema";
+import type { AddStudentSkillInput } from "./skill.schema";
 
 const CACHE_TTL = 300;
 
@@ -54,105 +49,6 @@ async function invalidateSkillCaches(skillId?: string, studentId?: string) {
   }
 
   await redis.del(...keys);
-}
-
-export async function createSkill(data: CreateSkillInput) {
-  const existingSkill = await db.skill.findUnique({
-    where: {
-      name: data.name,
-    },
-  });
-
-  if (existingSkill) {
-    throw new Error("A skill with this name already exists");
-  }
-
-  const existingNormalized = await db.skill.findUnique({
-    where: {
-      normalized: data.normalized,
-    },
-  });
-
-  if (existingNormalized) {
-    throw new Error("A skill with this normalized name already exists");
-  }
-
-  const skill = await db.skill.create({
-    data: {
-      name: data.name,
-      normalized: data.normalized,
-      type: data.type,
-      description: data.description,
-    },
-  });
-
-  await invalidateSkillCaches();
-
-  return skill;
-}
-
-export async function getSkills() {
-  const cached = await getCache(SKILLS_CACHE_KEY);
-
-  if (cached) {
-    return cached;
-  }
-
-  const skills = await db.skill.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
-
-  await setCache(SKILLS_CACHE_KEY, skills);
-
-  return skills;
-}
-
-export async function getSkillById(skillId: string) {
-  const cacheKey = skillCacheKey(skillId);
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const skill = await db.skill.findUnique({
-    where: {
-      id: skillId,
-    },
-  });
-
-  if (skill) {
-    await setCache(cacheKey, skill);
-  }
-
-  return skill;
-}
-
-export async function updateSkill(skillId: string, data: UpdateSkillInput) {
-  const skill = await db.skill.update({
-    where: {
-      id: skillId,
-    },
-    data,
-  });
-
-  await invalidateSkillCaches(skillId);
-
-  return skill;
-}
-
-export async function deleteSkill(skillId: string) {
-  const skill = await db.skill.delete({
-    where: {
-      id: skillId,
-    },
-  });
-
-  await invalidateSkillCaches(skillId);
-
-  return skill;
 }
 
 function normalizeSkillName(name: string) {
@@ -316,50 +212,6 @@ export async function getMySkills(userId: string) {
   await setCache(cacheKey, studentSkills);
 
   return studentSkills;
-}
-
-export async function updateStudentSkill(
-  userId: string,
-  skillId: string,
-  data: UpdateStudentSkillInput,
-) {
-  const student = await db.studentProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!student) {
-    throw new Error("Student profile not found");
-  }
-
-  const studentSkill = await db.studentSkill.findUnique({
-    where: {
-      studentId_skillId: {
-        studentId: student.id,
-        skillId,
-      },
-    },
-  });
-
-  if (!studentSkill) {
-    throw new Error("Student skill not found");
-  }
-
-  const updatedStudentSkill = await db.studentSkill.update({
-    where: {
-      id: studentSkill.id,
-    },
-    data,
-    include: {
-      skill: true,
-    },
-  });
-
-  await invalidateSkillCaches(skillId, student.id);
-  await invalidateStudentCaches(userId, student.id);
-
-  return updatedStudentSkill;
 }
 
 export async function removeStudentSkill(userId: string, skillId: string) {

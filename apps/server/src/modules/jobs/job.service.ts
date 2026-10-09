@@ -1,7 +1,7 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
 
-import type { CreateJobInput, UpdateJobInput } from "./job.schema";
+
 
 const CACHE_TTL = 300;
 
@@ -63,56 +63,6 @@ export async function invalidateJobCaches(
 type JobWithDetails = Awaited<
   ReturnType<typeof db.job.findMany>
 >[number];
-
-/* =========================
-   CREATE JOB
-========================= */
-
-export async function createJob(
-  userId: string,
-  data: CreateJobInput,
-) {
-  const recruiter = await db.recruiterProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!recruiter) {
-    throw new Error("Recruiter profile not found");
-  }
-
-  if (recruiter.companyId !== data.companyId) {
-    throw new Error(
-      "You are not authorized to create a job for this company",
-    );
-  }
-
-  const job = await db.job.create({
-    data: {
-      title: data.title,
-      description: data.description,
-      location: data.location,
-      employmentType: data.employmentType,
-      workMode: data.workMode,
-      ctc: data.ctc,
-      applicationDeadline: data.applicationDeadline
-        ? new Date(data.applicationDeadline)
-        : undefined,
-      companyId: data.companyId,
-    },
-    include: {
-      company: true,
-    },
-  });
-
-  await invalidateJobCaches(
-    undefined,
-    data.companyId,
-  );
-
-  return job;
-}
 
 /* =========================
    GET ALL JOBS
@@ -178,111 +128,4 @@ export async function getJobById(id: string) {
   }
 
   return job;
-}
-
-/* =========================
-   UPDATE JOB
-========================= */
-
-export async function updateJob(
-  userId: string,
-  jobId: string,
-  data: UpdateJobInput,
-) {
-  const recruiter = await db.recruiterProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!recruiter) {
-    throw new Error("Recruiter profile not found");
-  }
-
-  const job = await db.job.findUnique({
-    where: {
-      id: jobId,
-    },
-  });
-
-  if (!job) {
-    throw new Error("Job not found");
-  }
-
-  if (job.companyId !== recruiter.companyId) {
-    throw new Error(
-      "You are not authorized to update this job",
-    );
-  }
-
-  const updatedJob = await db.job.update({
-    where: {
-      id: jobId,
-    },
-    data: {
-      ...data,
-      salaryMin: undefined,
-      salaryMax: undefined,
-      applicationDeadline:
-        data.applicationDeadline !== undefined
-          ? new Date(data.applicationDeadline)
-          : undefined,
-    },
-    include: {
-      company: true,
-    },
-  });
-
-  await invalidateJobCaches(
-    jobId,
-    job.companyId,
-  );
-
-  return updatedJob;
-}
-
-/* =========================
-   DELETE JOB
-========================= */
-
-export async function deleteJob(
-  userId: string,
-  jobId: string,
-) {
-  const recruiter = await db.recruiterProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!recruiter) {
-    throw new Error("Recruiter profile not found");
-  }
-
-  const job = await db.job.findUnique({
-    where: {
-      id: jobId,
-    },
-  });
-
-  if (!job) {
-    throw new Error("Job not found");
-  }
-
-  if (job.companyId !== recruiter.companyId) {
-    throw new Error(
-      "You are not authorized to delete this job",
-    );
-  }
-
-  await db.job.delete({
-    where: {
-      id: jobId,
-    },
-  });
-
-  await invalidateJobCaches(
-    jobId,
-    job.companyId,
-  );
 }

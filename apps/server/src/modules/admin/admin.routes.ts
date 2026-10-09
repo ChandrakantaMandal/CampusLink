@@ -5,17 +5,12 @@ import { requireRole } from "../../middleware/role.middleware";
 
 import {
   getDashboardStatsController,
-  getUsersController,
-  getUserController,
-  deleteUserController,
   getStudentsController,
   getRecruitersController,
   getCompaniesController,
   getJobsController,
   getApplicationsController,
-  getAssessmentStatsController,
   getDrivesController,
-  getDriveController,
   createPlacementDriveController,
   updatePlacementDriveController,
   deletePlacementDriveController,
@@ -57,20 +52,6 @@ router.put(
   requireAuth,
   requireRole("ADMIN"),
   updateSettingsController,
-);
-
-// Get all users
-router.get("/users", requireAuth, requireRole("ADMIN"), getUsersController);
-
-// Get a single user
-router.get("/users/:id", requireAuth, requireRole("ADMIN"), getUserController);
-
-// Delete a user
-router.delete(
-  "/users/:id",
-  requireAuth,
-  requireRole("ADMIN"),
-  deleteUserController,
 );
 
 // Get all students
@@ -131,24 +112,8 @@ router.get(
   getApplicationsController,
 );
 
-// Get assessment statistics
-router.get(
-  "/assessments/stats",
-  requireAuth,
-  requireRole("ADMIN"),
-  getAssessmentStatsController,
-);
-
 // Get all placement drives
 router.get("/drives", requireAuth, requireRole("ADMIN"), getDrivesController);
-
-// Get a single placement drive
-router.get(
-  "/drives/:id",
-  requireAuth,
-  requireRole("ADMIN"),
-  getDriveController,
-);
 
 // Create a placement drive
 router.post(

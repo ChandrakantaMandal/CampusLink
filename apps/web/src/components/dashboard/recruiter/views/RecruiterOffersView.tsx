@@ -438,7 +438,7 @@ export default function RecruiterOffersView() {
 
       {previewOffer && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-3 sm:p-6">
-          <section className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+          <section className="flex h-[92vh] w-[96vw] max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <header className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4 dark:border-slate-700">
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Offer letter preview</p>

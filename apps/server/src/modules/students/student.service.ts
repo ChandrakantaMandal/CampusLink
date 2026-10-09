@@ -220,12 +220,30 @@ export async function getStudentById(id: string) {
     },
   });
 
-  if (student) {
-    await setCache(cacheKey, student);
-    await setCache(studentUserCacheKey(student.userId), student);
-  }
+  if (!student) return null;
 
-  return student;
+  const readiness = calculateReadiness({
+    cgpa: student.cgpa,
+    resumeText: student.resumeText,
+    skills: student.skills,
+    projects: student.projects,
+    assessments: student.assessments.map((item) => ({
+      percentage: item.percentage ?? 0,
+      passed: item.passed ?? false,
+    })),
+    resumes: student.resumes,
+  });
+
+  const enriched = {
+    ...student,
+    readinessScore: readiness.overallScore,
+    readinessBreakdown: readiness.breakdown,
+  };
+
+  await setCache(cacheKey, enriched);
+  await setCache(studentUserCacheKey(student.userId), enriched);
+
+  return enriched;
 }
 
 export async function updateStudent(userId: string, data: UpdateStudentInput) {

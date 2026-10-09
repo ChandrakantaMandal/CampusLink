@@ -13,35 +13,7 @@ import {
   verifyRecruiterSchema,
 } from "./admin.schema";
 
-import {
-  getDashboardStats,
-  getUsers,
-  getUserById,
-  deleteUser,
-  getStudents,
-  getRecruiters,
-  getCompanies,
-  getJobs,
-  getApplications,
-  getAssessmentStats,
-  getDrives,
-  getDriveById,
-  createPlacementDrive,
-  updatePlacementDrive,
-  deletePlacementDrive,
-  verifyStudent,
-  verifyRecruiter,
-  createRecruiter,
-  getOffers,
-  getInterviews,
-  updateInterviewSchedule,
-  getAdminNotifications,
-  markAdminNotificationRead,
-  markAllAdminNotificationsRead,
-  broadcastAdminNotification,
-  getAdminSettings,
-  updateAdminSettings,
-} from "./admin.service";
+import { getDashboardStats, getStudents, getRecruiters, getCompanies, getJobs, getApplications, getDrives, createPlacementDrive, updatePlacementDrive, deletePlacementDrive, verifyStudent, verifyRecruiter, createRecruiter, getOffers, getInterviews, updateInterviewSchedule, getAdminNotifications, markAdminNotificationRead, markAllAdminNotificationsRead, broadcastAdminNotification, getAdminSettings, updateAdminSettings } from "./admin.service";
 
 export async function getDashboardStatsController(
   _req: Request,
@@ -61,79 +33,6 @@ export async function getDashboardStatsController(
         error instanceof Error
           ? error.message
           : "Failed to get dashboard statistics",
-    });
-  }
-}
-
-export async function getUsersController(_req: Request, res: Response) {
-  try {
-    const users = await getUsers();
-
-    return res.json({
-      success: true,
-      data: users,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Failed to get users",
-    });
-  }
-}
-
-export async function getUserController(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-
-    const user = await getUserById(id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    return res.json({
-      success: true,
-      data: user,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Failed to get user",
-    });
-  }
-}
-
-export async function deleteUserController(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-
-    await deleteUser(id);
-
-    return res.json({
-      success: true,
-      message: "User deleted successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Failed to delete user",
     });
   }
 }
@@ -241,28 +140,6 @@ export async function getApplicationsController(_req: Request, res: Response) {
   }
 }
 
-export async function getAssessmentStatsController(
-  _req: Request,
-  res: Response,
-) {
-  try {
-    const stats = await getAssessmentStats();
-
-    return res.json({
-      success: true,
-      data: stats,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Failed to get assessment statistics",
-    });
-  }
-}
-
 export async function getDrivesController(_req: Request, res: Response) {
   try {
     const drives = await getDrives();
@@ -278,41 +155,6 @@ export async function getDrivesController(_req: Request, res: Response) {
         error instanceof Error
           ? error.message
           : "Failed to get placement drives",
-    });
-  }
-}
-
-export async function getDriveController(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid drive ID",
-      });
-    }
-
-    const drive = await getDriveById(id);
-
-    if (!drive) {
-      return res.status(404).json({
-        success: false,
-        message: "Placement drive not found",
-      });
-    }
-
-    return res.json({
-      success: true,
-      data: drive,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Failed to get placement drive",
     });
   }
 }

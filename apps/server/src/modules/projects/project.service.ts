@@ -1,11 +1,7 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
 
-import type {
-  AddProjectSkillInput,
-  CreateProjectInput,
-  UpdateProjectInput,
-} from "./project.schema";
+import type { CreateProjectInput, UpdateProjectInput } from "./project.schema";
 
 const CACHE_TTL = 300;
 
@@ -126,34 +122,6 @@ export async function getMyProjects(userId: string) {
   return projects;
 }
 
-export async function getProjectById(projectId: string) {
-  const cacheKey = projectCacheKey(projectId);
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const project = await db.project.findUnique({
-    where: {
-      id: projectId,
-    },
-    include: {
-      skills: {
-        include: {
-          skill: true,
-        },
-      },
-    },
-  });
-
-  if (project) {
-    await setCache(cacheKey, project);
-  }
-
-  return project;
-}
-
 export async function updateProject(
   userId: string,
   projectId: string,
@@ -235,124 +203,6 @@ export async function deleteProject(userId: string, projectId: string) {
   await db.project.delete({
     where: {
       id: projectId,
-    },
-  });
-
-  await invalidateProjectCaches(projectId, student.id);
-}
-
-export async function addProjectSkill(
-  userId: string,
-  projectId: string,
-  data: AddProjectSkillInput,
-) {
-  const student = await db.studentProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!student) {
-    throw new Error("Student profile not found");
-  }
-
-  const project = await db.project.findUnique({
-    where: {
-      id: projectId,
-    },
-  });
-
-  if (!project) {
-    throw new Error("Project not found");
-  }
-
-  if (project.studentId !== student.id) {
-    throw new Error("You are not authorized to modify this project");
-  }
-
-  const skill = await db.skill.findUnique({
-    where: {
-      id: data.skillId,
-    },
-  });
-
-  if (!skill) {
-    throw new Error("Skill not found");
-  }
-
-  const existing = await db.projectSkill.findUnique({
-    where: {
-      projectId_skillId: {
-        projectId,
-        skillId: data.skillId,
-      },
-    },
-  });
-
-  if (existing) {
-    throw new Error("This skill is already added to the project");
-  }
-
-  const projectSkill = await db.projectSkill.create({
-    data: {
-      projectId,
-      skillId: data.skillId,
-    },
-    include: {
-      skill: true,
-    },
-  });
-
-  await invalidateProjectCaches(projectId, student.id);
-
-  return projectSkill;
-}
-
-export async function removeProjectSkill(
-  userId: string,
-  projectId: string,
-  skillId: string,
-) {
-  const student = await db.studentProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  if (!student) {
-    throw new Error("Student profile not found");
-  }
-
-  const project = await db.project.findUnique({
-    where: {
-      id: projectId,
-    },
-  });
-
-  if (!project) {
-    throw new Error("Project not found");
-  }
-
-  if (project.studentId !== student.id) {
-    throw new Error("You are not authorized to modify this project");
-  }
-
-  const projectSkill = await db.projectSkill.findUnique({
-    where: {
-      projectId_skillId: {
-        projectId,
-        skillId,
-      },
-    },
-  });
-
-  if (!projectSkill) {
-    throw new Error("Project skill not found");
-  }
-
-  await db.projectSkill.delete({
-    where: {
-      id: projectSkill.id,
     },
   });
 

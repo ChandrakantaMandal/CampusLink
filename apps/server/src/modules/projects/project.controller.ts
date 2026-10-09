@@ -2,21 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
-import {
-  addProjectSkill,
-  createProject,
-  deleteProject,
-  getMyProjects,
-  getProjectById,
-  removeProjectSkill,
-  updateProject,
-} from "./project.service";
+import { createProject, deleteProject, getMyProjects, updateProject } from "./project.service";
 
-import {
-  addProjectSkillSchema,
-  createProjectSchema,
-  updateProjectSchema,
-} from "./project.schema";
+import { createProjectSchema, updateProjectSchema } from "./project.schema";
 
 export async function createProjectController(
   req: Request,
@@ -61,39 +49,6 @@ export async function getMyProjectsController(
     return res.status(200).json({
       success: true,
       data: projects,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function getProjectController(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid project ID",
-      });
-    }
-
-    const project = await getProjectById(id);
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: project,
     });
   } catch (error) {
     next(error);
@@ -165,77 +120,6 @@ export async function deleteProjectController(
     return res.status(200).json({
       success: true,
       message: "Project deleted successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function addProjectSkillController(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid project ID",
-      });
-    }
-
-    const parsed = addProjectSkillSchema.safeParse(req.body);
-
-    if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid project skill data",
-        errors: parsed.error.flatten(),
-      });
-    }
-
-    const projectSkill = await addProjectSkill(
-      authenticatedReq.user.id,
-      id,
-      parsed.data,
-    );
-
-    return res.status(201).json({
-      success: true,
-      message: "Project skill added successfully",
-      data: projectSkill,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function removeProjectSkillController(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  try {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    const { id, skillId } = req.params;
-
-    if (!id || Array.isArray(id) || !skillId || Array.isArray(skillId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid project or skill ID",
-      });
-    }
-
-    await removeProjectSkill(authenticatedReq.user.id, id, skillId);
-
-    return res.status(200).json({
-      success: true,
-      message: "Project skill removed successfully",
     });
   } catch (error) {
     next(error);
