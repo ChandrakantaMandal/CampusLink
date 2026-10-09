@@ -1,0 +1,117 @@
+name: CampusLink Docker Publish and Deploy
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: campuslink-release-deploy
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker metadata - web
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/campuslink-web
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/web/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_SERVER_URL=${{ vars.NEXT_PUBLIC_SERVER_URL || 'https://api.campuslink.com' }}
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'https://api.campuslink.com' }}
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha,scope=campuslink-web
+          cache-to: type=gha,mode=max,scope=campuslink-web
+
+      - name: Docker metadata - server
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/campuslink-server
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push server
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/server/Dockerfile
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+          cache-from: type=gha,scope=campuslink-server
+          cache-to: type=gha,mode=max,scope=campuslink-server
+
+      - name: Docker metadata - AI
+        id: meta-ai
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/campuslink-ai
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push AI service
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/ai
+          file: ./services/ai/Dockerfile
+          push: true
+          tags: ${{ steps.meta-ai.outputs.tags }}
+          labels: ${{ steps.meta-ai.outputs.labels }}
+          cache-from: type=gha,scope=campuslink-ai
+          cache-to: type=gha,mode=max,scope=campuslink-ai
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -eu
+            cd /opt/campuslink
+
+            docker compose --env-file .env -f docker-compose.prod.yml pull web server ai
+
+            docker compose --env-file .env -f docker-compose.prod.yml up -d --remove-orphans
+
+            docker image prune -f
+
