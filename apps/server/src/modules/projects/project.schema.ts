@@ -16,12 +16,6 @@ export const createProjectSchema = z.object({
 
 export const updateProjectSchema = createProjectSchema.partial();
 
-export const addProjectSkillSchema = z.object({
-  skillId: z.string().min(1, "Skill ID is required"),
-});
-
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
-
-export type AddProjectSkillInput = z.infer<typeof addProjectSkillSchema>;

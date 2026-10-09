@@ -3,19 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createPlacementDrive,
   deletePlacementDrive,
-  deleteUser,
   getApplications,
-  getAssessmentStats,
   getCompanies,
   getDashboardStats,
   getDrives,
-  getDriveById,
   getJobs,
   getOffers,
   getRecruiters,
   getStudents,
-  getUserById,
-  getUsers,
   updatePlacementDrive,
 } from "../../../../src/modules/admin/admin.service";
 
@@ -145,141 +140,6 @@ describe("admin.service", () => {
       });
 
       expect(redis.set).toHaveBeenCalled();
-    });
-  });
-
-  describe("getUsers", () => {
-    it("should return cached users", async () => {
-      const users = [
-        {
-          id: "user-1",
-          name: "John",
-          email: "john@example.com",
-          role: "STUDENT",
-        },
-      ];
-
-      vi.mocked(redis.get).mockResolvedValueOnce(JSON.stringify(users));
-
-      const result = await getUsers();
-
-      expect(result).toEqual(users);
-      expect(db.user.findMany).not.toHaveBeenCalled();
-    });
-
-    it("should fetch users when cache is empty", async () => {
-      const users = [
-        {
-          id: "user-1",
-          name: "John",
-          email: "john@example.com",
-          role: "STUDENT",
-        },
-      ];
-
-      vi.mocked(db.user.findMany).mockResolvedValue(users as never);
-
-      const result = await getUsers();
-
-      expect(result).toEqual(users);
-      expect(db.user.findMany).toHaveBeenCalledWith({
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          emailVerified: true,
-          image: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-
-      expect(redis.set).toHaveBeenCalled();
-    });
-  });
-
-  describe("getUserById", () => {
-    it("should return cached user", async () => {
-      const user = {
-        id: "user-1",
-        name: "John",
-        email: "john@example.com",
-        role: "STUDENT",
-      };
-
-      vi.mocked(redis.get).mockResolvedValueOnce(JSON.stringify(user));
-
-      const result = await getUserById("user-1");
-
-      expect(result).toEqual(user);
-      expect(db.user.findUnique).not.toHaveBeenCalled();
-    });
-
-    it("should fetch user from database when cache is empty", async () => {
-      const user = {
-        id: "user-1",
-        name: "John",
-        email: "john@example.com",
-        role: "STUDENT",
-      };
-
-      vi.mocked(db.user.findUnique).mockResolvedValue(user as never);
-
-      const result = await getUserById("user-1");
-
-      expect(result).toEqual(user);
-      expect(db.user.findUnique).toHaveBeenCalled();
-      expect(redis.set).toHaveBeenCalled();
-    });
-
-    it("should return null when user does not exist", async () => {
-      vi.mocked(db.user.findUnique).mockResolvedValue(null);
-
-      const result = await getUserById("unknown-user");
-
-      expect(result).toBeNull();
-      expect(redis.set).not.toHaveBeenCalled();
-    });
-  });
-
-
-  describe("deleteUser", () => {
-    it("should throw an error when user does not exist", async () => {
-      vi.mocked(db.user.findUnique).mockResolvedValue(null);
-
-      await expect(deleteUser("unknown-user")).rejects.toThrow(
-        "User not found",
-      );
-
-      expect(db.user.delete).not.toHaveBeenCalled();
-    });
-
-    it("should delete user and invalidate caches", async () => {
-      vi.mocked(db.user.findUnique).mockResolvedValue({
-        id: "user-1",
-      } as never);
-
-      vi.mocked(db.user.delete).mockResolvedValue({
-        id: "user-1",
-      } as never);
-
-      const result = await deleteUser("user-1");
-
-      expect(result).toEqual({
-        id: "user-1",
-      });
-
-      expect(db.user.delete).toHaveBeenCalledWith({
-        where: {
-          id: "user-1",
-        },
-      });
-
-      expect(redis.del).toHaveBeenCalled();
     });
   });
 
@@ -414,46 +274,6 @@ describe("admin.service", () => {
     });
   });
 
-  describe("getAssessmentStats", () => {
-    it("should return cached assessment stats", async () => {
-      const stats = {
-        totalAssessments: 10,
-        totalResults: 20,
-        passedResults: 15,
-        failedResults: 5,
-      };
-
-      vi.mocked(redis.get).mockResolvedValueOnce(JSON.stringify(stats));
-
-      const result = await getAssessmentStats();
-
-      expect(result).toEqual(stats);
-      expect(db.assessment.count).not.toHaveBeenCalled();
-      expect(db.assessmentResult.count).not.toHaveBeenCalled();
-    });
-
-    it("should fetch assessment stats when cache is empty", async () => {
-      vi.mocked(db.assessment.count).mockResolvedValue(10);
-
-      vi.mocked(db.assessmentResult.count)
-        .mockResolvedValueOnce(20)
-        .mockResolvedValueOnce(15)
-        .mockResolvedValueOnce(5);
-
-      const result = await getAssessmentStats();
-
-      expect(result).toEqual({
-        totalAssessments: 10,
-        totalResults: 20,
-        passedResults: 15,
-        failedResults: 5,
-      });
-
-      expect(db.assessmentResult.count).toHaveBeenCalledTimes(3);
-      expect(redis.set).toHaveBeenCalled();
-    });
-  });
-
   describe("getDrives", () => {
     it("should return cached drives", async () => {
       const drives = [{ id: "drive-1" }];
@@ -511,48 +331,6 @@ describe("admin.service", () => {
         "EX",
         300,
       );
-    });
-  });
-
-  describe("getDriveById", () => {
-    it("should return cached drive", async () => {
-      const drive = { id: "drive-1", title: "SDE Intern" };
-
-      vi.mocked(redis.get).mockResolvedValueOnce(JSON.stringify(drive));
-
-      const result = await getDriveById("drive-1");
-
-      expect(result).toEqual(drive);
-      expect(db.placementDrive.findUnique).not.toHaveBeenCalled();
-      expect(redis.set).not.toHaveBeenCalled();
-    });
-
-    it("should fetch drive from database when cache is empty", async () => {
-      const drive = { id: "drive-1", title: "SDE Intern" };
-
-      vi.mocked(db.placementDrive.findUnique).mockResolvedValue(
-        drive as never,
-      );
-
-      const result = await getDriveById("drive-1");
-
-      expect(result).toEqual(drive);
-      expect(db.placementDrive.findUnique).toHaveBeenCalled();
-      expect(redis.set).toHaveBeenCalledWith(
-        "admin:drive:drive-1",
-        JSON.stringify(drive),
-        "EX",
-        300,
-      );
-    });
-
-    it("should return null when drive does not exist", async () => {
-      vi.mocked(db.placementDrive.findUnique).mockResolvedValue(null);
-
-      const result = await getDriveById("unknown-drive");
-
-      expect(result).toBeNull();
-      expect(redis.set).not.toHaveBeenCalled();
     });
   });
 

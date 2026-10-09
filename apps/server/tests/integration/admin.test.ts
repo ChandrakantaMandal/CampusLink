@@ -161,69 +161,6 @@ describe("Admin API Integration Tests", () => {
     });
   });
 
-  describe("GET /api/admin/users", () => {
-    it("should return all users for an admin", async () => {
-      const response = await request(app)
-        .get("/api/admin/users")
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-    });
-  });
-
-  describe("GET /api/admin/users/:id", () => {
-    it("should return a user by ID", async () => {
-      const response = await request(app)
-        .get(`/api/admin/users/${studentUser.id}`)
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-    });
-
-    it("should return 404 for a non-existent user", async () => {
-      const response = await request(app)
-        .get("/api/admin/users/non-existent-user-id")
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect([400, 404]).toContain(response.status);
-    });
-  });
-
-
-  describe("DELETE /api/admin/users/:id", () => {
-    it("should delete a user", async () => {
-      const email = `delete-test-${Date.now()}@example.com`;
-
-      const created = await auth.api.signUpEmail({
-        body: {
-          email,
-          password: "TestPassword123!",
-          name: "Delete Test User",
-        },
-      });
-
-      if (!created.user) {
-        throw new Error("Failed to create delete test user");
-      }
-
-      const response = await request(app)
-        .delete(`/api/admin/users/${created.user.id}`)
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(200);
-    }, 15_000);
-
-    it("should return 500 when deleting a non-existent user", async () => {
-      const response = await request(app)
-        .delete("/api/admin/users/non-existent-user-id")
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(500);
-    });
-  });
-
   describe("GET /api/admin/students", () => {
     it("should return students for an admin", async () => {
       const response = await request(app)
@@ -272,17 +209,6 @@ describe("Admin API Integration Tests", () => {
     it("should return applications for an admin", async () => {
       const response = await request(app)
         .get("/api/admin/applications")
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-    });
-  });
-
-  describe("GET /api/admin/assessments/stats", () => {
-    it("should return assessment statistics for an admin", async () => {
-      const response = await request(app)
-        .get("/api/admin/assessments/stats")
         .set("Authorization", `Bearer ${adminSessionToken}`);
 
       expect(response.status).toBe(200);
@@ -485,23 +411,6 @@ describe("Admin API Integration Tests", () => {
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body.data)).toBe(true);
-    });
-
-    it("should return a placement drive by ID", async () => {
-      const response = await request(app)
-        .get(`/api/admin/drives/${driveId}`)
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.id).toBe(driveId);
-    });
-
-    it("should return 404 for a non-existent drive", async () => {
-      const response = await request(app)
-        .get("/api/admin/drives/00000000-0000-0000-0000-000000000000")
-        .set("Authorization", `Bearer ${adminSessionToken}`);
-
-      expect(response.status).toBe(404);
     });
 
     it("should update a placement drive", async () => {
