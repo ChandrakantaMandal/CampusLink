@@ -19,10 +19,10 @@ export interface AdminStudent {
   targetRole: string;
   readinessBreakdown: {
     technical: number;
+    assessment: number;
     projects: number;
-    certifications: number;
-    assessments: number;
-    communication: number;
+    academics: number;
+    resume: number;
   };
 }
 

@@ -3,6 +3,7 @@ import { redis } from "@CampusLink/redis";
 import { hashPassword } from "better-auth/crypto";
 import { randomUUID } from "crypto";
 import { invalidateStudentNotificationsCache } from "../students/student.service";
+import { calculateReadiness } from "../students/readiness.service";
 
 import type { Prisma } from "@CampusLink/db";
 
@@ -162,6 +163,8 @@ export async function getStudents() {
           },
         },
       },
+      assessments: true,
+      resumes: true,
       _count: {
         select: {
           applications: true,
@@ -174,9 +177,29 @@ export async function getStudents() {
     },
   });
 
-  await setCache(CACHE_KEYS.students, students);
+  const studentsWithReadiness = students.map((student) => {
+    const readiness = calculateReadiness({
+      cgpa: student.cgpa,
+      resumeText: student.resumeText,
+      skills: student.skills,
+      projects: student.projects,
+      assessments: student.assessments.map((item) => ({
+        percentage: item.percentage ?? 0,
+        passed: item.passed ?? false,
+      })),
+      resumes: student.resumes,
+    });
 
-  return students;
+    return {
+      ...student,
+      readinessScore: readiness.overallScore,
+      readinessBreakdown: readiness.breakdown,
+    };
+  });
+
+  await setCache(CACHE_KEYS.students, studentsWithReadiness);
+
+  return studentsWithReadiness;
 }
 
 export async function getRecruiters() {

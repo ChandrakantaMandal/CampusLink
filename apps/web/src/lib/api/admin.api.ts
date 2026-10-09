@@ -49,6 +49,13 @@ export interface AdminStudentRaw {
   targetRole: string | null;
   isVerified: boolean;
   readinessScore: number | null;
+  readinessBreakdown?: {
+    technical: number;
+    assessment: number;
+    projects: number;
+    academics: number;
+    resume: number;
+  } | null;
   resumeUrl: string | null;
   user: AdminUserRef;
   skills: { skill: { id: string; name: string } }[];
@@ -389,12 +396,12 @@ function toAdminStudent(raw: AdminStudentRaw): AdminStudent {
     verified: raw.isVerified,
     resumeUrl: raw.resumeUrl ?? "",
     targetRole: raw.targetRole ?? "",
-    readinessBreakdown: {
+    readinessBreakdown: raw.readinessBreakdown ?? {
       technical: readiness,
+      assessment: readiness,
       projects: readiness,
-      certifications: readiness,
-      assessments: readiness,
-      communication: readiness,
+      academics: readiness,
+      resume: readiness,
     },
   };
 }

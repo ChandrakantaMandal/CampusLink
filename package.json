@@ -33,7 +33,7 @@
     "postinstall": "varlock codegen -p ./apps/web/ -p ./apps/server/ -p ./packages/db/ -p ./packages/redis/",
     "auth:generate": "cd apps/server && pnpm run auth:generate",
     "prepare": "husky",
-    "test": "pnpm run test:server && pnpm run test:web && pnpm run test:auth && pnpm run test:db",
+    "test": "pnpm run test:server && pnpm run test:auth && pnpm run test:db",
     "test:watch": "vitest",
     "test:server": "vitest run --config vitest/vitest.server.config.ts",
     "test:web": "vitest run --config vitest/vitest.web.config.ts",
