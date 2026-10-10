@@ -15,7 +15,19 @@ export default defineConfig({
 
     env: {
       NODE_ENV: "test",
+      ...(process.env.DATABASE_URL
+        ? {}
+        : {
+            DATABASE_URL:
+              "postgresql://postgres:password@localhost:5432/CampusLink?schema=public",
+          }),
+      ...(process.env.REDIS_URL ? {} : { REDIS_URL: "redis://localhost:6379" }),
+      ...(process.env.AI_SERVICE_URL
+        ? {}
+        : { AI_SERVICE_URL: "http://localhost:8000" }),
     },
+
+    testTimeout: 30000,
 
     include: ["apps/server/tests/**/*.test.ts"],
 
