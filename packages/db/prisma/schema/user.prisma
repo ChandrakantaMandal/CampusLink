@@ -18,90 +18,119 @@ enum SkillLevel {
   EXPERT
 }
 
-
 model StudentProfile {
-  id             String   @id @default(uuid())
+  id                 String              @id @default(uuid())
 
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String              @unique
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  studentId      String?  @unique
-  phone          String?
+  studentId          String?             @unique
+  rollNo             String?
+  firstName          String?
+  lastName           String?
+  phone              String?
 
-  college        String?
-  degree         String?
-  branch         String?
-  graduationYear Int?
+  dateOfBirth        DateTime?
+  gender             String?
 
-  cgpa           Float?
-  backlogs       Int      @default(0)
+  college            String?
+  degree             String?
+  branch             String?
+  department         String?
+  graduationYear     Int?
 
-  resumeUrl      String?
-  resumeText     String?
+  cgpa               Float?
+  backlogs           Int                 @default(0)
 
-  linkedinUrl    String?
-  githubUrl      String?
-  portfolioUrl   String?
+  bio                String?
+  location           String?
+  targetRole         String?
+  isPublic           Boolean             @default(true)
+  isVerified         Boolean             @default(false)
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  readinessScore     Float?
+  readinessLabel     String?
 
-  skills         StudentSkill[]
-  education      Education[]
-  projects       Project[]
-  assessments    AssessmentResult[]
-  readiness      ReadinessResult[]
+  resumeUrl          String?
+  resumeText         String?
 
-  applications   Application[]
+  linkedinUrl        String?
+  githubUrl          String?
+  portfolioUrl       String?
+  leetcodeUrl        String?
+  hackerrankUrl      String?
+  otherWebsiteUrl    String?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  skills             StudentSkill[]
+  education          Education[]
+  projects           Project[]
+  certifications     Certification[]
+  resumes            StudentResume[]
+  assessments        AssessmentResult[]
+  readiness          ReadinessResult[]
+  applications       Application[]
+  driveRegistrations DriveRegistration[]
+  interviews         Interview[]
+  offers             Offer[]
 
   @@index([college])
   @@index([branch])
+  @@index([department])
   @@index([graduationYear])
+  @@index([cgpa])
+  @@map("student_profile")
 }
 
 model Skill {
-  id          String    @id @default(uuid())
+  id          String         @id @default(uuid())
 
-  name        String    @unique
-  normalized  String    @unique
+  name        String         @unique
+  normalized  String         @unique
   type        SkillType
 
   description String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   students    StudentSkill[]
   jobs        JobSkill[]
   projects    ProjectSkill[]
+
+  @@index([type])
+  @@map("skill")
 }
 
 model StudentSkill {
-  id        String      @id @default(uuid())
+  id        String         @id @default(uuid())
 
   studentId String
-  student   StudentProfile @relation(fields: [studentId],references: [id],onDelete: Cascade)
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   skillId   String
-  skill     Skill @relation(fields: [skillId],references: [id],onDelete: Cascade)
+  skill     Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  level     SkillLevel @default(BEGINNER)
+  level     SkillLevel     @default(BEGINNER)
   years     Float?
   source    String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@unique([studentId, skillId])
   @@index([studentId])
   @@index([skillId])
+  @@map("student_skill")
 }
 
 model Education {
-  id          String   @id @default(uuid())
+  id          String         @id @default(uuid())
 
   studentId   String
-  student     StudentProfile @relation(fields: [studentId],references: [id],onDelete: Cascade)
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   institution String
   degree      String?
@@ -112,18 +141,20 @@ model Education {
 
   cgpa        Float?
   percentage  Float?
+  description String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([studentId])
+  @@map("education")
 }
 
 model Project {
-  id          String   @id @default(uuid())
+  id          String         @id @default(uuid())
 
   studentId   String
-  student     StudentProfile @relation(fields: [studentId],references: [id],onDelete: Cascade)
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   title       String
   description String?
@@ -134,23 +165,65 @@ model Project {
   startDate   DateTime?
   endDate     DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   skills      ProjectSkill[]
 
   @@index([studentId])
+  @@map("project")
 }
 
 model ProjectSkill {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
 
   projectId String
-  project   Project @relation(fields: [projectId],references: [id],onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   skillId   String
-  skill     Skill @relation(fields: [skillId],references: [id],onDelete: Cascade)
-
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, skillId])
+  @@index([projectId])
+  @@index([skillId])
+  @@map("project_skill")
+}
+
+model Certification {
+  id             String         @id @default(uuid())
+
+  studentId      String
+  student        StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  name           String
+  issuingOrg     String
+  issueDate      DateTime?
+  expiryDate     DateTime?
+  credentialId   String?
+  certificateUrl String?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([studentId])
+  @@map("certification")
+}
+
+model StudentResume {
+  id         String         @id @default(uuid())
+
+  studentId  String
+  student    StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  fileName   String
+  fileSize   String?
+  fileUrl    String
+  parsedText String?
+  isPrimary  Boolean        @default(true)
+
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([studentId])
+  @@map("student_resume")
 }

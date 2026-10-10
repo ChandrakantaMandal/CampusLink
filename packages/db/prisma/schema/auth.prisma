@@ -26,8 +26,11 @@ model User {
   applications    Application[]
   aiAnalyses      AIAnalysis[]
   recommendations Recommendation[]
+  notifications   UserNotification[]
+  auditLogs       AuditLog[]
 
   @@unique([email])
+  @@map("user")
 }
 
 model Session {
@@ -43,6 +46,7 @@ model Session {
 
   @@unique([token])
   @@index([userId])
+  @@map("session")
 }
 
 model Account {
@@ -63,6 +67,7 @@ model Account {
 
   @@unique([providerId, accountId], map: "account_providerId_accountId_uidx")
   @@index([userId])
+  @@map("account")
 }
 
 model Verification {
@@ -74,4 +79,5 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@index([identifier])
+  @@map("verification")
 }

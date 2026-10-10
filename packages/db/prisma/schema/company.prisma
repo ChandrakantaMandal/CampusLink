@@ -1,40 +1,72 @@
+enum CompanyTier {
+  TIER_1
+  TIER_2
+  TIER_3
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  NOT_VERIFIED
+}
+
 model Company {
-  id          String   @id @default(uuid())
+  id             String             @id @default(uuid())
 
-  name        String
-  description String?
+  name           String
+  slug           String?            @unique
+  description    String?
 
-  website     String?
-  logoUrl     String?
+  website        String?
+  logoUrl        String?
 
-  industry    String?
-  location    String?
+  industry       String?
+  location       String?
+  linkedinUrl    String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  tier           CompanyTier        @default(TIER_3)
+  verifiedStatus VerificationStatus @default(NOT_VERIFIED)
+  benefits       String[]           @default([])
 
-  recruiters  RecruiterProfile[]
-  jobs        Job[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  recruiters     RecruiterProfile[]
+  jobs           Job[]
+  drives         PlacementDrive[]
+  offers         Offer[]
 
   @@index([name])
   @@index([industry])
+  @@index([tier])
+  @@index([verifiedStatus])
+  @@map("company")
 }
 
 model RecruiterProfile {
-  id          String   @id @default(uuid())
+  id              String      @id @default(uuid())
 
-  userId      String   @unique
-  user        User     @relation(fields: [userId],references: [id],onDelete: Cascade)
+  userId          String      @unique
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  companyId   String
-  company     Company  @relation(fields: [companyId],references: [id],onDelete: Cascade)
+  companyId       String
+  company         Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  designation String?
+  designation     String?
+  phone           String?
+  linkedinUrl     String?
+  isLeadRecruiter Boolean     @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  notificationPrefs Json?
 
-  jobs        Job[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  jobs            Job[]
+  interviews      Interview[]
+  notifications   RecruiterNotification[]
 
   @@index([companyId])
+  @@map("recruiter_profile")
 }

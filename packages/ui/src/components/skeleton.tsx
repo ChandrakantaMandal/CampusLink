@@ -1,4 +1,4 @@
-import { cn } from "@HireBridge/ui/lib/utils";
+import { cn } from "@CampusLink/ui/lib/utils";
 
 function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (

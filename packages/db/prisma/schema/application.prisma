@@ -1,210 +1,237 @@
 enum ApplicationStatus {
-    APPLIED
-    SHORTLISTED
-    ASSESSMENT
-    INTERVIEW
-    SELECTED
-    REJECTED
-    WITHDRAWN
+  APPLIED
+  UNDER_REVIEW
+  SHORTLISTED
+  ASSESSMENT
+  INTERVIEW
+  SELECTED
+  OFFER_EXTENDED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
 }
 
 model Application {
-    id String @id @default(uuid())
+  id          String            @id @default(uuid())
 
-    studentId String
-    student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    jobId String
-    job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
-    status ApplicationStatus @default(APPLIED)
+  status      ApplicationStatus @default(APPLIED)
 
-    appliedAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  coverLetter String?
+  resumeUrl   String?
+  notes       String?
 
-    matchResult MatchResult?
+  appliedAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
-    @@unique([studentId, jobId])
-    @@index([studentId])
-    @@index([jobId])
-    @@index([status])
+  matchResult MatchResult?
+  interviews  Interview[]
+  offer       Offer?
+
+  @@unique([studentId, jobId])
+  @@index([studentId])
+  @@index([jobId])
+  @@index([status])
+  @@map("application")
 }
 
 model MatchResult {
-    id String @id @default(uuid())
+  id              String      @id @default(uuid())
 
-    applicationId String      @unique
-    application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId   String      @unique
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
-    eligible   Boolean
-    matchScore Float
+  eligible        Boolean
+  matchScore      Float
 
-    skillMatchScore Float?
-    projectScore    Float?
-    experienceScore Float?
-    assessmentScore Float?
+  skillMatchScore Float?
+  projectScore    Float?
+  experienceScore Float?
+  assessmentScore Float?
 
-    matchedSkills Json?
-    missingSkills Json?
+  matchedSkills   Json?
+  missingSkills   Json?
+  positiveSignals Json?
+  gaps            Json?
 
-    explanation String?
+  explanation     String?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("match_result")
 }
 
 enum AssessmentType {
-    TECHNICAL
-    APTITUDE
-    CODING
-    INTERVIEW
-    COMMUNICATION
-    OTHER
+  TECHNICAL
+  APTITUDE
+  CODING
+  INTERVIEW
+  COMMUNICATION
+  OTHER
 }
 
 model Assessment {
-    id String @id @default(uuid())
+  id              String             @id @default(uuid())
 
-    title       String
-    description String?
+  title           String
+  description     String?
 
-    type AssessmentType
+  type            AssessmentType
 
-    maxScore Float?
+  durationMinutes Int?
+  totalQuestions  Int?
+  passingScore    Float?
+  maxScore        Float?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
-    results AssessmentResult[]
+  results         AssessmentResult[]
+
+  @@map("assessment")
 }
 
 model AssessmentResult {
-    id String @id @default(uuid())
+  id           String         @id @default(uuid())
 
-    assessmentId String
-    assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessmentId String
+  assessment   Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
-    studentId String
-    student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-    score      Float?
-    percentage Float?
-    passed     Boolean?
+  score        Float?
+  percentage   Float?
+  passed       Boolean?
 
-    feedback String?
+  feedback     String?
+  answers      Json?
 
-    takenAt DateTime @default(now())
+  takenAt      DateTime       @default(now())
 
-    @@index([studentId])
-    @@index([assessmentId])
+  @@index([studentId])
+  @@index([assessmentId])
+  @@map("assessment_result")
 }
 
 model ReadinessResult {
-    id String @id @default(uuid())
+  id                 String         @id @default(uuid())
 
-    studentId String
-    student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId          String
+  student            StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-    overallScore Float
+  overallScore       Float
 
-    academicScore   Float?
-    technicalScore  Float?
-    projectScore    Float?
-    resumeScore     Float?
-    assessmentScore Float?
+  academicScore      Float?
+  technicalScore     Float?
+  projectScore       Float?
+  resumeScore        Float?
+  assessmentScore    Float?
+  communicationScore Float?
 
-    weights Json?
+  breakdown          Json?
+  weights            Json?
 
-    explanation String?
+  explanation        String?
 
-    createdAt DateTime @default(now())
+  createdAt          DateTime       @default(now())
 
-    @@index([studentId])
+  @@index([studentId])
+  @@map("readiness_result")
 }
 
 enum AIAnalysisType {
-    RESUME
-    SKILL_EXTRACTION
-    JOB_ANALYSIS
-    MATCHING
-    SKILL_GAP
-    READINESS
-    RECOMMENDATION
-    CHAT
+  RESUME
+  SKILL_EXTRACTION
+  JOB_ANALYSIS
+  MATCHING
+  SKILL_GAP
+  READINESS
+  RECOMMENDATION
+  CHAT
+  INTERVIEW_PREP
 }
 
 enum AIAnalysisStatus {
-    PENDING
-    PROCESSING
-    COMPLETED
-    FAILED
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 model AIAnalysis {
-    id String @id @default(uuid())
+  id        String           @id @default(uuid())
 
-    userId String?
-    user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-    jobId String?
-    job   Job?    @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  jobId     String?
+  job       Job?             @relation(fields: [jobId], references: [id], onDelete: SetNull)
 
-    type   AIAnalysisType
-    status AIAnalysisStatus @default(PENDING)
+  type      AIAnalysisType
+  status    AIAnalysisStatus @default(PENDING)
 
-    input  Json?
-    output Json?
+  input     Json?
+  output    Json?
 
-    model    String?
-    provider String?
-    error    String?
+  model     String?
+  provider  String?
+  error     String?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
-    @@index([userId])
-    @@index([jobId])
-    @@index([type])
-    @@index([status])
+  @@index([userId])
+  @@index([jobId])
+  @@index([type])
+  @@index([status])
+  @@map("ai_anaysis")
 }
 
 enum RecommendationType {
-    SKILL
-    PROJECT
-    INTERVIEW
-    RESUME
-    LEARNING
-    JOB
-    ASSESSMENT
-    OTHER
+  SKILL
+  PROJECT
+  INTERVIEW
+  RESUME
+  LEARNING
+  JOB
+  ASSESSMENT
+  OTHER
 }
 
 model Recommendation {
-    id String @id @default(uuid())
+  id          String             @id @default(uuid())
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    type RecommendationType
+  type        RecommendationType
 
-    title       String
-    description String?
+  title       String
+  description String?
 
-    priority Int @default(1)
+  priority    Int                @default(1)
 
-    skillId     String?
-    targetJobId String?
+  skillId     String?
+  targetJobId String?
 
-    metadata Json?
+  metadata    Json?
 
-    completed Boolean @default(false)
+  completed   Boolean            @default(false)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
-    @@index([userId])
-    @@index([type])
+  @@index([userId])
+  @@index([type])
+  @@map("recommendation")
 }

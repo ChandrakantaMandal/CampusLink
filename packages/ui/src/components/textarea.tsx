@@ -1,4 +1,4 @@
-import { cn } from "@HireBridge/ui/lib/utils";
+import { cn } from "@CampusLink/ui/lib/utils";
 import * as React from "react";
 
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {

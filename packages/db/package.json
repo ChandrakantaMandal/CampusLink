@@ -1,5 +1,5 @@
 {
-  "name": "@HireBridge/db",
+  "name": "@CampusLink/db",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
@@ -7,11 +7,11 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "db:push": "prisma db push",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:push": "prisma db push --schema ./prisma/schema",
+    "db:generate": "prisma generate --schema ./prisma/schema",
+    "db:migrate": "prisma migrate dev --schema ./prisma/schema",
+    "db:migrate:deploy": "prisma migrate deploy --schema ./prisma/schema",
+    "db:studio": "prisma studio --schema ./prisma/schema"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -20,9 +20,10 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@HireBridge/config": "workspace:*",
+    "@CampusLink/config": "workspace:*",
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
+    "tsx": "^4.23.15",
     "typescript": "catalog:",
     "varlock": "catalog:"
   }

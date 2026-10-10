@@ -1,14 +1,52 @@
 model AdminProfile {
-    id String @id @default(uuid())
+  id          String   @id @default(uuid())
 
-    userId String @unique
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    permissions Json?
+  department  String?
+  designation String?
+  phone       String?
+  permissions Json?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-    @@index([userId])
-    @@map("admin_profile")
+  notifications AdminNotification[]
+
+  @@index([userId])
+  @@map("admin_profile")
+}
+
+model SystemSetting {
+  key       String   @id
+  value     Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_setting")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+
+  ipAddress  String?
+  userAgent  String?
+
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("audit_log")
 }

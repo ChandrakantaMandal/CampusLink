@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "HireBridge",
-    short_name: "HireBridge",
+    name: "CampusLink",
+    short_name: "CampusLink",
     description: "my pwa app",
     start_url: "/",
     display: "standalone",

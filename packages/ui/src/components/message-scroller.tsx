@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@HireBridge/ui/components/button";
-import { cn } from "@HireBridge/ui/lib/utils";
+import { Button } from "@CampusLink/ui/components/button";
+import { cn } from "@CampusLink/ui/lib/utils";
 import {
   MessageScroller as MessageScrollerPrimitive,
   useMessageScroller,
@@ -56,7 +56,10 @@ function MessageScrollerContent({
   return (
     <MessageScrollerPrimitive.Content
       data-slot="message-scroller-content"
-      className={cn("cn-message-scroller-content flex h-max min-h-full flex-col gap-6", className)}
+      className={cn(
+        "cn-message-scroller-content flex h-max min-h-full flex-col gap-6",
+        className,
+      )}
       {...props}
     />
   );

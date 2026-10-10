@@ -1,0 +1,494 @@
+"use client";
+
+import React, { useCallback, useEffect, useRef } from "react";
+import { create } from "zustand";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import {
+  createEmptyStudentProfile,
+  calculateProfileCompletion,
+} from "@/data/studentProfile";
+import type { StudentProfileData } from "@/data/studentProfile";
+import {
+  getMyStudentProfile,
+  updateMyStudentProfile,
+  getMySkills,
+  addMySkill,
+  removeMySkill,
+  getMyEducationRecords,
+  saveEducationRecord,
+  getMyProjectRecords,
+  saveProjectRecord,
+  deleteProjectRecord,
+} from "@/lib/api/student.api";
+import type { StudentProfile } from "@/lib/api/student.api";
+import {
+  getStoredProfile,
+  saveStoredProfile,
+  clearStoredProfile,
+} from "@/lib/profileStorage";
+
+interface ProfileState {
+  profile: StudentProfileData;
+  savedSnapshot: string;
+  isLoaded: boolean;
+  isEditing: boolean;
+  isSaving: boolean;
+  errors: Record<string, string>;
+  setProfile: React.Dispatch<React.SetStateAction<StudentProfileData>>;
+  setSavedSnapshot: (v: string) => void;
+  setIsLoaded: (v: boolean) => void;
+  setIsEditing: (v: boolean) => void;
+  setIsSaving: (v: boolean) => void;
+  setErrors: (v: Record<string, string>) => void;
+  handleFieldChange: (field: keyof StudentProfileData, value: any) => void;
+  handleReset: () => void;
+}
+
+export interface ProfileValue {
+  profile: StudentProfileData;
+  setProfile: React.Dispatch<React.SetStateAction<StudentProfileData>>;
+  session: any;
+  isSessionPending: boolean;
+  isLoaded: boolean;
+  isEditing: boolean;
+  setIsEditing: (v: boolean) => void;
+  isSaving: boolean;
+  setIsSaving: (v: boolean) => void;
+  errors: Record<string, string>;
+  setErrors: (v: Record<string, string>) => void;
+  hasChanges: boolean;
+  completion: ReturnType<typeof calculateProfileCompletion>;
+  handleFieldChange: (field: keyof StudentProfileData, value: any) => void;
+  handleSave: () => void;
+  handleReset: () => void;
+  activeNav: string;
+}
+
+const useProfileStore = create<ProfileState>()((set) => ({
+  profile: createEmptyStudentProfile(),
+  savedSnapshot: "",
+  isLoaded: false,
+  isEditing: false,
+  isSaving: false,
+  errors: {},
+  setProfile: (value) =>
+    set((s) => ({
+      profile:
+        typeof value === "function" ? value(s.profile) : value,
+    })),
+  setSavedSnapshot: (v) => set({ savedSnapshot: v }),
+  setIsLoaded: (v) => set({ isLoaded: v }),
+  setIsEditing: (v) => set({ isEditing: v }),
+  setIsSaving: (v) => set({ isSaving: v }),
+  setErrors: (v) => set({ errors: v }),
+  handleFieldChange: (field, value) =>
+    set((s) => {
+      const profile = { ...s.profile, [field]: value };
+      if (!s.errors[field]) return { profile };
+      const errors = { ...s.errors };
+      delete errors[field];
+      return { profile, errors };
+    }),
+  handleReset: () =>
+    set((s) => ({
+      profile: s.savedSnapshot
+        ? (JSON.parse(s.savedSnapshot) as StudentProfileData)
+        : s.profile,
+      errors: {},
+    })),
+}));
+
+const FIELD_ERROR_MAP: Record<string, string> = {
+  firstName: "name",
+  lastName: "name",
+  githubUrl: "github",
+  linkedinUrl: "linkedin",
+  portfolioUrl: "portfolio",
+  leetcodeUrl: "leetcode",
+  hackerrankUrl: "hackerrank",
+  otherWebsiteUrl: "otherWebsite",
+};
+
+function mergeApiIntoLocal(
+  api: StudentProfile,
+  local: StudentProfileData,
+): StudentProfileData {
+  const name = [api.firstName, api.lastName].filter(Boolean).join(" ");
+
+  return {
+    ...local,
+    education: local.education ?? [],
+    projects: local.projects ?? [],
+    name: name || local.name,
+    phone: api.phone ?? local.phone,
+    gender: api.gender ?? local.gender ?? "",
+    department: api.department ?? local.department,
+    cgpa: api.cgpa != null ? String(api.cgpa) : local.cgpa,
+    location: api.location ?? local.location,
+    bio: api.bio ?? local.bio,
+    isPublic: api.isPublic ?? local.isPublic,
+    github: api.githubUrl ?? local.github,
+    linkedin: api.linkedinUrl ?? local.linkedin,
+    portfolio: api.portfolioUrl ?? local.portfolio,
+    leetcode: api.leetcodeUrl ?? local.leetcode,
+    hackerrank: api.hackerrankUrl ?? local.hackerrank,
+    otherWebsite: api.otherWebsiteUrl ?? local.otherWebsite,
+    avatarUrl: api.user?.image || local.avatarUrl,
+    resume: api.resumeUrl
+      ? local.resume?.url === api.resumeUrl
+        ? local.resume
+        : {
+            fileName: decodeURIComponent(
+              api.resumeUrl.split("?")[0].split("/").pop() || "resume.pdf",
+            ),
+            fileSize: "PDF",
+            uploadDate: new Date(api.updatedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            url: api.resumeUrl,
+          }
+      : null,
+    resumeText: api.resumeText ?? null,
+  };
+}
+
+function normalizeUrl(value: string): string {
+  const trimmed = value.trim();
+  return trimmed && !/^https?:\/\//i.test(trimmed)
+    ? `https://${trimmed}`
+    : trimmed;
+}
+
+function canonicalSkill(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+async function syncSkillsToServer(desiredSkills: string[]): Promise<void> {
+  const server = await getMySkills();
+
+  const serverByCanonical = new Map<string, string>();
+  for (const row of server.skills) {
+    serverByCanonical.set(canonicalSkill(row.skill.name), row.skillId);
+  }
+
+  const wanted = new Map<string, string>();
+  for (const name of desiredSkills) {
+    const key = canonicalSkill(name);
+    if (key && !wanted.has(key)) {
+      wanted.set(key, name.trim());
+    }
+  }
+
+  const tasks: Promise<unknown>[] = [];
+
+  for (const [key, name] of wanted) {
+    if (!serverByCanonical.has(key)) {
+      tasks.push(addMySkill(name));
+    }
+  }
+
+  for (const [key, skillId] of serverByCanonical) {
+    if (!wanted.has(key)) {
+      tasks.push(removeMySkill(skillId));
+    }
+  }
+
+  await Promise.all(tasks);
+}
+
+async function syncEducationToServer(desired: StudentProfileData["education"]): Promise<void> {
+  const existing = await getMyEducationRecords();
+  const unused = new Set(existing.map((row) => row.id));
+  for (const item of desired) {
+    const match = existing.find((row) => unused.has(row.id) &&
+      row.institution.trim().toLowerCase() === item.institution.trim().toLowerCase() &&
+      (row.degree ?? "").trim().toLowerCase() === item.degree.trim().toLowerCase() &&
+      (row.branch ?? "").trim().toLowerCase() === item.branch.trim().toLowerCase());
+    const year = (value: string) => /^\d{4}$/.test(value) ? Number(value) : null;
+    const grade = Number.parseFloat(item.cgpa);
+    const data = {
+      institution: item.institution.trim(), degree: item.degree.trim() || null,
+      branch: item.branch.trim() || null, startYear: year(item.startYear),
+      endYear: year(item.endYear), cgpa: Number.isFinite(grade) && grade <= 10 ? grade : null,
+      percentage: null,
+    };
+    await saveEducationRecord(data, match?.id);
+    if (match) unused.delete(match.id);
+  }
+}
+
+async function syncProjectsToServer(desired: StudentProfileData["projects"] = []): Promise<StudentProfileData["projects"]> {
+  const existing = await getMyProjectRecords();
+  const remaining = new Map(existing.map((row) => [row.id, row]));
+  const saved = [] as StudentProfileData["projects"];
+  for (const project of desired) {
+    const match = remaining.get(project.id) ?? existing.find((row) =>
+      row.title.trim().toLowerCase() === project.title.trim().toLowerCase());
+    const result = await saveProjectRecord({
+      title: project.title.trim(),
+      description: project.description.trim(),
+      githubUrl: normalizeUrl(project.githubUrl),
+      liveUrl: normalizeUrl(project.liveUrl),
+    }, match?.id);
+    if (match) remaining.delete(match.id);
+    saved.push({ ...project, id: result.id });
+  }
+  await Promise.all([...remaining.keys()].map(deleteProjectRecord));
+  return saved;
+}
+
+export function useProfile(): ProfileValue {
+  const profile = useProfileStore((s) => s.profile);
+  const savedSnapshot = useProfileStore((s) => s.savedSnapshot);
+  const isLoaded = useProfileStore((s) => s.isLoaded);
+  const isEditing = useProfileStore((s) => s.isEditing);
+  const isSaving = useProfileStore((s) => s.isSaving);
+  const errors = useProfileStore((s) => s.errors);
+  const setProfile = useProfileStore((s) => s.setProfile);
+  const setSavedSnapshot = useProfileStore((s) => s.setSavedSnapshot);
+  const setIsEditing = useProfileStore((s) => s.setIsEditing);
+  const setIsSaving = useProfileStore((s) => s.setIsSaving);
+  const setErrors = useProfileStore((s) => s.setErrors);
+  const handleFieldChange = useProfileStore((s) => s.handleFieldChange);
+  const handleReset = useProfileStore((s) => s.handleReset);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const userKey =
+    session?.user?.id ||
+    (session?.user?.email ? encodeURIComponent(session.user.email) : "guest");
+
+  const activeNav = (() => {
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length <= 2) return "profile";
+    return segments[segments.length - 1];
+  })();
+
+  const hasChanges = isLoaded && JSON.stringify(profile) !== savedSnapshot;
+
+  const handleSave = useCallback(async () => {
+    if (!session?.user) {
+      router.push("/login");
+      return;
+    }
+    setIsSaving(true);
+    setErrors({});
+    let profileToStore = profile;
+    try {
+      const parts = profile.name.trim().split(/\s+/).filter(Boolean);
+      const firstName = parts[0] ?? "";
+      const lastName = parts.slice(1).join(" ");
+      const primaryEducation = [...profile.education].sort(
+        (a, b) => Number(b.endYear || 0) - Number(a.endYear || 0),
+      )[0];
+
+      await updateMyStudentProfile({
+        firstName,
+        lastName,
+        phone: profile.phone.trim(),
+        gender: profile.gender.trim() || undefined,
+        college: primaryEducation?.institution.trim() || undefined,
+        degree: primaryEducation?.degree.trim() || undefined,
+        branch: primaryEducation?.branch.trim() || profile.department.trim() || undefined,
+        department: profile.department.trim(),
+        graduationYear: /^\d{4}$/.test(primaryEducation?.endYear ?? "")
+          ? Number(primaryEducation?.endYear)
+          : undefined,
+        cgpa: profile.cgpa.trim() ? Number(profile.cgpa) : null,
+        location: profile.location.trim(),
+        bio: profile.bio.trim(),
+        isPublic: profile.isPublic,
+        githubUrl: normalizeUrl(profile.github),
+        linkedinUrl: normalizeUrl(profile.linkedin),
+        portfolioUrl: normalizeUrl(profile.portfolio),
+        leetcodeUrl: normalizeUrl(profile.leetcode),
+        hackerrankUrl: normalizeUrl(profile.hackerrank),
+        otherWebsiteUrl: normalizeUrl(profile.otherWebsite),
+      });
+
+      try {
+        await syncSkillsToServer(profile.skills);
+        await syncEducationToServer(profile.education);
+        const projects = await syncProjectsToServer(profile.projects ?? []);
+        profileToStore = { ...profile, projects };
+        useProfileStore.getState().setProfile(profileToStore);
+      } catch (skillError) {
+        toast.warning(
+          `Profile saved, but skills or education failed to sync: ${
+            (skillError as Error).message
+          }`,
+        );
+      }
+
+      saveStoredProfile(profileToStore, userKey);
+      setSavedSnapshot(JSON.stringify(profileToStore));
+      setIsEditing(false);
+      toast.success("Profile saved");
+    } catch (e) {
+      const err = e as Error & { fieldErrors?: Record<string, string[]> };
+      if (err.fieldErrors) {
+        const mapped: Record<string, string> = {};
+        for (const [field, messages] of Object.entries(err.fieldErrors)) {
+          const key = FIELD_ERROR_MAP[field] ?? field;
+          if (messages?.length && !mapped[key]) {
+            mapped[key] = messages[0];
+          }
+        }
+        if (Object.keys(mapped).length > 0) setErrors(mapped);
+      }
+      toast.error(err.message || "Failed to save profile");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [session, profile, userKey, router, setIsSaving, setErrors, setSavedSnapshot, setIsEditing]);
+
+  const completion = calculateProfileCompletion(profile);
+
+  return {
+    profile,
+    setProfile,
+    session,
+    isSessionPending,
+    isLoaded,
+    isEditing,
+    setIsEditing,
+    isSaving,
+    setIsSaving,
+    errors,
+    setErrors,
+    hasChanges,
+    completion,
+    handleFieldChange,
+    handleSave,
+    handleReset,
+    activeNav,
+  };
+}
+
+export function ProfileSync({ children }: { children: React.ReactNode }) {
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const userKey =
+    session?.user?.id ||
+    (session?.user?.email ? encodeURIComponent(session.user.email) : "guest");
+  const hydratedKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isSessionPending) return;
+    if (hydratedKeyRef.current === userKey) return;
+    hydratedKeyRef.current = userKey;
+
+    let cancelled = false;
+    let hydrated = false;
+    const { setProfile, setSavedSnapshot, setIsLoaded } =
+      useProfileStore.getState();
+
+    if (session?.user?.id || session?.user?.email) {
+      const stored = getStoredProfile(userKey);
+      const local =
+        stored ??
+        createEmptyStudentProfile(
+          session.user.name || "",
+          session.user.email || "",
+          session.user.image || "",
+        );
+
+      // Show the local snapshot immediately while the API fetch runs.
+      setProfile(local);
+      setSavedSnapshot(JSON.stringify(local));
+      if (!stored) saveStoredProfile(local, userKey);
+
+      getMyStudentProfile()
+        .then(async (api) => {
+          if (cancelled) return;
+
+          // Server-side skills are the source of truth when present;
+          // an empty server list keeps the local (legacy) skill list.
+          let skills = local.skills;
+          let education = local.education ?? [];
+          let projects = local.projects ?? [];
+          try {
+            const serverSkills = await getMySkills();
+            if (serverSkills.skills.length > 0) {
+              skills = serverSkills.skills.map((row) => row.skill.name);
+            }
+          } catch {
+            // Skills endpoint unavailable — keep the local list.
+          }
+
+          try {
+            const serverEducation = await getMyEducationRecords();
+            if (serverEducation.length > 0) {
+              education = serverEducation.map((row) => ({
+                id: row.id,
+                institution: row.institution,
+                degree: row.degree ?? "",
+                branch: row.branch ?? "",
+                startYear: row.startYear == null ? "" : String(row.startYear),
+                endYear: row.endYear == null ? "" : String(row.endYear),
+                cgpa: row.cgpa == null ? "" : String(row.cgpa),
+                description: "",
+              }));
+            }
+          } catch {
+            // Keep local education when the education endpoint is unavailable.
+          }
+
+          try {
+            const serverProjects = await getMyProjectRecords();
+            if (serverProjects.length > 0) {
+              projects = serverProjects.map((row) => ({
+                id: row.id,
+                title: row.title,
+                description: row.description ?? "",
+                githubUrl: row.githubUrl ?? "",
+                liveUrl: row.liveUrl ?? "",
+              }));
+            }
+          } catch {
+            // Keep local projects if the projects endpoint is unavailable.
+          }
+
+          if (cancelled) return;
+
+          const merged: StudentProfileData = {
+            ...mergeApiIntoLocal(api, local),
+            skills,
+            education,
+            projects,
+            email: session.user.email || local.email,
+            avatarUrl:
+              api.user?.image || session.user.image || local.avatarUrl,
+          };
+          hydrated = true;
+          setProfile(merged);
+          setSavedSnapshot(JSON.stringify(merged));
+          saveStoredProfile(merged, userKey);
+        })
+        .catch(() => {
+          // API unavailable or profile missing remotely — keep the local snapshot.
+          hydrated = true;
+        });
+    } else {
+      clearStoredProfile("guest");
+      const blank = createEmptyStudentProfile();
+      setProfile(blank);
+      setSavedSnapshot(JSON.stringify(blank));
+    }
+
+    setIsLoaded(true);
+
+    return () => {
+      cancelled = true;
+      // If hydration never completed (session identity changed mid-fetch),
+      // clear the guard so the next run re-fetches instead of bailing out.
+      if (!hydrated) hydratedKeyRef.current = null;
+    };
+  }, [userKey, session, isSessionPending]);
+
+  return <>{children}</>;
+}

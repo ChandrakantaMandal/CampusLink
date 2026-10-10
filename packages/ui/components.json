@@ -12,11 +12,11 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@HireBridge/ui/components",
-    "utils": "@HireBridge/ui/lib/utils",
-    "hooks": "@HireBridge/ui/hooks",
-    "lib": "@HireBridge/ui/lib",
-    "ui": "@HireBridge/ui/components"
+    "components": "@CampusLink/ui/components",
+    "utils": "@CampusLink/ui/lib/utils",
+    "hooks": "@CampusLink/ui/hooks",
+    "lib": "@CampusLink/ui/lib",
+    "ui": "@CampusLink/ui/components"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

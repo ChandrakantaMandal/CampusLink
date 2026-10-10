@@ -1,0 +1,67 @@
+enum InterviewMode {
+  VIRTUAL
+  IN_PERSON
+  HYBRID
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  RESCHEDULED
+  CANCELLED
+  NO_SHOW
+}
+
+model Interview {
+  id              String          @id @default(uuid())
+
+  studentId       String
+  student         StudentProfile  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  recruiterId     String?
+  recruiter       RecruiterProfile? @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
+
+  jobId           String?
+  job             Job?            @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  applicationId   String?
+  application     Application?    @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  driveId         String?
+  drive           PlacementDrive? @relation(fields: [driveId], references: [id], onDelete: SetNull)
+
+  roundName       String
+  roundNumber     Int             @default(1)
+
+  scheduledDate   DateTime
+  startTime       String?
+  endTime         String?
+  durationMinutes Int?
+
+  mode            InterviewMode   @default(VIRTUAL)
+  venue           String?
+  meetingLink     String?
+
+  interviewerName  String?
+  interviewerEmail String?
+  interviewerPanel String?
+
+  status          InterviewStatus @default(SCHEDULED)
+  feedback        String?
+  rating          Float?
+
+  hasConflict     Boolean         @default(false)
+  conflictDetails Json?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([studentId])
+  @@index([recruiterId])
+  @@index([jobId])
+  @@index([applicationId])
+  @@index([driveId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@map("interview")
+}
