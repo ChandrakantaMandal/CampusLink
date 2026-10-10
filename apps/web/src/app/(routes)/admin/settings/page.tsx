@@ -3,7 +3,8 @@ import AdminSettingsView from "@/components/dashboard/admin/views/AdminSettingsV
 
 export const metadata: Metadata = {
   title: "Admin Settings & Governance — CAMPUSLINK Admin",
-  description: "Configure campus information, evaluation thresholds, AI matching parameters, and security policies.",
+  description:
+    "Configure campus information, evaluation thresholds, AI matching parameters, and security policies.",
 };
 
 export default function AdminSettingsPage() {

@@ -28,7 +28,9 @@ export function DataExplorerView({
   resumesData,
   onExport,
 }: DataExplorerViewProps) {
-  const [activeDataset, setActiveDataset] = useState<"placements" | "salaries" | "resumes">("placements");
+  const [activeDataset, setActiveDataset] = useState<
+    "placements" | "salaries" | "resumes"
+  >("placements");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 12;
@@ -197,7 +199,8 @@ export function DataExplorerView({
                       <td className="py-2.5 px-3.5">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            String(r.Placement_Status).toLowerCase() === "placed"
+                            String(r.Placement_Status).toLowerCase() ===
+                            "placed"
                               ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-300/40"
                               : "bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-300/40"
                           }`}
@@ -244,11 +247,15 @@ export function DataExplorerView({
                               ctcNum >= 20
                                 ? "bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400"
                                 : ctcNum >= 10
-                                ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400"
-                                : "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400"
+                                  ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400"
+                                  : "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400"
                             }`}
                           >
-                            {ctcNum >= 20 ? "Dream / Super" : ctcNum >= 10 ? "Product" : "Standard"}
+                            {ctcNum >= 20
+                              ? "Dream / Super"
+                              : ctcNum >= 10
+                                ? "Product"
+                                : "Standard"}
                           </span>
                         </td>
                       </tr>
@@ -296,7 +303,9 @@ export function DataExplorerView({
                               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                           }`}
                         >
-                          {String(r.github_portfolio).toLowerCase() === "yes" ? "Yes" : "No"}
+                          {String(r.github_portfolio).toLowerCase() === "yes"
+                            ? "Yes"
+                            : "No"}
                         </span>
                       </td>
                       <td className="py-2.5 px-3.5 font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">
@@ -332,7 +341,9 @@ export function DataExplorerView({
                 {currentPage} / {totalPages}
               </span>
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors"
               >

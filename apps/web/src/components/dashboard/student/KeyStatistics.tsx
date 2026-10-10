@@ -3,7 +3,13 @@
 import React from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { TrendingUp, FileText, Sparkles, Calendar, ArrowUpRight } from "lucide-react";
+import {
+  TrendingUp,
+  FileText,
+  Sparkles,
+  Calendar,
+  ArrowUpRight,
+} from "lucide-react";
 import type { StudentStats } from "@/data/dashboardData";
 
 interface KeyStatisticsProps {
@@ -26,7 +32,10 @@ interface StatCardItem {
   accentBorder: string;
 }
 
-export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps) {
+export default function KeyStatistics({
+  stats,
+  onCardClick,
+}: KeyStatisticsProps) {
   const cards: StatCardItem[] = [
     {
       id: "readiness",
@@ -35,11 +44,13 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
       value: `${stats.readinessScore}%`,
       subtitle: stats.readinessLabel,
       trend:
-        stats.readinessScore >= 75
-          ? "Tier-1 Competitive"
-          : stats.readinessScore >= 40
-            ? "Placement Track"
-            : "Needs Improvement",
+        stats.readinessScore >= 85
+          ? "Tier-1 Ready"
+          : stats.readinessScore >= 70
+            ? "Placement Ready"
+            : stats.readinessScore >= 50
+              ? "Almost Ready"
+              : "Needs Improvement",
       trendPositive: stats.readinessScore >= 60,
       icon: TrendingUp,
       gradient: "from-indigo-500/10 to-indigo-500/5",
@@ -127,7 +138,9 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
             className="group relative block overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-300 dark:hover:border-indigo-800 dark:border-slate-800 dark:bg-slate-900 cursor-pointer"
           >
             <div className="flex items-center justify-between">
-              <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${c.iconBg} ${c.iconColor}`}>
+              <div
+                className={`flex h-11 w-11 items-center justify-center rounded-xl ${c.iconBg} ${c.iconColor}`}
+              >
                 <Icon className="h-5 w-5" />
               </div>
 
@@ -152,7 +165,13 @@ export default function KeyStatistics({ stats, onCardClick }: KeyStatisticsProps
             </div>
 
             <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
-              <span className={c.trendPositive ? "font-bold text-emerald-600 dark:text-emerald-400" : "font-semibold text-slate-500 dark:text-slate-400"}>
+              <span
+                className={
+                  c.trendPositive
+                    ? "font-bold text-emerald-600 dark:text-emerald-400"
+                    : "font-semibold text-slate-500 dark:text-slate-400"
+                }
+              >
                 {c.trend}
               </span>
               <span className="text-slate-400 dark:text-slate-500">Live</span>

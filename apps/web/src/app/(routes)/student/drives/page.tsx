@@ -33,13 +33,16 @@ export default function StudentDrives() {
             </h1>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Official on-campus and virtual hiring drives organized by the Training & Placement Cell.
+            Official on-campus and virtual hiring drives organized by the
+            Training & Placement Cell.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
-            {activeCount !== null ? `${activeCount} Active Drive${activeCount === 1 ? "" : "s"}` : "—"}
+            {activeCount !== null
+              ? `${activeCount} Active Drive${activeCount === 1 ? "" : "s"}`
+              : "—"}
           </span>
         </div>
       </div>

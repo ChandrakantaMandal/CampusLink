@@ -18,7 +18,11 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
 import type { SystemNotification } from "./admin.types";
-import { getAdminInterviews, getAdminNotifications, getAdminSettings } from "@/lib/api/admin.api";
+import {
+  getAdminInterviews,
+  getAdminNotifications,
+  getAdminSettings,
+} from "@/lib/api/admin.api";
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void;
@@ -40,7 +44,9 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
       })
       .catch(() => {});
     getAdminInterviews()
-      .then((items) => setConflictCount(items.filter((item) => item.hasConflict).length))
+      .then((items) =>
+        setConflictCount(items.filter((item) => item.hasConflict).length),
+      )
       .catch(() => {});
     getAdminSettings()
       .then((settings) => setSeason(settings.campus.placementSeason))
@@ -73,7 +79,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
         {/* Urgent Conflict Warning Pill */}
         {conflictCount > 0 && (
           <Link
-            href={("/admin/interviews" as Route)}
+            href={"/admin/interviews" as Route}
             className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300 shadow-2xs hover:scale-105 active:scale-95 transition-all"
           >
             <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 animate-pulse" />
@@ -121,7 +127,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                   )}
                 </div>
                 <Link
-                  href={("/admin/notifications" as Route)}
+                  href={"/admin/notifications" as Route}
                   onClick={() => setShowNotifications(false)}
                   className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
@@ -135,36 +141,37 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                     No notifications yet
                   </p>
                 ) : (
-                notifications.slice(0, 4).map((item) => (
-                  <div
-                    key={item.id}
-                    className={`p-2.5 rounded-xl text-xs border transition-colors ${item.type === "urgent"
-                        ? "border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20"
-                        : "border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40"
+                  notifications.slice(0, 4).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`p-2.5 rounded-xl text-xs border transition-colors ${
+                        item.type === "urgent"
+                          ? "border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20"
+                          : "border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40"
                       }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-bold text-slate-900 dark:text-slate-100">
-                        {item.title}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-bold text-slate-900 dark:text-slate-100">
+                          {item.title}
+                        </p>
+                        <span className="text-[10px] text-slate-400 shrink-0">
+                          {item.time}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                        {item.description}
                       </p>
-                      <span className="text-[10px] text-slate-400 shrink-0">
-                        {item.time}
-                      </span>
+                      {item.actionLabel && (
+                        <Link
+                          href={(item.actionUrl || "/admin/dashboard") as Route}
+                          onClick={() => setShowNotifications(false)}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline mt-2"
+                        >
+                          <span>{item.actionLabel}</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
+                      )}
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                      {item.description}
-                    </p>
-                    {item.actionLabel && (
-                      <Link
-                        href={(item.actionUrl || "/admin/dashboard") as Route}
-                        onClick={() => setShowNotifications(false)}
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline mt-2"
-                      >
-                        <span>{item.actionLabel}</span>
-                        <ExternalLink className="h-3 w-3" />
-                      </Link>
-                    )}
-                  </div>
                   ))
                 )}
               </div>

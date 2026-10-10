@@ -1,7 +1,14 @@
 "use client";
 
 import React from "react";
-import { Layers, CheckCircle2, AlertTriangle, XCircle, ArrowRight, BookOpen } from "lucide-react";
+import {
+  Layers,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  ArrowRight,
+  BookOpen,
+} from "lucide-react";
 import type { SkillGapItem } from "@/data/dashboardData";
 
 interface SkillGapCardProps {
@@ -35,7 +42,8 @@ export default function SkillGapCard({
               Skill-Gap Analysis
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-              Targeted skill roadmap compared with Tier-1 engineering recruiter expectations
+              Targeted skill roadmap compared with Tier-1 engineering recruiter
+              expectations
             </p>
           </div>
         </div>
@@ -72,7 +80,9 @@ export default function SkillGapCard({
                 className="inline-flex max-w-full items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-emerald-900 shadow-2xs dark:bg-slate-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80"
               >
                 <span className="truncate">{s.name}</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold shrink-0">✓</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold shrink-0">
+                  ✓
+                </span>
               </span>
             ))}
           </div>
@@ -99,7 +109,9 @@ export default function SkillGapCard({
                 className="inline-flex max-w-full items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 shadow-2xs hover:bg-amber-100 dark:bg-slate-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80 transition-colors cursor-pointer"
               >
                 <span className="truncate">{s.name}</span>
-                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold shrink-0">⚠</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold shrink-0">
+                  ⚠
+                </span>
               </button>
             ))}
           </div>
@@ -126,7 +138,9 @@ export default function SkillGapCard({
                 className="inline-flex max-w-full items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-rose-900 shadow-2xs hover:bg-rose-100 dark:bg-slate-800 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/80 transition-colors cursor-pointer"
               >
                 <span className="truncate">{s.name}</span>
-                <span className="text-[10px] text-rose-600 dark:text-rose-400 font-bold shrink-0">✕</span>
+                <span className="text-[10px] text-rose-600 dark:text-rose-400 font-bold shrink-0">
+                  ✕
+                </span>
               </button>
             ))}
           </div>
@@ -137,7 +151,10 @@ export default function SkillGapCard({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs border-t border-slate-100 dark:border-slate-800 min-w-0">
         <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 min-w-0">
           <BookOpen className="h-4 w-4 shrink-0 text-indigo-500" />
-          <span className="line-clamp-1">Recommended next modules: System Design Fundamentals &amp; SQL Query Optimization</span>
+          <span className="line-clamp-1">
+            Recommended next modules: System Design Fundamentals &amp; SQL Query
+            Optimization
+          </span>
         </div>
 
         <button

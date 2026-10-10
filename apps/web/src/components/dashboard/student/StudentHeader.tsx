@@ -4,31 +4,29 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
-import {
-  Bell,
-  Menu,
-  TrendingUp,
-  Calendar,
-  ExternalLink,
-} from "lucide-react";
+import { Bell, Menu, TrendingUp, Calendar, ExternalLink } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { authClient } from "@/lib/auth-client";
-import { useStudentNotifications, useStudentReadiness } from "@/hooks/use-student";
+import {
+  useStudentNotifications,
+  useStudentReadiness,
+} from "@/hooks/use-student";
 import { useStudentProfile } from "@/hooks/use-student";
 
 interface StudentHeaderProps {
   onToggleSidebar?: () => void;
 }
 
-function getDisplayName(firstName: string | null, lastName: string | null): string {
+function getDisplayName(
+  firstName: string | null,
+  lastName: string | null,
+): string {
   if (firstName && lastName) return `${firstName} ${lastName}`;
   if (firstName) return firstName;
   return "Student Portal";
 }
 
-export default function StudentHeader({
-  onToggleSidebar,
-}: StudentHeaderProps) {
+export default function StudentHeader({ onToggleSidebar }: StudentHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const router = useRouter();
@@ -43,7 +41,9 @@ export default function StudentHeader({
 
   const unreadCount = notifications.data?.unreadCount ?? 0;
   const readinessScore = readiness.data?.score ?? 0;
-  const studentName = profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName) : "Student Portal";
+  const studentName = profile.profile
+    ? getDisplayName(profile.profile.firstName, profile.profile.lastName)
+    : "Student Portal";
   const studentDept = profile.profile?.department ?? "CampusLink Student";
 
   return (
@@ -140,7 +140,10 @@ export default function StudentHeader({
                         </p>
 
                         <span className="shrink-0 text-[10px] text-slate-400">
-                          {new Date(item.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(item.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                       </div>
 
@@ -175,7 +178,15 @@ export default function StudentHeader({
         {/* Student Profile */}
         <div className="flex items-center gap-2.5 border-l border-slate-200 pl-2 dark:border-slate-800">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-md shadow-indigo-600/20">
-            {profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName).split(' ').map(n => n[0]).join('') : "ST"}
+            {profile.profile
+              ? getDisplayName(
+                  profile.profile.firstName,
+                  profile.profile.lastName,
+                )
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+              : "ST"}
           </div>
 
           <div className="hidden flex-col text-left lg:flex">

@@ -3,7 +3,8 @@ import RecruiterDashboardHomeView from "@/components/dashboard/recruiter/views/R
 
 export const metadata: Metadata = {
   title: "Recruiter Dashboard — CAMPUSLINK Placement Portal",
-  description: "Company recruitment control center for managing jobs, applicants, AI candidate matching, and campus interviews.",
+  description:
+    "Company recruitment control center for managing jobs, applicants, AI candidate matching, and campus interviews.",
 };
 
 export default function RecruiterDashboardPage() {

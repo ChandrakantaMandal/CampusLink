@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Sparkles,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
+import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 
 import type { ReadinessDimension } from "@/data/dashboardData";
 
@@ -45,19 +41,13 @@ export default function AIReadinessCard({
   aiRecommendation,
   onStartAction,
 }: AIReadinessCardProps) {
-  const safeScore = Math.min(
-    Math.max(score, 0),
-    100,
-  );
+  const safeScore = Math.min(Math.max(score, 0), 100);
 
   const radius = 54;
 
-  const circumference =
-    2 * Math.PI * radius;
+  const circumference = 2 * Math.PI * radius;
 
-  const strokeDashoffset =
-    circumference -
-    (safeScore / 100) * circumference;
+  const strokeDashoffset = circumference - (safeScore / 100) * circumference;
 
   return (
     <div
@@ -130,9 +120,7 @@ export default function AIReadinessCard({
             <div className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="h-3.5 w-3.5" />
 
-              <span>
-                Based on your verified profile data
-              </span>
+              <span>Based on your verified profile data</span>
             </div>
           </div>
         </div>
@@ -140,21 +128,12 @@ export default function AIReadinessCard({
         {/* Dimension Breakdown */}
         <div className="md:col-span-8 space-y-3.5">
           {dimensions.map((dim) => {
-            const dimensionScore = Math.min(
-              Math.max(dim.score, 0),
-              100,
-            );
+            const dimensionScore = Math.min(Math.max(dim.score, 0), 100);
 
-            const status =
-              getDimensionStatus(
-                dimensionScore,
-              );
+            const status = getDimensionStatus(dimensionScore);
 
             return (
-              <div
-                key={dim.category}
-                className="space-y-1.5"
-              >
+              <div key={dim.category} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 dark:text-slate-200">
                     {dim.category}
@@ -176,9 +155,7 @@ export default function AIReadinessCard({
                     </span>
 
                     <span className="font-black text-slate-900 dark:text-white">
-                      {Math.round(
-                        dimensionScore,
-                      )}
+                      {Math.round(dimensionScore)}
                       /100
                     </span>
                   </div>
@@ -227,9 +204,7 @@ export default function AIReadinessCard({
             onClick={onStartAction}
             className="flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
           >
-            <span>
-              {aiRecommendation.actionText}
-            </span>
+            <span>{aiRecommendation.actionText}</span>
 
             <ArrowRight className="h-3.5 w-3.5" />
           </button>

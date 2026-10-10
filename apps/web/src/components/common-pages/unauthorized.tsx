@@ -51,8 +51,9 @@ export default function UnauthorizedPage() {
 
         {/* Description */}
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-600 sm:text-base dark:text-slate-400">
-          You do not have the required permissions or an active session to access this CampusLink workspace.
-          Please verify your credentials or sign in with an authorized institutional account.
+          You do not have the required permissions or an active session to
+          access this CampusLink workspace. Please verify your credentials or
+          sign in with an authorized institutional account.
         </p>
 
         {/* Primary Action Buttons */}
@@ -136,8 +137,8 @@ export default function UnauthorizedPage() {
           <p className="leading-relaxed">
             <strong>Security Notice:</strong> CampusLink implements role-based
             access control to protect student placement records and company
-            confidentiality. If you believe this is an error, please reach out to your
-            institutional administrator.
+            confidentiality. If you believe this is an error, please reach out
+            to your institutional administrator.
           </p>
         </div>
 

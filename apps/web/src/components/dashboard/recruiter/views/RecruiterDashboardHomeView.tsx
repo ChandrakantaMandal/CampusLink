@@ -116,8 +116,7 @@ export default function RecruiterDashboardHomeView() {
     {
       label: "Shortlisted",
       value: shortlistedCount,
-      change:
-        applicationCount > 0 ? `${conversionPct}% conversion` : undefined,
+      change: applicationCount > 0 ? `${conversionPct}% conversion` : undefined,
       subtitle: "Screened & approved",
       icon: CheckCircle2,
       color: "from-teal-600 to-emerald-600",
@@ -202,7 +201,8 @@ export default function RecruiterDashboardHomeView() {
               Good Morning, {profile?.name ?? "Recruiter"} 👋
             </h1>
             <p className="text-sm sm:text-base text-blue-100/90 max-w-xl">
-              Manage your campus hiring pipeline, review AI-matched candidates, resolve interview schedule overlaps, and dispatch formal offers.
+              Manage your campus hiring pipeline, review AI-matched candidates,
+              resolve interview schedule overlaps, and dispatch formal offers.
             </p>
           </div>
 
@@ -236,7 +236,9 @@ export default function RecruiterDashboardHomeView() {
               className="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-4 transition-all hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-lg shadow-xs"
             >
               <div className="flex items-center justify-between mb-3">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr ${kpi.color} text-white shadow-sm transition-transform group-hover:scale-110`}>
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr ${kpi.color} text-white shadow-sm transition-transform group-hover:scale-110`}
+                >
                   <Icon className="h-4 w-4" />
                 </div>
                 {kpi.change && (
@@ -269,7 +271,8 @@ export default function RecruiterDashboardHomeView() {
               Recruitment Pipeline Funnel
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Live funnel velocity from initial application to signed offer acceptance
+              Live funnel velocity from initial application to signed offer
+              acceptance
             </p>
           </div>
           <Link
@@ -400,7 +403,9 @@ export default function RecruiterDashboardHomeView() {
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <span className="truncate">Panel: {interview.interviewerPanel}</span>
+                  <span className="truncate">
+                    Panel: {interview.interviewerPanel}
+                  </span>
                   <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0">
                     {interview.mode}
                   </span>
@@ -429,7 +434,8 @@ export default function RecruiterDashboardHomeView() {
               Active Job Openings
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Current campus roles, application cutoffs, and applicant pipeline volume
+              Current campus roles, application cutoffs, and applicant pipeline
+              volume
             </p>
           </div>
 
@@ -438,7 +444,9 @@ export default function RecruiterDashboardHomeView() {
             className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
           >
             <span>
-              {jobs.length > 0 ? `Manage All ${jobs.length} Jobs` : "Post a Job"}
+              {jobs.length > 0
+                ? `Manage All ${jobs.length} Jobs`
+                : "Post a Job"}
             </span>
             <ChevronRight className="h-4 w-4" />
           </Link>
@@ -469,12 +477,17 @@ export default function RecruiterDashboardHomeView() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {jobs.slice(0, 5).map((job) => (
-                  <tr key={job.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={job.id}
+                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                  >
                     <td className="py-3.5 pr-3">
                       <p className="font-bold text-slate-900 dark:text-white text-sm">
                         {job.title}
                       </p>
-                      <p className="text-[11px] text-slate-400">{job.jobType} &bull; {job.location}</p>
+                      <p className="text-[11px] text-slate-400">
+                        {job.jobType} &bull; {job.location}
+                      </p>
                     </td>
                     <td className="py-3.5 pr-3 font-semibold text-slate-700 dark:text-slate-300">
                       {job.ctc}
@@ -499,10 +512,10 @@ export default function RecruiterDashboardHomeView() {
                           job.status === "Applications Open"
                             ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                             : job.status === "Interviewing"
-                            ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-                            : job.status === "Published"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-                            : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                              : job.status === "Published"
+                                ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                                : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                         }`}
                       >
                         {job.status}

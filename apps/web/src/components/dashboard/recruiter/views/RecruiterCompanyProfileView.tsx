@@ -39,9 +39,20 @@ export default function RecruiterCompanyProfileView() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const emptyCompanyProfile = (): RecruiterCompany => ({
-    id: "", name: "", logo: "", industry: "", website: "", description: "",
-    tier: "TIER_3", recruiterName: "", recruiterEmail: "", recruiterPhone: "",
-    location: "", linkedinUrl: "", verifiedStatus: "Pending Verification", benefits: [],
+    id: "",
+    name: "",
+    logo: "",
+    industry: "",
+    website: "",
+    description: "",
+    tier: "TIER_3",
+    recruiterName: "",
+    recruiterEmail: "",
+    recruiterPhone: "",
+    location: "",
+    linkedinUrl: "",
+    verifiedStatus: "Pending Verification",
+    benefits: [],
   });
 
   useEffect(() => {
@@ -63,7 +74,9 @@ export default function RecruiterCompanyProfileView() {
           return;
         }
         setLoadError(error.message || "Please try again.");
-        toast.error("Failed to load company profile", { description: error.message });
+        toast.error("Failed to load company profile", {
+          description: error.message,
+        });
       })
       .finally(() => {
         if (!cancelled) setIsLoadingProfile(false);
@@ -87,7 +100,9 @@ export default function RecruiterCompanyProfileView() {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
-  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !company || !formData) return;
@@ -129,16 +144,17 @@ export default function RecruiterCompanyProfileView() {
 
     setIsSaving(true);
     try {
-      const companyPayload: NonNullable<UpdateRecruiterProfileInput["company"]> =
-        {
-          name: formData.name,
-          industry: formData.industry,
-          location: formData.location,
-          description: formData.description,
-          logoUrl: formData.logo,
-          tier: formData.tier,
-          benefits: formData.benefits,
-        };
+      const companyPayload: NonNullable<
+        UpdateRecruiterProfileInput["company"]
+      > = {
+        name: formData.name,
+        industry: formData.industry,
+        location: formData.location,
+        description: formData.description,
+        logoUrl: formData.logo,
+        tier: formData.tier,
+        benefits: formData.benefits,
+      };
       if (formData.website) companyPayload.website = formData.website;
 
       const input: UpdateRecruiterProfileInput = {
@@ -154,11 +170,14 @@ export default function RecruiterCompanyProfileView() {
       setFormData(updated);
       setIsEditing(false);
       setIsCreating(false);
-      toast.success(isCreating ? "Recruiter Profile Created" : "Company Profile Updated", {
-        description: isCreating
-          ? "Your company and recruiter profile have been saved."
-          : "Company details and recruiter credentials successfully saved.",
-      });
+      toast.success(
+        isCreating ? "Recruiter Profile Created" : "Company Profile Updated",
+        {
+          description: isCreating
+            ? "Your company and recruiter profile have been saved."
+            : "Company details and recruiter credentials successfully saved.",
+        },
+      );
     } catch (error) {
       toast.error("Failed to update company profile", {
         description: (error as Error).message,
@@ -183,9 +202,19 @@ export default function RecruiterCompanyProfileView() {
   if (!formData) {
     return (
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-8 text-center">
-        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Could not load your recruiter profile.</p>
-        {loadError && <p className="mt-2 text-xs text-slate-500">{loadError}</p>}
-        <button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">Try again</button>
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+          Could not load your recruiter profile.
+        </p>
+        {loadError && (
+          <p className="mt-2 text-xs text-slate-500">{loadError}</p>
+        )}
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white"
+        >
+          Try again
+        </button>
       </div>
     );
   }
@@ -197,28 +226,34 @@ export default function RecruiterCompanyProfileView() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
             <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            {isCreating ? "Create Recruiter Profile" : "Company Profile & Verification"}
+            {isCreating
+              ? "Create Recruiter Profile"
+              : "Company Profile & Verification"}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {isCreating ? "Add your company details to finish setting up your recruiter account." : "Manage your official corporate presence, recruiter details, and campus hiring credentials."}
+            {isCreating
+              ? "Add your company details to finish setting up your recruiter account."
+              : "Manage your official corporate presence, recruiter details, and campus hiring credentials."}
           </p>
         </div>
 
-        {!isCreating && <button
-          type="button"
-          onClick={() => {
-            if (isEditing) {
-              setFormData(company);
-              setIsEditing(false);
-            } else {
-              setIsEditing(true);
-            }
-          }}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-all cursor-pointer"
-        >
-          <Edit3 className="h-4 w-4" />
-          <span>{isEditing ? "Cancel Editing" : "Edit Profile"}</span>
-        </button>}
+        {!isCreating && (
+          <button
+            type="button"
+            onClick={() => {
+              if (isEditing) {
+                setFormData(company);
+                setIsEditing(false);
+              } else {
+                setIsEditing(true);
+              }
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-all cursor-pointer"
+          >
+            <Edit3 className="h-4 w-4" />
+            <span>{isEditing ? "Cancel Editing" : "Edit Profile"}</span>
+          </button>
+        )}
       </div>
 
       {/* Main Profile Card */}
@@ -227,51 +262,69 @@ export default function RecruiterCompanyProfileView() {
           <form onSubmit={handleSave} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Name</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Company Name
+                </label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Industry</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Industry
+                </label>
                 <input
                   type="text"
                   value={formData.industry}
-                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, industry: e.target.value })
+                  }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Website URL</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Website URL
+                </label>
                 <input
                   type="url"
                   value={formData.website}
-                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, website: e.target.value })
+                  }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                   required={!isCreating}
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Headquarters / Location</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Headquarters / Location
+                </label>
                 <input
                   type="text"
                   value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                   required={!isCreating}
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Recruiter Contact Name</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Recruiter Contact Name
+                </label>
                 <input
                   type="text"
                   value={formData.recruiterName}
@@ -282,7 +335,9 @@ export default function RecruiterCompanyProfileView() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Recruiter Email</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Recruiter Email
+                </label>
                 <input
                   type="email"
                   value={formData.recruiterEmail}
@@ -293,27 +348,37 @@ export default function RecruiterCompanyProfileView() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Recruiter Phone</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Recruiter Phone
+                </label>
                 <input
                   type="tel"
                   value={formData.recruiterPhone}
-                  onChange={(e) => setFormData({ ...formData, recruiterPhone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, recruiterPhone: e.target.value })
+                  }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">LinkedIn Profile</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  LinkedIn Profile
+                </label>
                 <input
                   type="url"
                   value={formData.linkedinUrl}
-                  onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, linkedinUrl: e.target.value })
+                  }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Logo</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Company Logo
+                </label>
                 <div className="mt-1.5 flex items-center gap-3">
                   {formData.logo ? (
                     <img
@@ -323,13 +388,13 @@ export default function RecruiterCompanyProfileView() {
                     />
                   ) : (
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white text-sm font-black">
-                      {(formData.name
+                      {formData.name
                         .split(" ")
                         .map((word) => word[0] ?? "")
                         .filter(Boolean)
                         .slice(0, 2)
                         .join("")
-                        .toUpperCase() || "CO")}
+                        .toUpperCase() || "CO"}
                     </div>
                   )}
                   <button
@@ -339,7 +404,9 @@ export default function RecruiterCompanyProfileView() {
                     className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <ImagePlus className="h-4 w-4" />
-                    <span>{isUploadingLogo ? "Uploading..." : "Upload Logo"}</span>
+                    <span>
+                      {isUploadingLogo ? "Uploading..." : "Upload Logo"}
+                    </span>
                   </button>
                   <input
                     ref={logoInputRef}
@@ -349,15 +416,24 @@ export default function RecruiterCompanyProfileView() {
                     className="hidden"
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-slate-400">{isCreating ? "Create your profile before uploading a logo." : "JPG, PNG or WebP — max 2MB."}</p>
+                <p className="mt-1.5 text-[11px] text-slate-400">
+                  {isCreating
+                    ? "Create your profile before uploading a logo."
+                    : "JPG, PNG or WebP — max 2MB."}
+                </p>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Tier</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Company Tier
+                </label>
                 <select
                   value={formData.tier}
                   onChange={(e) =>
-                    setFormData({ ...formData, tier: e.target.value as RecruiterCompany["tier"] })
+                    setFormData({
+                      ...formData,
+                      tier: e.target.value as RecruiterCompany["tier"],
+                    })
                   }
                   className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white cursor-pointer"
                 >
@@ -369,18 +445,24 @@ export default function RecruiterCompanyProfileView() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company Overview & Culture</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Company Overview & Culture
+              </label>
               <textarea
                 rows={4}
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="mt-1.5 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3.5 text-sm text-slate-900 dark:text-white"
                 required
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Campus Perks & Benefits</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Campus Perks & Benefits
+              </label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {formData.benefits.map((benefit, i) => (
                   <span
@@ -394,7 +476,9 @@ export default function RecruiterCompanyProfileView() {
                       onClick={() =>
                         setFormData({
                           ...formData,
-                          benefits: formData.benefits.filter((_, idx) => idx !== i),
+                          benefits: formData.benefits.filter(
+                            (_, idx) => idx !== i,
+                          ),
                         })
                       }
                       className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
@@ -404,7 +488,9 @@ export default function RecruiterCompanyProfileView() {
                   </span>
                 ))}
                 {formData.benefits.length === 0 && (
-                  <p className="text-xs text-slate-400">No benefits added yet.</p>
+                  <p className="text-xs text-slate-400">
+                    No benefits added yet.
+                  </p>
                 )}
               </div>
               <div className="mt-3 flex gap-2">
@@ -434,20 +520,30 @@ export default function RecruiterCompanyProfileView() {
             </div>
 
             <div className="flex justify-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-              {!isCreating && <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>}
+              {!isCreating && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              )}
               <button
                 type="submit"
                 disabled={isSaving}
                 className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-6 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg hover:shadow-blue-500/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Save className="h-4 w-4" />
-                <span>{isSaving ? (isCreating ? "Creating..." : "Saving...") : (isCreating ? "Create Profile" : "Save Changes")}</span>
+                <span>
+                  {isSaving
+                    ? isCreating
+                      ? "Creating..."
+                      : "Saving..."
+                    : isCreating
+                      ? "Create Profile"
+                      : "Save Changes"}
+                </span>
               </button>
             </div>
           </form>
@@ -524,13 +620,21 @@ export default function RecruiterCompanyProfileView() {
             {/* Recruiter Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
               <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Lead Campus Recruiter</span>
-                <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">{company.recruiterName}</p>
-                <p className="text-xs text-slate-500">Director of Talent Acquisition</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Lead Campus Recruiter
+                </span>
+                <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">
+                  {company.recruiterName}
+                </p>
+                <p className="text-xs text-slate-500">
+                  Director of Talent Acquisition
+                </p>
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recruiter Email</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Recruiter Email
+                </span>
                 <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 flex items-center gap-1.5">
                   <Mail className="h-3.5 w-3.5 text-blue-600" />
                   {company.recruiterEmail}
@@ -538,7 +642,9 @@ export default function RecruiterCompanyProfileView() {
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recruiter Phone</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Recruiter Phone
+                </span>
                 <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 flex items-center gap-1.5">
                   <Phone className="h-3.5 w-3.5 text-emerald-600" />
                   {company.recruiterPhone || "Not provided"}

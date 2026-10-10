@@ -30,7 +30,13 @@ export interface RecruiterJob {
   requiredSkills: string[];
   description: string;
   applicationDeadline: string;
-  status: "Draft" | "Published" | "Applications Open" | "Applications Closed" | "Interviewing" | "Completed";
+  status:
+    | "Draft"
+    | "Published"
+    | "Applications Open"
+    | "Applications Closed"
+    | "Interviewing"
+    | "Completed";
   applicantsCount: number;
   shortlistedCount: number;
   interviewCount: number;
@@ -38,7 +44,11 @@ export interface RecruiterJob {
   rounds: {
     roundNumber: number;
     name: string;
-    type: "Aptitude Test" | "Technical Interview" | "HR Interview" | "Final Selection";
+    type:
+      | "Aptitude Test"
+      | "Technical Interview"
+      | "HR Interview"
+      | "Final Selection";
   }[];
 }
 
@@ -69,7 +79,15 @@ export interface RecruiterCandidate {
     gaps: string[];
     explanation?: string;
   } | null;
-  status: "Applied" | "Under Review" | "Shortlisted" | "Assessment" | "Interview" | "Selected" | "Offer" | "Rejected";
+  status:
+    | "Applied"
+    | "Under Review"
+    | "Shortlisted"
+    | "Assessment"
+    | "Interview"
+    | "Selected"
+    | "Offer"
+    | "Rejected";
   assessmentPassed?: boolean | null;
   assessmentPercentage?: number | null;
   appliedJobId: string;
@@ -137,7 +155,13 @@ export interface RecruiterOffer {
   variableBonus: string;
   joiningDate: string;
   offerLetterUrl: string;
-  acceptanceStatus: "Draft" | "Sent" | "Pending Acceptance" | "Accepted" | "Declined" | "Withdrawn";
+  acceptanceStatus:
+    | "Draft"
+    | "Sent"
+    | "Pending Acceptance"
+    | "Accepted"
+    | "Declined"
+    | "Withdrawn";
   documentVerification: "Verified" | "Pending Review" | "Action Required";
   joiningStatus: "Confirmed" | "Awaiting Onboarding" | "Joined" | "Declined";
 }
@@ -147,7 +171,8 @@ export interface RecruiterNotification {
   title: string;
   message: string;
   time: string;
-  type: "application" | "ai_match" | "interview" | "conflict" | "offer" | "system";
+  type:
+    "application" | "ai_match" | "interview" | "conflict" | "offer" | "system";
   isRead: boolean;
   actionUrl?: string;
 }

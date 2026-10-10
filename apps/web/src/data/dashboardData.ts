@@ -106,17 +106,43 @@ export const sampleDashboardData = {
   } as StudentStats,
 
   readinessDimensions: [
-    { category: "Technical Skills", score: 0, fullScore: 100, status: "Needs Attention" },
-    { category: "Verified Projects", score: 0, fullScore: 100, status: "Needs Attention" },
-    { category: "Certifications", score: 0, fullScore: 100, status: "Needs Attention" },
-    { category: "Assessment Tests", score: 0, fullScore: 100, status: "Needs Attention" },
-    { category: "Communication & Soft Skills", score: 0, fullScore: 100, status: "Needs Attention" },
+    {
+      category: "Technical Skills",
+      score: 0,
+      fullScore: 100,
+      status: "Needs Attention",
+    },
+    {
+      category: "Verified Projects",
+      score: 0,
+      fullScore: 100,
+      status: "Needs Attention",
+    },
+    {
+      category: "Certifications",
+      score: 0,
+      fullScore: 100,
+      status: "Needs Attention",
+    },
+    {
+      category: "Assessment Tests",
+      score: 0,
+      fullScore: 100,
+      status: "Needs Attention",
+    },
+    {
+      category: "Communication & Soft Skills",
+      score: 0,
+      fullScore: 100,
+      status: "Needs Attention",
+    },
   ] as ReadinessDimension[],
 
   aiCoachRecommendation: {
     title: "AI Placement Coach Recommendation",
     highlight: "Complete Profile",
-    message: "Add your technical skills, verified projects, and academic details to generate placement recommendations and readiness insights.",
+    message:
+      "Add your technical skills, verified projects, and academic details to generate placement recommendations and readiness insights.",
     actionText: "Complete Profile",
   },
 

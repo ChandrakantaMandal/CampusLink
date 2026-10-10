@@ -96,7 +96,11 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export default function StudentDetailView({ basePath }: { basePath: BasePath }) {
+export default function StudentDetailView({
+  basePath,
+}: {
+  basePath: BasePath;
+}) {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const studentId = params.id;
@@ -105,7 +109,9 @@ export default function StudentDetailView({ basePath }: { basePath: BasePath }) 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [applications, setApplications] = useState<RecruiterCandidate[]>([]);
-  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<
+    string | null
+  >(null);
 
   const fetchStudent = useCallback(async () => {
     try {
@@ -130,12 +136,20 @@ export default function StudentDetailView({ basePath }: { basePath: BasePath }) 
 
   useEffect(() => {
     if (basePath !== "recruiter") return;
-    getApplications().then((rows) => {
-      const candidateRows = rows.filter((row) => row.studentId === studentId);
-      setApplications(candidateRows);
-      const requestedId = new URLSearchParams(window.location.search).get("applicationId");
-      setSelectedApplicationId(candidateRows.some((row) => row.id === requestedId) ? requestedId : candidateRows[0]?.id ?? null);
-    }).catch(() => setApplications([]));
+    getApplications()
+      .then((rows) => {
+        const candidateRows = rows.filter((row) => row.studentId === studentId);
+        setApplications(candidateRows);
+        const requestedId = new URLSearchParams(window.location.search).get(
+          "applicationId",
+        );
+        setSelectedApplicationId(
+          candidateRows.some((row) => row.id === requestedId)
+            ? requestedId
+            : (candidateRows[0]?.id ?? null),
+        );
+      })
+      .catch(() => setApplications([]));
   }, [basePath, studentId]);
 
   const backHref =
@@ -176,15 +190,23 @@ export default function StudentDetailView({ basePath }: { basePath: BasePath }) 
     student.user?.name ||
     "Student";
   const skills = (student.skills as StudentSkillRow[] | undefined) ?? [];
-  const education = (student.education as StudentEducationRow[] | undefined) ?? [];
-  const primaryEducation = [...education].sort((a, b) => (b.endYear ?? 0) - (a.endYear ?? 0))[0];
+  const education =
+    (student.education as StudentEducationRow[] | undefined) ?? [];
+  const primaryEducation = [...education].sort(
+    (a, b) => (b.endYear ?? 0) - (a.endYear ?? 0),
+  )[0];
   const college = student.college || primaryEducation?.institution || "—";
   const degree = student.degree || primaryEducation?.degree || "—";
   const branch = student.branch || primaryEducation?.branch || "—";
   const department = student.department || primaryEducation?.branch || "—";
   const projects = (student.projects as StudentProjectRow[] | undefined) ?? [];
-  const candidateApplications = applications.filter((application) => application.studentId === student.id);
-  const selectedApplication = candidateApplications.find((application) => application.id === selectedApplicationId) ?? candidateApplications[0];
+  const candidateApplications = applications.filter(
+    (application) => application.studentId === student.id,
+  );
+  const selectedApplication =
+    candidateApplications.find(
+      (application) => application.id === selectedApplicationId,
+    ) ?? candidateApplications[0];
   const links = [
     { label: "LinkedIn", href: student.linkedinUrl },
     { label: "GitHub", href: student.githubUrl },
@@ -230,40 +252,105 @@ export default function StudentDetailView({ basePath }: { basePath: BasePath }) 
       </div>
 
       {basePath === "recruiter" && (
-        <Section title="Job Fit & AI Review" icon={<Sparkles className="h-3.5 w-3.5 text-purple-500" />}>
+        <Section
+          title="Job Fit & AI Review"
+          icon={<Sparkles className="h-3.5 w-3.5 text-purple-500" />}
+        >
           {selectedApplication ? (
             <div className="space-y-4">
               {[selectedApplication].map((application) => {
                 const analysis = application.matchAnalysis;
-                const improvements = analysis ? [...analysis.missingSkills, ...analysis.gaps] : [];
+                const improvements = analysis
+                  ? [...analysis.missingSkills, ...analysis.gaps]
+                  : [];
                 return (
-                  <article key={application.id} className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
+                  <article
+                    key={application.id}
+                    className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3"
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">{application.appliedJobTitle}</h4>
-                        <p className="text-[11px] text-slate-500">{application.status} · applied {application.appliedDate}</p>
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                          {application.appliedJobTitle}
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          {application.status} · applied{" "}
+                          {application.appliedDate}
+                        </p>
                       </div>
-                      {analysis ? <span className="rounded-lg bg-purple-50 dark:bg-purple-950/40 px-3 py-1.5 text-sm font-black text-purple-700 dark:text-purple-300">{application.matchScore}% match</span> : <span className="text-xs text-slate-400">AI match not available</span>}
+                      {analysis ? (
+                        <span className="rounded-lg bg-purple-50 dark:bg-purple-950/40 px-3 py-1.5 text-sm font-black text-purple-700 dark:text-purple-300">
+                          {application.matchScore}% match
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">
+                          AI match not available
+                        </span>
+                      )}
                     </div>
                     {analysis ? (
                       <>
-                        <p className="text-xs text-slate-600 dark:text-slate-300">{analysis.explanation || (analysis.positiveSignals.length ? `Fit signals: ${analysis.positiveSignals.join(", ")}.` : "The AI analysis has no written explanation for this application yet.")}</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">
+                          {analysis.explanation ||
+                            (analysis.positiveSignals.length
+                              ? `Fit signals: ${analysis.positiveSignals.join(", ")}.`
+                              : "The AI analysis has no written explanation for this application yet.")}
+                        </p>
                         <div className="grid gap-3 sm:grid-cols-2">
-                          <div><p className="mb-1 text-[10px] font-bold uppercase text-emerald-600">Matched skills · {analysis.skillMatchScore}%</p><p className="text-xs text-slate-600 dark:text-slate-300">{analysis.matchedSkills.length ? analysis.matchedSkills.join(", ") : "No matched skills recorded."}</p></div>
-                          <div><p className="mb-1 text-[10px] font-bold uppercase text-amber-600">Areas to improve</p><p className="text-xs text-slate-600 dark:text-slate-300">{improvements.length ? improvements.join(", ") : "No specific gaps recorded."}</p></div>
+                          <div>
+                            <p className="mb-1 text-[10px] font-bold uppercase text-emerald-600">
+                              Matched skills · {analysis.skillMatchScore}%
+                            </p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300">
+                              {analysis.matchedSkills.length
+                                ? analysis.matchedSkills.join(", ")
+                                : "No matched skills recorded."}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="mb-1 text-[10px] font-bold uppercase text-amber-600">
+                              Areas to improve
+                            </p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300">
+                              {improvements.length
+                                ? improvements.join(", ")
+                                : "No specific gaps recorded."}
+                            </p>
+                          </div>
                         </div>
-                        {analysis.positiveSignals.length > 0 && <p className="text-xs text-slate-500"><strong>Positive evidence:</strong> {analysis.positiveSignals.join(" · ")}</p>}
+                        {analysis.positiveSignals.length > 0 && (
+                          <p className="text-xs text-slate-500">
+                            <strong>Positive evidence:</strong>{" "}
+                            {analysis.positiveSignals.join(" · ")}
+                          </p>
+                        )}
                       </>
-                    ) : <p className="text-xs text-slate-500">No AI assessment is stored for this job application. Review the candidate’s profile evidence below.</p>}
+                    ) : (
+                      <p className="text-xs text-slate-500">
+                        No AI assessment is stored for this job application.
+                        Review the candidate’s profile evidence below.
+                      </p>
+                    )}
                     <div className="border-t border-slate-100 dark:border-slate-800 pt-2">
-                      <p className="text-[10px] font-bold uppercase text-slate-400">Hiring consideration</p>
-                      <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{analysis ? `Use the ${application.matchScore}% role match as a screening signal, then verify the listed skills and gaps in an interview or work sample.` : "Base a decision on verified skills, education, projects, and an interview; no AI match evidence is available."}</p>
+                      <p className="text-[10px] font-bold uppercase text-slate-400">
+                        Hiring consideration
+                      </p>
+                      <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                        {analysis
+                          ? `Use the ${application.matchScore}% role match as a screening signal, then verify the listed skills and gaps in an interview or work sample.`
+                          : "Base a decision on verified skills, education, projects, and an interview; no AI match evidence is available."}
+                      </p>
                     </div>
                   </article>
                 );
               })}
             </div>
-          ) : <p className="text-xs text-slate-500">No job applications for this candidate are available in your company account.</p>}
+          ) : (
+            <p className="text-xs text-slate-500">
+              No job applications for this candidate are available in your
+              company account.
+            </p>
+          )}
         </Section>
       )}
 
@@ -454,7 +541,9 @@ export default function StudentDetailView({ basePath }: { basePath: BasePath }) 
                       <p className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400">
                         <CalendarDays className="h-3 w-3" />
                         {dateOnly(project.startDate)}
-                        {project.endDate ? ` — ${dateOnly(project.endDate)}` : ""}
+                        {project.endDate
+                          ? ` — ${dateOnly(project.endDate)}`
+                          : ""}
                       </p>
                     )}
                     {project.skills.length > 0 && (
@@ -503,9 +592,7 @@ export default function StudentDetailView({ basePath }: { basePath: BasePath }) 
 
           <Section
             title="Links"
-            icon={
-              <ExternalLink className="h-3.5 w-3.5 text-indigo-500" />
-            }
+            icon={<ExternalLink className="h-3.5 w-3.5 text-indigo-500" />}
           >
             {links.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">

@@ -14,10 +14,10 @@ export default function Loading() {
         <div className="relative flex h-24 w-24 items-center justify-center">
           {/* Outer pulsed glow */}
           <div className="absolute inset-0 animate-ping rounded-3xl bg-indigo-500/20 duration-1000" />
-          
+
           {/* Outer spinning ring */}
           <div className="absolute inset-0 animate-spin rounded-3xl border-2 border-dashed border-indigo-400/40 [animation-duration:6s] dark:border-indigo-400/30" />
-          
+
           {/* Middle counter-spinning ring */}
           <div className="absolute inset-2 animate-spin rounded-2xl border-2 border-t-indigo-600 border-r-transparent border-b-purple-500 border-l-transparent [animation-direction:reverse] [animation-duration:2.5s]" />
 

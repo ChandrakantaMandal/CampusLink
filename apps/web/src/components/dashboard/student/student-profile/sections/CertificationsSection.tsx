@@ -75,16 +75,22 @@ export default function CertificationsSection({
   };
 
   return (
-    <div id="certifications-section" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scroll-mt-24 dark:border-slate-800 dark:bg-slate-900">
+    <div
+      id="certifications-section"
+      className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scroll-mt-24 dark:border-slate-800 dark:bg-slate-900"
+    >
       <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 font-bold border border-amber-100 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-900/50">
             <Award className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Certifications & Accreditations</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Certifications & Accreditations
+            </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Verified certificates, industry internships, and learning credentials.
+              Verified certificates, industry internships, and learning
+              credentials.
             </p>
           </div>
         </div>
@@ -103,7 +109,8 @@ export default function CertificationsSection({
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
         {certifications.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-8 text-center text-xs text-slate-400 dark:text-slate-500">
-            No certifications added yet. Click &quot;Add Certificate&quot; to showcase your achievements.
+            No certifications added yet. Click &quot;Add Certificate&quot; to
+            showcase your achievements.
           </div>
         ) : (
           certifications.map((cert) => (
@@ -158,7 +165,10 @@ export default function CertificationsSection({
 
                   {cert.credentialId && (
                     <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate">
-                      ID: <span className="text-slate-700 dark:text-slate-300 font-medium">{cert.credentialId}</span>
+                      ID:{" "}
+                      <span className="text-slate-700 dark:text-slate-300 font-medium">
+                        {cert.credentialId}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -208,7 +218,9 @@ export default function CertificationsSection({
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="e.g. Cybersecurity Internship"
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                 />
@@ -222,7 +234,9 @@ export default function CertificationsSection({
                   type="text"
                   required
                   value={formData.issuingOrg}
-                  onChange={(e) => setFormData({ ...formData, issuingOrg: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, issuingOrg: e.target.value })
+                  }
                   placeholder="e.g. CTTC or Infosys Springboard"
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                 />
@@ -236,7 +250,9 @@ export default function CertificationsSection({
                   <input
                     type="text"
                     value={formData.issueDate}
-                    onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, issueDate: e.target.value })
+                    }
                     placeholder="e.g. June 2024"
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                   />
@@ -248,7 +264,9 @@ export default function CertificationsSection({
                   <input
                     type="text"
                     value={formData.credentialId}
-                    onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, credentialId: e.target.value })
+                    }
                     placeholder="e.g. CTTC-CS-2024-892"
                     className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                   />
@@ -262,7 +280,9 @@ export default function CertificationsSection({
                 <input
                   type="url"
                   value={formData.certificateUrl}
-                  onChange={(e) => setFormData({ ...formData, certificateUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, certificateUrl: e.target.value })
+                  }
                   placeholder="https://verify.example.com/id"
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
                 />

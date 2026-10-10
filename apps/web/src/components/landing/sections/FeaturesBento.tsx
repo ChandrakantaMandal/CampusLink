@@ -2,13 +2,15 @@
 
 import React from "react";
 
-import {features} from "../common/common"
+import { features } from "../common/common";
 import { CheckCircle2, Sparkles } from "lucide-react";
 
 export default function FeaturesBento() {
-
   return (
-    <section id="features" className="py-20 bg-slate-50/50 dark:bg-slate-900/30">
+    <section
+      id="features"
+      className="py-20 bg-slate-50/50 dark:bg-slate-900/30"
+    >
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
@@ -20,7 +22,8 @@ export default function FeaturesBento() {
             Everything Required For Flawless Campus Placements
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300">
-            Engineered with a high-performance TypeScript monorepo, Next.js, Express, PostgreSQL, Prisma, and dedicated AI intelligence.
+            Engineered with a high-performance TypeScript monorepo, Next.js,
+            Express, PostgreSQL, Prisma, and dedicated AI intelligence.
           </p>
         </div>
 
@@ -60,7 +63,10 @@ export default function FeaturesBento() {
                   {/* Highlights Checklist */}
                   <div className="space-y-1.5 pt-2">
                     {feature.highlights.map((highlight, hIdx) => (
-                      <div key={hIdx} className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300">
+                      <div
+                        key={hIdx}
+                        className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300"
+                      >
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                         <span>{highlight}</span>
                       </div>

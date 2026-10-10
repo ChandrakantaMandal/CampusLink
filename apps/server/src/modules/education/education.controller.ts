@@ -2,7 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
-import { createEducation, getMyEducation, updateEducation } from "./education.service";
+import {
+  createEducation,
+  getMyEducation,
+  updateEducation,
+} from "./education.service";
 
 import {
   createEducationSchema,

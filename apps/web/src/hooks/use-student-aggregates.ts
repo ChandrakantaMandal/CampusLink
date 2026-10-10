@@ -43,9 +43,7 @@ function useAggregate<T>(fetcher: () => Promise<T>): AggregateResult<T> {
 
       setData(result);
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Failed to load data",
-      );
+      setError(error instanceof Error ? error.message : "Failed to load data");
     } finally {
       setLoading(false);
     }

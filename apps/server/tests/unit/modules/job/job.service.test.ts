@@ -31,10 +31,7 @@ vi.mock("@CampusLink/redis", () => ({
   redis: mocks.redis,
 }));
 
-import {
-  getJobs,
-  getJobById,
-} from "../../../../src/modules/jobs/job.service";
+import { getJobs, getJobById } from "../../../../src/modules/jobs/job.service";
 
 describe("job.service", () => {
   beforeEach(() => {

@@ -79,7 +79,13 @@ export function createMailer(env: MailerEnv) {
     });
   }
 
-  async function sendAssessmentLink(email: string, name: string, jobTitle: string, companyName: string, assessmentUrl: string) {
+  async function sendAssessmentLink(
+    email: string,
+    name: string,
+    jobTitle: string,
+    companyName: string,
+    assessmentUrl: string,
+  ) {
     return transporter.sendMail({
       from: env.EMAIL_FROM,
       to: email,
@@ -89,20 +95,47 @@ export function createMailer(env: MailerEnv) {
     });
   }
 
-  async function sendOfferLetter(email: string, name: string, companyName: string, role: string, ctc: string, baseSalary: string, variableBonus: string, joiningDate: string, pdf: Buffer) {
-    const filenamePart = (value: string) => value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+  async function sendOfferLetter(
+    email: string,
+    name: string,
+    companyName: string,
+    role: string,
+    ctc: string,
+    baseSalary: string,
+    variableBonus: string,
+    joiningDate: string,
+    pdf: Buffer,
+  ) {
+    const filenamePart = (value: string) =>
+      value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
     return transporter.sendMail({
       from: env.EMAIL_FROM,
       to: email,
       subject: `Offer letter: ${role} at ${companyName}`,
       text: `Hi ${name},\n\n${companyName} is pleased to offer you the position of ${role}. Total compensation: ${ctc}. Base salary: ${baseSalary}. Variable bonus: ${variableBonus}. Expected joining date: ${joiningDate}. The offer letter PDF is attached.`,
       html: `<p>Hi ${escapeHtml(name)},</p><p>${escapeHtml(companyName)} is pleased to offer you the position of <strong>${escapeHtml(role)}</strong>.</p><p>Total compensation: ${escapeHtml(ctc)}<br>Base salary: ${escapeHtml(baseSalary)}<br>Variable bonus: ${escapeHtml(variableBonus)}<br>Expected joining date: ${escapeHtml(joiningDate)}</p><p>Your offer letter PDF is attached.</p>`,
-      attachments: [{ filename: `Offer-Letter-${filenamePart(companyName)}-${filenamePart(name)}-${filenamePart(role)}.pdf`, content: pdf, contentType: "application/pdf" }],
+      attachments: [
+        {
+          filename: `Offer-Letter-${filenamePart(companyName)}-${filenamePart(name)}-${filenamePart(role)}.pdf`,
+          content: pdf,
+          contentType: "application/pdf",
+        },
+      ],
     });
   }
 
   function escapeHtml(value: string) {
-    return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
+    return value.replace(
+      /[&<>"']/g,
+      (character) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[character] ?? character,
+    );
   }
 
   return {

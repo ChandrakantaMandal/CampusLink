@@ -18,7 +18,9 @@ export default function Footer() {
             </Link>
 
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed">
-              Empowering students, universities, and recruiters with deterministic placement intelligence, automated eligibility checks, and real-time career readiness analytics.
+              Empowering students, universities, and recruiters with
+              deterministic placement intelligence, automated eligibility
+              checks, and real-time career readiness analytics.
             </p>
 
             <div className="flex items-center gap-3 pt-2 text-slate-400">
@@ -47,27 +49,42 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               <li>
-                <a href="#readiness" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <a
+                  href="#readiness"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   Readiness Index
                 </a>
               </li>
               <li>
-                <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <a
+                  href="#features"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   Eligibility Engine
                 </a>
               </li>
               <li>
-                <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <a
+                  href="#features"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   AI Skill Gap Analyzer
                 </a>
               </li>
               <li>
-                <Link href={"/profile" as Route} className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link
+                  href={"/profile" as Route}
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   Student Profile Dashboard
                 </Link>
               </li>
               <li>
-                <Link href={"/ai" as Route} className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link
+                  href={"/ai" as Route}
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   AI Placement Assistant
                 </Link>
               </li>
@@ -81,27 +98,42 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               <li>
-                <a href="#roles" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <a
+                  href="#roles"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   For University Students
                 </a>
               </li>
               <li>
-                <Link href="/login?role=recruiter" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link
+                  href="/login?role=recruiter"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   For Hiring Recruiters (Portal)
                 </Link>
               </li>
               <li>
-                <Link href="/login?role=tpo" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link
+                  href="/login?role=tpo"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   For Training &amp; Placement Cells
                 </Link>
               </li>
               <li>
-                <Link href="/login?role=tpo" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link
+                  href="/login?role=tpo"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   TPO Command Portal
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-indigo-600 dark:hover:text-indigo-400">
+                <Link
+                  href="/login"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
                   Sign In / Registration
                 </Link>
               </li>
@@ -127,7 +159,8 @@ export default function Footer() {
         {/* Bottom Sub-footer */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200/80 pt-8 sm:flex-row dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
           <p>
-            &copy; {new Date().getFullYear()} CAMPUSLINK. Built with ❤️ for next-generation campus placement intelligence.
+            &copy; {new Date().getFullYear()} CAMPUSLINK. Built with ❤️ for
+            next-generation campus placement intelligence.
           </p>
           {/*<div className="flex items-center gap-6">
             <Link href="/" className="hover:underline">

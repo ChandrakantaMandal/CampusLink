@@ -107,7 +107,9 @@ export async function getDashboardStats() {
     db.application.count(),
     db.assessment.count(),
     db.placementDrive.count(),
-    db.application.count({ where: { status: { in: ["OFFER_EXTENDED", "ACCEPTED"] } } }),
+    db.application.count({
+      where: { status: { in: ["OFFER_EXTENDED", "ACCEPTED"] } },
+    }),
   ]);
 
   const stats = {
@@ -717,7 +719,9 @@ function toDayKey(date: Date | string): string {
   return new Date(date).toISOString().slice(0, 10);
 }
 
-type InterviewWithRelations = Awaited<ReturnType<typeof loadInterviews>>[number];
+type InterviewWithRelations = Awaited<
+  ReturnType<typeof loadInterviews>
+>[number];
 
 async function loadInterviews() {
   return db.interview.findMany({
@@ -916,8 +920,15 @@ export async function updateInterviewSchedule(
     throw new Error("Interview not found");
   }
 
-  const { scheduledDate, startTime, endTime, venue, meetingLink, mode, durationMinutes } =
-    data;
+  const {
+    scheduledDate,
+    startTime,
+    endTime,
+    venue,
+    meetingLink,
+    mode,
+    durationMinutes,
+  } = data;
 
   const updated = await db.interview.update({
     where: {
@@ -931,7 +942,9 @@ export async function updateInterviewSchedule(
       ...(meetingLink !== undefined ? { meetingLink } : {}),
       ...(mode !== undefined ? { mode } : {}),
       ...(durationMinutes !== undefined ? { durationMinutes } : {}),
-      ...(interview.status === "SCHEDULED" ? { status: "RESCHEDULED" as const } : {}),
+      ...(interview.status === "SCHEDULED"
+        ? { status: "RESCHEDULED" as const }
+        : {}),
     },
   });
 

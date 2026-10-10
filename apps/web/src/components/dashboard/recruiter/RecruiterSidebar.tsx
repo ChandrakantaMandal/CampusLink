@@ -24,7 +24,10 @@ import {
 } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { authClient } from "@/lib/auth-client";
-import { getRecruiterProfile, getRecruiterStats } from "@/lib/api/recruiter.api";
+import {
+  getRecruiterProfile,
+  getRecruiterStats,
+} from "@/lib/api/recruiter.api";
 import type { RecruiterStats } from "@/lib/api/recruiter.api";
 
 interface RecruiterSidebarProps {
@@ -148,9 +151,15 @@ function buildStatBadges(
     shortlisted: { badge: String(stats.shortlisted) },
     interviews:
       stats.interviewConflicts > 0
-        ? { badge: "Conflict!", badgeColor: "bg-amber-500 text-white animate-pulse" }
+        ? {
+            badge: "Conflict!",
+            badgeColor: "bg-amber-500 text-white animate-pulse",
+          }
         : { badge: "" },
-    offers: { badge: String(stats.offers), badgeColor: "bg-emerald-600 text-white" },
+    offers: {
+      badge: String(stats.offers),
+      badgeColor: "bg-emerald-600 text-white",
+    },
     notifications: {
       badge: String(stats.unreadNotifications),
       badgeColor: "bg-rose-500 text-white",
@@ -182,9 +191,8 @@ export default function RecruiterSidebar({
     };
   }, []);
 
-  const statBadges: Record<string, { badge: string; badgeColor?: string }> = stats
-    ? buildStatBadges(stats)
-    : {};
+  const statBadges: Record<string, { badge: string; badgeColor?: string }> =
+    stats ? buildStatBadges(stats) : {};
   const companyInitials =
     companyName
       .split(/\s+/)
@@ -229,7 +237,12 @@ export default function RecruiterSidebar({
             onClick={() => onClose?.()}
             className="group flex items-center gap-3"
           >
-            <BrandLogo size={38} showText subtitle="Recruiter Portal" priority />
+            <BrandLogo
+              size={38}
+              showText
+              subtitle="Recruiter Portal"
+              priority
+            />
           </Link>
 
           {onClose && (
@@ -256,7 +269,8 @@ export default function RecruiterSidebar({
                 const Icon = item.icon;
                 const isExactActive = pathname === item.href;
                 const isNestedActive =
-                  item.href !== "/recruiter/dashboard" && pathname.startsWith(`${item.href}/`);
+                  item.href !== "/recruiter/dashboard" &&
+                  pathname.startsWith(`${item.href}/`);
                 const isActive = isExactActive || isNestedActive;
                 const statBadge = statBadges[item.id];
 
@@ -267,9 +281,10 @@ export default function RecruiterSidebar({
                     onClick={() => onClose?.()}
                     className={`
                       group flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm
-                      ${isActive
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 font-bold"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/70 dark:hover:text-white"
+                      ${
+                        isActive
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 font-bold"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/70 dark:hover:text-white"
                       }
                     `}
                   >

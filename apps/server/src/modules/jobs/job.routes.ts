@@ -15,11 +15,7 @@ const router = Router();
    Get all jobs
 ========================= */
 
-router.get(
-  "/",
-  requireAuth,
-  getJobsController,
-);
+router.get("/", requireAuth, getJobsController);
 
 /* =========================
    AI Job Match

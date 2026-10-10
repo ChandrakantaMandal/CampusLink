@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
     return new Response(response.body, {
       status: response.status,
       headers: {
-        "Content-Type": response.headers.get("Content-Type") || "text/plain; charset=utf-8",
+        "Content-Type":
+          response.headers.get("Content-Type") || "text/plain; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
         "X-Accel-Buffering": "no",
       },
@@ -32,8 +33,10 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("[Next.js AI Proxy Error]:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Failed to forward AI request" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: error.message || "Failed to forward AI request",
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

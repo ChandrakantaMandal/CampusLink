@@ -10,14 +10,25 @@ const questions = Array.from({ length: 10 }, (_, index) => ({
 
 describe("assessmentQuestionSchema", () => {
   it("accepts exactly ten well-formed questions", () => {
-    expect(assessmentQuestionSchema.safeParse({ questions }).success).toBe(true);
+    expect(assessmentQuestionSchema.safeParse({ questions }).success).toBe(
+      true,
+    );
   });
 
   it("rejects a question set with the wrong count", () => {
-    expect(assessmentQuestionSchema.safeParse({ questions: questions.slice(0, 9) }).success).toBe(false);
+    expect(
+      assessmentQuestionSchema.safeParse({ questions: questions.slice(0, 9) })
+        .success,
+    ).toBe(false);
   });
 
   it("rejects questions without four answer options", () => {
-    expect(assessmentQuestionSchema.safeParse({ questions: questions.map((question, index) => index === 0 ? { ...question, options: ["Only one"] } : question) }).success).toBe(false);
+    expect(
+      assessmentQuestionSchema.safeParse({
+        questions: questions.map((question, index) =>
+          index === 0 ? { ...question, options: ["Only one"] } : question,
+        ),
+      }).success,
+    ).toBe(false);
   });
 });

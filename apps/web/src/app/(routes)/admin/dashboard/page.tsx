@@ -3,7 +3,8 @@ import DashboardHomeView from "@/components/dashboard/admin/views/DashboardHomeV
 
 export const metadata: Metadata = {
   title: "Admin Dashboard — CAMPUSLINK Placement Intelligence",
-  description: "Executive control center for campus placements, drives, candidate readiness, and company recruiters.",
+  description:
+    "Executive control center for campus placements, drives, candidate readiness, and company recruiters.",
 };
 
 export default function AdminDashboardPage() {

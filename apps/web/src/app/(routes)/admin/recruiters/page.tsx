@@ -3,7 +3,8 @@ import RecruitersManagementView from "@/components/dashboard/admin/views/Recruit
 
 export const metadata: Metadata = {
   title: "Recruiters & Companies — CAMPUSLINK Admin",
-  description: "Corporate recruiter management, MoUs, hiring tiers, and job roles verification.",
+  description:
+    "Corporate recruiter management, MoUs, hiring tiers, and job roles verification.",
 };
 
 export default function AdminRecruitersPage() {

@@ -18,7 +18,7 @@ import {
   ExternalLink,
   ShieldCheck,
   FileText,
-  Video
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { DashboardNotification } from "@/lib/dashboard-adapters";
@@ -38,9 +38,8 @@ export function NotificationsView({
   initialNotifications = [],
   onRefresh,
 }: NotificationsViewProps) {
-  const [notifications, setNotifications] = useState<DashboardNotification[]>(
-    initialNotifications
-  );
+  const [notifications, setNotifications] =
+    useState<DashboardNotification[]>(initialNotifications);
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
@@ -71,7 +70,7 @@ export function NotificationsView({
     try {
       await markMyNotificationRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: !current.read } : n))
+        prev.map((n) => (n.id === id ? { ...n, read: !current.read } : n)),
       );
       onRefresh?.();
     } catch {
@@ -131,7 +130,8 @@ export function NotificationsView({
               Placement Notifications
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Official institutional recruitment notices, interview call letters, test links, and offer announcements.
+              Official institutional recruitment notices, interview call
+              letters, test links, and offer announcements.
             </p>
           </div>
 
@@ -180,10 +180,11 @@ export function NotificationsView({
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${activeCategory === cat.id
-                ? "bg-[#6366F1] text-white shadow-xs"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                }`}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === cat.id
+                  ? "bg-[#6366F1] text-white shadow-xs"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
             >
               {cat.label}
             </button>
@@ -219,22 +220,26 @@ export function NotificationsView({
           filtered.map((item) => (
             <div
               key={item.id}
-              className={`p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs ${item.read
-                ? "border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40"
-                : "border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/40 dark:bg-indigo-950/20"
-                }`}
+              className={`p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs ${
+                item.read
+                  ? "border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40"
+                  : "border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/40 dark:bg-indigo-950/20"
+              }`}
             >
               {/* Left Column */}
               <div className="flex items-start gap-3.5">
                 <div
-                  className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${item.read ? "bg-slate-300 dark:bg-slate-700" : "bg-[#6366F1]"
-                    }`}
+                  className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${
+                    item.read
+                      ? "bg-slate-300 dark:bg-slate-700"
+                      : "bg-[#6366F1]"
+                  }`}
                 />
                 <div>
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span
                       className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${getBadgeStyle(
-                        item.category
+                        item.category,
                       )}`}
                     >
                       {item.category}

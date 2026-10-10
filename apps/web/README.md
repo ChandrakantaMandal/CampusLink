@@ -96,22 +96,24 @@ apps/web/
 
 ### 1. 🎓 Student Experience (`/student/*`)
 
-| Route | Feature | Key Components |
-|---|---|---|
-| `/student/dashboard` | Placement Overview | `WelcomeBanner`, `KeyStatistics`, `UpcomingDrivesCard`, `AIReadinessCard`, `ApplicationsTracker`. |
-| `/student/profile` | 13-Section Student Portfolio | `PersonalInformation`, `EducationSection`, `ProjectsSection`, `SkillsSection`, `CertificationsSection`, `ResumeSection`, `ResumePreviewModal`. |
-| `/student/jobs` | Smart Job Explorer | Instant match percentage badges, required vs matched skill tags, quick apply. |
-| `/student/drives` | Placement Drive Hub | Filter by Tier 1/2/3, real-time CGPA/branch eligibility badge, 1-click drive registration. |
-| `/student/applications`| Application Pipeline | Track stages from `APPLIED` to `INTERVIEW` to `ACCEPTED`. |
-| `/student/interviews` | Interview Schedule | Interview rounds, scheduled date/time, Google Meet links, conflict alerts. |
-| `/student/offers` | Offers & CTC Breakdown | Salary packages (Base + Variable Bonus), offer letter download, 1-click acceptance. |
-| `/student/readiness` | Career Readiness Analysis | Breakdown across Academics (20%), Technical Skills (30%), Projects (20%), and Certifications. |
-| `/student/skills` | Skill Assessment Matrix | Self-rating, proficiency levels (`BEGINNER` to `EXPERT`), experience years. |
-| `/student/notifications`| Notification Inbox | Drive announcements, status changes, interview alerts. |
-| `/student/settings` | Profile & Account Settings | Password change, visibility toggle, notification preferences. |
+| Route                    | Feature                      | Key Components                                                                                                                                 |
+| ------------------------ | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/student/dashboard`     | Placement Overview           | `WelcomeBanner`, `KeyStatistics`, `UpcomingDrivesCard`, `AIReadinessCard`, `ApplicationsTracker`.                                              |
+| `/student/profile`       | 13-Section Student Portfolio | `PersonalInformation`, `EducationSection`, `ProjectsSection`, `SkillsSection`, `CertificationsSection`, `ResumeSection`, `ResumePreviewModal`. |
+| `/student/jobs`          | Smart Job Explorer           | Instant match percentage badges, required vs matched skill tags, quick apply.                                                                  |
+| `/student/drives`        | Placement Drive Hub          | Filter by Tier 1/2/3, real-time CGPA/branch eligibility badge, 1-click drive registration.                                                     |
+| `/student/applications`  | Application Pipeline         | Track stages from `APPLIED` to `INTERVIEW` to `ACCEPTED`.                                                                                      |
+| `/student/interviews`    | Interview Schedule           | Interview rounds, scheduled date/time, Google Meet links, conflict alerts.                                                                     |
+| `/student/offers`        | Offers & CTC Breakdown       | Salary packages (Base + Variable Bonus), offer letter download, 1-click acceptance.                                                            |
+| `/student/readiness`     | Career Readiness Analysis    | Breakdown across Academics (20%), Technical Skills (30%), Projects (20%), and Certifications.                                                  |
+| `/student/skills`        | Skill Assessment Matrix      | Self-rating, proficiency levels (`BEGINNER` to `EXPERT`), experience years.                                                                    |
+| `/student/notifications` | Notification Inbox           | Drive announcements, status changes, interview alerts.                                                                                         |
+| `/student/settings`      | Profile & Account Settings   | Password change, visibility toggle, notification preferences.                                                                                  |
 
 #### Student Resume AI Analyzer
+
 Within `/student/profile`, students can upload their resume (PDF). The file is stored in ImageKit, analyzed by the Python microservice (PyMuPDF + Gemini), and produces:
+
 - Automatically extracted skills, projects, and educational credentials.
 - Concrete resume strengths and weaknesses.
 - Actionable recommendations for improvement.
@@ -120,32 +122,32 @@ Within `/student/profile`, students can upload their resume (PDF). The file is s
 
 ### 2. 🏢 Recruiter Experience (`/recruiter/*`)
 
-| Route | Feature | Key Components |
-|---|---|---|
-| `/recruiter/dashboard` | Hiring Metrics | `RecruiterDashboardHomeView`: Active jobs, applicants in review, scheduled interviews, offers extended. |
-| `/recruiter/jobs` | Job Posting Creator | `RecruiterJobsView`: Multi-round hiring workflow creator, salary bounds, branch eligibility filters. |
-| `/recruiter/candidates`| Candidate Discovery | `RecruiterCandidatesView`: Filter verified students by department, CGPA, and specific skill tags. |
-| `/recruiter/shortlisted`| Shortlist & Test Invites | `RecruiterShortlistedView`: Move candidates into test stages; batch assessment invite email dispatch. |
-| `/recruiter/interviews`| Interview Logistics | `RecruiterInterviewsView`: Schedule virtual/in-person rounds, assign panelists, submit ratings & feedback. |
-| `/recruiter/offers` | Offer Release & Tracking | `RecruiterOffersView`: Draft formal offers, customize compensation, track student response deadlines. |
-| `/recruiter/profile` | Company Branding | `RecruiterCompanyProfileView`: Company bio, website, tier, and logo upload via ImageKit. |
-| `/recruiter/settings` | Notification Preferences | `RecruiterSettingsView`: Email alerts for new applications and interview acceptances. |
+| Route                    | Feature                  | Key Components                                                                                             |
+| ------------------------ | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `/recruiter/dashboard`   | Hiring Metrics           | `RecruiterDashboardHomeView`: Active jobs, applicants in review, scheduled interviews, offers extended.    |
+| `/recruiter/jobs`        | Job Posting Creator      | `RecruiterJobsView`: Multi-round hiring workflow creator, salary bounds, branch eligibility filters.       |
+| `/recruiter/candidates`  | Candidate Discovery      | `RecruiterCandidatesView`: Filter verified students by department, CGPA, and specific skill tags.          |
+| `/recruiter/shortlisted` | Shortlist & Test Invites | `RecruiterShortlistedView`: Move candidates into test stages; batch assessment invite email dispatch.      |
+| `/recruiter/interviews`  | Interview Logistics      | `RecruiterInterviewsView`: Schedule virtual/in-person rounds, assign panelists, submit ratings & feedback. |
+| `/recruiter/offers`      | Offer Release & Tracking | `RecruiterOffersView`: Draft formal offers, customize compensation, track student response deadlines.      |
+| `/recruiter/profile`     | Company Branding         | `RecruiterCompanyProfileView`: Company bio, website, tier, and logo upload via ImageKit.                   |
+| `/recruiter/settings`    | Notification Preferences | `RecruiterSettingsView`: Email alerts for new applications and interview acceptances.                      |
 
 ---
 
 ### 3. 🏛️ Admin / TPO Experience (`/admin/*`)
 
-| Route | Feature | Key Components |
-|---|---|---|
-| `/admin/dashboard` | Central Command Center | `DashboardHomeView`: College-wide placement % KPI, highest CTC, drive calendars, active companies. |
-| `/admin/analytics` | Deep Placement Analytics | `AdminAnalyticsView`: Branch-wise placement distribution, salary brackets, hiring partner benchmarks. |
-| `/admin/students` | Student Academic Verification | `StudentsManagementView`: Student directory, backlog verification, verification toggle switches. |
-| `/admin/recruiters` | Company & Recruiter Governance | `RecruitersManagementView`: Verify company profiles, assign company tier (Tier 1/2/3). |
-| `/admin/drives` | Drive Operations Management | `PlacementDrivesView`: Schedule on-campus/virtual drives, configure rounds, venues, and deadlines. |
-| `/admin/interviews` | Global Conflict Resolution | `InterviewScheduleView`: Master interview grid across all companies; detect overlapping student interviews. |
-| `/admin/offers` | Offer Approvals & Policy | `OffersManagementView`: Audit release offers, ensure compliance with college placement policy. |
-| `/admin/notifications`| Broadcast Announcements | `AdminNotificationsView`: Send broadcast push/email alerts to all students or recruiters. |
-| `/admin/settings` | Placement Policy Config | `AdminSettingsView`: Academic thresholds, dual-offer eligibility rules, system parameters. |
+| Route                  | Feature                        | Key Components                                                                                              |
+| ---------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `/admin/dashboard`     | Central Command Center         | `DashboardHomeView`: College-wide placement % KPI, highest CTC, drive calendars, active companies.          |
+| `/admin/analytics`     | Deep Placement Analytics       | `AdminAnalyticsView`: Branch-wise placement distribution, salary brackets, hiring partner benchmarks.       |
+| `/admin/students`      | Student Academic Verification  | `StudentsManagementView`: Student directory, backlog verification, verification toggle switches.            |
+| `/admin/recruiters`    | Company & Recruiter Governance | `RecruitersManagementView`: Verify company profiles, assign company tier (Tier 1/2/3).                      |
+| `/admin/drives`        | Drive Operations Management    | `PlacementDrivesView`: Schedule on-campus/virtual drives, configure rounds, venues, and deadlines.          |
+| `/admin/interviews`    | Global Conflict Resolution     | `InterviewScheduleView`: Master interview grid across all companies; detect overlapping student interviews. |
+| `/admin/offers`        | Offer Approvals & Policy       | `OffersManagementView`: Audit release offers, ensure compliance with college placement policy.              |
+| `/admin/notifications` | Broadcast Announcements        | `AdminNotificationsView`: Send broadcast push/email alerts to all students or recruiters.                   |
+| `/admin/settings`      | Placement Policy Config        | `AdminSettingsView`: Academic thresholds, dual-offer eligibility rules, system parameters.                  |
 
 ---
 
@@ -182,6 +184,7 @@ The web application leverages `@CampusLink/ui` shared primitives along with cust
 ## ⚡ State Management & API Layer
 
 ### Centralized Axios Client (`src/lib/api/client.ts`)
+
 ```typescript
 import axios from "axios";
 
@@ -237,11 +240,13 @@ pnpm run dev
 ```
 
 The application will be live at:
+
 ```text
 http://localhost:3001
 ```
 
 ### Production Build:
+
 ```bash
 pnpm --filter web build
 pnpm --filter web start

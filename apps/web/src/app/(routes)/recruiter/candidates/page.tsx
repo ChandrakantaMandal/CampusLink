@@ -3,7 +3,8 @@ import RecruiterCandidatesView from "@/components/dashboard/recruiter/views/Recr
 
 export const metadata: Metadata = {
   title: "Candidate Directory — CAMPUSLINK Recruiter Portal",
-  description: "Browse, filter, and inspect campus student profiles, CGPA, and readiness scores.",
+  description:
+    "Browse, filter, and inspect campus student profiles, CGPA, and readiness scores.",
 };
 
 export default function RecruiterCandidatesPage() {

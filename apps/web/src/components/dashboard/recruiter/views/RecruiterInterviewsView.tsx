@@ -101,12 +101,15 @@ export default function RecruiterInterviewsView() {
       .then(([interviewRows, candidateRows, jobRows]) => {
         if (cancelled) return;
         setInterviews(interviewRows);
-        const eligibleCandidates = candidateRows.filter((candidate) => candidate.assessmentPassed === true);
+        const eligibleCandidates = candidateRows.filter(
+          (candidate) => candidate.assessmentPassed === true,
+        );
         setCandidates(eligibleCandidates);
         setJobs(jobRows);
         setNewInterview((prev) => ({
           ...prev,
-          candidateId: eligibleCandidates[0]?.studentId ?? eligibleCandidates[0]?.id ?? "",
+          candidateId:
+            eligibleCandidates[0]?.studentId ?? eligibleCandidates[0]?.id ?? "",
           applicationId: eligibleCandidates[0]?.applicationId ?? "",
           jobId: eligibleCandidates[0]?.appliedJobId ?? jobRows[0]?.id ?? "",
         }));
@@ -337,7 +340,8 @@ export default function RecruiterInterviewsView() {
             Interview Management & Scheduling
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Conduct multi-round technical & HR evaluations with automated campus conflict detection.
+            Conduct multi-round technical & HR evaluations with automated campus
+            conflict detection.
           </p>
         </div>
 
@@ -369,14 +373,19 @@ export default function RecruiterInterviewsView() {
                   </span>
                 </div>
                 <p className="text-xs text-amber-900/90 dark:text-amber-200/90 leading-relaxed max-w-2xl">
-                  <strong>Candidate: {conflict.candidateName}</strong> has an overlapping interview slot:
+                  <strong>Candidate: {conflict.candidateName}</strong> has an
+                  overlapping interview slot:
                   <br />
-                  <span className="font-semibold text-slate-900 dark:text-white">Existing Slot:</span>{" "}
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Existing Slot:
+                  </span>{" "}
                   {conflict.conflictDetails
                     ? `${conflict.conflictDetails.conflictingWith} (${conflict.conflictDetails.existingSlot})`
                     : "Another booked campus interview slot"}
                   <br />
-                  <span className="font-semibold text-slate-900 dark:text-white">Your Scheduled Slot:</span>{" "}
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Your Scheduled Slot:
+                  </span>{" "}
                   {conflict.date} &bull; {conflict.time} ({conflict.round})
                 </p>
               </div>
@@ -410,88 +419,93 @@ export default function RecruiterInterviewsView() {
             No interviews scheduled yet.
           </div>
         ) : (
-        interviews.map((int) => (
-          <div
-            key={int.id}
-            className={`rounded-2xl border p-5 shadow-xs transition-all ${
-              int.hasConflict
-                ? "border-amber-400 dark:border-amber-600/80 bg-amber-50/40 dark:bg-amber-950/20"
-                : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-blue-400"
-            }`}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">
-                    {int.candidateName}
-                  </h3>
-                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                    &bull; {int.round}
-                  </span>
-                  {int.hasConflict && (
-                    <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 animate-pulse">
-                      Slot Conflict!
+          interviews.map((int) => (
+            <div
+              key={int.id}
+              className={`rounded-2xl border p-5 shadow-xs transition-all ${
+                int.hasConflict
+                  ? "border-amber-400 dark:border-amber-600/80 bg-amber-50/40 dark:bg-amber-950/20"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:border-blue-400"
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h3 className="text-base font-black text-slate-900 dark:text-white">
+                      {int.candidateName}
+                    </h3>
+                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                      &bull; {int.round}
                     </span>
-                  )}
+                    {int.hasConflict && (
+                      <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 animate-pulse">
+                        Slot Conflict!
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Role:{" "}
+                    <strong className="text-slate-700 dark:text-slate-300">
+                      {int.jobTitle}
+                    </strong>{" "}
+                    &bull; Panel: {int.interviewerPanel}
+                  </p>
                 </div>
 
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Role: <strong className="text-slate-700 dark:text-slate-300">{int.jobTitle}</strong> &bull; Panel: {int.interviewerPanel}
-                </p>
-              </div>
-
-              {/* Status Badge */}
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                  int.status === "Completed"
-                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                    : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                }`}
-              >
-                {int.status}
-              </span>
-            </div>
-
-            {/* Time, Venue & Link */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <div className="flex flex-wrap items-center gap-4 text-slate-600 dark:text-slate-400">
-                <span className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
-                  <Clock className="h-3.5 w-3.5 text-amber-500" />
-                  {int.date} &bull; {int.time} ({int.duration})
-                </span>
-
-                <span className="flex items-center gap-1.5">
-                  <Video className="h-3.5 w-3.5 text-blue-500" />
-                  {int.mode}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {int.meetingLink && (
-                  <a
-                    href={int.meetingLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    <span>Join Meeting Room</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => openReschedule(int)}
-                  disabled={isRescheduling}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-1.5 font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                {/* Status Badge */}
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                    int.status === "Completed"
+                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                  }`}
                 >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  <span>Reschedule</span>
-                </button>
+                  {int.status}
+                </span>
+              </div>
+
+              {/* Time, Venue & Link */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                <div className="flex flex-wrap items-center gap-4 text-slate-600 dark:text-slate-400">
+                  <span className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
+                    <Clock className="h-3.5 w-3.5 text-amber-500" />
+                    {int.date} &bull; {int.time} ({int.duration})
+                  </span>
+
+                  <span className="flex items-center gap-1.5">
+                    <Video className="h-3.5 w-3.5 text-blue-500" />
+                    {int.mode}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {int.meetingLink && (
+                    <a
+                      href={int.meetingLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      <span>Join Meeting Room</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => openReschedule(int)}
+                    disabled={isRescheduling}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-1.5 font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    <span>Reschedule</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )))}
+          ))
+        )}
       </div>
 
       {/* Schedule Interview Modal */}
@@ -513,12 +527,22 @@ export default function RecruiterInterviewsView() {
 
             <form onSubmit={handleSchedule} className="space-y-3.5">
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Select Candidate</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Select Candidate
+                </label>
                 <select
                   value={newInterview.applicationId}
                   onChange={(e) => {
-                    const selected = candidates.find((candidate) => candidate.applicationId === e.target.value);
-                    if (selected) setNewInterview({ ...newInterview, candidateId: selected.studentId ?? selected.id, applicationId: selected.applicationId ?? "", jobId: selected.appliedJobId });
+                    const selected = candidates.find(
+                      (candidate) => candidate.applicationId === e.target.value,
+                    );
+                    if (selected)
+                      setNewInterview({
+                        ...newInterview,
+                        candidateId: selected.studentId ?? selected.id,
+                        applicationId: selected.applicationId ?? "",
+                        jobId: selected.appliedJobId,
+                      });
                   }}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                 >
@@ -528,18 +552,26 @@ export default function RecruiterInterviewsView() {
                     </option>
                   )}
                   {candidates.map((c) => (
-                    <option key={c.applicationId ?? c.id} value={c.applicationId ?? c.id}>
-                      {c.name} — {c.appliedJobTitle} ({c.assessmentPercentage ?? 0}% assessment)
+                    <option
+                      key={c.applicationId ?? c.id}
+                      value={c.applicationId ?? c.id}
+                    >
+                      {c.name} — {c.appliedJobTitle} (
+                      {c.assessmentPercentage ?? 0}% assessment)
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Target Role</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Target Role
+                </label>
                 <select
                   value={newInterview.jobId}
-                  onChange={(e) => setNewInterview({ ...newInterview, jobId: e.target.value })}
+                  onChange={(e) =>
+                    setNewInterview({ ...newInterview, jobId: e.target.value })
+                  }
                   disabled={Boolean(newInterview.applicationId)}
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                 >
@@ -558,22 +590,30 @@ export default function RecruiterInterviewsView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Date</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Date
+                  </label>
                   <input
                     type="date"
                     value={newInterview.date}
-                    onChange={(e) => setNewInterview({ ...newInterview, date: e.target.value })}
+                    onChange={(e) =>
+                      setNewInterview({ ...newInterview, date: e.target.value })
+                    }
                     className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Time Slot</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Time Slot
+                  </label>
                   <input
                     type="text"
                     value={newInterview.time}
-                    onChange={(e) => setNewInterview({ ...newInterview, time: e.target.value })}
+                    onChange={(e) =>
+                      setNewInterview({ ...newInterview, time: e.target.value })
+                    }
                     className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                     required
                   />
@@ -581,23 +621,37 @@ export default function RecruiterInterviewsView() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Interviewer Panel</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Interviewer Panel
+                </label>
                 <input
                   type="text"
                   value={newInterview.interviewerPanel}
-                  onChange={(e) => setNewInterview({ ...newInterview, interviewerPanel: e.target.value })}
+                  onChange={(e) =>
+                    setNewInterview({
+                      ...newInterview,
+                      interviewerPanel: e.target.value,
+                    })
+                  }
                   className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Google Meet Link</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Google Meet Link
+                </label>
                 <div className="mt-1 flex gap-2">
                   <input
                     type="url"
                     value={newInterview.meetingLink}
-                    onChange={(e) => setNewInterview({ ...newInterview, meetingLink: e.target.value })}
+                    onChange={(e) =>
+                      setNewInterview({
+                        ...newInterview,
+                        meetingLink: e.target.value,
+                      })
+                    }
                     placeholder="https://meet.google.com/xxx-xxxx-xxx"
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs"
                   />
@@ -615,7 +669,8 @@ export default function RecruiterInterviewsView() {
                   </button>
                 </div>
                 <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
-                  Optional &mdash; paste your Google Meet link or generate a room code
+                  Optional &mdash; paste your Google Meet link or generate a
+                  room code
                 </p>
               </div>
 
@@ -678,12 +733,13 @@ export default function RecruiterInterviewsView() {
               </button>
             </div>
 
-            {rescheduleTarget.hasConflict && rescheduleTarget.conflictDetails && (
-              <div className="rounded-xl border border-amber-400/70 bg-amber-50 dark:bg-amber-950/40 p-3 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
-                <strong>Conflict:</strong>{" "}
-                {rescheduleTarget.conflictDetails.message}
-              </div>
-            )}
+            {rescheduleTarget.hasConflict &&
+              rescheduleTarget.conflictDetails && (
+                <div className="rounded-xl border border-amber-400/70 bg-amber-50 dark:bg-amber-950/40 p-3 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
+                  <strong>Conflict:</strong>{" "}
+                  {rescheduleTarget.conflictDetails.message}
+                </div>
+              )}
 
             <form onSubmit={handleReschedule} className="space-y-3.5">
               <div>

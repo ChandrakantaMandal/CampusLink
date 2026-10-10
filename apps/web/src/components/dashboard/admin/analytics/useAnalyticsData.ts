@@ -74,7 +74,7 @@ export function useAnalyticsData() {
     if (!placementsData.length) return null;
     const total = placementsData.length;
     const placedCount = placementsData.filter(
-      (r) => String(r.Placement_Status).trim().toLowerCase() === "placed"
+      (r) => String(r.Placement_Status).trim().toLowerCase() === "placed",
     ).length;
     const unplacedCount = total - placedCount;
     const placementRate = ((placedCount / total) * 100).toFixed(1);
@@ -83,28 +83,46 @@ export function useAnalyticsData() {
       .map((r) => Number(r.CGPA))
       .filter((n) => !isNaN(n) && n > 0);
     const avgCGPA = validCgpaList.length
-      ? (validCgpaList.reduce((acc, n) => acc + n, 0) / validCgpaList.length).toFixed(2)
+      ? (
+          validCgpaList.reduce((acc, n) => acc + n, 0) / validCgpaList.length
+        ).toFixed(2)
       : "0.00";
 
     const validAptitudeList = placementsData
       .map((r) => Number(r.Aptitude_Score))
       .filter((n) => !isNaN(n) && n > 0);
     const avgAptitude = validAptitudeList.length
-      ? (validAptitudeList.reduce((acc, n) => acc + n, 0) / validAptitudeList.length).toFixed(1)
+      ? (
+          validAptitudeList.reduce((acc, n) => acc + n, 0) /
+          validAptitudeList.length
+        ).toFixed(1)
       : "0.0";
 
     // Branch breakdown
     const branchMap: Record<
       string,
-      { branch: string; Placed: number; Unplaced: number; total: number; rate: number }
+      {
+        branch: string;
+        Placed: number;
+        Unplaced: number;
+        total: number;
+        rate: number;
+      }
     > = {};
     const skillMap: Record<string, number> = {};
-    const commMap: Record<string, { comm: string; Placed: number; Total: number; rate: number }> = {};
-    const genderMap: Record<string, { gender: string; Placed: number; Total: number }> = {};
+    const commMap: Record<
+      string,
+      { comm: string; Placed: number; Total: number; rate: number }
+    > = {};
+    const genderMap: Record<
+      string,
+      { gender: string; Placed: number; Total: number }
+    > = {};
 
     placementsData.forEach((r) => {
       const b = (r.Branch || "Other").trim().toUpperCase();
-      const isPlaced = String(r.Placement_Status).trim().toLowerCase() === "placed";
+      const isPlaced =
+        String(r.Placement_Status).trim().toLowerCase() === "placed";
 
       if (!branchMap[b]) {
         branchMap[b] = { branch: b, Placed: 0, Unplaced: 0, total: 0, rate: 0 };
@@ -119,29 +137,36 @@ export function useAnalyticsData() {
 
       // Communication
       const comm = (r.Communication_Skills || "Average").trim();
-      if (!commMap[comm]) commMap[comm] = { comm, Placed: 0, Total: 0, rate: 0 };
+      if (!commMap[comm])
+        commMap[comm] = { comm, Placed: 0, Total: 0, rate: 0 };
       commMap[comm].Total++;
       if (isPlaced) commMap[comm].Placed++;
 
       // Gender
       const gender = (r.Gender || "Other").trim();
-      if (!genderMap[gender]) genderMap[gender] = { gender, Placed: 0, Total: 0 };
+      if (!genderMap[gender])
+        genderMap[gender] = { gender, Placed: 0, Total: 0 };
       genderMap[gender].Total++;
       if (isPlaced) genderMap[gender].Placed++;
     });
 
     Object.values(branchMap).forEach((item) => {
-      item.rate = item.total > 0 ? Math.round((item.Placed / item.total) * 100) : 0;
+      item.rate =
+        item.total > 0 ? Math.round((item.Placed / item.total) * 100) : 0;
     });
 
     Object.values(commMap).forEach((item) => {
-      item.rate = item.Total > 0 ? Math.round((item.Placed / item.Total) * 100) : 0;
+      item.rate =
+        item.Total > 0 ? Math.round((item.Placed / item.Total) * 100) : 0;
     });
 
     const scatterSample = placementsData.slice(0, 120).map((r) => ({
       cgpa: Number(r.CGPA) || 0,
       aptitude: Number(r.Aptitude_Score) || 0,
-      status: String(r.Placement_Status).trim().toLowerCase() === "placed" ? "Placed" : "Unplaced",
+      status:
+        String(r.Placement_Status).trim().toLowerCase() === "placed"
+          ? "Placed"
+          : "Unplaced",
     }));
 
     return {
@@ -152,7 +177,10 @@ export function useAnalyticsData() {
       avgCGPA,
       avgAptitude,
       branchData: Object.values(branchMap).sort((a, b) => b.total - a.total),
-      skillData: Object.entries(skillMap).map(([name, value]) => ({ name, value })),
+      skillData: Object.entries(skillMap).map(([name, value]) => ({
+        name,
+        value,
+      })),
       commData: Object.values(commMap),
       scatterSample,
       genderData: Object.values(genderMap),
@@ -171,14 +199,18 @@ export function useAnalyticsData() {
     if (!validSalaries.length) return null;
 
     const highest = Math.max(...validSalaries).toFixed(1);
-    const median = validSalaries[Math.floor(validSalaries.length / 2)]?.toFixed(1) || "0.0";
+    const median =
+      validSalaries[Math.floor(validSalaries.length / 2)]?.toFixed(1) || "0.0";
     const average = (
       validSalaries.reduce((acc, s) => acc + s, 0) / validSalaries.length
     ).toFixed(1);
 
     const locMap: Record<string, number> = {};
     salariesData.forEach((r) => {
-      const rawLoc = r.Location && String(r.Location).trim() !== "" ? String(r.Location).trim() : "Other / Remote";
+      const rawLoc =
+        r.Location && String(r.Location).trim() !== ""
+          ? String(r.Location).trim()
+          : "Other / Remote";
       const mainLoc = rawLoc.split(/[/,]/)[0]?.trim() || "Other";
       locMap[mainLoc] = (locMap[mainLoc] || 0) + 1;
     });
@@ -188,7 +220,11 @@ export function useAnalyticsData() {
       .map((r) => ({ company: r.Company.trim(), ctc: Number(r.CTC_LPA) || 0 }))
       .sort((a, b) => b.ctc - a.ctc)
       .reduce<{ company: string; ctc: number }[]>((acc, cur) => {
-        if (!acc.some((x) => x.company.toLowerCase() === cur.company.toLowerCase())) {
+        if (
+          !acc.some(
+            (x) => x.company.toLowerCase() === cur.company.toLowerCase(),
+          )
+        ) {
           acc.push(cur);
         }
         return acc;
@@ -199,27 +235,45 @@ export function useAnalyticsData() {
       {
         range: "< 5 LPA",
         count: validSalaries.filter((s) => s < 5).length,
-        percentage: Math.round((validSalaries.filter((s) => s < 5).length / validSalaries.length) * 100),
+        percentage: Math.round(
+          (validSalaries.filter((s) => s < 5).length / validSalaries.length) *
+            100,
+        ),
       },
       {
         range: "5 - 10 LPA",
         count: validSalaries.filter((s) => s >= 5 && s < 10).length,
-        percentage: Math.round((validSalaries.filter((s) => s >= 5 && s < 10).length / validSalaries.length) * 100),
+        percentage: Math.round(
+          (validSalaries.filter((s) => s >= 5 && s < 10).length /
+            validSalaries.length) *
+            100,
+        ),
       },
       {
         range: "10 - 20 LPA",
         count: validSalaries.filter((s) => s >= 10 && s < 20).length,
-        percentage: Math.round((validSalaries.filter((s) => s >= 10 && s < 20).length / validSalaries.length) * 100),
+        percentage: Math.round(
+          (validSalaries.filter((s) => s >= 10 && s < 20).length /
+            validSalaries.length) *
+            100,
+        ),
       },
       {
         range: "20 - 35 LPA",
         count: validSalaries.filter((s) => s >= 20 && s < 35).length,
-        percentage: Math.round((validSalaries.filter((s) => s >= 20 && s < 35).length / validSalaries.length) * 100),
+        percentage: Math.round(
+          (validSalaries.filter((s) => s >= 20 && s < 35).length /
+            validSalaries.length) *
+            100,
+        ),
       },
       {
         range: "35+ LPA",
         count: validSalaries.filter((s) => s >= 35).length,
-        percentage: Math.round((validSalaries.filter((s) => s >= 35).length / validSalaries.length) * 100),
+        percentage: Math.round(
+          (validSalaries.filter((s) => s >= 35).length / validSalaries.length) *
+            100,
+        ),
       },
     ];
 
@@ -249,23 +303,30 @@ export function useAnalyticsData() {
       .map((r) => Number(r.resume_score))
       .filter((n) => !isNaN(n));
     const avgScore = validScores.length
-      ? (validScores.reduce((acc, s) => acc + s, 0) / validScores.length).toFixed(1)
+      ? (
+          validScores.reduce((acc, s) => acc + s, 0) / validScores.length
+        ).toFixed(1)
       : "0.0";
 
     const validCalls = resumesData
       .map((r) => Number(r.interview_calls))
       .filter((n) => !isNaN(n));
     const avgCalls = validCalls.length
-      ? (validCalls.reduce((acc, s) => acc + s, 0) / validCalls.length).toFixed(1)
+      ? (validCalls.reduce((acc, s) => acc + s, 0) / validCalls.length).toFixed(
+          1,
+        )
       : "0.0";
 
     const githubCount = resumesData.filter(
-      (r) => String(r.github_portfolio).trim().toLowerCase() === "yes"
+      (r) => String(r.github_portfolio).trim().toLowerCase() === "yes",
     ).length;
     const githubPct = ((githubCount / total) * 100).toFixed(0);
 
     const degreeMap: Record<string, number> = {};
-    const projCalls: Record<string, { proj: string; calls: number; count: number }> = {};
+    const projCalls: Record<
+      string,
+      { proj: string; calls: number; count: number }
+    > = {};
     const scoreBins: Record<
       string,
       { range: string; minScore: number; totalCalls: number; count: number }
@@ -316,7 +377,10 @@ export function useAnalyticsData() {
       }))
       .sort((a, b) => parseInt(a.proj) - parseInt(b.proj));
 
-    const degreeData = Object.entries(degreeMap).map(([name, value]) => ({ name, value }));
+    const degreeData = Object.entries(degreeMap).map(([name, value]) => ({
+      name,
+      value,
+    }));
 
     return {
       total,
@@ -337,17 +401,23 @@ export function useAnalyticsData() {
     if (tab === "placements") {
       filename = "campuslink_college_placements.csv";
       const headers = Object.keys(placementsData[0] || {}).join(",");
-      const rows = placementsData.map((r) => Object.values(r).join(",")).join("\n");
+      const rows = placementsData
+        .map((r) => Object.values(r).join(","))
+        .join("\n");
       content = `${headers}\n${rows}`;
     } else if (tab === "salaries") {
       filename = "campuslink_fresher_salaries.csv";
       const headers = Object.keys(salariesData[0] || {}).join(",");
-      const rows = salariesData.map((r) => Object.values(r).join(",")).join("\n");
+      const rows = salariesData
+        .map((r) => Object.values(r).join(","))
+        .join("\n");
       content = `${headers}\n${rows}`;
     } else {
       filename = "campuslink_resume_interview.csv";
       const headers = Object.keys(resumesData[0] || {}).join(",");
-      const rows = resumesData.map((r) => Object.values(r).join(",")).join("\n");
+      const rows = resumesData
+        .map((r) => Object.values(r).join(","))
+        .join("\n");
       content = `${headers}\n${rows}`;
     }
 
