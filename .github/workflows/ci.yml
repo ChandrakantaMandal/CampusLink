@@ -20,6 +20,7 @@ jobs:
   quality:
     name: Quality Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     services:
       postgres:
@@ -47,8 +48,8 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: "postgresql://postgres:password@localhost:5432/CampusLink?schema=public"
-      REDIS_URL: "redis://localhost:6379"
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/CampusLink?schema=public
+      REDIS_URL: redis://localhost:6379
 
     steps:
       - name: Checkout repository
@@ -68,6 +69,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Show commit and Prettier version
+        run: |
+          echo "Branch: $GITHUB_REF"
+          echo "Commit: $(git rev-parse HEAD)"
+          echo "Prettier version:"
+          pnpm exec prettier --version
 
       - name: Generate Prisma client
         run: pnpm run db:generate
