@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   db: {
+    $transaction: vi.fn(),
+
     studentProfile: {
       findUnique: vi.fn(),
     },
@@ -51,6 +53,12 @@ describe("application.service", () => {
     mocks.redis.get.mockResolvedValue(null);
     mocks.redis.set.mockResolvedValue("OK");
     mocks.redis.del.mockResolvedValue(1);
+
+    // Execute Prisma-style transaction callbacks against the mocked DB.
+    mocks.db.$transaction.mockImplementation(
+      async (callback: (tx: typeof mocks.db) => Promise<unknown>) =>
+        callback(mocks.db),
+    );
   });
 
   describe("createApplication", () => {
@@ -424,6 +432,12 @@ describe("application.service", () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.application.update.mockResolvedValue(updatedApplication);
 
+      // Simulate Prisma's interactive transaction.
+      mocks.db.$transaction.mockImplementation(
+        async (callback: (tx: typeof mocks.db) => Promise<unknown>) =>
+          callback(mocks.db),
+      );
+
       const result = await updateApplicationStatus(
         "recruiter-user-123",
         "application-123",
@@ -433,6 +447,8 @@ describe("application.service", () => {
       );
 
       expect(result).toEqual(updatedApplication);
+
+      expect(mocks.db.$transaction).toHaveBeenCalledTimes(1);
 
       expect(mocks.db.application.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -466,7 +482,6 @@ describe("application.service", () => {
       ).rejects.toThrow("Application not found");
 
       expect(mocks.db.recruiterProfile.findUnique).not.toHaveBeenCalled();
-
       expect(mocks.db.application.update).not.toHaveBeenCalled();
     });
 

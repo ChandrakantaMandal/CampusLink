@@ -48,8 +48,18 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://postgres:password@localhost:5432/CampusLink?schema=public
-      REDIS_URL: redis://localhost:6379
+      DATABASE_URL: "postgresql://postgres:password@localhost:5432/CampusLink?schema=public"
+      REDIS_URL: "redis://localhost:6379"
+
+      # Test-only values; never use these for production.
+      BETTER_AUTH_SECRET: "ci-test-secret-at-least-32-characters-long"
+      BETTER_AUTH_URL: "http://localhost:3000"
+      CORS_ORIGIN: "http://localhost:3001"
+      SMTP_USER: "ci-test@example.com"
+      SMTP_PASSWORD: "ci-test-password"
+      EMAIL_FROM: "CampusLink CI <ci-test@example.com>"
+      GOOGLE_CLIENT_ID: "ci-test-client-id"
+      GOOGLE_CLIENT_SECRET: "ci-test-client-secret"
 
     steps:
       - name: Checkout repository
