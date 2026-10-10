@@ -51,7 +51,8 @@ jobs:
       DATABASE_URL: "postgresql://postgres:password@localhost:5432/CampusLink?schema=public"
       REDIS_URL: "redis://localhost:6379"
 
-      # Test-only values. Never use these in production.
+      # CI-only URLs and test values
+      NEXT_PUBLIC_SERVER_URL: "http://localhost:3000"
       BETTER_AUTH_SECRET: "ci-test-secret-at-least-32-characters-long"
       BETTER_AUTH_URL: "http://localhost:3000"
       CORS_ORIGIN: "http://localhost:3001"
