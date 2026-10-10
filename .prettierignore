@@ -28,6 +28,7 @@ packages/db/prisma/generated/
 .env
 .env.*
 !.env.example
+**/env.ts
 
 # Logs
 *.log

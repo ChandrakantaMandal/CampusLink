@@ -70,13 +70,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Show commit and Prettier version
-        run: |
-          echo "Branch: $GITHUB_REF"
-          echo "Commit: $(git rev-parse HEAD)"
-          echo "Prettier version:"
-          pnpm exec prettier --version
-
       - name: Generate Prisma client
         run: pnpm run db:generate
 
