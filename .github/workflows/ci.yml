@@ -84,7 +84,7 @@ jobs:
         run: pnpm run db:generate
 
       - name: Apply database migrations
-        run: pnpm exec prisma migrate deploy --schema packages/db/prisma/schema.prisma
+        run: pnpm --filter @CampusLink/db exec prisma migrate deploy --schema ./prisma/schema
 
       - name: Typecheck
         run: pnpm run check-types
