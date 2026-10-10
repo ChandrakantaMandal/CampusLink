@@ -15,10 +15,7 @@ import Link from "next/link";
 import React from "react";
 
 import { ModeToggle } from "@/components/mode-toggle";
-import {
-  PROMPT_CARDS,
-  type ChatHistoryItem,
-} from "./ai-constants";
+import { PROMPT_CARDS, type ChatHistoryItem } from "./ai-constants";
 
 interface AISidebarProps {
   isOpen: boolean;
@@ -62,7 +59,8 @@ export function AISidebar({
           </div>
           <div className="leading-tight">
             <span className="font-bold text-sm tracking-tight text-foreground">
-              Campus<span className="text-indigo-600 dark:text-indigo-400">Link</span>
+              Campus
+              <span className="text-indigo-600 dark:text-indigo-400">Link</span>
             </span>
             <span className="ml-1.5 rounded-sm bg-indigo-500/10 px-1 py-0.2 text-[9px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
               AI

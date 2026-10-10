@@ -59,7 +59,11 @@ export default function AdminAnalyticsDashboard() {
         }}
         isLoading={isLoading}
         onRefresh={refreshFromSource}
-        onExport={() => exportCurrentDataset(activeTab as "placements" | "salaries" | "resumes")}
+        onExport={() =>
+          exportCurrentDataset(
+            activeTab as "placements" | "salaries" | "resumes",
+          )
+        }
         lastRefreshed={lastRefreshed}
       />
 
@@ -99,7 +103,9 @@ export default function AdminAnalyticsDashboard() {
               <span>Skill Specialization</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Advanced programming and aptitude scores above 75 correlate with an 84%+ placement rate regardless of branch. Focus pre-placement training on DSA & system basics.
+              Advanced programming and aptitude scores above 75 correlate with
+              an 84%+ placement rate regardless of branch. Focus pre-placement
+              training on DSA & system basics.
             </p>
           </div>
 
@@ -109,7 +115,9 @@ export default function AdminAnalyticsDashboard() {
               <span>Package Realization</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Tier-1 compensation packages (&gt; 20 LPA) are predominantly clustered in Bengaluru, Hyderabad, and Pune hubs. Encourage students to target high-growth product recruiters.
+              Tier-1 compensation packages (&gt; 20 LPA) are predominantly
+              clustered in Bengaluru, Hyderabad, and Pune hubs. Encourage
+              students to target high-growth product recruiters.
             </p>
           </div>
 
@@ -119,7 +127,9 @@ export default function AdminAnalyticsDashboard() {
               <span>Portfolio Boost</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Candidates with verified GitHub portfolios receive 2.4x more interview shortlists. Enforce active code repository links in student profile verification workflows.
+              Candidates with verified GitHub portfolios receive 2.4x more
+              interview shortlists. Enforce active code repository links in
+              student profile verification workflows.
             </p>
           </div>
         </div>

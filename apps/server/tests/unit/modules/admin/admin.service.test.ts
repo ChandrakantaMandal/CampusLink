@@ -290,9 +290,7 @@ describe("admin.service", () => {
     it("should fetch drives when cache is empty", async () => {
       const drives = [{ id: "drive-1" }];
 
-      vi.mocked(db.placementDrive.findMany).mockResolvedValue(
-        drives as never,
-      );
+      vi.mocked(db.placementDrive.findMany).mockResolvedValue(drives as never);
 
       const result = await getDrives();
 

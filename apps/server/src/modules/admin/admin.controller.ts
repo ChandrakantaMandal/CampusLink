@@ -13,7 +13,30 @@ import {
   verifyRecruiterSchema,
 } from "./admin.schema";
 
-import { getDashboardStats, getStudents, getRecruiters, getCompanies, getJobs, getApplications, getDrives, createPlacementDrive, updatePlacementDrive, deletePlacementDrive, verifyStudent, verifyRecruiter, createRecruiter, getOffers, getInterviews, updateInterviewSchedule, getAdminNotifications, markAdminNotificationRead, markAllAdminNotificationsRead, broadcastAdminNotification, getAdminSettings, updateAdminSettings } from "./admin.service";
+import {
+  getDashboardStats,
+  getStudents,
+  getRecruiters,
+  getCompanies,
+  getJobs,
+  getApplications,
+  getDrives,
+  createPlacementDrive,
+  updatePlacementDrive,
+  deletePlacementDrive,
+  verifyStudent,
+  verifyRecruiter,
+  createRecruiter,
+  getOffers,
+  getInterviews,
+  updateInterviewSchedule,
+  getAdminNotifications,
+  markAdminNotificationRead,
+  markAllAdminNotificationsRead,
+  broadcastAdminNotification,
+  getAdminSettings,
+  updateAdminSettings,
+} from "./admin.service";
 
 export async function getDashboardStatsController(
   _req: Request,
@@ -85,7 +108,8 @@ export async function createRecruiterController(req: Request, res: Response) {
   } catch (error) {
     return res.status(400).json({
       success: false,
-      message: error instanceof Error ? error.message : "Failed to create recruiter",
+      message:
+        error instanceof Error ? error.message : "Failed to create recruiter",
     });
   }
 }

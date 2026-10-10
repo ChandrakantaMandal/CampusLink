@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -38,44 +37,29 @@ type MatchResult = {
 };
 
 const SERVER_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  "http://localhost:3000";
+  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
 export default function StudentJobs() {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [matches, setMatches] = useState<
-    Record<string, MatchResult>
-  >({});
+  const [matches, setMatches] = useState<Record<string, MatchResult>>({});
   const [loading, setLoading] = useState(true);
-  const [appliedJobIds, setAppliedJobIds] = useState<
-    Set<string>
-  >(new Set());
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    async function fetchAppliedJobIds(): Promise<
-      Set<string>
-    > {
+    async function fetchAppliedJobIds(): Promise<Set<string>> {
       try {
-        const response = await fetch(
-          `${SERVER_URL}/api/applications/my`,
-          {
-            credentials: "include",
-          },
-        );
+        const response = await fetch(`${SERVER_URL}/api/applications/my`, {
+          credentials: "include",
+        });
 
         if (!response.ok) {
           return new Set();
         }
 
         const result = await response.json();
-        const applications: { jobId: string }[] =
-          result.data || [];
+        const applications: { jobId: string }[] = result.data || [];
 
-        return new Set(
-          applications.map(
-            (application) => application.jobId,
-          ),
-        );
+        return new Set(applications.map((application) => application.jobId));
       } catch {
         return new Set();
       }
@@ -84,28 +68,23 @@ export default function StudentJobs() {
     async function fetchJobsAndMatches() {
       try {
         // 1. Get jobs from server
-        const [response, appliedIds] =
-          await Promise.all([
-            fetch(`${SERVER_URL}/api/jobs`, {
-              credentials: "include",
-            }),
-            fetchAppliedJobIds(),
-          ]);
+        const [response, appliedIds] = await Promise.all([
+          fetch(`${SERVER_URL}/api/jobs`, {
+            credentials: "include",
+          }),
+          fetchAppliedJobIds(),
+        ]);
 
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.message || "Failed to fetch jobs",
-          );
+          throw new Error(result.message || "Failed to fetch jobs");
         }
 
         setAppliedJobIds(appliedIds);
 
         // Only show first 20 jobs for demo
-        const fetchedJobs: Job[] = (
-          result.data || []
-        ).slice(0, 20);
+        const fetchedJobs: Job[] = (result.data || []).slice(0, 20);
 
         // 2. Show jobs immediately
         setJobs(fetchedJobs);
@@ -114,44 +93,31 @@ export default function StudentJobs() {
         // 3. Match jobs in small batches
         const batchSize = 3;
 
-        for (
-          let i = 0;
-          i < fetchedJobs.length;
-          i += batchSize
-        ) {
-          const batch = fetchedJobs.slice(
-            i,
-            i + batchSize,
-          );
+        for (let i = 0; i < fetchedJobs.length; i += batchSize) {
+          const batch = fetchedJobs.slice(i, i + batchSize);
 
           const results = await Promise.all(
             batch.map(async (job) => {
               try {
-                const matchResponse =
-                  await fetch(
-                    `${SERVER_URL}/api/jobs/${job.id}/match`,
-                    {
-                      method: "POST",
-                      credentials: "include",
-                    },
-                  );
+                const matchResponse = await fetch(
+                  `${SERVER_URL}/api/jobs/${job.id}/match`,
+                  {
+                    method: "POST",
+                    credentials: "include",
+                  },
+                );
 
-                const matchData =
-                  await matchResponse.json();
+                const matchData = await matchResponse.json();
 
                 if (!matchResponse.ok) {
-                  console.error(
-                    `AI match failed for ${job.title}:`,
-                    matchData,
-                  );
+                  console.error(`AI match failed for ${job.title}:`, matchData);
 
                   return null;
                 }
 
                 return {
                   jobId: job.id,
-                  result:
-                    matchData.data as MatchResult,
+                  result: matchData.data as MatchResult,
                 };
               } catch (error) {
                 console.error(
@@ -172,8 +138,7 @@ export default function StudentJobs() {
 
             for (const entry of results) {
               if (entry) {
-                updated[entry.jobId] =
-                  entry.result;
+                updated[entry.jobId] = entry.result;
               }
             }
 
@@ -181,10 +146,7 @@ export default function StudentJobs() {
           });
         }
       } catch (error) {
-        console.error(
-          "Failed to fetch jobs:",
-          error,
-        );
+        console.error("Failed to fetch jobs:", error);
 
         toast.error("Failed to load jobs");
 
@@ -212,22 +174,14 @@ export default function StudentJobs() {
         id: job.id,
         title: job.title,
 
-        company:
-          job.company?.name ||
-          "Unknown Company",
+        company: job.company?.name || "Unknown Company",
 
-        location:
-          job.location ||
-          "Not specified",
+        location: job.location || "Not specified",
 
-        ctc:
-          job.ctc ||
-          "Not specified",
+        ctc: job.ctc || "Not specified",
 
         // AI match score
-        matchPercentage: match
-          ? Math.round(match.match_score)
-          : null,
+        matchPercentage: match ? Math.round(match.match_score) : null,
 
         // Required skills
         skills: job.skills
@@ -236,8 +190,7 @@ export default function StudentJobs() {
 
         eligibility: {
           isEligible: true,
-          criteria:
-            "Eligibility will be evaluated by CampusLink AI",
+          criteria: "Eligibility will be evaluated by CampusLink AI",
         },
 
         // AI explanation
@@ -248,9 +201,7 @@ export default function StudentJobs() {
         driveDate: "Applications Open",
 
         // Application status
-        hasApplied:
-          appliedJobIds.has(job.id) ||
-          (job.hasApplied ?? false),
+        hasApplied: appliedJobIds.has(job.id) || (job.hasApplied ?? false),
       };
     })
     .sort((a, b) => {
@@ -264,10 +215,7 @@ export default function StudentJobs() {
       }
 
       // Highest match first
-      return (
-        b.matchPercentage -
-        a.matchPercentage
-      );
+      return b.matchPercentage - a.matchPercentage;
     });
 
   return (
@@ -286,17 +234,14 @@ export default function StudentJobs() {
           </div>
 
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Roles automatically curated for you based on
-            verified skills, academic eligibility, and career
-            interests.
+            Roles automatically curated for you based on verified skills,
+            academic eligibility, and career interests.
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() =>
-            toast.success("Jobs refreshed")
-          }
+          onClick={() => toast.success("Jobs refreshed")}
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 hover:bg-indigo-500 transition-colors"
         >
           <Sparkles className="h-3.5 w-3.5" />
@@ -321,13 +266,11 @@ export default function StudentJobs() {
             />
 
             {/* Background AI analysis status */}
-            {Object.keys(matches).length <
-              jobs.length && (
-                <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                  ✨ AI is analyzing job matches in the
-                  background...
-                </p>
-              )}
+            {Object.keys(matches).length < jobs.length && (
+              <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                ✨ AI is analyzing job matches in the background...
+              </p>
+            )}
           </>
         )}
       </div>

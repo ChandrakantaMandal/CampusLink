@@ -18,7 +18,10 @@ interface OfferTrackingCardProps {
   onAccepted?: () => void;
 }
 
-export function OfferTrackingCard({ offers, onAccepted }: OfferTrackingCardProps) {
+export function OfferTrackingCard({
+  offers,
+  onAccepted,
+}: OfferTrackingCardProps) {
   const [acceptedOfferId, setAcceptedOfferId] = useState<string | null>(null);
   const [pendingOfferId, setPendingOfferId] = useState<string | null>(null);
 
@@ -97,7 +100,6 @@ export function OfferTrackingCard({ offers, onAccepted }: OfferTrackingCardProps
             </p>
           </div>
         </div>
-
       </div>
 
       <div className="space-y-4">

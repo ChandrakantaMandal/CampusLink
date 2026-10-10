@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   UserCheck,
   ExternalLink,
-  Bell
+  Bell,
 } from "lucide-react";
 import type { InterviewSlot } from "@/data/dashboardData";
 import { toast } from "sonner";
@@ -19,7 +19,9 @@ interface InterviewScheduleCardProps {
   interviews: InterviewSlot[];
 }
 
-export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps) {
+export function InterviewScheduleCard({
+  interviews,
+}: InterviewScheduleCardProps) {
   const handleReminder = (slot: InterviewSlot) => {
     toast.info(`Reminder set for ${slot.company} interview`, {
       description: `Notification scheduled for 15 minutes before ${slot.time}`,
@@ -70,93 +72,95 @@ export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps
               No upcoming interviews scheduled
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
-              When recruiters shortlist your applications and schedule interview rounds, confirmed slots, venue details, and meeting links will appear here.
+              When recruiters shortlist your applications and schedule interview
+              rounds, confirmed slots, venue details, and meeting links will
+              appear here.
             </p>
           </div>
         ) : (
           <div className="space-y-3.5 mt-2">
-          {interviews.map((slot) => (
-            <div
-              key={slot.id}
-              className="p-4 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-purple-400/60 dark:hover:border-purple-500/40 transition-all hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div>
+            {interviews.map((slot) => (
+              <div
+                key={slot.id}
+                className="p-4 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-purple-400/60 dark:hover:border-purple-500/40 transition-all hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-sm text-slate-900 dark:text-white">
+                        {slot.company}
+                      </h4>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full font-medium bg-purple-50 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/50">
+                        {slot.type}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
+                      {slot.interviewRound}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleReminder(slot)}
+                    className="p-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                    title="Set Reminder"
+                  >
+                    <Bell className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 my-2.5">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-sm text-slate-900 dark:text-white">
-                      {slot.company}
-                    </h4>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full font-medium bg-purple-50 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/50">
-                      {slot.type}
+                    <Clock className="w-3.5 h-3.5 text-purple-500" />
+                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                      {slot.date} • {slot.time}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
-                    {slot.interviewRound}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => handleReminder(slot)}
-                  className="p-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                  title="Set Reminder"
-                >
-                  <Bell className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 my-2.5">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5 text-purple-500" />
-                  <span className="font-medium text-slate-700 dark:text-slate-200">
-                    {slot.date} • {slot.time}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {slot.type === "Virtual" ? (
-                    <Video className="w-3.5 h-3.5 text-blue-500" />
-                  ) : (
-                    <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                  )}
-                  <span>{slot.venue}</span>
-                </div>
-                {slot.interviewerName && (
                   <div className="flex items-center gap-2">
-                    <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Panel: {slot.interviewerName}</span>
+                    {slot.type === "Virtual" ? (
+                      <Video className="w-3.5 h-3.5 text-blue-500" />
+                    ) : (
+                      <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                    )}
+                    <span>{slot.venue}</span>
                   </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800/60">
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>No schedule overlap</span>
+                  {slot.interviewerName && (
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Panel: {slot.interviewerName}</span>
+                    </div>
+                  )}
                 </div>
 
-                {slot.type === "Virtual" && slot.meetingLink ? (
-                  <a
-                    href={slot.meetingLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
-                  >
-                    Join Meeting
-                    <ExternalLink className="size-3" aria-hidden="true" />
-                  </a>
-                ) : slot.type === "Virtual" ? (
-                  <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                    Meeting link unavailable
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                    Check venue
-                    <ExternalLink className="size-3" aria-hidden="true" />
-                  </span>
-                )}
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800/60">
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>No schedule overlap</span>
+                  </div>
+
+                  {slot.type === "Virtual" && slot.meetingLink ? (
+                    <a
+                      href={slot.meetingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs hover:bg-purple-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-700"
+                    >
+                      Join Meeting
+                      <ExternalLink className="size-3" aria-hidden="true" />
+                    </a>
+                  ) : slot.type === "Virtual" ? (
+                    <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                      Meeting link unavailable
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                      Check venue
+                      <ExternalLink className="size-3" aria-hidden="true" />
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -164,7 +168,9 @@ export function InterviewScheduleCard({ interviews }: InterviewScheduleCardProps
         <p className="text-xs text-slate-500 dark:text-slate-400">
           Sync with your calendar:{" "}
           <button
-            onClick={() => toast.success("Google Calendar & Outlook sync activated!")}
+            onClick={() =>
+              toast.success("Google Calendar & Outlook sync activated!")
+            }
             className="font-medium text-purple-600 dark:text-purple-400 hover:underline"
           >
             Connect Calendar

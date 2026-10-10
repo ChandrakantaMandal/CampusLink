@@ -87,7 +87,9 @@ export function streamChatResponse(
               if (done) break;
 
               if (value?.type === "error") {
-                throw new Error(value.errorText || `Model ${modelName} stream error`);
+                throw new Error(
+                  value.errorText || `Model ${modelName} stream error`,
+                );
               }
 
               if (!modelStartedStreaming) {
@@ -134,7 +136,9 @@ export function streamChatResponse(
         }
 
         if (!streamSucceeded && !emittedRealText) {
-          throw new Error("All live Gemini models were temporarily unavailable.");
+          throw new Error(
+            "All live Gemini models were temporarily unavailable.",
+          );
         }
       } catch (err: any) {
         console.warn(

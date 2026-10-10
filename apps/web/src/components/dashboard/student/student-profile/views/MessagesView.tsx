@@ -76,7 +76,8 @@ export function MessagesView() {
               Placement Inbox & Recruiter Messages
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Communicate directly with the University TPO Cell and verified corporate recruiters.
+              Communicate directly with the University TPO Cell and verified
+              corporate recruiters.
             </p>
           </div>
 
@@ -111,7 +112,10 @@ export function MessagesView() {
               Direct Student-Recruiter &amp; TPO Messaging
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto">
-              We&apos;re building a dedicated, real-time communications hub inside CAMPUSLINK. Soon you&apos;ll be able to receive one-on-one interview feedback, direct messages from university TPO coordinators, and scheduling updates directly in your workspace.
+              We&apos;re building a dedicated, real-time communications hub
+              inside CAMPUSLINK. Soon you&apos;ll be able to receive one-on-one
+              interview feedback, direct messages from university TPO
+              coordinators, and scheduling updates directly in your workspace.
             </p>
           </div>
 
@@ -160,7 +164,9 @@ export function MessagesView() {
                 className="p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-800/40 hover:border-indigo-400/50 dark:hover:border-indigo-500/50 transition-all hover:shadow-md"
               >
                 <div className="flex items-start gap-3.5">
-                  <div className={`p-2.5 rounded-xl shrink-0 ${feature.accentBg}`}>
+                  <div
+                    className={`p-2.5 rounded-xl shrink-0 ${feature.accentBg}`}
+                  >
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>

@@ -3,10 +3,7 @@
 import { ChevronRight, Sparkles } from "lucide-react";
 import React from "react";
 
-import {
-  FILTER_TABS,
-  PROMPT_CARDS,
-} from "./ai-constants";
+import { FILTER_TABS, PROMPT_CARDS } from "./ai-constants";
 
 interface AIEmptyStateProps {
   isFullWidth: boolean;
@@ -48,8 +45,8 @@ export function AIEmptyState({
           </h1>
 
           <p className="mt-3 text-sm text-muted-foreground sm:text-base leading-relaxed">
-            Ask about Python, React, algorithms, quantum physics, math,
-            or dive deep into resume ATS reviews and campus placement interviews.
+            Ask about Python, React, algorithms, quantum physics, math, or dive
+            deep into resume ATS reviews and campus placement interviews.
           </p>
         </div>
 

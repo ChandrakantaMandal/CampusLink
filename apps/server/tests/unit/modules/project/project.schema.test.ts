@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { createProjectSchema, updateProjectSchema } from "../../../../src/modules/projects/project.schema";
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from "../../../../src/modules/projects/project.schema";
 
 describe("project schemas", () => {
   it("accepts a valid project", () => {
-    expect(createProjectSchema.safeParse({ title: "Portfolio app" }).success).toBe(true);
+    expect(
+      createProjectSchema.safeParse({ title: "Portfolio app" }).success,
+    ).toBe(true);
   });
 
   it("rejects a short title", () => {
@@ -11,10 +16,18 @@ describe("project schemas", () => {
   });
 
   it("allows partial project updates", () => {
-    expect(updateProjectSchema.safeParse({ description: "Updated description" }).success).toBe(true);
+    expect(
+      updateProjectSchema.safeParse({ description: "Updated description" })
+        .success,
+    ).toBe(true);
   });
 
   it("rejects invalid project URLs", () => {
-    expect(createProjectSchema.safeParse({ title: "Portfolio app", githubUrl: "not-a-url" }).success).toBe(false);
+    expect(
+      createProjectSchema.safeParse({
+        title: "Portfolio app",
+        githubUrl: "not-a-url",
+      }).success,
+    ).toBe(false);
   });
 });

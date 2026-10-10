@@ -200,7 +200,10 @@ export async function getRecruiterApplications(userId: string) {
   // scores include structured skills, resume skills, and project titles.
   for (const application of applications) {
     try {
-      const response = await matchStudentWithJob(application.student.userId, application.job.id) as {
+      const response = (await matchStudentWithJob(
+        application.student.userId,
+        application.job.id,
+      )) as {
         data?: unknown;
         match_score?: number;
         matchScore?: number;
@@ -210,7 +213,11 @@ export async function getRecruiterApplications(userId: string) {
         missingSkills?: string[];
         explanation?: string;
       };
-      const result = (response.data && typeof response.data === "object" ? response.data : response) as {
+      const result = (
+        response.data && typeof response.data === "object"
+          ? response.data
+          : response
+      ) as {
         match_score?: number;
         matchScore?: number;
         matched_skills?: string[];
@@ -270,8 +277,10 @@ export async function getRecruiterApplications(userId: string) {
     const breakdown = latest?.breakdown;
     if (
       latest &&
-      typeof breakdown === "object" && breakdown !== null &&
-      !Array.isArray(breakdown) && "source" in breakdown &&
+      typeof breakdown === "object" &&
+      breakdown !== null &&
+      !Array.isArray(breakdown) &&
+      "source" in breakdown &&
       breakdown.source === "ai-service-v2"
     ) {
       student.readinessScore = latest.overallScore;
@@ -289,7 +298,13 @@ export async function getRecruiterApplications(userId: string) {
           name: [student.firstName, student.lastName].filter(Boolean).join(" "),
           skills: student.skills.map(({ skill }) => skill.name),
           projects: student.projects.map(({ title }) => title),
-          education: student.education.map((item) => [item.degree, item.branch, item.institution].filter(Boolean).join(" ")).join("; "),
+          education: student.education
+            .map((item) =>
+              [item.degree, item.branch, item.institution]
+                .filter(Boolean)
+                .join(" "),
+            )
+            .join("; "),
           branch: student.branch,
           cgpa: student.cgpa,
           certifications: student.certifications.map(({ name }) => name),
@@ -301,7 +316,7 @@ export async function getRecruiterApplications(userId: string) {
         readinessByStudent.set(student.id, null);
         continue;
       }
-      const result = await response.json() as {
+      const result = (await response.json()) as {
         readiness_score?: number;
         strengths?: string[];
         weaknesses?: string[];
@@ -438,7 +453,9 @@ export async function updateApplicationStatus(
         job: { include: { company: true } },
         student: {
           include: {
-            user: { select: { id: true, name: true, email: true, image: true } },
+            user: {
+              select: { id: true, name: true, email: true, image: true },
+            },
           },
         },
         matchResult: true,

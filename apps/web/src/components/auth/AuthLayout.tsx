@@ -46,7 +46,12 @@ export default function AuthLayout({
         {/* Top Branding */}
         <div className="relative z-10 space-y-2">
           <Link href="/" className="inline-flex items-center gap-3 group">
-            <BrandLogo size={44} showText subtitle="Placement Intelligence" priority />
+            <BrandLogo
+              size={44}
+              showText
+              subtitle="Placement Intelligence"
+              priority
+            />
           </Link>
         </div>
 
@@ -63,7 +68,9 @@ export default function AuthLayout({
             </h1>
 
             <p className="text-sm text-slate-300 leading-relaxed max-w-md">
-              Sign in to review live recruitment drives, monitor your shortlists in real time, and practice with AI mock assessments tailored to your target companies.
+              Sign in to review live recruitment drives, monitor your shortlists
+              in real time, and practice with AI mock assessments tailored to
+              your target companies.
             </p>
 
             {/* Live Campus Pulse Card */}
@@ -71,7 +78,9 @@ export default function AuthLayout({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-indigo-300">
                   <TrendingUp className="h-4 w-4" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Live Campus Pulse</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">
+                    Live Campus Pulse
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -82,17 +91,26 @@ export default function AuthLayout({
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="rounded-xl bg-white/5 border border-white/10 p-3">
                   <div className="text-2xl font-black text-white">12+</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">Active Hiring Drives</div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    Active Hiring Drives
+                  </div>
                 </div>
                 <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-                  <div className="text-2xl font-black text-emerald-400">98.4%</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">Match Accuracy</div>
+                  <div className="text-2xl font-black text-emerald-400">
+                    98.4%
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    Match Accuracy
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 text-xs text-slate-300 pt-1 border-t border-white/10">
                 <Zap className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                <span>Keep your profile updated to stay eligible for Day-1 dream companies.</span>
+                <span>
+                  Keep your profile updated to stay eligible for Day-1 dream
+                  companies.
+                </span>
               </div>
             </div>
           </div>
@@ -108,7 +126,9 @@ export default function AuthLayout({
             </h1>
 
             <p className="text-sm text-slate-300 leading-relaxed max-w-md">
-              Create your profile to join 50,000+ candidates who use deterministic eligibility scoring and automated gap diagnostics to land top offers.
+              Create your profile to join 50,000+ candidates who use
+              deterministic eligibility scoring and automated gap diagnostics to
+              land top offers.
             </p>
 
             {/* Signup Value Highlights */}
@@ -118,9 +138,12 @@ export default function AuthLayout({
                   <CheckCircle2 className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Deterministic Drive Eligibility</h4>
+                  <h4 className="text-xs font-bold text-white">
+                    Deterministic Drive Eligibility
+                  </h4>
                   <p className="text-[11px] text-slate-300 mt-0.5">
-                    Transparent CGPA, backlogs &amp; skill-criteria matching with zero guesswork.
+                    Transparent CGPA, backlogs &amp; skill-criteria matching
+                    with zero guesswork.
                   </p>
                 </div>
               </div>
@@ -130,9 +153,12 @@ export default function AuthLayout({
                   <Zap className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">AI Skill-Gap Diagnostics</h4>
+                  <h4 className="text-xs font-bold text-white">
+                    AI Skill-Gap Diagnostics
+                  </h4>
                   <p className="text-[11px] text-slate-300 mt-0.5">
-                    Get personalized roadmap suggestions to qualify for Tier-1 engineering roles.
+                    Get personalized roadmap suggestions to qualify for Tier-1
+                    engineering roles.
                   </p>
                 </div>
               </div>
@@ -142,9 +168,12 @@ export default function AuthLayout({
                   <Briefcase className="h-4 w-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">1-Click Fast Track Applications</h4>
+                  <h4 className="text-xs font-bold text-white">
+                    1-Click Fast Track Applications
+                  </h4>
                   <p className="text-[11px] text-slate-300 mt-0.5">
-                    Apply instantly to verified on-campus and pooled drives without repetitive forms.
+                    Apply instantly to verified on-campus and pooled drives
+                    without repetitive forms.
                   </p>
                 </div>
               </div>
@@ -174,7 +203,9 @@ export default function AuthLayout({
             <span>Back to Home</span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 hidden sm:inline">Switch theme</span>
+            <span className="text-xs text-slate-400 hidden sm:inline">
+              Switch theme
+            </span>
             <ModeToggle />
           </div>
         </div>
@@ -184,7 +215,10 @@ export default function AuthLayout({
           {/* Header Title & Tab Switcher */}
           <div className="space-y-3">
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-              {title || (mode === "signin" ? "Welcome Back to CAMPUSLINK" : "Create Your Account")}
+              {title ||
+                (mode === "signin"
+                  ? "Welcome Back to CAMPUSLINK"
+                  : "Create Your Account")}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               {description ||
@@ -196,7 +230,7 @@ export default function AuthLayout({
             {/* Pill Toggle for Sign In vs Sign Up */}
             <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
               <Link
-                href={(`/login${roleQuery}` as Route)}
+                href={`/login${roleQuery}` as Route}
                 className={`flex-1 rounded-lg py-2 text-center text-xs sm:text-sm font-bold transition-all ${
                   mode === "signin"
                     ? "bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-white"
@@ -206,7 +240,7 @@ export default function AuthLayout({
                 Sign In
               </Link>
               <Link
-                href={(`/signup${roleQuery}` as Route)}
+                href={`/signup${roleQuery}` as Route}
                 className={`flex-1 rounded-lg py-2 text-center text-xs sm:text-sm font-bold transition-all ${
                   mode === "signup"
                     ? "bg-white text-slate-900 shadow-xs dark:bg-slate-800 dark:text-white"
@@ -224,7 +258,8 @@ export default function AuthLayout({
 
         {/* Bottom micro-footer */}
         <div className="text-center pt-8 text-[11px] text-slate-400">
-          By continuing, you agree to CAMPUSLINK&apos;s Terms of Service and Privacy Policy.
+          By continuing, you agree to CAMPUSLINK&apos;s Terms of Service and
+          Privacy Policy.
         </div>
       </div>
     </div>

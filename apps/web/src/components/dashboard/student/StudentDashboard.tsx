@@ -38,8 +38,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const SERVER_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  "http://localhost:3000";
+  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
 type ReadinessResponse = {
   overallScore: number;
@@ -64,9 +63,7 @@ type ReadinessResponse = {
   explanation: string;
 };
 
-function getStatus(
-  score: number,
-): ReadinessDimension["status"] {
+function getStatus(score: number): ReadinessDimension["status"] {
   if (score >= 80) {
     return "Strong";
   }
@@ -90,21 +87,15 @@ export default function StudentDashboard() {
   // Student skills
   const skills = useStudentSkills();
 
-  const skillGaps = skills.data
-    ? toSkillGaps(skills.data)
-    : null;
+  const skillGaps = skills.data ? toSkillGaps(skills.data) : null;
 
   // Student offers
   const offers = useStudentOffers();
-  const offerItems = offers.data
-    ? toOfferDetails(offers.data)
-    : [];
+  const offerItems = offers.data ? toOfferDetails(offers.data) : [];
 
   // Student drives
   const drivesQuery = useStudentDrives();
-  const driveItems = drivesQuery.data
-    ? toUpcomingDrives(drivesQuery.data)
-    : [];
+  const driveItems = drivesQuery.data ? toUpcomingDrives(drivesQuery.data) : [];
 
   // Student interviews
   const interviewsQuery = useStudentInterviews();
@@ -113,44 +104,31 @@ export default function StudentDashboard() {
     : [];
 
   // Readiness
-  const [readiness, setReadiness] =
-    useState<ReadinessResponse | null>(null);
+  const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
 
   useEffect(() => {
     async function fetchReadiness() {
       try {
-        const response = await fetch(
-          `${SERVER_URL}/api/students/readiness`,
-          {
-            method: "GET",
-            credentials: "include",
-          },
-        );
+        const response = await fetch(`${SERVER_URL}/api/students/readiness`, {
+          method: "GET",
+          credentials: "include",
+        });
 
         if (!response.ok) {
-          throw new Error(
-            `Readiness API failed: ${response.status}`,
-          );
+          throw new Error(`Readiness API failed: ${response.status}`);
         }
 
         const result = await response.json();
 
         if (!result.success || !result.data) {
-          throw new Error(
-            "Invalid readiness response",
-          );
+          throw new Error("Invalid readiness response");
         }
 
         setReadiness(result.data);
       } catch (error) {
-        console.error(
-          "Failed to fetch readiness:",
-          error,
-        );
+        console.error("Failed to fetch readiness:", error);
 
-        toast.error(
-          "Unable to load live readiness score.",
-        );
+        toast.error("Unable to load live readiness score.");
       }
     }
 
@@ -158,9 +136,7 @@ export default function StudentDashboard() {
   }, []);
 
   const readinessScore =
-    readiness?.overallScore ??
-    dashboardQuery.data?.stats.readinessScore ??
-    0;
+    readiness?.overallScore ?? dashboardQuery.data?.stats.readinessScore ?? 0;
 
   const readinessLabel =
     readiness?.readinessLabel ??
@@ -182,14 +158,11 @@ export default function StudentDashboard() {
     dashboardQuery.data?.stats.applications ??
     0;
 
-  const aiJobMatches =
-    jobsQuery.data?.jobs.length ??
-    0;
+  const aiJobMatches = jobsQuery.data?.jobs.length ?? 0;
 
-  const upcomingDrives =
-    drivesQuery.data
-      ? drivesQuery.data.registered.length + drivesQuery.data.available.length
-      : (dashboardQuery.data?.stats.drivesRegistered ?? 0);
+  const upcomingDrives = drivesQuery.data
+    ? drivesQuery.data.registered.length + drivesQuery.data.available.length
+    : (dashboardQuery.data?.stats.drivesRegistered ?? 0);
 
   const dashboardStats = {
     readinessScore,
@@ -222,57 +195,71 @@ export default function StudentDashboard() {
           : "Complete Profile",
   };
 
-  const readinessDimensions: ReadinessDimension[] =
-    readiness
-      ? [
-          {
-            category: "Technical Skills",
-            score: readiness.breakdown.technical,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.technical,
-            ),
-          },
-          {
-            category: "Mock Assessments",
-            score: readiness.breakdown.assessment,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.assessment,
-            ),
-          },
-          {
-            category: "Verified Projects",
-            score: readiness.breakdown.projects,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.projects,
-            ),
-          },
-          {
-            category: "Academics / CGPA",
-            score: readiness.breakdown.academics,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.academics,
-            ),
-          },
-          {
-            category: "ATS Resume",
-            score: readiness.breakdown.resume,
-            fullScore: 100,
-            status: getStatus(
-              readiness.breakdown.resume,
-            ),
-          },
-        ]
-      : [
-          { category: "Technical Skills", score: 0, fullScore: 100, status: "Needs Attention" },
-          { category: "Mock Assessments", score: 0, fullScore: 100, status: "Needs Attention" },
-          { category: "Verified Projects", score: 0, fullScore: 100, status: "Needs Attention" },
-          { category: "Academics / CGPA", score: 0, fullScore: 100, status: "Needs Attention" },
-          { category: "ATS Resume", score: 0, fullScore: 100, status: "Needs Attention" },
-        ];
+  const readinessDimensions: ReadinessDimension[] = readiness
+    ? [
+        {
+          category: "Technical Skills",
+          score: readiness.breakdown.technical,
+          fullScore: 100,
+          status: getStatus(readiness.breakdown.technical),
+        },
+        {
+          category: "Mock Assessments",
+          score: readiness.breakdown.assessment,
+          fullScore: 100,
+          status: getStatus(readiness.breakdown.assessment),
+        },
+        {
+          category: "Verified Projects",
+          score: readiness.breakdown.projects,
+          fullScore: 100,
+          status: getStatus(readiness.breakdown.projects),
+        },
+        {
+          category: "Academics / CGPA",
+          score: readiness.breakdown.academics,
+          fullScore: 100,
+          status: getStatus(readiness.breakdown.academics),
+        },
+        {
+          category: "ATS Resume",
+          score: readiness.breakdown.resume,
+          fullScore: 100,
+          status: getStatus(readiness.breakdown.resume),
+        },
+      ]
+    : [
+        {
+          category: "Technical Skills",
+          score: 0,
+          fullScore: 100,
+          status: "Needs Attention",
+        },
+        {
+          category: "Mock Assessments",
+          score: 0,
+          fullScore: 100,
+          status: "Needs Attention",
+        },
+        {
+          category: "Verified Projects",
+          score: 0,
+          fullScore: 100,
+          status: "Needs Attention",
+        },
+        {
+          category: "Academics / CGPA",
+          score: 0,
+          fullScore: 100,
+          status: "Needs Attention",
+        },
+        {
+          category: "ATS Resume",
+          score: 0,
+          fullScore: 100,
+          status: "Needs Attention",
+        },
+      ];
 
   return (
     <div className="space-y-6">
@@ -283,11 +270,11 @@ export default function StudentDashboard() {
         appliedCount={activeApplications}
         matchesCount={aiJobMatches}
         upcomingDrivesCount={upcomingDrives}
-        onExploreDrives={() =>
-          router.push("/student/drives")
-        }
+        onExploreDrives={() => router.push("/student/drives")}
         onCheckReadiness={() =>
-          router.push(readinessScore < 40 ? "/student/profile" : "/student/readiness")
+          router.push(
+            readinessScore < 40 ? "/student/profile" : "/student/readiness",
+          )
         }
       />
 
@@ -304,7 +291,9 @@ export default function StudentDashboard() {
             dimensions={readinessDimensions}
             aiRecommendation={aiCoachRecommendation}
             onStartAction={() =>
-              router.push(readinessScore < 40 ? "/student/profile" : "/student/readiness")
+              router.push(
+                readinessScore < 40 ? "/student/profile" : "/student/readiness",
+              )
             }
           />
         </div>
@@ -316,20 +305,13 @@ export default function StudentDashboard() {
               skills={skillGaps}
               variant="compact"
               onPracticeSkill={(skill) =>
-                toast.info(
-                  `Opening practice module for ${skill}`,
-                )
+                toast.info(`Opening practice module for ${skill}`)
               }
             />
           ) : skills.error ? (
-            <AggregateError
-              message={skills.error}
-              onRetry={skills.refresh}
-            />
+            <AggregateError message={skills.error} onRetry={skills.refresh} />
           ) : (
-            <AggregateLoading
-              label="Loading your skill gaps..."
-            />
+            <AggregateLoading label="Loading your skill gaps..." />
           )}
         </div>
       </div>
@@ -346,16 +328,11 @@ export default function StudentDashboard() {
       {/* Placement Milestones: Offers & Interview Schedule */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-6 min-w-0 flex flex-col">
-          <OfferTrackingCard
-            offers={offerItems}
-            onAccepted={offers.refresh}
-          />
+          <OfferTrackingCard offers={offerItems} onAccepted={offers.refresh} />
         </div>
 
         <div className="lg:col-span-6 min-w-0 flex flex-col">
-          <InterviewScheduleCard
-            interviews={interviewItems}
-          />
+          <InterviewScheduleCard interviews={interviewItems} />
         </div>
       </div>
     </div>

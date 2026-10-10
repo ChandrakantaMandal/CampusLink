@@ -43,8 +43,11 @@ export default function DashboardHomeView() {
   }, []);
 
   const totalStudents = stats?.users.students || 0;
-  const placedStudents = applications.filter(a => a.status === "Offer" || a.status === "Joined").length;
-  const placementRate = totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
+  const placedStudents = applications.filter(
+    (a) => a.status === "Offer" || a.status === "Joined",
+  ).length;
+  const placementRate =
+    totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
   const activeRecruiters = stats?.users.recruiters || 0;
 
   const primaryKpis = [
@@ -87,13 +90,27 @@ export default function DashboardHomeView() {
   ];
 
   const secondaryStats = [
-    { label: "Registered Students", value: (stats?.users.total || 0).toLocaleString() },
+    {
+      label: "Registered Students",
+      value: (stats?.users.total || 0).toLocaleString(),
+    },
     { label: "Eligible Students", value: totalStudents.toLocaleString() },
-    { label: "Active Placement Drives", value: drives.filter(d => d.status === "Open" || d.status === "Ongoing").length.toLocaleString() },
+    {
+      label: "Active Placement Drives",
+      value: drives
+        .filter((d) => d.status === "Open" || d.status === "Ongoing")
+        .length.toLocaleString(),
+    },
     { label: "Applications", value: applications.length.toLocaleString() },
-    { label: "Assessments Conducted", value: (stats?.assessments || 0).toLocaleString() },
+    {
+      label: "Assessments Conducted",
+      value: (stats?.assessments || 0).toLocaleString(),
+    },
     { label: "Offers Extended", value: placedStudents.toLocaleString() },
-    { label: "Total Companies", value: (stats?.companies || 0).toLocaleString() },
+    {
+      label: "Total Companies",
+      value: (stats?.companies || 0).toLocaleString(),
+    },
     { label: "Total Jobs", value: (stats?.jobs || 0).toLocaleString() },
   ];
 
@@ -115,22 +132,52 @@ export default function DashboardHomeView() {
   ];
 
   const stagesCount = {
-    Applied: applications.filter(a => a.status === "Applied").length,
-    Shortlisted: applications.filter(a => a.status === "Shortlisted").length,
-    Interview: applications.filter(a => a.status === "Interview").length,
-    Selected: applications.filter(a => a.status === "Selected").length,
-    Offer: applications.filter(a => a.status === "Offer").length,
-    Joined: applications.filter(a => a.status === "Joined").length,
+    Applied: applications.filter((a) => a.status === "Applied").length,
+    Shortlisted: applications.filter((a) => a.status === "Shortlisted").length,
+    Interview: applications.filter((a) => a.status === "Interview").length,
+    Selected: applications.filter((a) => a.status === "Selected").length,
+    Offer: applications.filter((a) => a.status === "Offer").length,
+    Joined: applications.filter((a) => a.status === "Joined").length,
   };
   const totalApps = applications.length || 1;
 
   const pipelineStages = [
-    { stage: "Applied", count: stagesCount.Applied, pct: `${Math.round((stagesCount.Applied/totalApps)*100)}%`, color: "bg-indigo-500" },
-    { stage: "Shortlisted", count: stagesCount.Shortlisted, pct: `${Math.round((stagesCount.Shortlisted/totalApps)*100)}%`, color: "bg-blue-500" },
-    { stage: "Interview", count: stagesCount.Interview, pct: `${Math.round((stagesCount.Interview/totalApps)*100)}%`, color: "bg-purple-500" },
-    { stage: "Selected", count: stagesCount.Selected, pct: `${Math.round((stagesCount.Selected/totalApps)*100)}%`, color: "bg-amber-500" },
-    { stage: "Offer", count: stagesCount.Offer, pct: `${Math.round((stagesCount.Offer/totalApps)*100)}%`, color: "bg-emerald-500" },
-    { stage: "Joined", count: stagesCount.Joined, pct: `${Math.round((stagesCount.Joined/totalApps)*100)}%`, color: "bg-teal-500" },
+    {
+      stage: "Applied",
+      count: stagesCount.Applied,
+      pct: `${Math.round((stagesCount.Applied / totalApps) * 100)}%`,
+      color: "bg-indigo-500",
+    },
+    {
+      stage: "Shortlisted",
+      count: stagesCount.Shortlisted,
+      pct: `${Math.round((stagesCount.Shortlisted / totalApps) * 100)}%`,
+      color: "bg-blue-500",
+    },
+    {
+      stage: "Interview",
+      count: stagesCount.Interview,
+      pct: `${Math.round((stagesCount.Interview / totalApps) * 100)}%`,
+      color: "bg-purple-500",
+    },
+    {
+      stage: "Selected",
+      count: stagesCount.Selected,
+      pct: `${Math.round((stagesCount.Selected / totalApps) * 100)}%`,
+      color: "bg-amber-500",
+    },
+    {
+      stage: "Offer",
+      count: stagesCount.Offer,
+      pct: `${Math.round((stagesCount.Offer / totalApps) * 100)}%`,
+      color: "bg-emerald-500",
+    },
+    {
+      stage: "Joined",
+      count: stagesCount.Joined,
+      pct: `${Math.round((stagesCount.Joined / totalApps) * 100)}%`,
+      color: "bg-teal-500",
+    },
   ];
 
   return (
@@ -156,14 +203,14 @@ export default function DashboardHomeView() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href={("/admin/interviews" as Route)}
+              href={"/admin/interviews" as Route}
               className="inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-amber-500/20"
             >
               <AlertTriangle className="h-4 w-4" />
               <span>Resolve Conflict</span>
             </Link>
             <Link
-              href={("/admin/drives" as Route)}
+              href={"/admin/drives" as Route}
               className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 text-xs transition-all shadow-md shadow-indigo-600/25"
             >
               <Briefcase className="h-4 w-4" />
@@ -192,7 +239,9 @@ export default function DashboardHomeView() {
                     {kpi.value}
                   </h3>
                 </div>
-                <div className={`p-3 rounded-xl bg-gradient-to-tr ${kpi.color} text-white shadow-md`}>
+                <div
+                  className={`p-3 rounded-xl bg-gradient-to-tr ${kpi.color} text-white shadow-md`}
+                >
                   <Icon className="h-5 w-5" />
                 </div>
               </div>
@@ -202,7 +251,9 @@ export default function DashboardHomeView() {
                   <ArrowUpRight className="h-3.5 w-3.5 mr-0.5" />
                   {kpi.change}
                 </span>
-                <span className="text-slate-400 text-[11px] truncate">{kpi.subtitle}</span>
+                <span className="text-slate-400 text-[11px] truncate">
+                  {kpi.subtitle}
+                </span>
               </div>
             </Link>
           );
@@ -221,9 +272,16 @@ export default function DashboardHomeView() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-center">
           {secondaryStats.map((item) => (
-            <div key={item.label} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80">
-              <p className="text-lg font-black text-slate-900 dark:text-white">{item.value}</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">{item.label}</p>
+            <div
+              key={item.label}
+              className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80"
+            >
+              <p className="text-lg font-black text-slate-900 dark:text-white">
+                {item.value}
+              </p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                {item.label}
+              </p>
             </div>
           ))}
         </div>
@@ -240,7 +298,8 @@ export default function DashboardHomeView() {
                 Placement Pipeline Conversion
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Total {applications.length} student applications moving across 6 recruitment gates
+                Total {applications.length} student applications moving across 6
+                recruitment gates
               </p>
             </div>
             <Link
@@ -257,10 +316,16 @@ export default function DashboardHomeView() {
             {pipelineStages.map((st) => (
               <div key={st.stage} className="space-y-1">
                 <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-slate-700 dark:text-slate-300">{st.stage}</span>
+                  <span className="text-slate-700 dark:text-slate-300">
+                    {st.stage}
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-900 dark:text-white">{st.count} students</span>
-                    <span className="text-[11px] text-slate-400">({st.pct})</span>
+                    <span className="text-slate-900 dark:text-white">
+                      {st.count} students
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      ({st.pct})
+                    </span>
                   </div>
                 </div>
                 <div className="h-2.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
@@ -276,7 +341,10 @@ export default function DashboardHomeView() {
           <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 text-indigo-900 dark:text-indigo-200">
               <CheckCircle2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <span>Offer Acceptance Rate is currently <strong>85.7%</strong> (Industry Benchmark: 78%)</span>
+              <span>
+                Offer Acceptance Rate is currently <strong>85.7%</strong>{" "}
+                (Industry Benchmark: 78%)
+              </span>
             </div>
           </div>
         </div>
@@ -305,10 +373,16 @@ export default function DashboardHomeView() {
             {branchPlacement.map((item) => (
               <div key={item.branch} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">{item.branch}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    {item.branch}
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 dark:text-white">{item.rate}%</span>
-                    <span className="text-[10px] text-slate-400">({item.count})</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {item.rate}%
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      ({item.count})
+                    </span>
                   </div>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
@@ -322,7 +396,9 @@ export default function DashboardHomeView() {
           </div>
 
           <div className="pt-2 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
-            Average Campus Package: <strong className="text-slate-900 dark:text-white">₹8.4 LPA</strong> across all engineering streams
+            Average Campus Package:{" "}
+            <strong className="text-slate-900 dark:text-white">₹8.4 LPA</strong>{" "}
+            across all engineering streams
           </div>
         </div>
       </div>
@@ -359,16 +435,30 @@ export default function DashboardHomeView() {
                 <div className="flex items-start gap-3.5">
                   <div className="h-10 w-10 rounded-xl bg-white p-1.5 shadow-2xs border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={drive.logo || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"} alt={drive.company} className="h-6 w-6 object-contain" />
+                    <img
+                      src={
+                        drive.logo ||
+                        "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"
+                      }
+                      alt={drive.company}
+                      className="h-6 w-6 object-contain"
+                    />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{drive.company}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        {drive.company}
+                      </h4>
                       <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 px-2 py-0.5">
                         {drive.tier}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{drive.role} &bull; <strong className="text-slate-800 dark:text-slate-200">{drive.salary || "TBD"}</strong></p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      {drive.role} &bull;{" "}
+                      <strong className="text-slate-800 dark:text-slate-200">
+                        {drive.salary || "TBD"}
+                      </strong>
+                    </p>
                     <div className="flex items-center gap-3 mt-1.5 text-[11px] text-slate-400">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3 text-slate-400" />
@@ -411,7 +501,7 @@ export default function DashboardHomeView() {
               </p>
             </div>
             <Link
-              href={("/admin/readiness" as Route)}
+              href={"/admin/readiness" as Route}
               className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
             >
               Skill Gaps
@@ -422,10 +512,16 @@ export default function DashboardHomeView() {
             {skillDemand.map((item) => (
               <div key={item.skill} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">{item.skill}</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">
+                    {item.skill}
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 dark:text-white">{item.demand}%</span>
-                    <span className="text-[10px] text-slate-400">({item.count})</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {item.demand}%
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      ({item.count})
+                    </span>
                   </div>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
@@ -439,7 +535,8 @@ export default function DashboardHomeView() {
           </div>
 
           <div className="p-3 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 text-xs text-purple-900 dark:text-purple-300">
-            💡 <strong>Python &amp; DSA</strong> remain the highest prerequisite threshold across Tier-1 recruiters.
+            💡 <strong>Python &amp; DSA</strong> remain the highest prerequisite
+            threshold across Tier-1 recruiters.
           </div>
         </div>
       </div>
@@ -457,7 +554,7 @@ export default function DashboardHomeView() {
             </p>
           </div>
           <Link
-            href={("/admin/offers" as Route)}
+            href={"/admin/offers" as Route}
             className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
           >
             <span>View All Offers</span>
@@ -466,32 +563,53 @@ export default function DashboardHomeView() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {applications.filter(a => a.status === "Offer" || a.status === "Joined").slice(0, 4).map((offer) => (
-            <div
-              key={offer.id}
-              className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 hover:border-emerald-300 dark:hover:border-emerald-800/60 transition-all space-y-3"
-            >
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={"https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"} alt={offer.studentName} className="h-10 w-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{offer.studentName}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{offer.studentRoll} &bull; {offer.branch}</p>
+          {applications
+            .filter((a) => a.status === "Offer" || a.status === "Joined")
+            .slice(0, 4)
+            .map((offer) => (
+              <div
+                key={offer.id}
+                className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 hover:border-emerald-300 dark:hover:border-emerald-800/60 transition-all space-y-3"
+              >
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={
+                      "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"
+                    }
+                    alt={offer.studentName}
+                    className="h-10 w-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {offer.studentName}
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {offer.studentRoll} &bull; {offer.branch}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
-                <div>
-                  <span className="font-bold text-indigo-600 dark:text-indigo-400">{offer.company}</span>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{offer.role}</p>
-                </div>
-                <div className="text-right">
-                  <span className="font-black text-emerald-600 dark:text-emerald-400">TBD</span>
-                  <span className="block text-[10px] text-slate-400">{offer.status}</span>
+                <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                      {offer.company}
+                    </span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {offer.role}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-black text-emerald-600 dark:text-emerald-400">
+                      TBD
+                    </span>
+                    <span className="block text-[10px] text-slate-400">
+                      {offer.status}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

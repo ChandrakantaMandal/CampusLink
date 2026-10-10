@@ -7,8 +7,8 @@ let client: ImageKit | null = null;
 export function isImageKitConfigured(): boolean {
   return Boolean(
     ENV.IMAGEKIT_PUBLIC_KEY &&
-      ENV.IMAGEKIT_PRIVATE_KEY &&
-      ENV.IMAGEKIT_URL_ENDPOINT,
+    ENV.IMAGEKIT_PRIVATE_KEY &&
+    ENV.IMAGEKIT_URL_ENDPOINT,
   );
 }
 

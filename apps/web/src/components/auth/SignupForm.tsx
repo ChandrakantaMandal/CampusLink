@@ -43,29 +43,25 @@ export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  
-const handleGoogleAuth = async () => {
-  try {
-    setIsLoading(true);
+  const handleGoogleAuth = async () => {
+    try {
+      setIsLoading(true);
 
-    const callbackURL = new URL(
-      "/auth/callback",
-      window.location.origin,
-    );
+      const callbackURL = new URL("/auth/callback", window.location.origin);
 
-    callbackURL.searchParams.set("role", role);
+      callbackURL.searchParams.set("role", role);
 
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: callbackURL.toString(),
-      errorCallbackURL: "/signup?error=google_auth",
-    });
-  } catch (error) {
-    console.error("Google signup error:", error);
-    toast.error("Unable to authenticate with Google. Please try again.");
-    setIsLoading(false);
-  }
-};
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: callbackURL.toString(),
+        errorCallbackURL: "/signup?error=google_auth",
+      });
+    } catch (error) {
+      console.error("Google signup error:", error);
+      toast.error("Unable to authenticate with Google. Please try again.");
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

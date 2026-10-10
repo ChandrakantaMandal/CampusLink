@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ArrowRight,
-  Lock,
-  LogIn,
-  ShieldAlert
-} from "lucide-react";
+import { ArrowRight, Lock, LogIn, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -87,7 +82,6 @@ export default function StudentLayout({
       </div>
     );
   }
-
 
   if (session.user.role !== "STUDENT") {
     return (

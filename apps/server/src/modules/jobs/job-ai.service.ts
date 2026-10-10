@@ -1,8 +1,7 @@
 import { getStudentByUserId } from "../students/student.service";
 import { getJobById } from "./job.service";
 
-const AI_SERVICE_URL =
-  process.env.AI_SERVICE_URL || "http://localhost:8000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
 
 type StudentForAI = {
   id: string;
@@ -83,12 +82,8 @@ function extractSkillsFromResumeText(
  * DB skills plus any skills recovered from the persisted resume analysis,
  * de-duplicated case-insensitively.
  */
-function resolveStudentSkills(
-  student: StudentForAI,
-): string[] {
-  const dbSkills = student.skills.map(
-    (item) => item.skill.name,
-  );
+function resolveStudentSkills(student: StudentForAI): string[] {
+  const dbSkills = student.skills.map((item) => item.skill.name);
 
   const seen = new Set<string>();
   const merged: string[] = [];
@@ -110,89 +105,59 @@ function resolveStudentSkills(
    MATCH SINGLE JOB
 ========================= */
 
-export async function matchStudentWithJob(
-  userId: string,
-  jobId: string,
-) {
-  const [studentResult, jobResult] =
-    await Promise.all([
-      getStudentByUserId(userId),
-      getJobById(jobId),
-    ]);
+export async function matchStudentWithJob(userId: string, jobId: string) {
+  const [studentResult, jobResult] = await Promise.all([
+    getStudentByUserId(userId),
+    getJobById(jobId),
+  ]);
 
   if (!studentResult) {
-    throw new Error(
-      "Student profile not found",
-    );
+    throw new Error("Student profile not found");
   }
 
   if (!jobResult) {
-    throw new Error(
-      "Job not found",
-    );
+    throw new Error("Job not found");
   }
 
-  const student =
-    studentResult as StudentForAI;
+  const student = studentResult as StudentForAI;
 
-  const job =
-    jobResult as JobForAI;
+  const job = jobResult as JobForAI;
 
-  const studentSkills =
-    resolveStudentSkills(student);
+  const studentSkills = resolveStudentSkills(student);
 
-  const projects =
-    student.projects.map(
-      (project) => project.title,
-    );
+  const projects = student.projects.map((project) => project.title);
 
-  const requiredSkills =
-    job.skills
-      .filter(
-        (item) => item.required,
-      )
-      .map(
-        (item) => item.skill.name,
-      );
+  const requiredSkills = job.skills
+    .filter((item) => item.required)
+    .map((item) => item.skill.name);
 
-  const response = await fetch(
-    `${AI_SERVICE_URL}/match/`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
-      body: JSON.stringify({
-        student: {
-          student_id: student.id,
-          skills: studentSkills,
-          projects,
-          resume_text:
-            student.resumeText ?? "",
-        },
-
-        job: {
-          job_id: job.id,
-          title: job.title,
-          company:
-            job.company?.name,
-          required_skills:
-            requiredSkills,
-          description:
-            job.description ?? "",
-        },
-      }),
+  const response = await fetch(`${AI_SERVICE_URL}/match/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({
+      student: {
+        student_id: student.id,
+        skills: studentSkills,
+        projects,
+        resume_text: student.resumeText ?? "",
+      },
+
+      job: {
+        job_id: job.id,
+        title: job.title,
+        company: job.company?.name,
+        required_skills: requiredSkills,
+        description: job.description ?? "",
+      },
+    }),
+  });
 
   if (!response.ok) {
-    const errorText =
-      await response.text();
+    const errorText = await response.text();
 
-    throw new Error(
-      `AI service failed: ${response.status} ${errorText}`,
-    );
+    throw new Error(`AI service failed: ${response.status} ${errorText}`);
   }
 
   return response.json();
@@ -201,80 +166,55 @@ export async function matchStudentWithJob(
    SKILL GAP
 ========================= */
 
-export async function analyzeStudentSkillGap(
-  userId: string,
-  jobId: string,
-) {
-  const [studentResult, jobResult] =
-    await Promise.all([
-      getStudentByUserId(userId),
-      getJobById(jobId),
-    ]);
+export async function analyzeStudentSkillGap(userId: string, jobId: string) {
+  const [studentResult, jobResult] = await Promise.all([
+    getStudentByUserId(userId),
+    getJobById(jobId),
+  ]);
 
   if (!studentResult) {
-    throw new Error(
-      "Student profile not found",
-    );
+    throw new Error("Student profile not found");
   }
 
   if (!jobResult) {
-    throw new Error(
-      "Job not found",
-    );
+    throw new Error("Job not found");
   }
 
-  const student =
-    studentResult as StudentForAI;
+  const student = studentResult as StudentForAI;
 
-  const job =
-    jobResult as JobForAI;
+  const job = jobResult as JobForAI;
 
-  const studentSkills =
-    resolveStudentSkills(student);
+  const studentSkills = resolveStudentSkills(student);
 
-  const requiredSkills =
-    job.skills
-      .filter(
-        (item) => item.required,
-      )
-      .map(
-        (item) => item.skill.name,
-      );
+  const requiredSkills = job.skills
+    .filter((item) => item.required)
+    .map((item) => item.skill.name);
 
-  const response = await fetch(
-    `${AI_SERVICE_URL}/skill-gap/`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
-      body: JSON.stringify({
-        student: {
-          student_id: student.id,
-          skills: studentSkills,
-          projects: [],
-          resume_text:
-            student.resumeText ?? "",
-        },
-
-        job: {
-          job_id: job.id,
-          title: job.title,
-          company:
-            job.company?.name,
-          required_skills:
-            requiredSkills,
-          description:
-            job.description ?? "",
-        },
-      }),
+  const response = await fetch(`${AI_SERVICE_URL}/skill-gap/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({
+      student: {
+        student_id: student.id,
+        skills: studentSkills,
+        projects: [],
+        resume_text: student.resumeText ?? "",
+      },
+
+      job: {
+        job_id: job.id,
+        title: job.title,
+        company: job.company?.name,
+        required_skills: requiredSkills,
+        description: job.description ?? "",
+      },
+    }),
+  });
 
   if (!response.ok) {
-    const errorText =
-      await response.text();
+    const errorText = await response.text();
 
     throw new Error(
       `AI skill gap service failed: ${response.status} ${errorText}`,

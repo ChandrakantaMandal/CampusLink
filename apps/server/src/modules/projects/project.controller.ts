@@ -2,7 +2,12 @@ import type { NextFunction, Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
-import { createProject, deleteProject, getMyProjects, updateProject } from "./project.service";
+import {
+  createProject,
+  deleteProject,
+  getMyProjects,
+  updateProject,
+} from "./project.service";
 
 import { createProjectSchema, updateProjectSchema } from "./project.schema";
 

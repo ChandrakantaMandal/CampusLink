@@ -25,7 +25,6 @@ export default function RecruiterLayout({
 
   const { data: session, isPending } = authClient.useSession();
 
-
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -91,7 +90,7 @@ export default function RecruiterLayout({
       </div>
     );
   }
-  
+
   if (session.user.role !== "RECRUITER") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">

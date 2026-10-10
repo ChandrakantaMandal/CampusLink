@@ -2,7 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 
 import type { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
-import { addStudentSkill, getMySkills, removeStudentSkill } from "./skill.service";
+import {
+  addStudentSkill,
+  getMySkills,
+  removeStudentSkill,
+} from "./skill.service";
 
 import { addStudentSkillSchema } from "./skill.schema";
 

@@ -44,7 +44,10 @@ export function AnalyticsChartTooltip({
               : item.value;
 
           return (
-            <div key={idx} className="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-300">
+            <div
+              key={idx}
+              className="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-300"
+            >
               <span className="flex items-center gap-1.5 font-medium">
                 <span
                   className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"

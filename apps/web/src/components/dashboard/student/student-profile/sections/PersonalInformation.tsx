@@ -37,21 +37,33 @@ export default function PersonalInformation({
     "Data Science & AI",
   ];
 
-  const academicYears = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Final Year"];
+  const academicYears = [
+    "1st Year",
+    "2nd Year",
+    "3rd Year",
+    "4th Year",
+    "Final Year",
+  ];
 
   const bioLength = profile.bio?.length || 0;
   const maxBioLength = 300;
 
   return (
-    <div id="personal-info-section" className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-6 sm:p-8 shadow-sm scroll-mt-24">
+    <div
+      id="personal-info-section"
+      className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-6 sm:p-8 shadow-sm scroll-mt-24"
+    >
       <div className="flex items-center gap-3 pb-5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 font-bold border border-indigo-100 dark:border-indigo-900/50">
           <User className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Personal Information</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            Personal Information
+          </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Keep your contact, academic background, and student bio updated for recruiters.
+            Keep your contact, academic background, and student bio updated for
+            recruiters.
           </p>
         </div>
       </div>
@@ -59,7 +71,10 @@ export default function PersonalInformation({
       <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
         {/* Full Name */}
         <div className="space-y-1.5">
-          <label htmlFor="full-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="full-name"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Full Name <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -85,13 +100,18 @@ export default function PersonalInformation({
               {errors.name}
             </p>
           ) : (
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">Official student name for placement verification.</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+              Official student name for placement verification.
+            </p>
           )}
         </div>
 
         {/* Email Address */}
         <div className="space-y-1.5">
-          <label htmlFor="email-address" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="email-address"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Email Address <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -117,13 +137,18 @@ export default function PersonalInformation({
               {errors.email}
             </p>
           ) : (
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">Used for interview invites and offer letter deliveries.</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+              Used for interview invites and offer letter deliveries.
+            </p>
           )}
         </div>
 
         {/* Phone Number */}
         <div className="space-y-1.5">
-          <label htmlFor="phone-number" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="phone-number"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Phone Number <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -149,13 +174,18 @@ export default function PersonalInformation({
               {errors.phone}
             </p>
           ) : (
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">Include country code for recruiter phone calls.</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+              Include country code for recruiter phone calls.
+            </p>
           )}
         </div>
 
         {/* Gender */}
         <div className="space-y-1.5">
-          <label htmlFor="gender-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="gender-select"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Gender
           </label>
           <select
@@ -169,16 +199,22 @@ export default function PersonalInformation({
             <option value="Male">Male</option>
             <option value="Non-binary">Non-binary</option>
             <option value="Prefer not to say">Prefer not to say</option>
-            {profile.gender && !["Female", "Male", "Non-binary", "Prefer not to say"].includes(profile.gender) && (
-              <option value={profile.gender}>{profile.gender}</option>
-            )}
+            {profile.gender &&
+              !["Female", "Male", "Non-binary", "Prefer not to say"].includes(
+                profile.gender,
+              ) && <option value={profile.gender}>{profile.gender}</option>}
           </select>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">Shown on your recruiter-visible profile.</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Shown on your recruiter-visible profile.
+          </p>
         </div>
 
         {/* Department */}
         <div className="space-y-1.5">
-          <label htmlFor="department-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="department-select"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Department <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -191,9 +227,18 @@ export default function PersonalInformation({
               onChange={(e) => onChange("department", e.target.value)}
               className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 transition-all hover:border-slate-300 focus:border-indigo-500 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20 cursor-pointer"
             >
-              <option value="" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Select department</option>
+              <option
+                value=""
+                className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+              >
+                Select department
+              </option>
               {departments.map((dept) => (
-                <option key={dept} value={dept} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+                <option
+                  key={dept}
+                  value={dept}
+                  className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+                >
                   {dept}
                 </option>
               ))}
@@ -202,12 +247,17 @@ export default function PersonalInformation({
               <ChevronDown className="h-4 w-4" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">Selected engineering / discipline branch.</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Selected engineering / discipline branch.
+          </p>
         </div>
 
         {/* Academic Year */}
         <div className="space-y-1.5">
-          <label htmlFor="academic-year" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="academic-year"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Academic Year
           </label>
           <div className="relative">
@@ -220,9 +270,18 @@ export default function PersonalInformation({
               onChange={(e) => onChange("year", e.target.value)}
               className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 transition-all hover:border-slate-300 focus:border-indigo-500 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20 cursor-pointer"
             >
-              <option value="" className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">Select academic year</option>
+              <option
+                value=""
+                className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+              >
+                Select academic year
+              </option>
               {academicYears.map((yr) => (
-                <option key={yr} value={yr} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+                <option
+                  key={yr}
+                  value={yr}
+                  className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+                >
                   {yr}
                 </option>
               ))}
@@ -231,12 +290,17 @@ export default function PersonalInformation({
               <ChevronDown className="h-4 w-4" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">Current ongoing study year.</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Current ongoing study year.
+          </p>
         </div>
 
         {/* CGPA */}
         <div className="space-y-1.5">
-          <label htmlFor="cgpa-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="cgpa-input"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Cumulative GPA (CGPA) <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
@@ -265,13 +329,18 @@ export default function PersonalInformation({
               {errors.cgpa}
             </p>
           ) : (
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">Must be between 0.0 and 10.0 scale.</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+              Must be between 0.0 and 10.0 scale.
+            </p>
           )}
         </div>
 
         {/* Location */}
         <div className="space-y-1.5 sm:col-span-2">
-          <label htmlFor="location-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="location-input"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             Location
           </label>
           <div className="relative">
@@ -287,18 +356,25 @@ export default function PersonalInformation({
               className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all hover:border-slate-300 focus:border-indigo-500 focus:outline-hidden focus:ring-3 focus:ring-indigo-500/15 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/20"
             />
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">Your current city / location preference for job postings.</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Your current city / location preference for job postings.
+          </p>
         </div>
 
         {/* Short Bio */}
         <div className="space-y-1.5 sm:col-span-2">
           <div className="flex items-center justify-between">
-            <label htmlFor="bio-textarea" className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label
+              htmlFor="bio-textarea"
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+            >
               Short Bio <span className="text-rose-500">*</span>
             </label>
             <span
               className={`text-[11px] font-semibold ${
-                bioLength > maxBioLength ? "text-rose-600 dark:text-rose-400" : "text-slate-400 dark:text-slate-500"
+                bioLength > maxBioLength
+                  ? "text-rose-600 dark:text-rose-400"
+                  : "text-slate-400 dark:text-slate-500"
               }`}
             >
               {bioLength} / {maxBioLength} characters
@@ -325,7 +401,8 @@ export default function PersonalInformation({
             </p>
           ) : (
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              Brief professional summary displayed at the top of candidate evaluation lists.
+              Brief professional summary displayed at the top of candidate
+              evaluation lists.
             </p>
           )}
         </div>

@@ -3,7 +3,8 @@ import RecruiterShortlistedView from "@/components/dashboard/recruiter/views/Rec
 
 export const metadata: Metadata = {
   title: "Shortlisted Candidates — CAMPUSLINK Recruiter Portal",
-  description: "View and manage candidates who cleared academic eligibility and AI screening.",
+  description:
+    "View and manage candidates who cleared academic eligibility and AI screening.",
 };
 
 export default function RecruiterShortlistedPage() {

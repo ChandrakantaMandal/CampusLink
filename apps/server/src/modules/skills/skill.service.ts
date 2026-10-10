@@ -52,10 +52,7 @@ async function invalidateSkillCaches(skillId?: string, studentId?: string) {
 }
 
 function normalizeSkillName(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
+  return name.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 async function resolveSkill(data: AddStudentSkillInput) {

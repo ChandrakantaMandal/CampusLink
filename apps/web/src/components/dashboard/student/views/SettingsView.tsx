@@ -26,7 +26,7 @@ import {
   GraduationCap,
   MapPin,
   Sparkles,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 interface SettingsViewProps {
@@ -35,7 +35,10 @@ interface SettingsViewProps {
   onNavigateToTab?: (tab: string) => void;
 }
 
-function getDisplayName(firstName: string | null, lastName: string | null): string {
+function getDisplayName(
+  firstName: string | null,
+  lastName: string | null,
+): string {
   const name = [firstName, lastName].filter(Boolean).join(" ").trim();
   return name || "";
 }
@@ -66,7 +69,11 @@ export function SettingsView({
     cgpa: "8.85",
 
     // Placement preferences
-    targetRoles: ["Software Engineer", "Full Stack Developer", "AI / ML Engineer"],
+    targetRoles: [
+      "Software Engineer",
+      "Full Stack Developer",
+      "AI / ML Engineer",
+    ],
     minCtc: 8,
     workMode: "Hybrid",
     relocate: true,
@@ -119,7 +126,9 @@ export function SettingsView({
       college: profile.college ?? undefined,
       department: profile.department ?? profile.branch ?? undefined,
       graduationYear:
-        profile.graduationYear != null ? String(profile.graduationYear) : undefined,
+        profile.graduationYear != null
+          ? String(profile.graduationYear)
+          : undefined,
       cgpa: profile.cgpa != null ? profile.cgpa.toFixed(2) : undefined,
       targetRoles: profile.targetRole ? [profile.targetRole] : undefined,
     };
@@ -150,7 +159,10 @@ export function SettingsView({
 
   const handleSave = () => {
     try {
-      localStorage.setItem("campuslink_student_settings", JSON.stringify(settings));
+      localStorage.setItem(
+        "campuslink_student_settings",
+        JSON.stringify(settings),
+      );
       setHasChanges(false);
       toast.success("Settings saved successfully!", {
         description: "Your preferences and account settings have been updated.",
@@ -171,7 +183,11 @@ export function SettingsView({
       department: department,
       graduationYear: "2026",
       cgpa: "8.85",
-      targetRoles: ["Software Engineer", "Full Stack Developer", "AI / ML Engineer"],
+      targetRoles: [
+        "Software Engineer",
+        "Full Stack Developer",
+        "AI / ML Engineer",
+      ],
       minCtc: 8,
       workMode: "Hybrid",
       relocate: true,
@@ -213,7 +229,8 @@ export function SettingsView({
               Dashboard Settings
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Configure your personal placement preferences, drive alert notifications, and security options.
+              Configure your personal placement preferences, drive alert
+              notifications, and security options.
             </p>
           </div>
 
@@ -231,10 +248,11 @@ export function SettingsView({
               type="button"
               onClick={handleSave}
               disabled={!hasChanges}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-sm ${hasChanges
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-sm ${
+                hasChanges
                   ? "bg-[#6366F1] hover:bg-indigo-600 text-white shadow-indigo-500/25"
                   : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
-                }`}
+              }`}
             >
               <Save className="w-3.5 h-3.5" />
               {hasChanges ? "Save Changes" : "Saved"}
@@ -256,10 +274,11 @@ export function SettingsView({
                   key={sec.id}
                   type="button"
                   onClick={() => setActiveSection(sec.id as any)}
-                  className={`flex w-full items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer text-left ${isActive
+                  className={`flex w-full items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer text-left ${
+                    isActive
                       ? "bg-[#6366F1] text-white shadow-md shadow-indigo-600/20"
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                    }`}
+                  }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
                   <span>{sec.label}</span>
@@ -275,7 +294,8 @@ export function SettingsView({
               Complete Resume Profile
             </div>
             <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 mt-1">
-              Want to update your projects, skills, and certifications for recruiters?
+              Want to update your projects, skills, and certifications for
+              recruiters?
             </p>
             <Link
               href={"/profile" as Route}
@@ -298,7 +318,8 @@ export function SettingsView({
                   Academic & Account Profile
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Your university verification data used for campus drive eligibility criteria.
+                  Your university verification data used for campus drive
+                  eligibility criteria.
                 </p>
               </div>
 
@@ -325,7 +346,9 @@ export function SettingsView({
                     disabled
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/40 text-xs text-slate-500 cursor-not-allowed"
                   />
-                  <span className="text-[10px] text-slate-400 mt-1 block">Verified by University ERP</span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Verified by University ERP
+                  </span>
                 </div>
 
                 <div>
@@ -375,7 +398,9 @@ export function SettingsView({
                   </label>
                   <select
                     value={settings.graduationYear}
-                    onChange={(e) => handleChange("graduationYear", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("graduationYear", e.target.value)
+                    }
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="2025">Class of 2025</option>
@@ -396,7 +421,8 @@ export function SettingsView({
                   Placement & Career Match Preferences
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Helps our AI algorithm rank and match relevant job drives on your overview dashboard.
+                  Helps our AI algorithm rank and match relevant job drives on
+                  your overview dashboard.
                 </p>
               </div>
 
@@ -416,7 +442,9 @@ export function SettingsView({
                   max="35"
                   step="1"
                   value={settings.minCtc}
-                  onChange={(e) => handleChange("minCtc", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("minCtc", Number(e.target.value))
+                  }
                   className="w-full accent-indigo-600 cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400">
@@ -437,10 +465,11 @@ export function SettingsView({
                       key={mode}
                       type="button"
                       onClick={() => handleChange("workMode", mode)}
-                      className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${settings.workMode === mode
+                      className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                        settings.workMode === mode
                           ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 text-indigo-600 dark:text-indigo-300"
                           : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                        }`}
+                      }`}
                     >
                       {mode}
                     </button>
@@ -477,7 +506,8 @@ export function SettingsView({
                   Notifications & Urgency Channels
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Never miss an application deadline, shortlist release, or interview slot.
+                  Never miss an application deadline, shortlist release, or
+                  interview slot.
                 </p>
               </div>
 
@@ -525,7 +555,9 @@ export function SettingsView({
                       <input
                         type="checkbox"
                         checked={(settings as any)[item.key]}
-                        onChange={(e) => handleChange(item.key, e.target.checked)}
+                        onChange={(e) =>
+                          handleChange(item.key, e.target.checked)
+                        }
                         className="sr-only peer"
                       />
                       <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -556,14 +588,17 @@ export function SettingsView({
                       Corporate Recruiter Resume Visibility
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      Allow verified visiting companies to discover and invite your profile directly.
+                      Allow verified visiting companies to discover and invite
+                      your profile directly.
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer ml-4">
                     <input
                       type="checkbox"
                       checked={settings.recruiterVisibility}
-                      onChange={(e) => handleChange("recruiterVisibility", e.target.checked)}
+                      onChange={(e) =>
+                        handleChange("recruiterVisibility", e.target.checked)
+                      }
                       className="sr-only peer"
                     />
                     <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -576,14 +611,17 @@ export function SettingsView({
                       Two-Factor Authentication (2FA)
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      Require OTP code via email/SMS when signing in on a new device.
+                      Require OTP code via email/SMS when signing in on a new
+                      device.
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer ml-4">
                     <input
                       type="checkbox"
                       checked={settings.twoFactorAuth}
-                      onChange={(e) => handleChange("twoFactorAuth", e.target.checked)}
+                      onChange={(e) =>
+                        handleChange("twoFactorAuth", e.target.checked)
+                      }
                       className="sr-only peer"
                     />
                     <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -625,7 +663,8 @@ export function SettingsView({
                   Appearance & Interface Theme
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Customize the look and feel of your CampusLink dashboard interface.
+                  Customize the look and feel of your CampusLink dashboard
+                  interface.
                 </p>
               </div>
 
@@ -640,13 +679,16 @@ export function SettingsView({
                       key={item.id}
                       type="button"
                       onClick={() => setTheme(item.id)}
-                      className={`p-4 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center gap-2 ${theme === item.id
+                      className={`p-4 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center gap-2 ${
+                        theme === item.id
                           ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 ring-2 ring-indigo-500/20"
                           : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                        }`}
+                      }`}
                     >
                       <item.icon className="w-5 h-5" />
-                      <span className="text-xs font-semibold">{item.label}</span>
+                      <span className="text-xs font-semibold">
+                        {item.label}
+                      </span>
                     </button>
                   ))}
                 </div>

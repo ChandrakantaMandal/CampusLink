@@ -3,7 +3,8 @@ import RecruiterNotificationsView from "@/components/dashboard/recruiter/views/R
 
 export const metadata: Metadata = {
   title: "Notifications — CAMPUSLINK Recruiter Portal",
-  description: "Real-time updates on candidate applications, AI matches, and interview conflict alerts.",
+  description:
+    "Real-time updates on candidate applications, AI matches, and interview conflict alerts.",
 };
 
 export default function RecruiterNotificationsPage() {

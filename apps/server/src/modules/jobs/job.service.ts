@@ -1,8 +1,6 @@
 import { db } from "../../services";
 import { redis } from "@CampusLink/redis";
 
-
-
 const CACHE_TTL = 300;
 
 async function getCache<T>(key: string): Promise<T | null> {
@@ -36,10 +34,7 @@ function companyJobsCacheKey(companyId: string) {
 
 const JOBS_CACHE_KEY = "jobs:all";
 
-export async function invalidateJobCaches(
-  jobId?: string,
-  companyId?: string,
-) {
+export async function invalidateJobCaches(jobId?: string, companyId?: string) {
   const keys = [JOBS_CACHE_KEY];
 
   if (jobId) {
@@ -60,18 +55,14 @@ export async function invalidateJobCaches(
    JOB TYPE
 ========================= */
 
-type JobWithDetails = Awaited<
-  ReturnType<typeof db.job.findMany>
->[number];
+type JobWithDetails = Awaited<ReturnType<typeof db.job.findMany>>[number];
 
 /* =========================
    GET ALL JOBS
 ========================= */
 
 export async function getJobs(): Promise<JobWithDetails[]> {
-  const cached = await getCache<JobWithDetails[]>(
-    JOBS_CACHE_KEY,
-  );
+  const cached = await getCache<JobWithDetails[]>(JOBS_CACHE_KEY);
 
   if (cached) {
     return cached;

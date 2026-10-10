@@ -88,7 +88,9 @@ function formatDisplayText(text: string): string {
   if (
     trimmed === trimmed.toUpperCase() &&
     trimmed.length > 3 &&
-    !["HTML", "CSS", "SQL", "DBMS", "REST", "JAVA", "JSON", "HTTP"].includes(trimmed)
+    !["HTML", "CSS", "SQL", "DBMS", "REST", "JAVA", "JSON", "HTTP"].includes(
+      trimmed,
+    )
   ) {
     return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
   }
@@ -257,7 +259,6 @@ export default function ResumeSection({
       .filter(Boolean)
       .join("\n");
   };
-
 
   /**
    * Upload resume and then analyze it with the AI service.
@@ -611,7 +612,8 @@ export default function ResumeSection({
                       </p>
                     </div>
                   </div>
-                </div>                {/* Primary Data Grid */}
+                </div>{" "}
+                {/* Primary Data Grid */}
                 <div className="grid gap-5 sm:grid-cols-2">
                   {/* Skills */}
                   <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-950/40">
@@ -641,7 +643,10 @@ export default function ResumeSection({
 
                     <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.projects?.map((project, index) => (
-                        <li key={`${project}-${index}`} className="flex items-start gap-2.5">
+                        <li
+                          key={`${project}-${index}`}
+                          className="flex items-start gap-2.5"
+                        >
                           <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
                           <span>{formatDisplayText(project)}</span>
                         </li>
@@ -659,7 +664,10 @@ export default function ResumeSection({
                     <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {Array.isArray(analysis.education) ? (
                         analysis.education.map((item, index) => (
-                          <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                          <li
+                            key={`${item}-${index}`}
+                            className="flex items-start gap-2.5"
+                          >
                             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
                             <span>{formatDisplayText(item)}</span>
                           </li>
@@ -682,7 +690,10 @@ export default function ResumeSection({
 
                     <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.certifications?.map((item, index) => (
-                        <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                        <li
+                          key={`${item}-${index}`}
+                          className="flex items-start gap-2.5"
+                        >
                           <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500 dark:bg-indigo-400" />
                           <span>{formatDisplayText(item)}</span>
                         </li>
@@ -690,7 +701,6 @@ export default function ResumeSection({
                     </ul>
                   </div>
                 </div>
-
                 {/* Strengths & Areas to Improve Cards */}
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   {/* Strengths */}
@@ -702,7 +712,10 @@ export default function ResumeSection({
 
                     <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.strengths?.map((item, index) => (
-                        <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                        <li
+                          key={`${item}-${index}`}
+                          className="flex items-start gap-2.5"
+                        >
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500 dark:text-emerald-400" />
                           <span>{formatDisplayText(item)}</span>
                         </li>
@@ -719,7 +732,10 @@ export default function ResumeSection({
 
                     <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                       {analysis.weaknesses?.map((item, index) => (
-                        <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                        <li
+                          key={`${item}-${index}`}
+                          className="flex items-start gap-2.5"
+                        >
                           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
                           <span>{formatDisplayText(item)}</span>
                         </li>
@@ -727,7 +743,6 @@ export default function ResumeSection({
                     </ul>
                   </div>
                 </div>
-
                 {/* Recommendations */}
                 <div className="mt-5 rounded-xl border border-indigo-500/25 bg-indigo-50/40 p-4 sm:p-5 dark:border-indigo-500/20 dark:bg-indigo-950/20">
                   <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
@@ -737,7 +752,10 @@ export default function ResumeSection({
 
                   <ul className="space-y-2.5 text-xs sm:text-sm font-normal leading-relaxed text-slate-700 dark:text-slate-200">
                     {analysis.recommendations?.map((item, index) => (
-                      <li key={`${item}-${index}`} className="flex items-start gap-2.5">
+                      <li
+                        key={`${item}-${index}`}
+                        className="flex items-start gap-2.5"
+                      >
                         <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-400" />
                         <span>{formatDisplayText(item)}</span>
                       </li>

@@ -707,9 +707,7 @@ describe("Student Aggregates Service", () => {
       const result = await getStudentDashboard("user-1");
 
       expect(result).toEqual(cached);
-      expect(mocks.redis.get).toHaveBeenCalledWith(
-        "student:dashboard:user-1",
-      );
+      expect(mocks.redis.get).toHaveBeenCalledWith("student:dashboard:user-1");
       expect(mocks.db.studentProfile.findUnique).not.toHaveBeenCalled();
       expect(mocks.db.application.count).not.toHaveBeenCalled();
       expect(mocks.redis.set).not.toHaveBeenCalled();
@@ -737,9 +735,7 @@ describe("Student Aggregates Service", () => {
 
       mocks.db.readinessResult.findFirst.mockResolvedValue(latest);
       mocks.db.readinessResult.findMany.mockResolvedValue(history);
-      mocks.db.assessmentResult.findMany.mockResolvedValue(
-        recentAssessments,
-      );
+      mocks.db.assessmentResult.findMany.mockResolvedValue(recentAssessments);
 
       const result = await getStudentReadiness("user-1");
 
@@ -805,9 +801,7 @@ describe("Student Aggregates Service", () => {
         company: { id: "comp-3", name: "Initech" },
       };
 
-      mocks.db.driveRegistration.findMany.mockResolvedValue([
-        registeredDrive,
-      ]);
+      mocks.db.driveRegistration.findMany.mockResolvedValue([registeredDrive]);
       mocks.db.placementDrive.findMany.mockResolvedValue([
         registeredDrive.drive,
         ineligibleDrive,

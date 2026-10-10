@@ -60,7 +60,8 @@ export default function WorkflowSteps() {
             How CAMPUSLINK Drives Campus Success
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300">
-            From first semester onboarding to the final handshake with top tech recruiters.
+            From first semester onboarding to the final handshake with top tech
+            recruiters.
           </p>
         </div>
 

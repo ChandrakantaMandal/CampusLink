@@ -33,9 +33,18 @@ interface PlacementsAnalyticsViewProps {
   metrics: PlacementMetrics | null;
 }
 
-const PIE_COLORS = ["#6366f1", "#14b8a6", "#f59e0b", "#8b5cf6", "#ec4899", "#3b82f6"];
+const PIE_COLORS = [
+  "#6366f1",
+  "#14b8a6",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ec4899",
+  "#3b82f6",
+];
 
-export function PlacementsAnalyticsView({ metrics }: PlacementsAnalyticsViewProps) {
+export function PlacementsAnalyticsView({
+  metrics,
+}: PlacementsAnalyticsViewProps) {
   if (!metrics) {
     return (
       <div className="p-12 text-center text-slate-500 dark:text-slate-400">
@@ -114,11 +123,7 @@ export function PlacementsAnalyticsView({ metrics }: PlacementsAnalyticsViewProp
                   axisLine={{ stroke: "rgba(148, 163, 184, 0.3)" }}
                   tickLine={false}
                 />
-                <YAxis
-                  tick={axisTickStyle}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} />
                 <Tooltip
                   cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
                   content={<AnalyticsChartTooltip />}
@@ -183,7 +188,9 @@ export function PlacementsAnalyticsView({ metrics }: PlacementsAnalyticsViewProp
                 <div key={item.name} className="flex items-center gap-1.5">
                   <span
                     className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}
+                    style={{
+                      backgroundColor: PIE_COLORS[idx % PIE_COLORS.length],
+                    }}
                   />
                   <span>{item.name}:</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
@@ -206,7 +213,9 @@ export function PlacementsAnalyticsView({ metrics }: PlacementsAnalyticsViewProp
         >
           <div className="h-[300px] w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 12, right: 16, left: -10, bottom: 4 }}>
+              <ScatterChart
+                margin={{ top: 12, right: 16, left: -10, bottom: 4 }}
+              >
                 <CartesianGrid
                   strokeDasharray="3 3"
                   className="stroke-slate-200 dark:stroke-slate-800"
@@ -269,11 +278,7 @@ export function PlacementsAnalyticsView({ metrics }: PlacementsAnalyticsViewProp
                   axisLine={{ stroke: "rgba(148, 163, 184, 0.3)" }}
                   tickLine={false}
                 />
-                <YAxis
-                  tick={axisTickStyle}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} />
                 <Tooltip
                   cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
                   content={<AnalyticsChartTooltip />}
@@ -343,8 +348,8 @@ export function PlacementsAnalyticsView({ metrics }: PlacementsAnalyticsViewProp
                             row.rate >= 75
                               ? "bg-emerald-500"
                               : row.rate >= 50
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
+                                ? "bg-amber-500"
+                                : "bg-rose-500"
                           }`}
                           style={{ width: `${row.rate}%` }}
                         />

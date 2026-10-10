@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ChevronDown, HelpCircle, Sparkles } from "lucide-react";
-import {faqs} from "../common/common"
+import { faqs } from "../common/common";
 
 export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -20,7 +20,8 @@ export default function FaqSection() {
             Everything You Need to Know About CAMPUSLINK
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300">
-            Got questions? We have clear answers on our AI placement platform, eligibility checks, and student workflows.
+            Got questions? We have clear answers on our AI placement platform,
+            eligibility checks, and student workflows.
           </p>
         </div>
 
@@ -42,7 +43,9 @@ export default function FaqSection() {
                   <span className="pr-4">{faq.question}</span>
                   <div
                     className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 transition-transform duration-200 ${
-                      isOpen ? "rotate-180 bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400" : "text-slate-500"
+                      isOpen
+                        ? "rotate-180 bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400"
+                        : "text-slate-500"
                     }`}
                   >
                     <ChevronDown className="h-4 w-4" />

@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Sparkles, TrendingUp, Briefcase, Calendar, CheckCircle2, ArrowRight } from "lucide-react";
+import {
+  Sparkles,
+  TrendingUp,
+  Briefcase,
+  Calendar,
+  CheckCircle2,
+  ArrowRight,
+} from "lucide-react";
 
 interface WelcomeBannerProps {
   studentName?: string;
@@ -48,7 +55,9 @@ export default function WelcomeBanner({
           </h1>
 
           <p className="text-xs sm:text-sm text-indigo-200/90 leading-relaxed">
-            Welcome to your personalized CAMPUSLINK dashboard. Track your placement readiness, inspect AI skill gap reports, and apply to upcoming on-campus drives.
+            Welcome to your personalized CAMPUSLINK dashboard. Track your
+            placement readiness, inspect AI skill gap reports, and apply to
+            upcoming on-campus drives.
           </p>
 
           {/* Quick Metrics Ticker */}
@@ -56,13 +65,17 @@ export default function WelcomeBanner({
             <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10">
               <TrendingUp className="h-3.5 w-3.5 text-indigo-400" />
               <span>Readiness:</span>
-              <span className="font-black text-indigo-300">{readinessScore}%</span>
+              <span className="font-black text-indigo-300">
+                {readinessScore}%
+              </span>
             </div>
 
             <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               <span>Applied:</span>
-              <span className="font-black text-emerald-300">{appliedCount}</span>
+              <span className="font-black text-emerald-300">
+                {appliedCount}
+              </span>
             </div>
 
             <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10">
@@ -74,7 +87,9 @@ export default function WelcomeBanner({
             <div className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/10">
               <Calendar className="h-3.5 w-3.5 text-amber-400" />
               <span>Upcoming Drives:</span>
-              <span className="font-black text-amber-300">{upcomingDrivesCount}</span>
+              <span className="font-black text-amber-300">
+                {upcomingDrivesCount}
+              </span>
             </div>
           </div>
         </div>

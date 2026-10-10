@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  TrendingUp,
-} from "lucide-react";
+import { Sparkles, CheckCircle2, AlertCircle, TrendingUp } from "lucide-react";
 import { calculateProfileCompletion } from "@/data/studentProfile";
 import type { StudentProfileData } from "@/data/studentProfile";
 
@@ -15,9 +10,7 @@ interface ProfileCompletionProps {
   onJumpToSection?: (sectionId: string) => void;
 }
 
-export default function ProfileCompletion({
-  profile,
-}: ProfileCompletionProps) {
+export default function ProfileCompletion({ profile }: ProfileCompletionProps) {
   const { percentage, completedCount, totalCount, missingSuggestions } =
     calculateProfileCompletion(profile);
 
@@ -50,7 +43,9 @@ export default function ProfileCompletion({
             <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]">
               {percentage}%
             </span>
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">Complete</span>
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+              Complete
+            </span>
           </div>
         </div>
 
@@ -66,7 +61,9 @@ export default function ProfileCompletion({
           <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-500 font-medium">
             <span>Beginner</span>
             <span>Intermediate</span>
-            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">Placement Ready (100%)</span>
+            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+              Placement Ready (100%)
+            </span>
           </div>
         </div>
 
@@ -77,7 +74,8 @@ export default function ProfileCompletion({
               <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
               <div className="text-xs">
                 <span className="font-bold">All Star Profile! </span>
-                Your profile is 100% complete and will be featured prominently to visiting placement recruiters.
+                Your profile is 100% complete and will be featured prominently
+                to visiting placement recruiters.
               </div>
             </div>
 
@@ -91,28 +89,36 @@ export default function ProfileCompletion({
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>Contact &amp; Personal Info</span>
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 px-1.5 py-0.5 rounded">Verified</span>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                    Verified
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>Academic CGPA ({profile.cgpa}/10)</span>
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 px-1.5 py-0.5 rounded">Logged</span>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                    Logged
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>Technical Skills</span>
                   </span>
-                  <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 dark:text-indigo-400 px-1.5 py-0.5 rounded">{profile.skills.length} Skills</span>
+                  <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 dark:text-indigo-400 px-1.5 py-0.5 rounded">
+                    {profile.skills.length} Skills
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>PDF Resume Document</span>
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 px-1.5 py-0.5 rounded">Active</span>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                    Active
+                  </span>
                 </div>
               </div>
             </div>

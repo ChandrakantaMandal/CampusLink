@@ -20,7 +20,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 import type { AdminRecruiter } from "../admin.types";
-import { getAdminRecruiters, createAdminRecruiter, verifyAdminRecruiter } from "@/lib/api/admin.api";
+import {
+  getAdminRecruiters,
+  createAdminRecruiter,
+  verifyAdminRecruiter,
+} from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function RecruitersManagementView() {
@@ -28,10 +32,13 @@ export default function RecruitersManagementView() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [selectedRecruiter, setSelectedRecruiter] = useState<AdminRecruiter | null>(null);
+  const [selectedRecruiter, setSelectedRecruiter] =
+    useState<AdminRecruiter | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [actingId, setActingId] = useState<string | null>(null);
-  const [confirmDeactivateId, setConfirmDeactivateId] = useState<string | null>(null);
+  const [confirmDeactivateId, setConfirmDeactivateId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -71,7 +78,7 @@ export default function RecruitersManagementView() {
     const data = await getAdminRecruiters();
     setRecruiters(data);
     setSelectedRecruiter((prev) =>
-      prev ? (data.find((r) => r.id === prev.id) ?? prev) : null
+      prev ? (data.find((r) => r.id === prev.id) ?? prev) : null,
     );
   };
 
@@ -106,7 +113,9 @@ export default function RecruitersManagementView() {
     try {
       await verifyAdminRecruiter(id, reactivating ? "VERIFIED" : "REJECTED");
       await refreshRecruiters();
-      toast.info(reactivating ? "Recruiter reactivated." : "Recruiter deactivated.");
+      toast.info(
+        reactivating ? "Recruiter reactivated." : "Recruiter deactivated.",
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update recruiter",
@@ -148,7 +157,6 @@ export default function RecruitersManagementView() {
     }
   };
 
-
   return (
     <div className="space-y-6">
       {/* Header & Controls */}
@@ -159,7 +167,8 @@ export default function RecruitersManagementView() {
             Recruiter &amp; Company Relations
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Authorize corporate recruiters, verify MoUs, configure hiring tiers, and review campus drive pipelines.
+            Authorize corporate recruiters, verify MoUs, configure hiring tiers,
+            and review campus drive pipelines.
           </p>
         </div>
 
@@ -223,124 +232,138 @@ export default function RecruitersManagementView() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td
+                    colSpan={8}
+                    className="px-5 py-10 text-center text-slate-400 font-semibold"
+                  >
                     Loading recruiters…
                   </td>
                 </tr>
               ) : filteredRecruiters.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td
+                    colSpan={8}
+                    className="px-5 py-10 text-center text-slate-400 font-semibold"
+                  >
                     No recruiters found.
                   </td>
                 </tr>
               ) : null}
               {!loading &&
                 filteredRecruiters.map((rec) => (
-                <tr
-                  key={rec.id}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
-                >
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-white p-1.5 shadow-2xs border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={rec.logo} alt={rec.name} className="h-6 w-6 object-contain" />
+                  <tr
+                    key={rec.id}
+                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                  >
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-white p-1.5 shadow-2xs border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={rec.logo}
+                            alt={rec.name}
+                            className="h-6 w-6 object-contain"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="font-bold text-slate-900 dark:text-white block truncate">
+                            {rec.name}
+                          </span>
+                          <a
+                            href={rec.website}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                          >
+                            <span>{rec.website.replace("https://", "")}</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <span className="font-bold text-slate-900 dark:text-white block truncate">
-                          {rec.name}
-                        </span>
-                        <a
-                          href={rec.website}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-                        >
-                          <span>{rec.website.replace("https://", "")}</span>
-                          <ExternalLink className="h-2.5 w-2.5" />
-                        </a>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{rec.contactPerson}</p>
-                    <p className="text-[11px] text-slate-400">{rec.email}</p>
-                  </td>
-                  <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">
-                    {rec.industry}
-                  </td>
-                  <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">
-                    {rec.jobsCount}
-                  </td>
-                  <td className="px-4 py-3.5 font-bold text-indigo-600 dark:text-indigo-400">
-                    {rec.drivesCount}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="font-bold text-slate-900 dark:text-white block">
-                      {rec.packageRange}
-                    </span>
-                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold">
-                      {rec.tier}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                        rec.status === "Active"
-                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
-                          : rec.status === "Partner"
-                          ? "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-200 dark:border-purple-800"
-                          : rec.status === "Pending"
-                          ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
-                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                      }`}
-                    >
-                      {rec.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-right space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRecruiter(rec)}
-                      className="cursor-pointer rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 text-[11px] transition-all"
-                    >
-                      Details
-                    </button>
-                    {rec.status === "Pending" ? (
-                      <button
-                        type="button"
-                        onClick={() => handleApprove(rec.id)}
-                        disabled={actingId === rec.id}
-                        className="cursor-pointer rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait"
-                      >
-                        {actingId === rec.id ? "Working…" : "Approve"}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleDeactivate(rec.id)}
-                        onBlur={() =>
-                          setConfirmDeactivateId((prev) => (prev === rec.id ? null : prev))
-                        }
-                        disabled={actingId === rec.id}
-                        className={`cursor-pointer rounded-lg px-2 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait ${
-                          confirmDeactivateId === rec.id
-                            ? "bg-rose-600 text-white font-bold"
-                            : "border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <p className="font-semibold text-slate-800 dark:text-slate-200">
+                        {rec.contactPerson}
+                      </p>
+                      <p className="text-[11px] text-slate-400">{rec.email}</p>
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">
+                      {rec.industry}
+                    </td>
+                    <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">
+                      {rec.jobsCount}
+                    </td>
+                    <td className="px-4 py-3.5 font-bold text-indigo-600 dark:text-indigo-400">
+                      {rec.drivesCount}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="font-bold text-slate-900 dark:text-white block">
+                        {rec.packageRange}
+                      </span>
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold">
+                        {rec.tier}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                          rec.status === "Active"
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                            : rec.status === "Partner"
+                              ? "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-200 dark:border-purple-800"
+                              : rec.status === "Pending"
+                                ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                         }`}
                       >
-                        {actingId === rec.id
-                          ? "Working…"
-                          : confirmDeactivateId === rec.id
-                          ? "Confirm?"
-                          : rec.status === "Inactive"
-                          ? "Activate"
-                          : "Deactivate"}
+                        {rec.status}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-right space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRecruiter(rec)}
+                        className="cursor-pointer rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 text-[11px] transition-all"
+                      >
+                        Details
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      {rec.status === "Pending" ? (
+                        <button
+                          type="button"
+                          onClick={() => handleApprove(rec.id)}
+                          disabled={actingId === rec.id}
+                          className="cursor-pointer rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait"
+                        >
+                          {actingId === rec.id ? "Working…" : "Approve"}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleDeactivate(rec.id)}
+                          onBlur={() =>
+                            setConfirmDeactivateId((prev) =>
+                              prev === rec.id ? null : prev,
+                            )
+                          }
+                          disabled={actingId === rec.id}
+                          className={`cursor-pointer rounded-lg px-2 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait ${
+                            confirmDeactivateId === rec.id
+                              ? "bg-rose-600 text-white font-bold"
+                              : "border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                          }`}
+                        >
+                          {actingId === rec.id
+                            ? "Working…"
+                            : confirmDeactivateId === rec.id
+                              ? "Confirm?"
+                              : rec.status === "Inactive"
+                                ? "Activate"
+                                : "Deactivate"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -361,45 +384,81 @@ export default function RecruitersManagementView() {
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-2xl bg-white p-2 shadow-md border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={selectedRecruiter.logo} alt={selectedRecruiter.name} className="h-10 w-10 object-contain" />
+                <img
+                  src={selectedRecruiter.logo}
+                  alt={selectedRecruiter.name}
+                  className="h-10 w-10 object-contain"
+                />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white">{selectedRecruiter.name}</h3>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                    {selectedRecruiter.name}
+                  </h3>
                   <span className="rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5">
                     {selectedRecruiter.tier}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{selectedRecruiter.industry}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {selectedRecruiter.industry}
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Recruiter Lead</span>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{selectedRecruiter.contactPerson}</p>
-                <p className="text-[11px] text-slate-500">{selectedRecruiter.email}</p>
-                <p className="text-[11px] text-slate-500">{selectedRecruiter.phone}</p>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">
+                  Recruiter Lead
+                </span>
+                <p className="font-bold text-slate-900 dark:text-white mt-0.5">
+                  {selectedRecruiter.contactPerson}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {selectedRecruiter.email}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {selectedRecruiter.phone}
+                </p>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Compensation Band</span>
-                <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{selectedRecruiter.packageRange}</p>
-                <p className="text-[11px] text-slate-400 mt-1">Status: <strong className="text-slate-700 dark:text-slate-200">{selectedRecruiter.status}</strong></p>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">
+                  Compensation Band
+                </span>
+                <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+                  {selectedRecruiter.packageRange}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Status:{" "}
+                  <strong className="text-slate-700 dark:text-slate-200">
+                    {selectedRecruiter.status}
+                  </strong>
+                </p>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-xs space-y-1">
-              <span className="font-bold text-slate-700 dark:text-slate-300">Eligibility Criteria Set:</span>
-              <p className="text-slate-600 dark:text-slate-400">{selectedRecruiter.eligibilityCriteria}</p>
+              <span className="font-bold text-slate-700 dark:text-slate-300">
+                Eligibility Criteria Set:
+              </span>
+              <p className="text-slate-600 dark:text-slate-400">
+                {selectedRecruiter.eligibilityCriteria}
+              </p>
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Active Placement Drives:</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Active Placement Drives:
+              </span>
               <div className="space-y-1.5">
                 {selectedRecruiter.activeDrives.map((d) => (
-                  <div key={d} className="p-2.5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between text-xs">
-                    <span className="font-semibold text-indigo-900 dark:text-indigo-200">{d}</span>
+                  <div
+                    key={d}
+                    className="p-2.5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between text-xs"
+                  >
+                    <span className="font-semibold text-indigo-900 dark:text-indigo-200">
+                      {d}
+                    </span>
                     <Link
                       href="/admin/drives"
                       className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
@@ -421,7 +480,9 @@ export default function RecruitersManagementView() {
                     disabled={actingId === selectedRecruiter.id}
                     className="cursor-pointer rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 text-xs disabled:opacity-60 disabled:cursor-wait"
                   >
-                    {actingId === selectedRecruiter.id ? "Working…" : "Approve Recruiter"}
+                    {actingId === selectedRecruiter.id
+                      ? "Working…"
+                      : "Approve Recruiter"}
                   </button>
                 ) : (
                   <button
@@ -429,7 +490,7 @@ export default function RecruitersManagementView() {
                     onClick={() => handleDeactivate(selectedRecruiter.id)}
                     onBlur={() =>
                       setConfirmDeactivateId((prev) =>
-                        prev === selectedRecruiter.id ? null : prev
+                        prev === selectedRecruiter.id ? null : prev,
                       )
                     }
                     disabled={actingId === selectedRecruiter.id}
@@ -442,8 +503,8 @@ export default function RecruitersManagementView() {
                     {actingId === selectedRecruiter.id
                       ? "Working…"
                       : confirmDeactivateId === selectedRecruiter.id
-                      ? "Confirm?"
-                      : "Deactivate"}
+                        ? "Confirm?"
+                        : "Deactivate"}
                   </button>
                 )}
               </div>
@@ -477,39 +538,57 @@ export default function RecruitersManagementView() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateRecruiter} className="space-y-3.5 text-xs">
+            <form
+              onSubmit={handleCreateRecruiter}
+              className="space-y-3.5 text-xs"
+            >
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Company Name *</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Company Name *
+                </label>
                 <input
                   type="text"
                   required
                   value={newRecruiter.name}
-                  onChange={(e) => setNewRecruiter({ ...newRecruiter, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewRecruiter({ ...newRecruiter, name: e.target.value })
+                  }
                   placeholder="e.g. Microsoft India"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Recruiter Email *</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Recruiter Email *
+                </label>
                 <input
                   type="email"
                   required
                   value={newRecruiter.email}
-                  onChange={(e) => setNewRecruiter({ ...newRecruiter, email: e.target.value })}
+                  onChange={(e) =>
+                    setNewRecruiter({ ...newRecruiter, email: e.target.value })
+                  }
                   placeholder="hiring@company.com"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Password *</label>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Password *
+                </label>
                 <input
                   type="password"
                   required
                   minLength={8}
                   value={newRecruiter.password}
-                  onChange={(e) => setNewRecruiter({ ...newRecruiter, password: e.target.value })}
+                  onChange={(e) =>
+                    setNewRecruiter({
+                      ...newRecruiter,
+                      password: e.target.value,
+                    })
+                  }
                   placeholder="Min. 8 characters"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />

@@ -31,7 +31,14 @@ interface SalariesAnalyticsViewProps {
   metrics: SalaryMetrics | null;
 }
 
-const HUB_COLORS = ["#6366f1", "#14b8a6", "#f59e0b", "#ec4899", "#8b5cf6", "#3b82f6"];
+const HUB_COLORS = [
+  "#6366f1",
+  "#14b8a6",
+  "#f59e0b",
+  "#ec4899",
+  "#8b5cf6",
+  "#3b82f6",
+];
 
 export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
   if (!metrics) {
@@ -123,7 +130,9 @@ export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
                 />
                 <Tooltip
                   cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
-                  content={<AnalyticsChartTooltip valuePrefix="₹" valueSuffix=" LPA" />}
+                  content={
+                    <AnalyticsChartTooltip valuePrefix="₹" valueSuffix=" LPA" />
+                  }
                 />
                 <Bar
                   dataKey="ctc"
@@ -160,11 +169,7 @@ export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
                   axisLine={{ stroke: "rgba(148, 163, 184, 0.3)" }}
                   tickLine={false}
                 />
-                <YAxis
-                  tick={axisTickStyle}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <YAxis tick={axisTickStyle} axisLine={false} tickLine={false} />
                 <Tooltip
                   cursor={{ fill: "rgba(20, 184, 166, 0.05)" }}
                   content={<AnalyticsChartTooltip valueSuffix=" Offers" />}
@@ -211,7 +216,9 @@ export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={<AnalyticsChartTooltip valueSuffix=" Companies" />} />
+                  <Tooltip
+                    content={<AnalyticsChartTooltip valueSuffix=" Companies" />}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -226,12 +233,17 @@ export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                     <span
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: HUB_COLORS[idx % HUB_COLORS.length] }}
+                      style={{
+                        backgroundColor: HUB_COLORS[idx % HUB_COLORS.length],
+                      }}
                     />
                     <span className="truncate font-medium">{loc.name}</span>
                   </div>
                   <div className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                    {loc.value} <span className="text-[11px] font-normal text-slate-500">records</span>
+                    {loc.value}{" "}
+                    <span className="text-[11px] font-normal text-slate-500">
+                      records
+                    </span>
                   </div>
                 </div>
               ))}
@@ -252,9 +264,13 @@ export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
               </div>
               <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
                 {metrics.ctcRanges
-                  .filter((r) => r.range === "20 - 35 LPA" || r.range === "35+ LPA")
+                  .filter(
+                    (r) => r.range === "20 - 35 LPA" || r.range === "35+ LPA",
+                  )
                   .reduce((acc, r) => acc + r.count, 0)}{" "}
-                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">offers</span>
+                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                  offers
+                </span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
                 Tier-1 MNCs, Fintech & DeepTech roles
@@ -267,9 +283,14 @@ export function SalariesAnalyticsView({ metrics }: SalariesAnalyticsViewProps) {
               </div>
               <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
                 {metrics.ctcRanges
-                  .filter((r) => r.range === "5 - 10 LPA" || r.range === "10 - 20 LPA")
+                  .filter(
+                    (r) =>
+                      r.range === "5 - 10 LPA" || r.range === "10 - 20 LPA",
+                  )
                   .reduce((acc, r) => acc + r.count, 0)}{" "}
-                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">offers</span>
+                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                  offers
+                </span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
                 Standard product & consulting hiring bands

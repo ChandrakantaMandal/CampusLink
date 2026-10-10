@@ -67,8 +67,7 @@ const useProfileStore = create<ProfileState>()((set) => ({
   errors: {},
   setProfile: (value) =>
     set((s) => ({
-      profile:
-        typeof value === "function" ? value(s.profile) : value,
+      profile: typeof value === "function" ? value(s.profile) : value,
     })),
   setSavedSnapshot: (v) => set({ savedSnapshot: v }),
   setIsLoaded: (v) => set({ isLoaded: v }),
@@ -151,7 +150,8 @@ export function useProfile(): ProfileValue {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
   const userKey =
     session?.user?.id ||
     (session?.user?.email ? encodeURIComponent(session.user.email) : "guest");
@@ -213,7 +213,16 @@ export function useProfile(): ProfileValue {
     } finally {
       setIsSaving(false);
     }
-  }, [session, profile, userKey, router, setIsSaving, setErrors, setSavedSnapshot, setIsEditing]);
+  }, [
+    session,
+    profile,
+    userKey,
+    router,
+    setIsSaving,
+    setErrors,
+    setSavedSnapshot,
+    setIsEditing,
+  ]);
 
   const completion = calculateProfileCompletion(profile);
 
@@ -239,7 +248,8 @@ export function useProfile(): ProfileValue {
 }
 
 export function ProfileSync({ children }: { children: React.ReactNode }) {
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
   const userKey =
     session?.user?.id ||
     (session?.user?.email ? encodeURIComponent(session.user.email) : "guest");

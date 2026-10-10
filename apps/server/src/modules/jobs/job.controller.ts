@@ -5,8 +5,6 @@ import { matchStudentWithJob, analyzeStudentSkillGap } from "./job-ai.service";
 
 import { getJobs } from "./job.service";
 
-
-
 /* =========================
    MATCH SINGLE JOB
 ========================= */
@@ -17,8 +15,7 @@ export async function matchJobController(
   next: NextFunction,
 ) {
   try {
-    const authenticatedReq =
-      req as AuthenticatedRequest;
+    const authenticatedReq = req as AuthenticatedRequest;
 
     const { id } = req.params;
 
@@ -29,10 +26,7 @@ export async function matchJobController(
       });
     }
 
-    const result = await matchStudentWithJob(
-      authenticatedReq.user.id,
-      id,
-    );
+    const result = await matchStudentWithJob(authenticatedReq.user.id, id);
 
     return res.status(200).json({
       success: true,
@@ -53,8 +47,7 @@ export async function skillGapController(
   next: NextFunction,
 ) {
   try {
-    const authenticatedReq =
-      req as AuthenticatedRequest;
+    const authenticatedReq = req as AuthenticatedRequest;
 
     const { id } = req.params;
 
@@ -65,11 +58,7 @@ export async function skillGapController(
       });
     }
 
-    const result =
-      await analyzeStudentSkillGap(
-        authenticatedReq.user.id,
-        id,
-      );
+    const result = await analyzeStudentSkillGap(authenticatedReq.user.id, id);
 
     return res.status(200).json({
       success: true,

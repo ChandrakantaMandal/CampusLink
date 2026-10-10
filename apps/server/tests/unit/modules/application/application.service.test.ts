@@ -490,7 +490,6 @@ describe("application.service", () => {
       expect(mocks.db.application.update).not.toHaveBeenCalled();
     });
 
-
     it("should reject recruiter from another company", async () => {
       mocks.db.application.findUnique.mockResolvedValue({
         id: "application-123",

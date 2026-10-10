@@ -1,4 +1,3 @@
-
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -377,4 +376,3 @@ describe("Applications Module - Integration", () => {
     });
   });
 });
-

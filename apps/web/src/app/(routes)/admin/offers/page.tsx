@@ -3,7 +3,8 @@ import OffersManagementView from "@/components/dashboard/admin/views/OffersManag
 
 export const metadata: Metadata = {
   title: "Placement Offers & Letters — CAMPUSLINK Admin",
-  description: "Track accepted offers, verify letters of intent (LOI), and audit package commitments.",
+  description:
+    "Track accepted offers, verify letters of intent (LOI), and audit package commitments.",
 };
 
 export default function AdminOffersPage() {

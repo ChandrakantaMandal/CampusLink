@@ -20,7 +20,9 @@ const DASHBOARD_ROUTES: Record<Role, Route> = {
 export default function AuthCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading",
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,7 +56,9 @@ export default function AuthCallbackHandler() {
         }
 
         if (!session?.user) {
-          throw new Error("Unable to establish your session. Please try signing in again.");
+          throw new Error(
+            "Unable to establish your session. Please try signing in again.",
+          );
         }
 
         if (isCancelled) return;
@@ -62,10 +66,11 @@ export default function AuthCallbackHandler() {
         setStatus("success");
         toast.success("Successfully authenticated with Google!");
 
-        const userRole = (session.user as { role?: string })?.role?.toUpperCase() as
-          | Role
-          | undefined;
-        const queryRole = searchParams.get("role")?.toUpperCase() as Role | undefined;
+        const userRole = (
+          session.user as { role?: string }
+        )?.role?.toUpperCase() as Role | undefined;
+        const queryRole = searchParams.get("role")?.toUpperCase() as
+          Role | undefined;
 
         const effectiveRole: Role =
           userRole && DASHBOARD_ROUTES[userRole]
@@ -133,7 +138,8 @@ export default function AuthCallbackHandler() {
           {status === "success" &&
             "Redirecting you to your placement dashboard..."}
           {status === "error" &&
-            (errorMessage || "Something went wrong while completing Google sign-in.")}
+            (errorMessage ||
+              "Something went wrong while completing Google sign-in.")}
         </p>
 
         {status === "error" && (
