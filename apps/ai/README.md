@@ -113,32 +113,42 @@ apps/ai/
 ## 🔬 Core Services & Algorithms
 
 ### 1. Deterministic Skill Matching (`job_matching.py`)
+
 Matches candidate profiles against jobs with **sub-millisecond latency** without consuming Gemini API tokens:
+
 - Canonicalizes both student and job skill names.
 - Computes matched vs. missing skills.
 - Produces deterministic match percentages ($0\% - 100\%$) and human-readable explanations.
 
 ### 2. Skill Gap & Normalization Engine (`skill_gap.py`)
+
 Computes the exact missing competencies required for a job:
+
 - Strips punctuation and whitespace to form standardized keys (`re.sub(r"[^a-z0-9]", "", skill)`).
 - Maps variations (e.g., `tf` -> `tensorflow`, `py torch` -> `pytorch`).
 - Yields a bounded `skill_gap_score` where $0$ indicates full qualification and $100$ indicates zero matched requirements.
 
 ### 3. Safe PDF Extraction & Resume Parser (`resume_analyzer.py`)
+
 Safely extracts and parses resume content:
+
 - Uses **PyMuPDF** (`pymupdf.open`) for direct text-layer extraction without external binary dependencies.
 - Rejects corrupt or empty PDFs (`document.page_count == 0` or missing text layer).
 - Enforces a **12,000 character maximum window** to protect against token exhaustion and prompt injection.
 - Directs Gemini to return clean, markdown-free JSON conforming to a strict schema.
 
 ### 4. Career Readiness Scorer (`readiness.py`)
+
 Evaluates a student's readiness for their target role:
+
 - Evaluates four distinct pillars: Technical Skills, Practical Projects, Academic Performance (CGPA), and Certifications.
 - Enforces strict constraints so the model cannot invent missing data or dismiss existing projects.
 - Outputs a normalized score ($0-100$), concrete strengths, weaknesses, and next-step recommendations.
 
 ### 5. Personalized Skill Recommendations (`recommendation.py`)
+
 Turns missing job skills into concrete learning milestones:
+
 - For every missing skill, generates:
   1. Key conceptual topics to learn.
   2. One practical project or task utilizing the skill.
@@ -148,9 +158,11 @@ Turns missing job skills into concrete learning milestones:
 ## 🔌 FastAPI Endpoints Reference
 
 ### `POST /match/`
+
 Computes candidate match score against a job opening.
 
 **Request Body:**
+
 ```json
 {
   "student": {
@@ -170,6 +182,7 @@ Computes candidate match score against a job opening.
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "success": true,
@@ -185,9 +198,11 @@ Computes candidate match score against a job opening.
 ---
 
 ### `POST /skill-gap/`
+
 Computes missing skills and skill-gap severity score.
 
 **Request Body:**
+
 ```json
 {
   "student": {
@@ -200,6 +215,7 @@ Computes missing skills and skill-gap severity score.
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "skill_gap_score": 50.0,
@@ -212,9 +228,11 @@ Computes missing skills and skill-gap severity score.
 ---
 
 ### `POST /readiness/`
+
 Calculates overall placement readiness score and qualitative profile analysis.
 
 **Request Body:**
+
 ```json
 {
   "skills": ["TypeScript", "Next.js", "PostgreSQL", "Docker"],
@@ -226,6 +244,7 @@ Calculates overall placement readiness score and qualitative profile analysis.
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "readiness_score": 86.0,
@@ -248,9 +267,11 @@ Calculates overall placement readiness score and qualitative profile analysis.
 ---
 
 ### `POST /resume/analyze-text/`
+
 Analyzes raw resume text and returns structured fields.
 
 **Request Body:**
+
 ```json
 {
   "text": "John Doe... Computer Science... Skills: Python, Docker, FastApi... Projects: AI Search..."
@@ -258,6 +279,7 @@ Analyzes raw resume text and returns structured fields.
 ```
 
 **Response (`200 OK`):**
+
 ```json
 {
   "skills": ["Python", "Docker", "FastAPI"],
@@ -273,6 +295,7 @@ Analyzes raw resume text and returns structured fields.
 ---
 
 ### `POST /resume/analyze-pdf/`
+
 Uploads and parses a PDF document directly.
 
 - **Content-Type**: `multipart/form-data`
@@ -282,9 +305,11 @@ Uploads and parses a PDF document directly.
 ---
 
 ### `POST /recommendation/`
+
 Generates personalized study and project milestones for missing competencies.
 
 **Request Body:**
+
 ```json
 {
   "missing_skills": ["Docker", "Redis"],
@@ -295,6 +320,7 @@ Generates personalized study and project milestones for missing competencies.
 ```
 
 **Response (`200 OK`):**
+
 ```json
 [
   "Docker: Learn containerization fundamentals, multi-stage builds, and Docker Compose.",
@@ -307,9 +333,11 @@ Generates personalized study and project milestones for missing competencies.
 ---
 
 ### `GET /health`
+
 Returns service status.
 
 **Response (`200 OK`):**
+
 ```json
 {
   "status": "healthy",
@@ -368,6 +396,7 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 The service will be accessible at:
+
 - **API Base**: `http://localhost:8000`
 - **Interactive Swagger Docs**: `http://localhost:8000/docs`
 - **ReDoc Documentation**: `http://localhost:8000/redoc`

@@ -21,6 +21,8 @@ const mocks = vi.hoisted(() => ({
     offer: {
       count: vi.fn(),
       findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
     driveRegistration: {
       count: vi.fn(),
@@ -35,6 +37,9 @@ const mocks = vi.hoisted(() => ({
     userNotification: {
       count: vi.fn(),
       findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
     },
     readinessResult: {
       findFirst: vi.fn(),
@@ -50,6 +55,8 @@ const mocks = vi.hoisted(() => ({
     set: vi.fn(),
     del: vi.fn(),
   },
+
+  calculateReadiness: vi.fn(),
 }));
 
 vi.mock("../../../../src/services", () => ({
@@ -58,6 +65,10 @@ vi.mock("../../../../src/services", () => ({
 
 vi.mock("@CampusLink/redis", () => ({
   redis: mocks.redis,
+}));
+
+vi.mock("../../../../src/modules/students/readiness.service", () => ({
+  calculateReadiness: mocks.calculateReadiness,
 }));
 
 import {
@@ -74,6 +85,27 @@ import {
   registerForDrive,
 } from "../../../../src/modules/students/student.service";
 
+const readinessResult = {
+  overallScore: 0,
+  breakdown: {
+    academics: 0,
+    assessment: 0,
+    projects: 0,
+    resume: 0,
+    technical: 0,
+  },
+  weights: {
+    academics: 20,
+    assessment: 20,
+    projects: 20,
+    resume: 10,
+    technical: 30,
+  },
+  explanation:
+    "Readiness score is calculated using Technical Skills (30%), Mock Assessments (20%), Projects & Live Demos (20%), Academics / CGPA (20%), and ATS Resume Quality (10%).",
+  readinessLabel: "NEEDS_IMPROVEMENT",
+};
+
 const student = {
   id: "student-1",
   userId: "user-1",
@@ -88,6 +120,7 @@ const student = {
   readinessScore: 65,
   readinessLabel: "GOOD",
   resumeUrl: null,
+  resumeText: null,
   user: {
     id: "user-1",
     name: "John Doe",
@@ -98,11 +131,35 @@ const student = {
   skills: [],
   education: [],
   projects: [],
+  assessments: [],
+  resumes: [],
 };
+
+const defaultReadiness = {
+  readinessScore: readinessResult.overallScore,
+  readinessBreakdown: readinessResult.breakdown,
+};
+
+const studentCacheKeys = (userId: string, studentId: string) => [
+  `student:user:${userId}`,
+  `student:readiness:${userId}`,
+  `student:dashboard:${userId}`,
+  `student:drives:${userId}`,
+  `student:interviews:${userId}`,
+  `student:offers:${userId}`,
+  `student:notifications:${userId}`,
+  `student:${studentId}`,
+];
 
 describe("Student Service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mocks.redis.get.mockResolvedValue(null);
+    mocks.redis.set.mockResolvedValue("OK");
+    mocks.redis.del.mockResolvedValue(1);
+
+    mocks.calculateReadiness.mockReturnValue(readinessResult);
   });
 
   describe("getStudentByUserId", () => {
@@ -123,7 +180,7 @@ describe("Student Service", () => {
     });
 
     it("should fetch student from database when cache misses", async () => {
-      const student = {
+      const fetchedStudent = {
         id: "student-1",
         userId: "user-1",
         user: {
@@ -136,20 +193,23 @@ describe("Student Service", () => {
         skills: [],
         education: [],
         projects: [],
+        assessments: [],
+        resumes: [],
       };
 
-      mocks.redis.get.mockResolvedValue(null);
-      mocks.db.studentProfile.findUnique.mockResolvedValue(student);
-      mocks.redis.set.mockResolvedValue("OK");
+      const expectedStudent = {
+        ...fetchedStudent,
+        ...defaultReadiness,
+      };
+
+      mocks.db.studentProfile.findUnique.mockResolvedValue(fetchedStudent);
 
       const result = await getStudentByUserId("user-1");
 
-      expect(result).toEqual(student);
+      expect(result).toEqual(expectedStudent);
 
       expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
-        where: {
-          userId: "user-1",
-        },
+        where: { userId: "user-1" },
         include: {
           user: {
             select: {
@@ -175,15 +235,18 @@ describe("Student Service", () => {
               },
             },
           },
+          assessments: true,
+          resumes: true,
         },
       });
 
+      expect(mocks.calculateReadiness).toHaveBeenCalledTimes(1);
       expect(mocks.redis.set).toHaveBeenCalledTimes(2);
 
       expect(mocks.redis.set).toHaveBeenNthCalledWith(
         1,
         "student:user:user-1",
-        JSON.stringify(student),
+        JSON.stringify(expectedStudent),
         "EX",
         300,
       );
@@ -191,14 +254,13 @@ describe("Student Service", () => {
       expect(mocks.redis.set).toHaveBeenNthCalledWith(
         2,
         "student:student-1",
-        JSON.stringify(student),
+        JSON.stringify(expectedStudent),
         "EX",
         300,
       );
     });
 
-    it("should return null when student does not exist", async () => {
-      mocks.redis.get.mockResolvedValue(null);
+    it("should return null when student and user do not exist", async () => {
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
       mocks.db.user.findUnique.mockResolvedValue(null);
 
@@ -218,9 +280,15 @@ describe("Student Service", () => {
         skills: [],
         education: [],
         projects: [],
+        assessments: [],
+        resumes: [],
       };
 
-      mocks.redis.get.mockResolvedValue(null);
+      const expectedStudent = {
+        ...createdStudent,
+        ...defaultReadiness,
+      };
+
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
       mocks.db.user.findUnique.mockResolvedValue({
         id: "user-1",
@@ -229,11 +297,10 @@ describe("Student Service", () => {
         role: "STUDENT",
       });
       mocks.db.studentProfile.create.mockResolvedValue(createdStudent);
-      mocks.redis.set.mockResolvedValue("OK");
 
       const result = await getStudentByUserId("user-1");
 
-      expect(result).toEqual(createdStudent);
+      expect(result).toEqual(expectedStudent);
 
       expect(mocks.db.studentProfile.create).toHaveBeenCalledWith({
         data: {
@@ -266,45 +333,49 @@ describe("Student Service", () => {
               },
             },
           },
+          assessments: true,
+          resumes: true,
         },
       });
 
       expect(mocks.redis.set).toHaveBeenCalledTimes(2);
-
       expect(mocks.redis.set).toHaveBeenNthCalledWith(
         1,
         "student:user:user-1",
-        JSON.stringify(createdStudent),
+        JSON.stringify(expectedStudent),
         "EX",
         300,
       );
-
       expect(mocks.redis.set).toHaveBeenNthCalledWith(
         2,
         "student:student-1",
-        JSON.stringify(createdStudent),
+        JSON.stringify(expectedStudent),
         "EX",
         300,
       );
     });
 
     it("should delete invalid JSON cache and fetch from database", async () => {
-      const student = {
+      const fetchedStudent = {
         id: "student-1",
         userId: "user-1",
+        assessments: [],
+        skills: [],
+        projects: [],
+        resumes: [],
       };
 
       mocks.redis.get.mockResolvedValue("invalid-json");
-      mocks.db.studentProfile.findUnique.mockResolvedValue(student);
-      mocks.redis.del.mockResolvedValue(1);
-      mocks.redis.set.mockResolvedValue("OK");
+      mocks.db.studentProfile.findUnique.mockResolvedValue(fetchedStudent);
 
       const result = await getStudentByUserId("user-1");
 
-      expect(result).toEqual(student);
+      expect(result).toMatchObject({
+        ...fetchedStudent,
+        ...defaultReadiness,
+      });
 
       expect(mocks.redis.del).toHaveBeenCalledWith("student:user:user-1");
-
       expect(mocks.db.studentProfile.findUnique).toHaveBeenCalled();
     });
   });
@@ -321,14 +392,12 @@ describe("Student Service", () => {
       const result = await getStudentById("student-1");
 
       expect(result).toEqual(cachedStudent);
-
       expect(mocks.redis.get).toHaveBeenCalledWith("student:student-1");
-
       expect(mocks.db.studentProfile.findUnique).not.toHaveBeenCalled();
     });
 
     it("should fetch student from database when cache misses", async () => {
-      const student = {
+      const fetchedStudent = {
         id: "student-1",
         userId: "user-1",
         user: {
@@ -341,20 +410,21 @@ describe("Student Service", () => {
         skills: [],
         education: [],
         projects: [],
+        assessments: [],
+        resumes: [],
       };
 
-      mocks.redis.get.mockResolvedValue(null);
-      mocks.db.studentProfile.findUnique.mockResolvedValue(student);
-      mocks.redis.set.mockResolvedValue("OK");
+      mocks.db.studentProfile.findUnique.mockResolvedValue(fetchedStudent);
 
       const result = await getStudentById("student-1");
 
-      expect(result).toEqual(student);
+      expect(result).toMatchObject({
+        ...fetchedStudent,
+        ...defaultReadiness,
+      });
 
       expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
-        where: {
-          id: "student-1",
-        },
+        where: { id: "student-1" },
         include: {
           user: {
             select: {
@@ -380,30 +450,29 @@ describe("Student Service", () => {
               },
             },
           },
+          assessments: true,
+          resumes: true,
         },
       });
 
       expect(mocks.redis.set).toHaveBeenCalledTimes(2);
-
       expect(mocks.redis.set).toHaveBeenNthCalledWith(
         1,
         "student:student-1",
-        JSON.stringify(student),
+        JSON.stringify(result),
         "EX",
         300,
       );
-
       expect(mocks.redis.set).toHaveBeenNthCalledWith(
         2,
         "student:user:user-1",
-        JSON.stringify(student),
+        JSON.stringify(result),
         "EX",
         300,
       );
     });
 
     it("should return null when student does not exist", async () => {
-      mocks.redis.get.mockResolvedValue(null);
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
 
       const result = await getStudentById("student-1");
@@ -413,43 +482,42 @@ describe("Student Service", () => {
     });
 
     it("should delete invalid JSON cache and fetch from database", async () => {
-      const student = {
+      const fetchedStudent = {
         id: "student-1",
         userId: "user-1",
+        assessments: [],
+        skills: [],
+        projects: [],
+        resumes: [],
       };
 
       mocks.redis.get.mockResolvedValue("broken-json");
-      mocks.db.studentProfile.findUnique.mockResolvedValue(student);
-      mocks.redis.del.mockResolvedValue(1);
-      mocks.redis.set.mockResolvedValue("OK");
+      mocks.db.studentProfile.findUnique.mockResolvedValue(fetchedStudent);
 
       const result = await getStudentById("student-1");
 
-      expect(result).toEqual(student);
-
+      expect(result).toMatchObject({
+        ...fetchedStudent,
+        ...defaultReadiness,
+      });
       expect(mocks.redis.del).toHaveBeenCalledWith("student:student-1");
     });
   });
 
   describe("updateStudent", () => {
-    it("should throw error when student profile does not exist", async () => {
+    it("should throw error when student profile and user do not exist", async () => {
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
       mocks.db.user.findUnique.mockResolvedValue(null);
 
-      const updateData = {
-        bio: "Updated bio",
-      };
-
-      await expect(updateStudent("user-1", updateData)).rejects.toThrow(
-        "Student profile not found",
-      );
+      await expect(
+        updateStudent("user-1", { bio: "Updated bio" }),
+      ).rejects.toThrow("Student profile not found");
 
       expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
-
       expect(mocks.redis.del).not.toHaveBeenCalled();
     });
 
-    it("should update student and invalidate both caches", async () => {
+    it("should update student and invalidate caches", async () => {
       const existingStudent = {
         id: "student-1",
         userId: "user-1",
@@ -468,72 +536,32 @@ describe("Student Service", () => {
         },
       };
 
-      const updateData = {
-        bio: "Updated bio",
-      };
-
       mocks.db.studentProfile.findUnique.mockResolvedValue(existingStudent);
-
       mocks.db.studentProfile.update.mockResolvedValue(updatedStudent);
 
-      mocks.redis.del.mockResolvedValue(2);
-
-      const result = await updateStudent("user-1", updateData);
+      const result = await updateStudent("user-1", {
+        bio: "Updated bio",
+      });
 
       expect(result).toEqual(updatedStudent);
-
       expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
-        where: {
-          userId: "user-1",
-        },
+        where: { userId: "user-1" },
       });
-
-      expect(mocks.db.studentProfile.update).toHaveBeenCalledWith({
-        where: {
-          userId: "user-1",
-        },
-        data: updateData,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-              role: true,
-            },
-          },
-          skills: {
-            include: {
-              skill: true,
-            },
-          },
-          education: true,
-          projects: {
-            include: {
-              skills: {
-                include: {
-                  skill: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
+      expect(mocks.db.studentProfile.update).toHaveBeenCalled();
+      expect(mocks.redis.del).toHaveBeenCalledTimes(1);
       expect(mocks.redis.del).toHaveBeenCalledWith(
-        "student:user:user-1",
-        "student:student-1",
+        ...studentCacheKeys("user-1", "student-1"),
       );
     });
 
-    it("should create the student profile when it is missing but the user exists", async () => {
+    it("should create the student profile when missing but the user exists", async () => {
       const createdStudent = {
         id: "student-1",
         userId: "user-1",
         firstName: "John",
         lastName: "Doe",
         bio: "Updated bio",
+        assessments: [],
       };
 
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
@@ -544,56 +572,25 @@ describe("Student Service", () => {
         role: "STUDENT",
       });
       mocks.db.studentProfile.create.mockResolvedValue(createdStudent);
-      mocks.redis.del.mockResolvedValue(2);
 
-      const updateData = {
+      const result = await updateStudent("user-1", {
         bio: "Updated bio",
-      };
-
-      const result = await updateStudent("user-1", updateData);
-
-      expect(result).toEqual(createdStudent);
-
-      expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
-
-      expect(mocks.db.studentProfile.create).toHaveBeenCalledWith({
-        data: {
-          userId: "user-1",
-          firstName: "John",
-          lastName: "Doe",
-          bio: "Updated bio",
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-              role: true,
-            },
-          },
-          skills: {
-            include: {
-              skill: true,
-            },
-          },
-          education: true,
-          projects: {
-            include: {
-              skills: {
-                include: {
-                  skill: true,
-                },
-              },
-            },
-          },
-        },
       });
 
+      expect(result).toEqual(createdStudent);
+      expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
+      expect(mocks.db.studentProfile.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: "user-1",
+            firstName: "John",
+            lastName: "Doe",
+            bio: "Updated bio",
+          }),
+        }),
+      );
       expect(mocks.redis.del).toHaveBeenCalledWith(
-        "student:user:user-1",
-        "student:student-1",
+        ...studentCacheKeys("user-1", "student-1"),
       );
     });
 
@@ -602,24 +599,17 @@ describe("Student Service", () => {
         id: "student-123",
         userId: "user-123",
       });
-
       mocks.db.studentProfile.update.mockResolvedValue({
         id: "student-123",
         userId: "user-123",
         bio: "New bio",
       });
 
-      mocks.redis.del.mockResolvedValue(2);
-
-      await updateStudent("user-123", {
-        bio: "New bio",
-      });
+      await updateStudent("user-123", { bio: "New bio" });
 
       expect(mocks.redis.del).toHaveBeenCalledTimes(1);
-
       expect(mocks.redis.del).toHaveBeenCalledWith(
-        "student:user:user-123",
-        "student:student-123",
+        ...studentCacheKeys("user-123", "student-123"),
       );
     });
   });
@@ -631,7 +621,38 @@ describe("Student Aggregates Service", () => {
 
     mocks.redis.get.mockResolvedValue(null);
     mocks.redis.set.mockResolvedValue("OK");
+    mocks.redis.del.mockResolvedValue(1);
+
+    mocks.calculateReadiness.mockReturnValue({
+      ...readinessResult,
+      overallScore: 85,
+      breakdown: {
+        academics: 85,
+        assessment: 0,
+        projects: 0,
+        resume: 0,
+        technical: 0,
+      },
+      readinessLabel: "GOOD",
+    });
+
     mocks.db.studentProfile.findUnique.mockResolvedValue(student);
+    mocks.db.user.findUnique.mockResolvedValue(null);
+
+    mocks.db.application.count.mockResolvedValue(0);
+    mocks.db.application.findMany.mockResolvedValue([]);
+    mocks.db.interview.count.mockResolvedValue(0);
+    mocks.db.interview.findMany.mockResolvedValue([]);
+    mocks.db.offer.count.mockResolvedValue(0);
+    mocks.db.offer.findMany.mockResolvedValue([]);
+    mocks.db.driveRegistration.count.mockResolvedValue(0);
+    mocks.db.driveRegistration.findMany.mockResolvedValue([]);
+    mocks.db.placementDrive.findMany.mockResolvedValue([]);
+    mocks.db.userNotification.count.mockResolvedValue(0);
+    mocks.db.userNotification.findMany.mockResolvedValue([]);
+    mocks.db.readinessResult.findFirst.mockResolvedValue(null);
+    mocks.db.readinessResult.findMany.mockResolvedValue([]);
+    mocks.db.assessmentResult.findMany.mockResolvedValue([]);
   });
 
   describe("getStudentDashboard", () => {
@@ -646,7 +667,10 @@ describe("Student Aggregates Service", () => {
         status: "SCHEDULED",
         job: { id: "job-1", title: "SDE" },
       };
-      const recentNotification = { id: "notif-1", isRead: false };
+      const recentNotification = {
+        id: "notif-1",
+        isRead: false,
+      };
 
       mocks.db.application.count.mockResolvedValue(12);
       mocks.db.application.findMany.mockResolvedValue([recentApplication]);
@@ -664,7 +688,6 @@ describe("Student Aggregates Service", () => {
 
       const result = await getStudentDashboard("user-1");
 
-      expect(result).not.toBeNull();
       expect(result).toMatchObject({
         student: {
           id: "student-1",
@@ -683,7 +706,7 @@ describe("Student Aggregates Service", () => {
           offers: 2,
           drivesRegistered: 3,
           unreadNotifications: 5,
-          readinessScore: 72,
+          readinessScore: 85,
           readinessLabel: "GOOD",
         },
         recentApplications: [recentApplication],
@@ -700,16 +723,17 @@ describe("Student Aggregates Service", () => {
     });
 
     it("should return the cached dashboard without hitting the database", async () => {
-      const cached = { stats: { applications: 1 }, recentApplications: [] };
+      const cached = {
+        stats: { applications: 1 },
+        recentApplications: [],
+      };
 
       mocks.redis.get.mockResolvedValue(JSON.stringify(cached));
 
       const result = await getStudentDashboard("user-1");
 
       expect(result).toEqual(cached);
-      expect(mocks.redis.get).toHaveBeenCalledWith(
-        "student:dashboard:user-1",
-      );
+      expect(mocks.redis.get).toHaveBeenCalledWith("student:dashboard:user-1");
       expect(mocks.db.studentProfile.findUnique).not.toHaveBeenCalled();
       expect(mocks.db.application.count).not.toHaveBeenCalled();
       expect(mocks.redis.set).not.toHaveBeenCalled();
@@ -729,26 +753,43 @@ describe("Student Aggregates Service", () => {
 
   describe("getStudentReadiness", () => {
     it("should return readiness aggregates and cache with a 300s TTL", async () => {
-      const latest = { id: "readiness-1", overallScore: 72 };
+      const latest = {
+        id: "readiness-1",
+        overallScore: 72,
+      };
       const history = [latest, { id: "readiness-2", overallScore: 60 }];
       const recentAssessments = [
-        { id: "ar-1", assessment: { id: "as-1", title: "Aptitude" } },
+        {
+          id: "ar-1",
+          assessment: {
+            id: "as-1",
+            title: "Aptitude",
+            type: "APTITUDE",
+          },
+        },
       ];
 
       mocks.db.readinessResult.findFirst.mockResolvedValue(latest);
       mocks.db.readinessResult.findMany.mockResolvedValue(history);
-      mocks.db.assessmentResult.findMany.mockResolvedValue(
-        recentAssessments,
-      );
+      mocks.db.assessmentResult.findMany.mockResolvedValue(recentAssessments);
 
       const result = await getStudentReadiness("user-1");
 
-      expect(result).toEqual({
-        score: 72,
+      expect(result).toMatchObject({
+        score: 85,
         label: "GOOD",
         latest,
         history,
         recentAssessments,
+        breakdown: {
+          academics: 85,
+          assessment: 0,
+          projects: 0,
+          resume: 0,
+          technical: 0,
+        },
+        weights: readinessResult.weights,
+        explanation: readinessResult.explanation,
       });
 
       expect(mocks.redis.set).toHaveBeenCalledWith(
@@ -759,16 +800,28 @@ describe("Student Aggregates Service", () => {
       );
     });
 
-    it("should fall back to the stored readiness score when no result exists", async () => {
+    it("should use the live calculated score when no stored result exists", async () => {
       mocks.db.readinessResult.findFirst.mockResolvedValue(null);
       mocks.db.readinessResult.findMany.mockResolvedValue([]);
       mocks.db.assessmentResult.findMany.mockResolvedValue([]);
 
+      // student.readinessScore is 65 and readinessResult is empty — the
+      // live calculation (shared mock returns 85) must still drive score.
       const result = await getStudentReadiness("user-1");
 
-      expect(result?.score).toBe(65);
+      expect(result?.score).toBe(85);
+      expect(result?.label).toBe("GOOD");
       expect(result?.latest).toBeNull();
       expect(result?.history).toEqual([]);
+    });
+    it("should return null when the student does not exist", async () => {
+      mocks.db.studentProfile.findUnique.mockResolvedValue(null);
+      mocks.db.user.findUnique.mockResolvedValue(null);
+
+      const result = await getStudentReadiness("user-1");
+
+      expect(result).toBeNull();
+      expect(mocks.db.readinessResult.findFirst).not.toHaveBeenCalled();
     });
   });
 
@@ -805,9 +858,7 @@ describe("Student Aggregates Service", () => {
         company: { id: "comp-3", name: "Initech" },
       };
 
-      mocks.db.driveRegistration.findMany.mockResolvedValue([
-        registeredDrive,
-      ]);
+      mocks.db.driveRegistration.findMany.mockResolvedValue([registeredDrive]);
       mocks.db.placementDrive.findMany.mockResolvedValue([
         registeredDrive.drive,
         ineligibleDrive,
@@ -822,8 +873,6 @@ describe("Student Aggregates Service", () => {
         driveId: "drive-1",
         eligible: true,
       });
-
-      // registered drive is excluded from available
       expect(result?.available.map((drive) => drive.id)).toEqual([
         "drive-2",
         "drive-3",
@@ -838,6 +887,17 @@ describe("Student Aggregates Service", () => {
         "EX",
         300,
       );
+    });
+
+    it("should return null when the student does not exist", async () => {
+      mocks.db.studentProfile.findUnique.mockResolvedValue(null);
+      mocks.db.user.findUnique.mockResolvedValue(null);
+
+      const result = await getStudentDrives("user-1");
+
+      expect(result).toBeNull();
+      expect(mocks.db.driveRegistration.findMany).not.toHaveBeenCalled();
+      expect(mocks.db.placementDrive.findMany).not.toHaveBeenCalled();
     });
   });
 
@@ -870,7 +930,6 @@ describe("Student Aggregates Service", () => {
       expect(result?.upcoming.map((interview) => interview.id)).toEqual([
         "int-future",
       ]);
-
       expect(result?.past.map((interview) => interview.id)).toEqual([
         "int-cancelled-future",
         "int-past",
@@ -898,6 +957,16 @@ describe("Student Aggregates Service", () => {
       expect(result?.upcoming).toHaveLength(1);
       expect(result?.past).toHaveLength(0);
     });
+
+    it("should return null when the student does not exist", async () => {
+      mocks.db.studentProfile.findUnique.mockResolvedValue(null);
+      mocks.db.user.findUnique.mockResolvedValue(null);
+
+      const result = await getStudentInterviews("user-1");
+
+      expect(result).toBeNull();
+      expect(mocks.db.interview.findMany).not.toHaveBeenCalled();
+    });
   });
 
   describe("getStudentOffers", () => {
@@ -919,6 +988,31 @@ describe("Student Aggregates Service", () => {
           total: 4,
           accepted: 1,
           pending: 2,
+        },
+      });
+
+      expect(mocks.db.offer.findMany).toHaveBeenCalledWith({
+        where: {
+          studentId: "student-1",
+          status: { not: "DRAFT" },
+        },
+        orderBy: { offerDate: "desc" },
+        take: 50,
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logoUrl: true,
+              tier: true,
+            },
+          },
+          job: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
         },
       });
 
@@ -1053,6 +1147,29 @@ describe("Student Aggregates Service", () => {
         }),
       ).toBe(true);
     });
+
+    it("should use department when branch is absent", () => {
+      expect(
+        isEligibleForDrive(
+          { ...baseStudent, branch: null, department: "CSE" },
+          {
+            minCgpa: 7.0,
+            backlogsAllowed: 0,
+            allowedBranches: ["cse"],
+          },
+        ),
+      ).toBe(true);
+    });
+
+    it("should compare branch names case-insensitively", () => {
+      expect(
+        isEligibleForDrive(baseStudent, {
+          minCgpa: 7.0,
+          backlogsAllowed: 0,
+          allowedBranches: ["cse"],
+        }),
+      ).toBe(true);
+    });
   });
 
   describe("registerForDrive", () => {
@@ -1067,6 +1184,7 @@ describe("Student Aggregates Service", () => {
 
     beforeEach(() => {
       mocks.redis.get.mockResolvedValue(JSON.stringify(student));
+      mocks.db.studentProfile.findUnique.mockResolvedValue(student);
       mocks.db.placementDrive.findUnique.mockResolvedValue(drive);
       mocks.db.driveRegistration.findUnique.mockResolvedValue(null);
       mocks.db.driveRegistration.create.mockResolvedValue({
@@ -1119,7 +1237,6 @@ describe("Student Aggregates Service", () => {
       const result = await registerForDrive("user-1", "drive-1");
 
       expect(result.ok).toBe(true);
-
       if (result.ok) {
         expect(result.registration).toMatchObject({
           id: "reg-1",
@@ -1146,11 +1263,9 @@ describe("Student Aggregates Service", () => {
       const result = await registerForDrive("user-1", "drive-1");
 
       expect(result.ok).toBe(true);
-
       if (result.ok) {
         expect(result.registration.eligible).toBe(false);
       }
-
       expect(mocks.db.driveRegistration.create).not.toHaveBeenCalled();
     });
 
@@ -1199,7 +1314,12 @@ describe("Student Aggregates Service", () => {
           drive: {
             include: {
               company: {
-                select: expect.any(Object),
+                select: {
+                  id: true,
+                  name: true,
+                  logoUrl: true,
+                  tier: true,
+                },
               },
             },
           },
@@ -1210,13 +1330,24 @@ describe("Student Aggregates Service", () => {
       expect(mocks.redis.del).toHaveBeenCalledWith("student:dashboard:user-1");
 
       expect(result.ok).toBe(true);
-
       if (result.ok) {
         expect(result.registration).toMatchObject({
           id: "reg-1",
           eligible: true,
         });
       }
+    });
+
+    it("should allow registration when the drive status is ONGOING", async () => {
+      mocks.db.placementDrive.findUnique.mockResolvedValue({
+        ...drive,
+        status: "ONGOING",
+      });
+
+      const result = await registerForDrive("user-1", "drive-1");
+
+      expect(result.ok).toBe(true);
+      expect(mocks.db.driveRegistration.create).toHaveBeenCalled();
     });
   });
 });

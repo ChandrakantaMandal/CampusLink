@@ -104,9 +104,7 @@ describe("Education Service", () => {
         percentage: null,
       });
 
-      expect(
-        mocks.db.studentProfile.findUnique,
-      ).toHaveBeenCalledWith({
+      expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
         where: {
           userId: "user-1",
         },
@@ -138,9 +136,7 @@ describe("Education Service", () => {
 
       await createEducation("user-123", data);
 
-      expect(
-        mocks.db.studentProfile.findUnique,
-      ).toHaveBeenCalledWith({
+      expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
         where: {
           userId: "user-123",
         },
@@ -191,9 +187,7 @@ describe("Education Service", () => {
         },
       ];
 
-      mocks.redis.get.mockResolvedValue(
-        JSON.stringify(education),
-      );
+      mocks.redis.get.mockResolvedValue(JSON.stringify(education));
 
       const result = await getMyEducation("user-1");
 
@@ -213,9 +207,7 @@ describe("Education Service", () => {
         },
       ];
 
-      mocks.db.education.findMany.mockResolvedValue(
-        education,
-      );
+      mocks.db.education.findMany.mockResolvedValue(education);
 
       const result = await getMyEducation("user-1");
 
@@ -240,9 +232,7 @@ describe("Education Service", () => {
         },
       ];
 
-      mocks.db.education.findMany.mockResolvedValue(
-        education,
-      );
+      mocks.db.education.findMany.mockResolvedValue(education);
 
       await getMyEducation("user-1");
 
@@ -257,9 +247,9 @@ describe("Education Service", () => {
     it("should throw when student profile does not exist", async () => {
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
 
-      await expect(
-        getMyEducation("user-1"),
-      ).rejects.toThrow("Student profile not found");
+      await expect(getMyEducation("user-1")).rejects.toThrow(
+        "Student profile not found",
+      );
 
       expect(mocks.db.education.findMany).not.toHaveBeenCalled();
       expect(mocks.redis.get).not.toHaveBeenCalled();
@@ -290,9 +280,7 @@ describe("Education Service", () => {
         },
       ];
 
-      mocks.db.education.findMany.mockResolvedValue(
-        education,
-      );
+      mocks.db.education.findMany.mockResolvedValue(education);
 
       const result = await getMyEducation("user-1");
 
@@ -319,11 +307,7 @@ describe("Education Service", () => {
         cgpa: 9,
       };
 
-      const result = await updateEducation(
-        "user-1",
-        "education-1",
-        data,
-      );
+      const result = await updateEducation("user-1", "education-1", data);
 
       expect(result).toEqual({
         id: "education-1",
@@ -351,17 +335,11 @@ describe("Education Service", () => {
         studentId: "student-1",
       });
 
-      await updateEducation(
-        "user-123",
-        "education-1",
-        {
-          cgpa: 9,
-        },
-      );
+      await updateEducation("user-123", "education-1", {
+        cgpa: 9,
+      });
 
-      expect(
-        mocks.db.studentProfile.findUnique,
-      ).toHaveBeenCalledWith({
+      expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
         where: {
           userId: "user-123",
         },
@@ -372,40 +350,26 @@ describe("Education Service", () => {
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
 
       await expect(
-        updateEducation(
-          "user-1",
-          "education-1",
-          {
-            cgpa: 9,
-          },
-        ),
+        updateEducation("user-1", "education-1", {
+          cgpa: 9,
+        }),
       ).rejects.toThrow("Student profile not found");
 
-      expect(
-        mocks.db.education.findUnique,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.findUnique).not.toHaveBeenCalled();
 
-      expect(
-        mocks.db.education.update,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.update).not.toHaveBeenCalled();
     });
 
     it("should throw when education record does not exist", async () => {
       mocks.db.education.findUnique.mockResolvedValue(null);
 
       await expect(
-        updateEducation(
-          "user-1",
-          "education-999",
-          {
-            cgpa: 9,
-          },
-        ),
+        updateEducation("user-1", "education-999", {
+          cgpa: 9,
+        }),
       ).rejects.toThrow("Education record not found");
 
-      expect(
-        mocks.db.education.update,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.update).not.toHaveBeenCalled();
     });
 
     it("should reject updating another student's education", async () => {
@@ -415,20 +379,14 @@ describe("Education Service", () => {
       });
 
       await expect(
-        updateEducation(
-          "user-1",
-          "education-1",
-          {
-            cgpa: 9,
-          },
-        ),
+        updateEducation("user-1", "education-1", {
+          cgpa: 9,
+        }),
       ).rejects.toThrow(
         "You are not authorized to update this education record",
       );
 
-      expect(
-        mocks.db.education.update,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.update).not.toHaveBeenCalled();
     });
 
     it("should invalidate both education caches after update", async () => {
@@ -437,13 +395,9 @@ describe("Education Service", () => {
         studentId: "student-1",
       });
 
-      await updateEducation(
-        "user-1",
-        "education-1",
-        {
-          cgpa: 9,
-        },
-      );
+      await updateEducation("user-1", "education-1", {
+        cgpa: 9,
+      });
 
       expect(mocks.redis.del).toHaveBeenCalledWith(
         "education:student:student-1",

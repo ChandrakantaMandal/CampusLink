@@ -1,13 +1,7 @@
 "use client";
 
 import { MessageScrollerItem } from "@CampusLink/ui/components/message-scroller";
-import {
-  Bot,
-  Check,
-  Copy,
-  Loader2,
-  User,
-} from "lucide-react";
+import { Bot, Check, Copy, Loader2, User } from "lucide-react";
 import React from "react";
 import { Streamdown } from "streamdown";
 
@@ -15,8 +9,7 @@ export interface ChatMessage {
   id: string;
   role: "user" | "assistant" | "system" | "data";
   parts?: Array<
-    | { type: "text"; text: string }
-    | { type: string;[key: string]: any }
+    { type: "text"; text: string } | { type: string; [key: string]: any }
   >;
 }
 
@@ -46,11 +39,23 @@ export function AIMessageItem({
       } else if (p && typeof p === "object") {
         if ("text" in p && typeof p.text === "string" && p.text) {
           extractedParts.push(p.text);
-        } else if ("content" in p && typeof p.content === "string" && p.content) {
+        } else if (
+          "content" in p &&
+          typeof p.content === "string" &&
+          p.content
+        ) {
           extractedParts.push(p.content);
-        } else if ("textDelta" in p && typeof (p as any).textDelta === "string" && (p as any).textDelta) {
+        } else if (
+          "textDelta" in p &&
+          typeof (p as any).textDelta === "string" &&
+          (p as any).textDelta
+        ) {
           extractedParts.push((p as any).textDelta);
-        } else if ("delta" in p && typeof (p as any).delta === "string" && (p as any).delta) {
+        } else if (
+          "delta" in p &&
+          typeof (p as any).delta === "string" &&
+          (p as any).delta
+        ) {
           extractedParts.push((p as any).delta);
         }
       }
@@ -63,13 +68,13 @@ export function AIMessageItem({
       : "";
 
   const fullText =
-    extractedParts.length > 0
-      ? extractedParts.join("\n")
-      : rawContent || "";
+    extractedParts.length > 0 ? extractedParts.join("\n") : rawContent || "";
 
   return (
     <MessageScrollerItem key={message.id} scrollAnchor={isLast}>
-      <div className={`w-full flex ${isUser ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`w-full flex ${isUser ? "justify-end" : "justify-start"}`}
+      >
         {isUser ? (
           /* User Message Pill (Aligned Right) */
           <div className="flex max-w-[85%] sm:max-w-[75%] flex-col items-end gap-1.5">
@@ -107,7 +112,10 @@ export function AIMessageItem({
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 py-1 text-sm text-rose-500">
-                    <span>Unable to generate response. Please check your connection and try again.</span>
+                    <span>
+                      Unable to generate response. Please check your connection
+                      and try again.
+                    </span>
                   </div>
                 )
               ) : (

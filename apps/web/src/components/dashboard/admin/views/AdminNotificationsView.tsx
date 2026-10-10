@@ -65,7 +65,7 @@ export default function AdminNotificationsView() {
     try {
       await markAdminNotificationRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
@@ -113,7 +113,7 @@ export default function AdminNotificationsView() {
       toast.success(
         `Announcement sent to ${recipients} ${
           broadcastMessage.audience === "RECRUITERS" ? "recruiters" : "students"
-        }!`
+        }!`,
       );
     } catch {
       toast.error("Failed to broadcast notification");
@@ -132,7 +132,8 @@ export default function AdminNotificationsView() {
             Placement Alerts &amp; Announcements
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real-time corporate recruiter alerts, schedule conflict collision warnings, and campus-wide broadcasts.
+            Real-time corporate recruiter alerts, schedule conflict collision
+            warnings, and campus-wide broadcasts.
           </p>
           {total > 0 && (
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">
@@ -198,76 +199,78 @@ export default function AdminNotificationsView() {
             </p>
           </div>
         ) : (
-        filtered.map((item) => (
-          <div
-            key={item.id}
-            className={`p-4 rounded-3xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-              !item.read
-                ? item.type === "urgent"
-                  ? "border-amber-300 dark:border-amber-800/80 bg-amber-50/60 dark:bg-amber-950/30"
-                  : "border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/40 dark:bg-indigo-950/20"
-                : "border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/60"
-            }`}
-          >
-            <div className="flex items-start gap-3.5">
-              <div
-                className={`p-2.5 rounded-2xl shrink-0 mt-0.5 ${
-                  item.type === "urgent"
-                    ? "bg-amber-500 text-slate-950"
-                    : item.type === "warning"
-                    ? "bg-rose-500 text-white"
-                    : item.type === "success"
-                    ? "bg-emerald-500 text-white"
-                    : "bg-indigo-600 text-white"
-                }`}
-              >
-                {item.type === "urgent" || item.type === "warning" ? (
-                  <AlertTriangle className="h-5 w-5" />
-                ) : item.type === "success" ? (
-                  <CheckCircle2 className="h-5 w-5" />
-                ) : (
-                  <Bell className="h-5 w-5" />
-                )}
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    {item.title}
-                  </h3>
-                  {!item.read && (
-                    <span className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+          filtered.map((item) => (
+            <div
+              key={item.id}
+              className={`p-4 rounded-3xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                !item.read
+                  ? item.type === "urgent"
+                    ? "border-amber-300 dark:border-amber-800/80 bg-amber-50/60 dark:bg-amber-950/30"
+                    : "border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/40 dark:bg-indigo-950/20"
+                  : "border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/60"
+              }`}
+            >
+              <div className="flex items-start gap-3.5">
+                <div
+                  className={`p-2.5 rounded-2xl shrink-0 mt-0.5 ${
+                    item.type === "urgent"
+                      ? "bg-amber-500 text-slate-950"
+                      : item.type === "warning"
+                        ? "bg-rose-500 text-white"
+                        : item.type === "success"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-indigo-600 text-white"
+                  }`}
+                >
+                  {item.type === "urgent" || item.type === "warning" ? (
+                    <AlertTriangle className="h-5 w-5" />
+                  ) : item.type === "success" ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    <Bell className="h-5 w-5" />
                   )}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  {item.description}
-                </p>
-                <span className="text-[11px] text-slate-400 block mt-1.5">{item.time}</span>
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                      {item.title}
+                    </h3>
+                    {!item.read && (
+                      <span className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                    {item.description}
+                  </p>
+                  <span className="text-[11px] text-slate-400 block mt-1.5">
+                    {item.time}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                {item.actionLabel && (
+                  <Link
+                    href={(item.actionUrl || "/admin/dashboard") as Route}
+                    className="cursor-pointer inline-flex items-center gap-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline shadow-2xs"
+                  >
+                    <span>{item.actionLabel}</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
+                )}
+                {!item.read && (
+                  <button
+                    type="button"
+                    onClick={() => handleMarkAsRead(item.id)}
+                    className="cursor-pointer p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    title="Mark as read"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
-
-            <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-              {item.actionLabel && (
-                <Link
-                  href={(item.actionUrl || "/admin/dashboard") as Route}
-                  className="cursor-pointer inline-flex items-center gap-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline shadow-2xs"
-                >
-                  <span>{item.actionLabel}</span>
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              )}
-              {!item.read && (
-                <button
-                  type="button"
-                  onClick={() => handleMarkAsRead(item.id)}
-                  className="cursor-pointer p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                  title="Mark as read"
-                >
-                  <Check className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
           ))
         )}
       </div>
@@ -290,7 +293,10 @@ export default function AdminNotificationsView() {
               </button>
             </div>
 
-            <form onSubmit={handleSendBroadcast} className="space-y-3.5 text-xs">
+            <form
+              onSubmit={handleSendBroadcast}
+              className="space-y-3.5 text-xs"
+            >
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Alert Title *
@@ -299,7 +305,12 @@ export default function AdminNotificationsView() {
                   type="text"
                   required
                   value={broadcastMessage.title}
-                  onChange={(e) => setBroadcastMessage({ ...broadcastMessage, title: e.target.value })}
+                  onChange={(e) =>
+                    setBroadcastMessage({
+                      ...broadcastMessage,
+                      title: e.target.value,
+                    })
+                  }
                   placeholder="e.g. Google Drive OA Link Released"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />
@@ -307,22 +318,38 @@ export default function AdminNotificationsView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Target Audience</label>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Target Audience
+                  </label>
                   <select
                     value={broadcastMessage.audience}
-                    onChange={(e) => setBroadcastMessage({ ...broadcastMessage, audience: e.target.value as BroadcastAudience })}
+                    onChange={(e) =>
+                      setBroadcastMessage({
+                        ...broadcastMessage,
+                        audience: e.target.value as BroadcastAudience,
+                      })
+                    }
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
                   >
-                    <option value="ALL_STUDENTS">All Registered Students</option>
+                    <option value="ALL_STUDENTS">
+                      All Registered Students
+                    </option>
                     <option value="RECRUITERS">Corporate Recruiters</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Priority</label>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Priority
+                  </label>
                   <select
                     value={broadcastMessage.priority}
-                    onChange={(e) => setBroadcastMessage({ ...broadcastMessage, priority: e.target.value as BroadcastPriority })}
+                    onChange={(e) =>
+                      setBroadcastMessage({
+                        ...broadcastMessage,
+                        priority: e.target.value as BroadcastPriority,
+                      })
+                    }
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
                   >
                     <option value="HIGH">High (Push + In-app)</option>
@@ -340,7 +367,12 @@ export default function AdminNotificationsView() {
                   required
                   rows={4}
                   value={broadcastMessage.body}
-                  onChange={(e) => setBroadcastMessage({ ...broadcastMessage, body: e.target.value })}
+                  onChange={(e) =>
+                    setBroadcastMessage({
+                      ...broadcastMessage,
+                      body: e.target.value,
+                    })
+                  }
                   placeholder="Detail instructions for students regarding venue, timing, or document requirements..."
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />

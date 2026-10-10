@@ -41,7 +41,7 @@ export default function ReadinessCalculator() {
   // Total readiness score out of 100
   const totalScore = Math.min(
     100,
-    academicScore + technicalScore + projectScore + resumeScore + assessScore
+    academicScore + technicalScore + projectScore + resumeScore + assessScore,
   );
 
   const getTierInfo = (score: number) => {
@@ -93,7 +93,9 @@ export default function ReadinessCalculator() {
             Interactive Placement Readiness Calculator
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300">
-            See how CAMPUSLINK evaluates candidates using deterministic multi-factor weighting: Academics (20%), Technical Skills (30%), Projects (20%), Resume (10%), and Assessments (20%).
+            See how CAMPUSLINK evaluates candidates using deterministic
+            multi-factor weighting: Academics (20%), Technical Skills (30%),
+            Projects (20%), Resume (10%), and Assessments (20%).
           </p>
         </div>
 
@@ -135,7 +137,15 @@ export default function ReadinessCalculator() {
                     Technical Stack Depth (30% Weight)
                   </label>
                   <span className="rounded-md bg-indigo-600 px-2.5 py-0.5 text-xs font-bold text-white">
-                    {["Foundations", "Intermediate", "Advanced Full-Stack", "Expert Architecture"][techLevel]} ({technicalScore} pts)
+                    {
+                      [
+                        "Foundations",
+                        "Intermediate",
+                        "Advanced Full-Stack",
+                        "Expert Architecture",
+                      ][techLevel]
+                    }{" "}
+                    ({technicalScore} pts)
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 pt-1">
@@ -168,7 +178,9 @@ export default function ReadinessCalculator() {
                     Verified Projects with Live Demos (20% Weight)
                   </label>
                   <span className="rounded-md bg-indigo-600 px-2.5 py-0.5 text-xs font-bold text-white">
-                    {projectsCount} {projectsCount === 1 ? "Project" : "Projects"} ({projectScore} pts)
+                    {projectsCount}{" "}
+                    {projectsCount === 1 ? "Project" : "Projects"} (
+                    {projectScore} pts)
                   </span>
                 </div>
                 <input
@@ -226,7 +238,9 @@ export default function ReadinessCalculator() {
                     max="100"
                     step="5"
                     value={assessmentScore}
-                    onChange={(e) => setAssessmentScore(parseInt(e.target.value))}
+                    onChange={(e) =>
+                      setAssessmentScore(parseInt(e.target.value))
+                    }
                     className="h-2 w-full cursor-pointer accent-indigo-600"
                   />
                   <div className="flex justify-between text-[10px] text-slate-400">
@@ -248,21 +262,33 @@ export default function ReadinessCalculator() {
                     <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
                       Computed Readiness Score
                     </span>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold border ${tier.bgColor} ${tier.color}`}>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold border ${tier.bgColor} ${tier.color}`}
+                    >
                       <Sparkles className="h-3 w-3" />
-                      {totalScore >= 85 ? "Top 5%" : totalScore >= 70 ? "Top 20%" : "Average"}
+                      {totalScore >= 85
+                        ? "Top 5%"
+                        : totalScore >= 70
+                          ? "Top 20%"
+                          : "Average"}
                     </span>
                   </div>
 
                   {/* Big Number Score */}
                   <div className="flex items-baseline gap-3">
-                    <span className="text-6xl font-black text-white">{totalScore}</span>
-                    <span className="text-xl font-bold text-indigo-300">/ 100</span>
+                    <span className="text-6xl font-black text-white">
+                      {totalScore}
+                    </span>
+                    <span className="text-xl font-bold text-indigo-300">
+                      / 100
+                    </span>
                   </div>
 
                   {/* Tier Pill */}
                   <div className="rounded-xl bg-white/10 p-3.5 backdrop-blur-sm">
-                    <div className="text-xs text-indigo-200 font-medium">Placement Tier Rating:</div>
+                    <div className="text-xs text-indigo-200 font-medium">
+                      Placement Tier Rating:
+                    </div>
                     <div className="text-sm font-extrabold text-white mt-0.5">
                       {tier.badge}
                     </div>
@@ -280,8 +306,12 @@ export default function ReadinessCalculator() {
 
                   {/* Typical Recruiter Fit */}
                   <div className="space-y-1.5 pt-2 border-t border-indigo-900/60 text-xs">
-                    <span className="text-slate-400 font-medium">Sample Matching Companies:</span>
-                    <div className="font-semibold text-indigo-200">{tier.companies}</div>
+                    <span className="text-slate-400 font-medium">
+                      Sample Matching Companies:
+                    </span>
+                    <div className="font-semibold text-indigo-200">
+                      {tier.companies}
+                    </div>
                   </div>
                 </div>
               </div>

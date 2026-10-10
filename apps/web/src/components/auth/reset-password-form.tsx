@@ -57,7 +57,13 @@ export default function ResetPasswordForm() {
   };
 
   const passwordStrength = getPasswordStrength(password);
-  const strengthLabels = ["Very Weak", "Weak", "Moderate", "Strong", "Very Strong"];
+  const strengthLabels = [
+    "Very Weak",
+    "Weak",
+    "Moderate",
+    "Strong",
+    "Very Strong",
+  ];
   const strengthColors = [
     "bg-red-500",
     "bg-orange-500",
@@ -71,7 +77,10 @@ export default function ResetPasswordForm() {
     e.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
 
-    const emailValidation = z.string().email("Please enter a valid email address").safeParse(normalizedEmail);
+    const emailValidation = z
+      .string()
+      .email("Please enter a valid email address")
+      .safeParse(normalizedEmail);
     if (!emailValidation.success) {
       setErrors({ email: "Please enter a valid email address" });
       return;
@@ -93,9 +102,12 @@ export default function ResetPasswordForm() {
           },
           onError: (err) => {
             console.error("Password reset error:", err);
-            toast.error(err.error?.message || "Failed to send reset link. Please check your email.");
+            toast.error(
+              err.error?.message ||
+                "Failed to send reset link. Please check your email.",
+            );
           },
-        }
+        },
       );
     } catch (err) {
       console.error(err);
@@ -146,10 +158,12 @@ export default function ResetPasswordForm() {
           onError: (err) => {
             console.error("RESET PASSWORD ERROR:", err);
             toast.error(
-              err.error?.message || err.error?.statusText || "Failed to reset password. The link or token may have expired."
+              err.error?.message ||
+                err.error?.statusText ||
+                "Failed to reset password. The link or token may have expired.",
             );
           },
-        }
+        },
       );
     } catch (err) {
       console.error(err);
@@ -196,7 +210,8 @@ export default function ResetPasswordForm() {
           </h1>
 
           <p className="text-sm text-slate-300 leading-relaxed max-w-md">
-            Restore access to your verified student placement profile, company drive invitations, and readiness analytics.
+            Restore access to your verified student placement profile, company
+            drive invitations, and readiness analytics.
           </p>
 
           <div className="space-y-3 pt-2">
@@ -243,7 +258,9 @@ export default function ResetPasswordForm() {
             <span>Back to Sign In</span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 hidden sm:inline">Theme</span>
+            <span className="text-xs text-slate-400 hidden sm:inline">
+              Theme
+            </span>
             <ModeToggle />
           </div>
         </div>
@@ -261,7 +278,8 @@ export default function ResetPasswordForm() {
                   Password Reset Complete!
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Your password has been successfully updated. You can now log into CAMPUSLINK using your new password.
+                  Your password has been successfully updated. You can now log
+                  into CAMPUSLINK using your new password.
                 </p>
               </div>
               <Link href="/login" className="block pt-2">
@@ -283,7 +301,8 @@ export default function ResetPasswordForm() {
                   Set Your New Password
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  Please choose a strong, secure password for your CAMPUSLINK account.
+                  Please choose a strong, secure password for your CAMPUSLINK
+                  account.
                 </p>
               </div>
 
@@ -306,7 +325,11 @@ export default function ResetPasswordForm() {
                         className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                       />
                     </div>
-                    {errors.token && <p className="text-xs text-red-500 font-medium">{errors.token}</p>}
+                    {errors.token && (
+                      <p className="text-xs text-red-500 font-medium">
+                        {errors.token}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -324,7 +347,8 @@ export default function ResetPasswordForm() {
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
-                        if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                        if (errors.password)
+                          setErrors((prev) => ({ ...prev, password: "" }));
                       }}
                       placeholder="At least 8 characters"
                       className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
@@ -334,16 +358,26 @@ export default function ResetPasswordForm() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
-                  {errors.password && <p className="text-xs text-red-500 font-medium">{errors.password}</p>}
+                  {errors.password && (
+                    <p className="text-xs text-red-500 font-medium">
+                      {errors.password}
+                    </p>
+                  )}
 
                   {/* Password Strength Meter */}
                   {password.length > 0 && (
                     <div className="pt-2 space-y-1">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-slate-500">Password strength:</span>
+                        <span className="text-slate-500">
+                          Password strength:
+                        </span>
                         <span className="font-bold text-indigo-600 dark:text-indigo-400">
                           {strengthLabels[passwordStrength]}
                         </span>
@@ -378,21 +412,33 @@ export default function ResetPasswordForm() {
                       value={confirmPassword}
                       onChange={(e) => {
                         setConfirmPassword(e.target.value);
-                        if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                        if (errors.confirmPassword)
+                          setErrors((prev) => ({
+                            ...prev,
+                            confirmPassword: "",
+                          }));
                       }}
                       placeholder="Repeat new password"
                       className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-xs text-red-500 font-medium">{errors.confirmPassword}</p>
+                    <p className="text-xs text-red-500 font-medium">
+                      {errors.confirmPassword}
+                    </p>
                   )}
                 </div>
 
@@ -427,10 +473,15 @@ export default function ResetPasswordForm() {
                   Check Your Inbox
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  We have sent a secure password reset link to <strong className="text-indigo-600 dark:text-indigo-400">{email}</strong>.
+                  We have sent a secure password reset link to{" "}
+                  <strong className="text-indigo-600 dark:text-indigo-400">
+                    {email}
+                  </strong>
+                  .
                 </p>
                 <p className="text-[11px] text-slate-400">
-                  Didn&apos;t receive it? Check your spam folder or wait a minute before requesting again.
+                  Didn&apos;t receive it? Check your spam folder or wait a
+                  minute before requesting again.
                 </p>
               </div>
 
@@ -465,7 +516,8 @@ export default function ResetPasswordForm() {
                   Forgot Your Password?
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  No worries! Enter the email address associated with your CAMPUSLINK account and we will send you a secure reset link.
+                  No worries! Enter the email address associated with your
+                  CAMPUSLINK account and we will send you a secure reset link.
                 </p>
               </div>
 
@@ -483,14 +535,19 @@ export default function ResetPasswordForm() {
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
-                        if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                        if (errors.email)
+                          setErrors((prev) => ({ ...prev, email: "" }));
                       }}
                       placeholder="student@university.edu"
                       required
                       className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                     />
                   </div>
-                  {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email}</p>}
+                  {errors.email && (
+                    <p className="text-xs text-red-500 font-medium">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
                 <Button

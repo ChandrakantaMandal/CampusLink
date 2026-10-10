@@ -3,7 +3,8 @@ import RecruiterApplicationsView from "@/components/dashboard/recruiter/views/Re
 
 export const metadata: Metadata = {
   title: "Applications Pipeline — CAMPUSLINK Recruiter Portal",
-  description: "Track candidate applications across screening, technical rounds, and formal offers.",
+  description:
+    "Track candidate applications across screening, technical rounds, and formal offers.",
 };
 
 export default function RecruiterApplicationsPage() {

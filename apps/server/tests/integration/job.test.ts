@@ -1,5 +1,3 @@
-
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import express from "express";
 import request from "supertest";
@@ -212,7 +210,9 @@ describe("Job Integration Tests", () => {
     });
 
     it("returns the skill-gap result", async () => {
-      mocks.analyzeStudentSkillGap.mockResolvedValue({ missingSkills: ["TypeScript"] });
+      mocks.analyzeStudentSkillGap.mockResolvedValue({
+        missingSkills: ["TypeScript"],
+      });
       const response = await request(app)
         .post("/api/jobs/job-1/skill-gap")
         .set("x-test-role", "STUDENT");
@@ -220,8 +220,4 @@ describe("Job Integration Tests", () => {
       expect(response.body.data.missingSkills).toEqual(["TypeScript"]);
     });
   });
-
 });
-
-
-

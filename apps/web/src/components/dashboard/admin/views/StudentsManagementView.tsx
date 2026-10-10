@@ -29,7 +29,9 @@ export default function StudentsManagementView() {
   const [search, setSearch] = useState("");
   const [branchFilter, setBranchFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(
+    null,
+  );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const router = useRouter();
@@ -55,7 +57,9 @@ export default function StudentsManagementView() {
 
   const branchOptions = [
     "All",
-    ...Array.from(new Set(students.map((s) => s.branch))).filter(Boolean).sort(),
+    ...Array.from(new Set(students.map((s) => s.branch)))
+      .filter(Boolean)
+      .sort(),
   ];
 
   // New Student Form State
@@ -87,7 +91,7 @@ export default function StudentsManagementView() {
       const data = await getAdminStudents();
       setStudents(data);
       setSelectedStudent((prev) =>
-        prev ? (data.find((s) => s.id === prev.id) ?? prev) : null
+        prev ? (data.find((s) => s.id === prev.id) ?? prev) : null,
       );
       toast.success("Student profile verified and approved for campus drives!");
     } catch (error) {
@@ -105,10 +109,11 @@ export default function StudentsManagementView() {
         s.id === id
           ? {
               ...s,
-              status: s.status === "Needs Attention" ? "Eligible" : "Needs Attention",
+              status:
+                s.status === "Needs Attention" ? "Eligible" : "Needs Attention",
             }
-          : s
-      )
+          : s,
+      ),
     );
     toast.info("Student account status updated.");
   };
@@ -124,7 +129,8 @@ export default function StudentsManagementView() {
       id: `stu-${Date.now()}`,
       name: newStudent.name,
       rollNo: newStudent.rollNo,
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
+      avatar:
+        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
       email: newStudent.email,
       phone: newStudent.phone || "+91 98765 00000",
       branch: newStudent.branch,
@@ -172,7 +178,8 @@ export default function StudentsManagementView() {
             Student Placement Management
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Monitor {loading ? "…" : students.length} registered candidates, verify eligibility, inspect readiness, and resolve documentation.
+            Monitor {loading ? "…" : students.length} registered candidates,
+            verify eligibility, inspect readiness, and resolve documentation.
           </p>
         </div>
 
@@ -206,11 +213,18 @@ export default function StudentsManagementView() {
             onChange={(e) => setBranchFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+            <option
+              value="All"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
               All Branches
             </option>
             {branchOptions.slice(1).map((branch) => (
-              <option key={branch} value={branch} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              <option
+                key={branch}
+                value={branch}
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+              >
                 {branch}
               </option>
             ))}
@@ -222,16 +236,28 @@ export default function StudentsManagementView() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+            <option
+              value="All"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
               All Statuses
             </option>
-            <option value="Eligible" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+            <option
+              value="Eligible"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
               Eligible
             </option>
-            <option value="Placed" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+            <option
+              value="Placed"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
               Placed
             </option>
-            <option value="Needs Attention" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+            <option
+              value="Needs Attention"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
               Needs Attention
             </option>
           </select>
@@ -260,124 +286,137 @@ export default function StudentsManagementView() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-10 text-center text-slate-400 font-semibold"
+                  >
                     Loading students…
                   </td>
                 </tr>
               ) : filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-10 text-center text-slate-400 font-semibold"
+                  >
                     No students found.
                   </td>
                 </tr>
               ) : null}
               {!loading &&
                 filteredStudents.map((student) => (
-                <tr
-                  key={student.id}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
-                  tabIndex={0}
-                  role="link"
-                  onClick={() => router.push(`/admin/students/${student.id}` as Route)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      router.push(`/admin/students/${student.id}` as Route);
+                  <tr
+                    key={student.id}
+                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                    tabIndex={0}
+                    role="link"
+                    onClick={() =>
+                      router.push(`/admin/students/${student.id}` as Route)
                     }
-                  }}
-                >
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={student.avatar || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"}
-                        alt={student.name}
-                        className="h-9 w-9 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-slate-900 dark:text-white truncate">
-                            {student.name}
-                          </span>
-                          {student.verified && (
-                            <span title="Verified Profile">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        router.push(`/admin/students/${student.id}` as Route);
+                      }
+                    }}
+                  >
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={
+                            student.avatar ||
+                            "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"
+                          }
+                          alt={student.name}
+                          className="h-9 w-9 rounded-full object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-slate-900 dark:text-white truncate">
+                              {student.name}
                             </span>
-                          )}
+                            {student.verified && (
+                              <span title="Verified Profile">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {student.rollNo} &bull; {student.email}
+                          </span>
                         </div>
-                        <span className="text-[11px] text-slate-400 font-mono">
-                          {student.rollNo} &bull; {student.email}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 font-bold text-slate-700 dark:text-slate-300">
+                      {student.branch}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="font-black text-slate-900 dark:text-white">
+                        {student.cgpa}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className={`font-bold ${
+                          student.backlogs === 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-rose-600 dark:text-rose-400"
+                        }`}
+                      >
+                        {student.backlogs}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-16 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-indigo-600"
+                            style={{ width: `${student.readinessScore}%` }}
+                          />
+                        </div>
+                        <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                          {student.readinessScore}%
                         </span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5 font-bold text-slate-700 dark:text-slate-300">
-                    {student.branch}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="font-black text-slate-900 dark:text-white">
-                      {student.cgpa}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className={`font-bold ${
-                        student.backlogs === 0
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-rose-600 dark:text-rose-400"
-                      }`}
-                    >
-                      {student.backlogs}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-16 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-indigo-600"
-                          style={{ width: `${student.readinessScore}%` }}
-                        />
-                      </div>
-                      <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                        {student.readinessScore}%
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                          student.status === "Placed"
+                            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                            : student.status === "Eligible"
+                              ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
+                              : "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                        }`}
+                      >
+                        {student.status}
                       </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                        student.status === "Placed"
-                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
-                          : student.status === "Eligible"
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
-                          : "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
-                      }`}
-                    >
-                      {student.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-right space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/admin/students/${student.id}` as Route)}
-                      className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 text-[11px] transition-all"
-                    >
-                      <Eye className="h-3 w-3" />
-                      <span>View</span>
-                    </button>
-                    {!student.verified && (
+                    </td>
+                    <td className="px-5 py-3.5 text-right space-x-2">
                       <button
                         type="button"
-                        onClick={() => handleVerifyStudent(student.id)}
-                        disabled={verifyingId === student.id}
-                        className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait"
+                        onClick={() =>
+                          router.push(`/admin/students/${student.id}` as Route)
+                        }
+                        className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 text-[11px] transition-all"
                       >
-                        {verifyingId === student.id ? "Verifying…" : "Verify"}
+                        <Eye className="h-3 w-3" />
+                        <span>View</span>
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      {!student.verified && (
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyStudent(student.id)}
+                          disabled={verifyingId === student.id}
+                          className="cursor-pointer inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 text-[11px] transition-all disabled:opacity-60 disabled:cursor-wait"
+                        >
+                          {verifyingId === student.id ? "Verifying…" : "Verify"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -399,7 +438,10 @@ export default function StudentsManagementView() {
             <div className="flex items-start gap-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={selectedStudent.avatar || "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"}
+                src={
+                  selectedStudent.avatar ||
+                  "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.svg"
+                }
                 alt={selectedStudent.name}
                 className="h-16 w-16 rounded-2xl object-cover border-2 border-indigo-500 shadow-md"
               />
@@ -413,7 +455,11 @@ export default function StudentsManagementView() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Roll: <strong className="font-mono text-slate-700 dark:text-slate-300">{selectedStudent.rollNo}</strong> &bull; {selectedStudent.email}
+                  Roll:{" "}
+                  <strong className="font-mono text-slate-700 dark:text-slate-300">
+                    {selectedStudent.rollNo}
+                  </strong>{" "}
+                  &bull; {selectedStudent.email}
                 </p>
                 <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-1">
                   Target Role: {selectedStudent.targetRole}
@@ -424,20 +470,36 @@ export default function StudentsManagementView() {
             {/* Academic & Readiness Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
               <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase font-bold">Branch</span>
-                <p className="text-base font-black text-slate-900 dark:text-white">{selectedStudent.branch}</p>
+                <span className="text-[10px] text-slate-400 uppercase font-bold">
+                  Branch
+                </span>
+                <p className="text-base font-black text-slate-900 dark:text-white">
+                  {selectedStudent.branch}
+                </p>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase font-bold">CGPA</span>
-                <p className="text-base font-black text-emerald-600 dark:text-emerald-400">{selectedStudent.cgpa}</p>
+                <span className="text-[10px] text-slate-400 uppercase font-bold">
+                  CGPA
+                </span>
+                <p className="text-base font-black text-emerald-600 dark:text-emerald-400">
+                  {selectedStudent.cgpa}
+                </p>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase font-bold">Backlogs</span>
-                <p className="text-base font-black text-slate-900 dark:text-white">{selectedStudent.backlogs}</p>
+                <span className="text-[10px] text-slate-400 uppercase font-bold">
+                  Backlogs
+                </span>
+                <p className="text-base font-black text-slate-900 dark:text-white">
+                  {selectedStudent.backlogs}
+                </p>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase font-bold">Readiness Score</span>
-                <p className="text-base font-black text-indigo-600 dark:text-indigo-400">{selectedStudent.readinessScore}%</p>
+                <span className="text-[10px] text-slate-400 uppercase font-bold">
+                  Readiness Score
+                </span>
+                <p className="text-base font-black text-indigo-600 dark:text-indigo-400">
+                  {selectedStudent.readinessScore}%
+                </p>
               </div>
             </div>
 
@@ -448,24 +510,44 @@ export default function StudentsManagementView() {
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2 text-center text-xs">
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Technical</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.technical}%</strong>
+                  <span className="text-slate-400 block text-[10px]">
+                    Technical
+                  </span>
+                  <strong className="text-slate-900 dark:text-white">
+                    {selectedStudent.readinessBreakdown.technical}%
+                  </strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Assessments</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.assessment}%</strong>
+                  <span className="text-slate-400 block text-[10px]">
+                    Assessments
+                  </span>
+                  <strong className="text-slate-900 dark:text-white">
+                    {selectedStudent.readinessBreakdown.assessment}%
+                  </strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Projects</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.projects}%</strong>
+                  <span className="text-slate-400 block text-[10px]">
+                    Projects
+                  </span>
+                  <strong className="text-slate-900 dark:text-white">
+                    {selectedStudent.readinessBreakdown.projects}%
+                  </strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Academics</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.academics}%</strong>
+                  <span className="text-slate-400 block text-[10px]">
+                    Academics
+                  </span>
+                  <strong className="text-slate-900 dark:text-white">
+                    {selectedStudent.readinessBreakdown.academics}%
+                  </strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Resume</span>
-                  <strong className="text-slate-900 dark:text-white">{selectedStudent.readinessBreakdown.resume}%</strong>
+                  <span className="text-slate-400 block text-[10px]">
+                    Resume
+                  </span>
+                  <strong className="text-slate-900 dark:text-white">
+                    {selectedStudent.readinessBreakdown.resume}%
+                  </strong>
                 </div>
               </div>
             </div>
@@ -517,7 +599,9 @@ export default function StudentsManagementView() {
                     disabled={verifyingId === selectedStudent.id}
                     className="cursor-pointer rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 text-xs transition-all shadow-xs disabled:opacity-60 disabled:cursor-wait"
                   >
-                    {verifyingId === selectedStudent.id ? "Verifying…" : "Verify & Approve Profile"}
+                    {verifyingId === selectedStudent.id
+                      ? "Verifying…"
+                      : "Verify & Approve Profile"}
                   </button>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
@@ -531,14 +615,20 @@ export default function StudentsManagementView() {
                   onClick={() => handleToggleDisable(selectedStudent.id)}
                   className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white transition-all"
                 >
-                  {selectedStudent.status === "Needs Attention" ? "Enable Account" : "Flag / Disable"}
+                  {selectedStudent.status === "Needs Attention"
+                    ? "Enable Account"
+                    : "Flag / Disable"}
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => router.push(`/admin/students/${selectedStudent.id}` as Route)}
+                  onClick={() =>
+                    router.push(
+                      `/admin/students/${selectedStudent.id}` as Route,
+                    )
+                  }
                   className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 text-xs transition-all shadow-xs"
                 >
                   <Eye className="h-3.5 w-3.5" />
@@ -575,7 +665,10 @@ export default function StudentsManagementView() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateStudent} className="space-y-3.5 text-xs">
+            <form
+              onSubmit={handleCreateStudent}
+              className="space-y-3.5 text-xs"
+            >
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Full Name *
@@ -584,7 +677,9 @@ export default function StudentsManagementView() {
                   type="text"
                   required
                   value={newStudent.name}
-                  onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, name: e.target.value })
+                  }
                   placeholder="e.g. Himanshu Rout"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />
@@ -599,7 +694,9 @@ export default function StudentsManagementView() {
                     type="text"
                     required
                     value={newStudent.rollNo}
-                    onChange={(e) => setNewStudent({ ...newStudent, rollNo: e.target.value })}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, rollNo: e.target.value })
+                    }
                     placeholder="22CSE042"
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                   />
@@ -610,13 +707,35 @@ export default function StudentsManagementView() {
                   </label>
                   <select
                     value={newStudent.branch}
-                    onChange={(e) => setNewStudent({ ...newStudent, branch: e.target.value })}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, branch: e.target.value })
+                    }
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500 cursor-pointer"
                   >
-                    <option value="CSE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">CSE</option>
-                    <option value="IT" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">IT</option>
-                    <option value="ECE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">ECE</option>
-                    <option value="EEE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">EEE</option>
+                    <option
+                      value="CSE"
+                      className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                    >
+                      CSE
+                    </option>
+                    <option
+                      value="IT"
+                      className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                    >
+                      IT
+                    </option>
+                    <option
+                      value="ECE"
+                      className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                    >
+                      ECE
+                    </option>
+                    <option
+                      value="EEE"
+                      className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                    >
+                      EEE
+                    </option>
                   </select>
                 </div>
               </div>
@@ -630,7 +749,9 @@ export default function StudentsManagementView() {
                     type="email"
                     required
                     value={newStudent.email}
-                    onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, email: e.target.value })
+                    }
                     placeholder="student@campuslink.edu"
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                   />
@@ -646,7 +767,9 @@ export default function StudentsManagementView() {
                     max="10"
                     required
                     value={newStudent.cgpa}
-                    onChange={(e) => setNewStudent({ ...newStudent, cgpa: e.target.value })}
+                    onChange={(e) =>
+                      setNewStudent({ ...newStudent, cgpa: e.target.value })
+                    }
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                   />
                 </div>
@@ -659,7 +782,9 @@ export default function StudentsManagementView() {
                 <input
                   type="text"
                   value={newStudent.targetRole}
-                  onChange={(e) => setNewStudent({ ...newStudent, targetRole: e.target.value })}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, targetRole: e.target.value })
+                  }
                   placeholder="Software Development Engineer"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden focus:border-indigo-500"
                 />

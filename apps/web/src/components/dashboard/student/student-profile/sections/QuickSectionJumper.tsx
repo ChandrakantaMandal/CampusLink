@@ -17,12 +17,18 @@ interface QuickSectionJumperProps {
   profile: StudentProfileData;
 }
 
-export default function QuickSectionJumper({ profile }: QuickSectionJumperProps) {
+export default function QuickSectionJumper({
+  profile,
+}: QuickSectionJumperProps) {
   const isPersonalComplete = Boolean(
-    profile.name && profile.name.trim() &&
-    profile.email && profile.email.trim() &&
-    profile.department && profile.department.trim() &&
-    profile.year && profile.year.trim()
+    profile.name &&
+    profile.name.trim() &&
+    profile.email &&
+    profile.email.trim() &&
+    profile.department &&
+    profile.department.trim() &&
+    profile.year &&
+    profile.year.trim(),
   );
   const hasSomePersonalInfo = Boolean(
     (profile.name && profile.name.trim()) ||
@@ -31,7 +37,7 @@ export default function QuickSectionJumper({ profile }: QuickSectionJumperProps)
     (profile.department && profile.department.trim()) ||
     (profile.year && profile.year.trim()) ||
     (profile.cgpa && profile.cgpa.trim()) ||
-    (profile.bio && profile.bio.trim())
+    (profile.bio && profile.bio.trim()),
   );
 
   const linksCount = [
@@ -48,43 +54,63 @@ export default function QuickSectionJumper({ profile }: QuickSectionJumperProps)
       id: "personal-info-section",
       label: "Personal Details",
       icon: User,
-      badge: isPersonalComplete ? "Complete" : hasSomePersonalInfo ? "In Progress" : "Incomplete",
+      badge: isPersonalComplete
+        ? "Complete"
+        : hasSomePersonalInfo
+          ? "In Progress"
+          : "Incomplete",
       badgeColor: isPersonalComplete
         ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80"
         : hasSomePersonalInfo
-        ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80"
-        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-      accentColor: "group-hover:border-indigo-300 group-hover:bg-indigo-50/40 dark:group-hover:border-indigo-700/60 dark:group-hover:bg-indigo-950/30",
+          ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80"
+          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+      accentColor:
+        "group-hover:border-indigo-300 group-hover:bg-indigo-50/40 dark:group-hover:border-indigo-700/60 dark:group-hover:bg-indigo-950/30",
     },
     {
       id: "skills-section",
       label: "Skills & Technical",
       icon: Code2,
-      badge: profile.skills.length > 0 ? `${profile.skills.length} skills` : "0 skills",
-      badgeColor: profile.skills.length > 0
-        ? "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/80"
-        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-      accentColor: "group-hover:border-purple-300 group-hover:bg-purple-50/40 dark:group-hover:border-purple-700/60 dark:group-hover:bg-purple-950/30",
+      badge:
+        profile.skills.length > 0
+          ? `${profile.skills.length} skills`
+          : "0 skills",
+      badgeColor:
+        profile.skills.length > 0
+          ? "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/80"
+          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+      accentColor:
+        "group-hover:border-purple-300 group-hover:bg-purple-50/40 dark:group-hover:border-purple-700/60 dark:group-hover:bg-purple-950/30",
     },
     {
       id: "education-section",
       label: "Education",
       icon: GraduationCap,
-      badge: profile.education.length > 0 ? `${profile.education.length} records` : "0 records",
-      badgeColor: profile.education.length > 0
-        ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80"
-        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-      accentColor: "group-hover:border-blue-300 group-hover:bg-blue-50/40 dark:group-hover:border-blue-700/60 dark:group-hover:bg-blue-950/30",
+      badge:
+        profile.education.length > 0
+          ? `${profile.education.length} records`
+          : "0 records",
+      badgeColor:
+        profile.education.length > 0
+          ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80"
+          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+      accentColor:
+        "group-hover:border-blue-300 group-hover:bg-blue-50/40 dark:group-hover:border-blue-700/60 dark:group-hover:bg-blue-950/30",
     },
     {
       id: "certifications-section",
       label: "Certifications",
       icon: Award,
-      badge: profile.certifications.length > 0 ? `${profile.certifications.length} verified` : "0 verified",
-      badgeColor: profile.certifications.length > 0
-        ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80"
-        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-      accentColor: "group-hover:border-amber-300 group-hover:bg-amber-50/40 dark:group-hover:border-amber-700/60 dark:group-hover:bg-amber-950/30",
+      badge:
+        profile.certifications.length > 0
+          ? `${profile.certifications.length} verified`
+          : "0 verified",
+      badgeColor:
+        profile.certifications.length > 0
+          ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80"
+          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+      accentColor:
+        "group-hover:border-amber-300 group-hover:bg-amber-50/40 dark:group-hover:border-amber-700/60 dark:group-hover:bg-amber-950/30",
     },
     {
       id: "resume-section",
@@ -94,17 +120,20 @@ export default function QuickSectionJumper({ profile }: QuickSectionJumperProps)
       badgeColor: profile.resume
         ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80"
         : "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/80",
-      accentColor: "group-hover:border-emerald-300 group-hover:bg-emerald-50/40 dark:group-hover:border-emerald-700/60 dark:group-hover:bg-emerald-950/30",
+      accentColor:
+        "group-hover:border-emerald-300 group-hover:bg-emerald-50/40 dark:group-hover:border-emerald-700/60 dark:group-hover:bg-emerald-950/30",
     },
     {
       id: "portfolio-links-section",
       label: "Portfolio Links",
       icon: Globe,
       badge: linksCount > 0 ? `${linksCount} connected` : "0 connected",
-      badgeColor: linksCount > 0
-        ? "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/80"
-        : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-      accentColor: "group-hover:border-cyan-300 group-hover:bg-cyan-50/40 dark:group-hover:border-cyan-700/60 dark:group-hover:bg-cyan-950/30",
+      badgeColor:
+        linksCount > 0
+          ? "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/80"
+          : "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
+      accentColor:
+        "group-hover:border-cyan-300 group-hover:bg-cyan-50/40 dark:group-hover:border-cyan-700/60 dark:group-hover:bg-cyan-950/30",
     },
   ];
 
@@ -143,7 +172,9 @@ export default function QuickSectionJumper({ profile }: QuickSectionJumperProps)
         </div>
 
         <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400 px-2.5 py-1 rounded-lg border border-slate-200/60">
-          <span className={`h-2 w-2 rounded-full ${completedSectionsCount > 0 ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
+          <span
+            className={`h-2 w-2 rounded-full ${completedSectionsCount > 0 ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`}
+          />
           <span>{completedSectionsCount} of 6 Completed</span>
         </div>
       </div>

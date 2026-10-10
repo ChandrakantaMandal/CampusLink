@@ -15,8 +15,6 @@ interface Envelope<T> {
   message?: string;
 }
 
-
-
 export interface AdminUserRef {
   id: string;
   name: string | null;
@@ -170,9 +168,17 @@ export interface InterviewRaw {
     designation: string | null;
     user: { id: string; name: string | null; email: string };
   } | null;
-  job: { id: string; title: string; company: { id: string; name: string } } | null;
+  job: {
+    id: string;
+    title: string;
+    company: { id: string; name: string };
+  } | null;
   application: { id: string; status: string } | null;
-  drive: { id: string; title: string; company: { id: string; name: string } } | null;
+  drive: {
+    id: string;
+    title: string;
+    company: { id: string; name: string };
+  } | null;
 }
 
 export interface DashboardStats {
@@ -257,10 +263,7 @@ const APPLICATION_STATUS_TO_VIEW: Record<string, ApplicationItem["status"]> = {
   WITHDRAWN: "Rejected",
 };
 
-const VIEW_TO_APPLICATION_STATUS: Record<
-  ApplicationItem["status"],
-  string
-> = {
+const VIEW_TO_APPLICATION_STATUS: Record<ApplicationItem["status"], string> = {
   Applied: "APPLIED",
   Shortlisted: "SHORTLISTED",
   Interview: "INTERVIEW",
@@ -288,10 +291,7 @@ export const VIEW_TO_DRIVE_STATUS: Record<PlacementDrive["status"], string> = {
   Cancelled: "CANCELLED",
 };
 
-const RECRUITER_STATUS_TO_VIEW: Record<
-  string,
-  AdminRecruiter["status"]
-> = {
+const RECRUITER_STATUS_TO_VIEW: Record<string, AdminRecruiter["status"]> = {
   VERIFIED: "Active",
   PENDING: "Pending",
   NOT_VERIFIED: "Pending",
@@ -310,7 +310,10 @@ const DOCUMENT_STATUS_TO_VIEW: Record<string, OfferItem["documentStatus"]> = {
   ACTION_REQUIRED: "Action Required",
 };
 
-const INTERVIEW_STATUS_TO_VIEW: Record<string, InterviewScheduleItem["status"]> = {
+const INTERVIEW_STATUS_TO_VIEW: Record<
+  string,
+  InterviewScheduleItem["status"]
+> = {
   SCHEDULED: "Scheduled",
   COMPLETED: "Completed",
   RESCHEDULED: "Rescheduled",
@@ -389,7 +392,9 @@ function toAdminStudent(raw: AdminStudentRaw): AdminStudent {
     backlogs: raw.backlogs,
     status,
     readinessScore: readiness,
-    skills: (raw.skills ?? []).map((entry) => entry.skill?.name).filter(Boolean),
+    skills: (raw.skills ?? [])
+      .map((entry) => entry.skill?.name)
+      .filter(Boolean),
     missingSkills: [],
     applicationsCount: raw._count?.applications ?? 0,
     offersCount,
@@ -470,7 +475,8 @@ function toOfferItem(raw: OfferRaw): OfferItem {
     package: `₹${raw.ctc} LPA`,
     offerDate: dateOnly(raw.offerDate),
     joiningDate: raw.joiningDate ? dateOnly(raw.joiningDate) : "",
-    documentStatus: DOCUMENT_STATUS_TO_VIEW[raw.documentStatus] ?? "Pending Verification",
+    documentStatus:
+      DOCUMENT_STATUS_TO_VIEW[raw.documentStatus] ?? "Pending Verification",
     status: OFFER_STATUS_TO_VIEW[raw.status] ?? "Pending",
     letterUrl: raw.offerLetterUrl ?? "",
   };
@@ -513,7 +519,9 @@ function toInterviewScheduleItem(raw: InterviewRaw): InterviewScheduleItem {
 // ---------- Endpoints ----------
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const response = await api.get<Envelope<DashboardStats>>("/api/admin/dashboard");
+  const response = await api.get<Envelope<DashboardStats>>(
+    "/api/admin/dashboard",
+  );
   return response.data.data;
 }
 
@@ -578,7 +586,6 @@ export async function createAdminRecruiter(
   );
   return toAdminRecruiter(response.data.data);
 }
-
 
 export async function getCompaniesForDrive(): Promise<CompanyRaw[]> {
   const response = await api.get<Envelope<CompanyRaw[]>>(
@@ -828,4 +835,3 @@ export async function updateAdminSettings(
   >("/api/admin/settings", payload);
   return response.data.data;
 }
-

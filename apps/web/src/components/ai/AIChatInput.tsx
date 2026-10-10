@@ -41,9 +41,7 @@ export function AIChatInput({
     <footer className="relative z-20 shrink-0 border-t border-border/60 bg-background/85 px-4 pt-2.5 pb-4 backdrop-blur-lg">
       <div
         className={`mx-auto flex w-full flex-col gap-2 transition-all duration-200 ${
-          isFullWidth
-            ? "max-w-6xl xl:max-w-7xl 2xl:max-w-[94%]"
-            : "max-w-4xl"
+          isFullWidth ? "max-w-6xl xl:max-w-7xl 2xl:max-w-[94%]" : "max-w-4xl"
         }`}
       >
         {/* Follow-up suggestions when chat has started */}

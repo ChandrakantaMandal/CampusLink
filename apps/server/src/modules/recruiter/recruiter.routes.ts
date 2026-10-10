@@ -70,12 +70,7 @@ router.post(
 );
 
 // Recruiter views jobs for their company
-router.get(
-  "/jobs",
-  requireAuth,
-  requireRole("RECRUITER"),
-  getMyJobsController,
-);
+router.get("/jobs", requireAuth, requireRole("RECRUITER"), getMyJobsController);
 
 // Recruiter creates a job for their company
 router.post(

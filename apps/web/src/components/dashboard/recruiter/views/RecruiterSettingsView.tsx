@@ -88,7 +88,8 @@ export default function RecruiterSettingsView() {
           Recruiter & Portal Settings
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Manage your recruiter credentials, security safeguards, and campus event notifications.
+          Manage your recruiter credentials, security safeguards, and campus
+          event notifications.
         </p>
       </div>
 
@@ -103,65 +104,99 @@ export default function RecruiterSettingsView() {
           <div className="space-y-3 pt-2">
             <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 cursor-pointer">
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">New Application Alerts</p>
-                <p className="text-[11px] text-slate-500">Get notified when students apply to your open roles.</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">
+                  New Application Alerts
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Get notified when students apply to your open roles.
+                </p>
               </div>
               <input
                 type="checkbox"
                 checked={notifPrefs.applications}
-                onChange={(e) => setNotifPrefs({ ...notifPrefs, applications: e.target.checked })}
+                onChange={(e) =>
+                  setNotifPrefs({
+                    ...notifPrefs,
+                    applications: e.target.checked,
+                  })
+                }
                 className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
               />
             </label>
 
             <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 cursor-pointer">
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Interview Schedule Alerts</p>
-                <p className="text-[11px] text-slate-500">Get notified when interview rounds are scheduled or rescheduled.</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">
+                  Interview Schedule Alerts
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Get notified when interview rounds are scheduled or
+                  rescheduled.
+                </p>
               </div>
               <input
                 type="checkbox"
                 checked={notifPrefs.interviews}
-                onChange={(e) => setNotifPrefs({ ...notifPrefs, interviews: e.target.checked })}
+                onChange={(e) =>
+                  setNotifPrefs({ ...notifPrefs, interviews: e.target.checked })
+                }
                 className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
               />
             </label>
 
             <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 cursor-pointer">
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Interview Conflict Alerts (High Priority)</p>
-                <p className="text-[11px] text-slate-500">Instant notification when a candidate has overlapping rounds.</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">
+                  Interview Conflict Alerts (High Priority)
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Instant notification when a candidate has overlapping rounds.
+                </p>
               </div>
               <input
                 type="checkbox"
                 checked={notifPrefs.conflicts}
-                onChange={(e) => setNotifPrefs({ ...notifPrefs, conflicts: e.target.checked })}
+                onChange={(e) =>
+                  setNotifPrefs({ ...notifPrefs, conflicts: e.target.checked })
+                }
                 className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
               />
             </label>
 
             <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 cursor-pointer">
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Offer Acceptance Updates</p>
-                <p className="text-[11px] text-slate-500">Receive alert when candidates accept or sign offer letters.</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">
+                  Offer Acceptance Updates
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Receive alert when candidates accept or sign offer letters.
+                </p>
               </div>
               <input
                 type="checkbox"
                 checked={notifPrefs.offers}
-                onChange={(e) => setNotifPrefs({ ...notifPrefs, offers: e.target.checked })}
+                onChange={(e) =>
+                  setNotifPrefs({ ...notifPrefs, offers: e.target.checked })
+                }
                 className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
               />
             </label>
 
             <label className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 cursor-pointer">
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Weekly Digest Email</p>
-                <p className="text-[11px] text-slate-500">Receive a weekly summary of drives, applications, and offers.</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">
+                  Weekly Digest Email
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Receive a weekly summary of drives, applications, and offers.
+                </p>
               </div>
               <input
                 type="checkbox"
                 checked={notifPrefs.digest}
-                onChange={(e) => setNotifPrefs({ ...notifPrefs, digest: e.target.checked })}
+                onChange={(e) =>
+                  setNotifPrefs({ ...notifPrefs, digest: e.target.checked })
+                }
                 className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
               />
             </label>
@@ -177,7 +212,9 @@ export default function RecruiterSettingsView() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Current Password</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Current Password
+              </label>
               <input
                 type="password"
                 placeholder="••••••••••••"
@@ -188,7 +225,9 @@ export default function RecruiterSettingsView() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">New Password</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                New Password
+              </label>
               <input
                 type="password"
                 placeholder="••••••••••••"

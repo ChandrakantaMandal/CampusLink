@@ -45,7 +45,8 @@ export default function BrandLogo({
       {showText && (
         <div className="flex flex-col">
           <span className="text-xl font-black tracking-tight text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-            CAMPUS<span className="text-indigo-600 dark:text-indigo-400">LINK</span>
+            CAMPUS
+            <span className="text-indigo-600 dark:text-indigo-400">LINK</span>
           </span>
           {subtitle && (
             <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">

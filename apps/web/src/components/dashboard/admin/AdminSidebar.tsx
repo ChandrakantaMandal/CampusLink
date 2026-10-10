@@ -25,7 +25,12 @@ import {
 } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { authClient } from "@/lib/auth-client";
-import { getDashboardStats, getAdminInterviews, getAdminNotifications, type DashboardStats } from "@/lib/api/admin.api";
+import {
+  getDashboardStats,
+  getAdminInterviews,
+  getAdminNotifications,
+  type DashboardStats,
+} from "@/lib/api/admin.api";
 
 interface AdminSidebarProps {
   isOpen?: boolean;
@@ -148,7 +153,9 @@ export default function AdminSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [stats, setStats] = React.useState<DashboardStats | null>(null);
-  const [unreadNotifications, setUnreadNotifications] = React.useState<number | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = React.useState<
+    number | null
+  >(null);
   const [conflictCount, setConflictCount] = React.useState<number | null>(null);
 
   React.useEffect(() => {
@@ -157,7 +164,9 @@ export default function AdminSidebar({
       .then((result) => setUnreadNotifications(result.unreadCount))
       .catch(() => {});
     getAdminInterviews()
-      .then((items) => setConflictCount(items.filter((item) => item.hasConflict).length))
+      .then((items) =>
+        setConflictCount(items.filter((item) => item.hasConflict).length),
+      )
       .catch(() => {});
   }, []);
 
@@ -196,7 +205,12 @@ export default function AdminSidebar({
             onClick={() => onClose?.()}
             className="group flex items-center gap-3"
           >
-            <BrandLogo size={38} showText subtitle="Admin Control Center" priority />
+            <BrandLogo
+              size={38}
+              showText
+              subtitle="Admin Control Center"
+              priority
+            />
           </Link>
 
           {onClose && (
@@ -223,22 +237,35 @@ export default function AdminSidebar({
                 const Icon = item.icon;
                 const isExactActive = pathname === item.href;
                 const isNestedActive =
-                  item.href !== "/admin/dashboard" && pathname.startsWith(`${item.href}/`);
+                  item.href !== "/admin/dashboard" &&
+                  pathname.startsWith(`${item.href}/`);
                 const isActive = isExactActive || isNestedActive;
-                
+
                 let badge = item.badge;
                 if (stats) {
-                  if (item.id === "students") badge = (stats.users?.students ?? 0).toLocaleString();
-                  if (item.id === "recruiters") badge = (stats.users?.recruiters ?? 0).toLocaleString();
-                  if (item.id === "drives") badge = (stats.drives ?? 0).toLocaleString();
-                  if (item.id === "applications") badge = (stats.applications ?? 0).toLocaleString();
-                  if (item.id === "offers") badge = (stats.offers ?? 0).toLocaleString();
+                  if (item.id === "students")
+                    badge = (stats.users?.students ?? 0).toLocaleString();
+                  if (item.id === "recruiters")
+                    badge = (stats.users?.recruiters ?? 0).toLocaleString();
+                  if (item.id === "drives")
+                    badge = (stats.drives ?? 0).toLocaleString();
+                  if (item.id === "applications")
+                    badge = (stats.applications ?? 0).toLocaleString();
+                  if (item.id === "offers")
+                    badge = (stats.offers ?? 0).toLocaleString();
                 }
-                if (item.id === "notifications" && unreadNotifications !== null) {
-                  badge = unreadNotifications > 0 ? unreadNotifications.toLocaleString() : "";
+                if (
+                  item.id === "notifications" &&
+                  unreadNotifications !== null
+                ) {
+                  badge =
+                    unreadNotifications > 0
+                      ? unreadNotifications.toLocaleString()
+                      : "";
                 }
                 if (item.id === "interviews" && conflictCount !== null) {
-                  badge = conflictCount > 0 ? conflictCount.toLocaleString() : "";
+                  badge =
+                    conflictCount > 0 ? conflictCount.toLocaleString() : "";
                 }
 
                 return (
@@ -248,9 +275,10 @@ export default function AdminSidebar({
                     onClick={() => onClose?.()}
                     className={`
                       group flex w-full items-center justify-between rounded-xl px-3.5 py-2 text-xs font-semibold transition-all sm:text-sm
-                      ${isActive
-                        ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/25 font-bold"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/70 dark:hover:text-white"
+                      ${
+                        isActive
+                          ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/25 font-bold"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/70 dark:hover:text-white"
                       }
                     `}
                   >
@@ -302,7 +330,10 @@ export default function AdminSidebar({
                 </p>
               </div>
             </div>
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" title="Online" />
+            <span
+              className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0"
+              title="Online"
+            />
           </div>
 
           <button

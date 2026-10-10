@@ -9,20 +9,26 @@ export type OfferLetterDetails = {
 };
 
 function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  })[character] ?? character);
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[character] ?? character,
+  );
 }
 
 export function renderOfferLetterHtml(details: OfferLetterDetails) {
   const company = escapeHtml(details.companyName);
   const candidate = escapeHtml(details.candidateName);
   const role = escapeHtml(details.role);
-  const issueDate = escapeHtml(new Date().toLocaleDateString("en-IN", { dateStyle: "long" }));
+  const issueDate = escapeHtml(
+    new Date().toLocaleDateString("en-IN", { dateStyle: "long" }),
+  );
 
   return `<!doctype html>
 <html lang="en">

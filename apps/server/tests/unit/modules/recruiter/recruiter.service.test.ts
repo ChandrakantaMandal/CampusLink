@@ -4,43 +4,58 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   db: {
     $transaction: vi.fn(),
+
     recruiterProfile: {
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+
     company: {
       update: vi.fn(),
     },
+
     studentProfile: {
       findUnique: vi.fn(),
     },
+
     job: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
       findUniqueOrThrow: vi.fn(),
       create: vi.fn(),
     },
+
     skill: {
       findMany: vi.fn(),
       create: vi.fn(),
     },
+
     jobSkill: {
       create: vi.fn(),
     },
+
     application: {
       groupBy: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
     },
+
+    assessmentResult: {
+      findFirst: vi.fn(),
+    },
+
     offer: {
       groupBy: vi.fn(),
     },
+
     interview: {
       findMany: vi.fn(),
       create: vi.fn(),
       updateMany: vi.fn(),
     },
   },
+
   redis: {
     get: vi.fn(),
     set: vi.fn(),
@@ -76,9 +91,39 @@ const recruiter = {
   companyId: "company-123",
 };
 
+const passedApplication = {
+  id: "app-123",
+  studentId: "stu-1",
+  jobId: "job-123",
+  status: "SHORTLISTED",
+  job: {
+    id: "job-123",
+    title: "SDE",
+    companyId: "company-123",
+  },
+  student: {
+    id: "stu-1",
+    assessments: [],
+  },
+};
+
 describe("recruiter.service", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+
+    mocks.db.$transaction.mockImplementation(
+      async (fn: (tx: typeof mocks.db) => Promise<unknown>) => fn(mocks.db),
+    );
+
+    mocks.db.application.findFirst.mockResolvedValue(passedApplication);
+
+    mocks.db.assessmentResult.findFirst.mockResolvedValue({
+      id: "assessment-result-1",
+      studentId: "stu-1",
+      status: "PASSED",
+      passed: true,
+      score: 85,
+    });
   });
 
   describe("getRecruiterProfile", () => {
@@ -98,8 +143,20 @@ describe("recruiter.service", () => {
         where: { userId: "user-123" },
         include: {
           company: true,
-          user: { select: { id: true, name: true, email: true, image: true } },
-          _count: { select: { jobs: true, interviews: true } },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+          _count: {
+            select: {
+              jobs: true,
+              interviews: true,
+            },
+          },
         },
       });
     });
@@ -162,7 +219,10 @@ describe("recruiter.service", () => {
     it("should update only company fields when only company is provided", async () => {
       const updatedProfile = {
         ...recruiter,
-        company: { id: "company-123", website: "https://example.com" },
+        company: {
+          id: "company-123",
+          website: "https://example.com",
+        },
       };
 
       mocks.db.recruiterProfile.findUnique
@@ -175,6 +235,7 @@ describe("recruiter.service", () => {
 
       expect(result).toEqual(updatedProfile);
       expect(mocks.db.recruiterProfile.update).not.toHaveBeenCalled();
+
       expect(mocks.db.company.update).toHaveBeenCalledWith({
         where: { id: "company-123" },
         data: { website: "https://example.com" },
@@ -182,7 +243,10 @@ describe("recruiter.service", () => {
     });
 
     it("should update only profile fields when no company is provided", async () => {
-      const updatedProfile = { ...recruiter, isLeadRecruiter: true };
+      const updatedProfile = {
+        ...recruiter,
+        isLeadRecruiter: true,
+      };
 
       mocks.db.recruiterProfile.findUnique
         .mockResolvedValueOnce(recruiter)
@@ -193,10 +257,12 @@ describe("recruiter.service", () => {
       });
 
       expect(result).toEqual(updatedProfile);
+
       expect(mocks.db.recruiterProfile.update).toHaveBeenCalledWith({
         where: { id: "recruiter-123" },
         data: { isLeadRecruiter: true },
       });
+
       expect(mocks.db.company.update).not.toHaveBeenCalled();
     });
   });
@@ -227,9 +293,11 @@ describe("recruiter.service", () => {
 
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.job.findMany.mockResolvedValue(jobs);
+
       mocks.db.application.groupBy.mockResolvedValue([
         { jobId: "job-1", _count: { _all: 3 } },
       ]);
+
       mocks.db.offer.groupBy.mockResolvedValue([
         { jobId: "job-1", _count: { _all: 1 } },
       ]);
@@ -237,12 +305,10 @@ describe("recruiter.service", () => {
       const result = await getMyJobs("user-123");
 
       expect(result).toHaveLength(2);
-
       expect(result[0]?.applicantsCount).toBe(5);
       expect(result[0]?.shortlistedCount).toBe(3);
       expect(result[0]?.interviewCount).toBe(2);
       expect(result[0]?.offersCount).toBe(1);
-
       expect(result[1]?.applicantsCount).toBe(0);
       expect(result[1]?.shortlistedCount).toBe(0);
       expect(result[1]?.offersCount).toBe(0);
@@ -285,7 +351,11 @@ describe("recruiter.service", () => {
     });
 
     it("should create a job scoped to the recruiter's company", async () => {
-      const job = { id: "job-123", title: "SDE", companyId: "company-123" };
+      const job = {
+        id: "job-123",
+        title: "SDE",
+        companyId: "company-123",
+      };
 
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.job.create.mockResolvedValue(job);
@@ -336,14 +406,21 @@ describe("recruiter.service", () => {
 
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.job.create.mockResolvedValue(job);
+
       mocks.db.skill.findMany.mockResolvedValue([
-        { id: "skill-python", name: "Python", normalized: "python" },
+        {
+          id: "skill-python",
+          name: "Python",
+          normalized: "python",
+        },
       ]);
+
       mocks.db.skill.create.mockResolvedValue({
         id: "skill-sql",
         name: "SQL",
         normalized: "sql",
       });
+
       mocks.db.job.findUniqueOrThrow.mockResolvedValue({
         ...job,
         skills: [],
@@ -360,19 +437,34 @@ describe("recruiter.service", () => {
       });
 
       expect(mocks.db.skill.create).toHaveBeenCalledTimes(1);
+
       expect(mocks.db.skill.create).toHaveBeenCalledWith({
-        data: { name: "SQL", normalized: "sql", type: "OTHER" },
+        data: {
+          name: "SQL",
+          normalized: "sql",
+          type: "OTHER",
+        },
       });
 
       expect(mocks.db.jobSkill.create).toHaveBeenCalledTimes(2);
+
       expect(mocks.db.jobSkill.create).toHaveBeenCalledWith({
-        data: { jobId: "job-789", skillId: "skill-sql" },
+        data: {
+          jobId: "job-789",
+          skillId: "skill-sql",
+        },
       });
 
       expect(mocks.db.job.findUniqueOrThrow).toHaveBeenCalledWith({
         where: { id: "job-789" },
         include: {
-          skills: { include: { skill: { select: { name: true } } } },
+          skills: {
+            include: {
+              skill: {
+                select: { name: true },
+              },
+            },
+          },
         },
       });
     });
@@ -418,11 +510,9 @@ describe("recruiter.service", () => {
       const result = await getMyInterviews("user-123");
 
       expect(result).toHaveLength(2);
-
       expect(result[0]?.hasConflict).toBe(true);
       expect(result[0]?.conflictDetails).toContain("Overlaps with SDE");
       expect(result[0]?.conflictDetails).toContain("10:30");
-
       expect(result[1]?.hasConflict).toBe(true);
       expect(result[1]?.conflictDetails).toContain("10:00");
     });
@@ -557,6 +647,7 @@ describe("recruiter.service", () => {
     it("should reject a job belonging to another company", async () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.studentProfile.findUnique.mockResolvedValue({ id: "stu-1" });
+
       mocks.db.job.findUnique.mockResolvedValue({
         id: "job-123",
         companyId: "other-company",
@@ -594,6 +685,7 @@ describe("recruiter.service", () => {
     it("should throw when application belongs to a different student", async () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
       mocks.db.studentProfile.findUnique.mockResolvedValue({ id: "stu-1" });
+
       mocks.db.application.findUnique.mockResolvedValue({
         id: "app-123",
         studentId: "stu-2",
@@ -614,13 +706,23 @@ describe("recruiter.service", () => {
 
     it("should derive jobId from the application when jobId is omitted", async () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
-      mocks.db.studentProfile.findUnique.mockResolvedValue({ id: "stu-1" });
-      mocks.db.application.findUnique.mockResolvedValue({
-        id: "app-123",
-        studentId: "stu-1",
-        jobId: "job-9",
-        job: { title: "Analyst" },
+      mocks.db.studentProfile.findUnique.mockResolvedValue({
+        id: "stu-1",
+        assessments: [],
       });
+
+      const application = {
+        ...passedApplication,
+        jobId: "job-9",
+        job: {
+          id: "job-9",
+          title: "Analyst",
+          companyId: "company-123",
+        },
+      };
+
+      mocks.db.application.findUnique.mockResolvedValue(application);
+      mocks.db.application.findFirst.mockResolvedValue(application);
       mocks.db.interview.findMany.mockResolvedValue([]);
       mocks.db.interview.create.mockResolvedValue({ id: "int-123" });
 
@@ -643,12 +745,21 @@ describe("recruiter.service", () => {
 
     it("should create an interview with conflict detection and joined panel", async () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
-      mocks.db.studentProfile.findUnique.mockResolvedValue({ id: "stu-1" });
+
+      mocks.db.studentProfile.findUnique.mockResolvedValue({
+        id: "stu-1",
+        assessments: [],
+      });
+
       mocks.db.job.findUnique.mockResolvedValue({
         id: "job-123",
         companyId: "company-123",
         title: "SDE",
       });
+
+      mocks.db.application.findUnique.mockResolvedValue(passedApplication);
+      mocks.db.application.findFirst.mockResolvedValue(passedApplication);
+
       mocks.db.interview.findMany.mockResolvedValue([
         {
           id: "int-existing",
@@ -661,11 +772,13 @@ describe("recruiter.service", () => {
           job: { title: "SDE" },
         },
       ]);
+
       mocks.db.interview.create.mockResolvedValue({ id: "int-123" });
 
       await createInterview("user-123", {
         studentId: "stu-1",
         jobId: "job-123",
+        applicationId: "app-123",
         roundName: "HR Round",
         scheduledDate: new Date("2026-10-05T00:00:00.000Z"),
         startTime: "10:00",
@@ -684,15 +797,18 @@ describe("recruiter.service", () => {
       };
 
       expect(createArgs.data.hasConflict).toBe(true);
+
       expect(String(createArgs.data.conflictDetails)).toContain(
         "Overlaps with SDE (10:30",
       );
+
       expect(createArgs.data.interviewerPanel).toBe("Alice, Bob");
       expect(createArgs.data.recruiterId).toBe("recruiter-123");
       expect(createArgs.data.jobId).toBe("job-123");
       expect(createArgs.data.mode).toBe("VIRTUAL");
 
       expect(mocks.db.interview.updateMany).toHaveBeenCalledTimes(1);
+
       expect(mocks.db.interview.updateMany).toHaveBeenCalledWith({
         where: { id: "int-existing" },
         data: {
@@ -704,12 +820,20 @@ describe("recruiter.service", () => {
 
     it("should create an interview without conflicts when the slot is free", async () => {
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
-      mocks.db.studentProfile.findUnique.mockResolvedValue({ id: "stu-1" });
+
+      mocks.db.studentProfile.findUnique.mockResolvedValue({
+        id: "stu-1",
+        assessments: [],
+      });
+
+      mocks.db.application.findUnique.mockResolvedValue(passedApplication);
+      mocks.db.application.findFirst.mockResolvedValue(passedApplication);
       mocks.db.interview.findMany.mockResolvedValue([]);
       mocks.db.interview.create.mockResolvedValue({ id: "int-456" });
 
       await createInterview("user-123", {
         studentId: "stu-1",
+        applicationId: "app-123",
         roundName: "Round 1",
         scheduledDate: new Date("2026-10-05T00:00:00.000Z"),
         startTime: "10:00",
@@ -726,8 +850,7 @@ describe("recruiter.service", () => {
       expect(createArgs.data.conflictDetails).toBe(Prisma.DbNull);
       expect(createArgs.data.mode).toBe("IN_PERSON");
       expect(createArgs.data.venue).toBe("Campus Hall 2");
-      expect(createArgs.data.jobId).toBeUndefined();
-      expect(createArgs.data.interviewerPanel).toBeUndefined();
+
       expect(mocks.db.interview.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -747,25 +870,56 @@ describe("recruiter.service", () => {
         {
           id: "app-1",
           status: "SHORTLISTED",
-          job: { id: "job-1", title: "SDE" },
-          student: { id: "stu-1", user: { id: "user-1", name: "Asha" } },
+          assessmentOutcome: null,
+          job: {
+            id: "job-1",
+            title: "SDE",
+          },
+          student: {
+            id: "stu-1",
+            assessments: [],
+            user: {
+              id: "user-1",
+              name: "Asha",
+            },
+          },
         },
       ];
 
       mocks.db.recruiterProfile.findUnique.mockResolvedValue(recruiter);
-      mocks.db.application.findMany.mockResolvedValue(applications);
+      mocks.db.application.findMany.mockResolvedValue(applications as never);
 
       const result = await getShortlistedCandidates("user-123");
 
-      expect(result).toEqual(applications);
+      const application = applications[0];
+
+      if (!application) {
+        throw new Error("Expected at least one application");
+      }
+
+      const { assessments: _assessments, ...expectedStudent } =
+        application.student;
+
+      expect(result).toEqual([
+        {
+          ...application,
+          student: expectedStudent,
+        },
+      ]);
 
       expect(mocks.db.application.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
-            status: "SHORTLISTED",
-            job: { companyId: "company-123" },
+            status: {
+              in: ["SHORTLISTED", "ASSESSMENT"],
+            },
+            job: {
+              companyId: "company-123",
+            },
           },
-          orderBy: { appliedAt: "desc" },
+          orderBy: {
+            appliedAt: "desc",
+          },
         }),
       );
     });

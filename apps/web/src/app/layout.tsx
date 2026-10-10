@@ -33,9 +33,7 @@ export default function RootLayout({
         <PwaRegistration />
 
         <Providers>
-          <div className="flex flex-col min-h-screen">
-            {children}
-          </div>
+          <div className="flex flex-col min-h-screen">{children}</div>
         </Providers>
       </body>
     </html>

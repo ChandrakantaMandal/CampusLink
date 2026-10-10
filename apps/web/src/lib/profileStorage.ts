@@ -14,7 +14,10 @@ export function getStoredProfile(userKey = "guest"): StudentProfileData | null {
   }
 }
 
-export function saveStoredProfile(profile: StudentProfileData, userKey = "guest"): boolean {
+export function saveStoredProfile(
+  profile: StudentProfileData,
+  userKey = "guest",
+): boolean {
   if (typeof window === "undefined") return false;
   // Strictly prevent unauthenticated guests from saving profile changes
   if (!userKey || userKey === "guest") {
@@ -22,7 +25,10 @@ export function saveStoredProfile(profile: StudentProfileData, userKey = "guest"
     return false;
   }
   try {
-    localStorage.setItem(`${STORAGE_PREFIX}${userKey}`, JSON.stringify(profile));
+    localStorage.setItem(
+      `${STORAGE_PREFIX}${userKey}`,
+      JSON.stringify(profile),
+    );
     return true;
   } catch (err) {
     console.error("Failed to save profile:", err);

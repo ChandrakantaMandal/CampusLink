@@ -153,7 +153,9 @@ export default function InterviewScheduleView() {
       } catch (error) {
         if (!silent) {
           toast.error(
-            error instanceof Error ? error.message : "Failed to load interviews",
+            error instanceof Error
+              ? error.message
+              : "Failed to load interviews",
           );
         }
         return null;
@@ -285,7 +287,9 @@ export default function InterviewScheduleView() {
       );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to reschedule interview",
+        error instanceof Error
+          ? error.message
+          : "Failed to reschedule interview",
       );
     } finally {
       setSaving(false);
@@ -424,7 +428,8 @@ export default function InterviewScheduleView() {
               type="button"
               onClick={() =>
                 setMonthCursor(
-                  (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                  (prev) =>
+                    new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
                 )
               }
               aria-label="Previous month"
@@ -439,7 +444,8 @@ export default function InterviewScheduleView() {
               type="button"
               onClick={() =>
                 setMonthCursor(
-                  (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                  (prev) =>
+                    new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
                 )
               }
               aria-label="Next month"
@@ -453,9 +459,7 @@ export default function InterviewScheduleView() {
               type="button"
               onClick={() => {
                 const now = new Date();
-                setMonthCursor(
-                  new Date(now.getFullYear(), now.getMonth(), 1),
-                );
+                setMonthCursor(new Date(now.getFullYear(), now.getMonth(), 1));
                 setSelectedDate(toDateKey(now));
               }}
               className="cursor-pointer rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 text-slate-700 dark:text-slate-300 font-bold px-3 py-2 text-xs transition-all"
@@ -503,11 +507,15 @@ export default function InterviewScheduleView() {
                       : "bg-slate-50/80 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-indigo-200 dark:hover:border-indigo-800"
                 } ${isToday && !isSelected ? "ring-2 ring-indigo-400/60" : ""}`}
               >
-                <span className="text-sm font-black block">{cell.dayLabel}</span>
+                <span className="text-sm font-black block">
+                  {cell.dayLabel}
+                </span>
                 {cell.count > 0 && (
                   <span
                     className={`absolute bottom-1.5 right-1.5 inline-flex items-center justify-center rounded-full px-1.5 text-[10px] font-black ${
-                      isSelected ? "bg-white/20 text-white" : "bg-indigo-600 text-white"
+                      isSelected
+                        ? "bg-white/20 text-white"
+                        : "bg-indigo-600 text-white"
                     }`}
                     data-testid="calendar-count"
                   >
@@ -536,8 +544,8 @@ export default function InterviewScheduleView() {
             Interviews Roster for {selectedDate || "—"}
           </h2>
           <span className="text-xs text-slate-400 font-semibold">
-            {dayInterviews.length} Interview{dayInterviews.length === 1 ? "" : "s"}{" "}
-            Scheduled
+            {dayInterviews.length} Interview
+            {dayInterviews.length === 1 ? "" : "s"} Scheduled
           </span>
         </div>
 

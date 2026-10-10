@@ -3,7 +3,8 @@ import AdminSettingsView from "@/components/dashboard/admin/views/AdminSettingsV
 
 export const metadata: Metadata = {
   title: "Admin Profile & Settings — CAMPUSLINK Admin",
-  description: "Manage administrative profile, campus configurations, and governance settings.",
+  description:
+    "Manage administrative profile, campus configurations, and governance settings.",
 };
 
 export default function AdminProfilePage() {

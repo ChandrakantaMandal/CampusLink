@@ -52,7 +52,8 @@ export default function NotFound() {
         </h2>
         <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-600 sm:text-base dark:text-slate-400">
           The page or placement resource you are attempting to reach has either
-          graduated, moved to a new route, or never existed in the CampusLink directory.
+          graduated, moved to a new route, or never existed in the CampusLink
+          directory.
         </p>
 
         {/* Primary Call to Action Buttons */}
@@ -108,7 +109,8 @@ export default function NotFound() {
                 Recruiter Portal
               </h3>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Post job listings, manage talent pipelines & schedule interviews.
+                Post job listings, manage talent pipelines & schedule
+                interviews.
               </p>
             </Link>
 
@@ -132,7 +134,9 @@ export default function NotFound() {
         {/* Footer Support Tagline */}
         <div className="mt-10 flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
           <LifeBuoy className="h-3.5 w-3.5 text-slate-400" />
-          <span>Need help finding something? Contact your Campus TPO Office.</span>
+          <span>
+            Need help finding something? Contact your Campus TPO Office.
+          </span>
         </div>
       </div>
     </div>

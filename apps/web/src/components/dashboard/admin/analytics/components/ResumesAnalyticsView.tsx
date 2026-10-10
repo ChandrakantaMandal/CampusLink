@@ -35,7 +35,14 @@ interface ResumesAnalyticsViewProps {
   metrics: ResumeMetrics | null;
 }
 
-const DEGREE_COLORS = ["#6366f1", "#14b8a6", "#f59e0b", "#ec4899", "#8b5cf6", "#3b82f6"];
+const DEGREE_COLORS = [
+  "#6366f1",
+  "#14b8a6",
+  "#f59e0b",
+  "#ec4899",
+  "#8b5cf6",
+  "#3b82f6",
+];
 
 export function ResumesAnalyticsView({ metrics }: ResumesAnalyticsViewProps) {
   if (!metrics) {
@@ -136,7 +143,12 @@ export function ResumesAnalyticsView({ metrics }: ResumesAnalyticsViewProps) {
                   name="Avg Calls"
                   stroke="#6366f1"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#fff" }}
+                  dot={{
+                    r: 4,
+                    fill: "#6366f1",
+                    strokeWidth: 2,
+                    stroke: "#fff",
+                  }}
                   activeDot={{ r: 6, fill: "#4f46e5" }}
                 />
               </LineChart>
@@ -219,7 +231,11 @@ export function ResumesAnalyticsView({ metrics }: ResumesAnalyticsViewProps) {
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={<AnalyticsChartTooltip valueSuffix=" Candidates" />} />
+                  <Tooltip
+                    content={
+                      <AnalyticsChartTooltip valueSuffix=" Candidates" />
+                    }
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -236,7 +252,10 @@ export function ResumesAnalyticsView({ metrics }: ResumesAnalyticsViewProps) {
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: DEGREE_COLORS[idx % DEGREE_COLORS.length] }}
+                        style={{
+                          backgroundColor:
+                            DEGREE_COLORS[idx % DEGREE_COLORS.length],
+                        }}
                       />
                       <span className="font-semibold text-xs text-slate-800 dark:text-slate-200">
                         {item.name}
@@ -246,7 +265,9 @@ export function ResumesAnalyticsView({ metrics }: ResumesAnalyticsViewProps) {
                       <span className="font-bold text-slate-900 dark:text-white">
                         {item.value}
                       </span>
-                      <span className="text-[11px] text-slate-400">({pct}%)</span>
+                      <span className="text-[11px] text-slate-400">
+                        ({pct}%)
+                      </span>
                     </div>
                   </div>
                 );

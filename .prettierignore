@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Python virtual environments
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Build output and caches
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+
+# Generated code
+packages/db/prisma/generated/
+**/generated/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+**/env.ts
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

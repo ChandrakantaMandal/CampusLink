@@ -65,7 +65,10 @@ select:where(.dark *) option:checked {
 }
 
 /* Base styling for detail-filling input elements - Light Mode */
-.student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.student-profile-workspace
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="range"]
+  ),
 .student-profile-workspace select,
 .student-profile-workspace textarea {
   background-color: #ffffff;
@@ -76,11 +79,19 @@ select:where(.dark *) option:checked {
   font-size: 0.875rem;
   line-height: 1.25rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 /* Dark Mode input overrides */
-.dark .student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.dark
+  .student-profile-workspace
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="range"]
+  ),
 .dark .student-profile-workspace select,
 .dark .student-profile-workspace textarea {
   background-color: #0f172a !important;
@@ -91,21 +102,31 @@ select:where(.dark *) option:checked {
 }
 
 /* Hover state - Light */
-.student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):hover,
+.student-profile-workspace
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="range"]
+  ):hover,
 .student-profile-workspace select:hover,
 .student-profile-workspace textarea:hover {
   border-color: #94a3b8;
 }
 
 /* Hover state - Dark */
-.dark .student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):hover,
+.dark
+  .student-profile-workspace
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="range"]
+  ):hover,
 .dark .student-profile-workspace select:hover,
 .dark .student-profile-workspace textarea:hover {
   border-color: #475569 !important;
 }
 
 /* Active Focus state - Light */
-.student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):focus,
+.student-profile-workspace
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="range"]
+  ):focus,
 .student-profile-workspace select:focus,
 .student-profile-workspace textarea:focus {
   background-color: #ffffff;
@@ -116,7 +137,11 @@ select:where(.dark *) option:checked {
 }
 
 /* Active Focus state - Dark */
-.dark .student-profile-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):focus,
+.dark
+  .student-profile-workspace
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(
+    [type="range"]
+  ):focus,
 .dark .student-profile-workspace select:focus,
 .dark .student-profile-workspace textarea:focus {
   background-color: #0f172a !important;

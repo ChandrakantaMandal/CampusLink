@@ -105,18 +105,33 @@ export interface StudentEducation {
   percentage: number | null;
 }
 
-interface EducationResponse<T> { success: boolean; data: T }
+interface EducationResponse<T> {
+  success: boolean;
+  data: T;
+}
 
 export async function getMyEducationRecords(): Promise<StudentEducation[]> {
-  const response = await api.get<EducationResponse<StudentEducation[]>>("/api/education/my");
+  const response =
+    await api.get<EducationResponse<StudentEducation[]>>("/api/education/my");
   return response.data.data;
 }
 
-export async function saveEducationRecord(data: Omit<StudentEducation, "id">, id?: string): Promise<StudentEducation> {
-  const payload = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== null && value !== ""));
+export async function saveEducationRecord(
+  data: Omit<StudentEducation, "id">,
+  id?: string,
+): Promise<StudentEducation> {
+  const payload = Object.fromEntries(
+    Object.entries(data).filter(([, value]) => value !== null && value !== ""),
+  );
   const response = id
-    ? await api.patch<EducationResponse<StudentEducation>>(`/api/education/${id}`, payload)
-    : await api.post<EducationResponse<StudentEducation>>("/api/education", payload);
+    ? await api.patch<EducationResponse<StudentEducation>>(
+        `/api/education/${id}`,
+        payload,
+      )
+    : await api.post<EducationResponse<StudentEducation>>(
+        "/api/education",
+        payload,
+      );
   return response.data.data;
 }
 
@@ -132,17 +147,31 @@ export interface StudentProjectRecord {
 }
 
 export async function getMyProjectRecords(): Promise<StudentProjectRecord[]> {
-  const response = await api.get<EducationResponse<StudentProjectRecord[]>>("/api/projects/my");
+  const response =
+    await api.get<EducationResponse<StudentProjectRecord[]>>(
+      "/api/projects/my",
+    );
   return response.data.data;
 }
 
 export async function saveProjectRecord(
-  data: { title: string; description: string; githubUrl: string; liveUrl: string },
+  data: {
+    title: string;
+    description: string;
+    githubUrl: string;
+    liveUrl: string;
+  },
   id?: string,
 ): Promise<StudentProjectRecord> {
   const response = id
-    ? await api.patch<EducationResponse<StudentProjectRecord>>(`/api/projects/${id}`, data)
-    : await api.post<EducationResponse<StudentProjectRecord>>("/api/projects", data);
+    ? await api.patch<EducationResponse<StudentProjectRecord>>(
+        `/api/projects/${id}`,
+        data,
+      )
+    : await api.post<EducationResponse<StudentProjectRecord>>(
+        "/api/projects",
+        data,
+      );
   return response.data.data;
 }
 
@@ -193,9 +222,7 @@ interface AggregateResponse<T> {
 }
 
 async function getAggregate<T>(path: string): Promise<T> {
-  const response = await api.get<AggregateResponse<T>>(
-    `/api/students${path}`,
-  );
+  const response = await api.get<AggregateResponse<T>>(`/api/students${path}`);
 
   return response.data.data;
 }
@@ -672,8 +699,7 @@ export async function getMyJobs(): Promise<StudentJobsData> {
 
   const openJobs = jobs
     .filter(
-      (job) =>
-        job.status === "APPLICATIONS_OPEN" || job.status === "PUBLISHED",
+      (job) => job.status === "APPLICATIONS_OPEN" || job.status === "PUBLISHED",
     )
     .slice(0, 50);
 

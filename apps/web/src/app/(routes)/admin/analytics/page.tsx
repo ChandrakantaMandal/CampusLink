@@ -3,7 +3,8 @@ import AdminAnalyticsView from "@/components/dashboard/admin/views/AdminAnalytic
 
 export const metadata: Metadata = {
   title: "Placement Analysis & Insights — CAMPUSLINK Admin",
-  description: "Cohort placement intelligence, branch absorption, engineering fresher compensation benchmarks, and resume screening conversion rates.",
+  description:
+    "Cohort placement intelligence, branch absorption, engineering fresher compensation benchmarks, and resume screening conversion rates.",
 };
 
 export default function AdminAnalysisPage() {

@@ -176,8 +176,6 @@ export default function ProfilePage() {
     toast.success("Loaded blank student profile.");
   };
 
-
-
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!profile.name || profile.name.trim().length < 2) {

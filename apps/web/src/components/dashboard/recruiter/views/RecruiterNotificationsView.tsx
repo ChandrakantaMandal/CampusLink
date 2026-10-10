@@ -22,7 +22,9 @@ import {
 import { toast } from "sonner";
 
 export default function RecruiterNotificationsView() {
-  const [notifications, setNotifications] = useState<RecruiterNotification[]>([]);
+  const [notifications, setNotifications] = useState<RecruiterNotification[]>(
+    [],
+  );
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("ALL");
@@ -75,7 +77,7 @@ export default function RecruiterNotificationsView() {
     try {
       await markNotificationRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
       if (!current.isRead) {
         setUnreadCount((prev) => Math.max(0, prev - 1));
@@ -90,7 +92,9 @@ export default function RecruiterNotificationsView() {
   const getIcon = (type: RecruiterNotification["type"]) => {
     switch (type) {
       case "conflict":
-        return <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />;
+        return (
+          <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
+        );
       case "offer":
         return <Gift className="h-5 w-5 text-emerald-500" />;
       case "ai_match":
@@ -112,7 +116,8 @@ export default function RecruiterNotificationsView() {
             Recruiter Notification Feed
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real-time campus placement updates, AI match triggers, and schedule conflict alerts.
+            Real-time campus placement updates, AI match triggers, and schedule
+            conflict alerts.
           </p>
           {unreadCount > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-blue-600 text-white text-[11px] font-bold px-2.5 py-0.5 mt-2">
@@ -145,7 +150,9 @@ export default function RecruiterNotificationsView() {
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
             }`}
           >
-            {t === "conflict" ? "Conflicts (Alert)" : t.replace("_", " ").toUpperCase()}
+            {t === "conflict"
+              ? "Conflicts (Alert)"
+              : t.replace("_", " ").toUpperCase()}
           </button>
         ))}
       </div>

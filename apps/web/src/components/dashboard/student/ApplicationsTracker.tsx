@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Briefcase, 
-  Search, 
-  Filter, 
-  ExternalLink, 
-  Clock, 
-  Calendar, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  Briefcase,
+  Search,
+  Filter,
+  ExternalLink,
+  Clock,
+  Calendar,
+  CheckCircle2,
+  XCircle,
   AlertCircle,
   Eye,
   ChevronRight,
   TrendingUp,
-  Award
+  Award,
 } from "lucide-react";
 import type { ApplicationItem, ApplicationStatus } from "@/data/dashboardData";
 import { toast } from "sonner";
@@ -67,7 +67,9 @@ const statusStyles: Record<
     bg: "bg-emerald-100/70 dark:bg-emerald-900/50",
     text: "text-emerald-800 dark:text-emerald-200",
     border: "border-emerald-300 dark:border-emerald-700",
-    icon: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />,
+    icon: (
+      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+    ),
   },
   Rejected: {
     bg: "bg-rose-50 dark:bg-rose-950/40",
@@ -77,7 +79,9 @@ const statusStyles: Record<
   },
 };
 
-export function ApplicationsTracker({ applications }: ApplicationsTrackerProps) {
+export function ApplicationsTracker({
+  applications,
+}: ApplicationsTrackerProps) {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -91,7 +95,9 @@ export function ApplicationsTracker({ applications }: ApplicationsTrackerProps) 
 
     if (filter === "all") return true;
     if (filter === "active")
-      return ["Applied", "Under Review", "Shortlisted", "Interview"].includes(app.status);
+      return ["Applied", "Under Review", "Shortlisted", "Interview"].includes(
+        app.status,
+      );
     if (filter === "offers")
       return ["Selected", "Offer Received", "Joined"].includes(app.status);
     if (filter === "rejected") return app.status === "Rejected";
