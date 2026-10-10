@@ -63,16 +63,22 @@ export default function SkillsSection({
   };
 
   return (
-    <div id="skills-section" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scroll-mt-24 dark:border-slate-800 dark:bg-slate-900">
+    <div
+      id="skills-section"
+      className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scroll-mt-24 dark:border-slate-800 dark:bg-slate-900"
+    >
       <div className="flex items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 font-bold border border-purple-100 dark:bg-purple-950/50 dark:text-purple-400 dark:border-purple-900/50">
             <Code className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Skills & Technical Expertise</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Skills & Technical Expertise
+            </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Showcase technical languages, frameworks, and tools relevant to recruitment drives.
+              Showcase technical languages, frameworks, and tools relevant to
+              recruitment drives.
             </p>
           </div>
         </div>
@@ -117,10 +123,13 @@ export default function SkillsSection({
 
       {/* Active Skills Pills */}
       <div className="mt-5">
-        <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2.5">Active Skills:</div>
+        <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2.5">
+          Active Skills:
+        </div>
         {skills.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-xs text-slate-400 dark:text-slate-500">
-            No skills added yet. Add your core competencies above to attract matching recruiters.
+            No skills added yet. Add your core competencies above to attract
+            matching recruiters.
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">

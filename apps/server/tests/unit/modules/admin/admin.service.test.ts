@@ -156,7 +156,12 @@ describe("admin.service", () => {
     });
 
     it("should fetch students when cache is empty", async () => {
-      const students = [{ id: "student-1" }];
+      const students = [
+        {
+          id: "student-1",
+          assessments: [],
+        },
+      ];
 
       vi.mocked(db.studentProfile.findMany).mockResolvedValue(
         students as never,
@@ -164,7 +169,20 @@ describe("admin.service", () => {
 
       const result = await getStudents();
 
-      expect(result).toEqual(students);
+      expect(result).toEqual([
+        {
+          ...students[0],
+          readinessScore: 0,
+          readinessBreakdown: {
+            academics: 0,
+            assessment: 0,
+            projects: 0,
+            resume: 0,
+            technical: 0,
+          },
+        },
+      ]);
+
       expect(db.studentProfile.findMany).toHaveBeenCalled();
       expect(redis.set).toHaveBeenCalled();
     });
@@ -290,13 +308,12 @@ describe("admin.service", () => {
     it("should fetch drives when cache is empty", async () => {
       const drives = [{ id: "drive-1" }];
 
-      vi.mocked(db.placementDrive.findMany).mockResolvedValue(
-        drives as never,
-      );
+      vi.mocked(db.placementDrive.findMany).mockResolvedValue(drives as never);
 
       const result = await getDrives();
 
       expect(result).toEqual(drives);
+
       expect(db.placementDrive.findMany).toHaveBeenCalledWith({
         include: {
           company: {
@@ -325,6 +342,7 @@ describe("admin.service", () => {
           driveDate: "desc",
         },
       });
+
       expect(redis.set).toHaveBeenCalledWith(
         "admin:drives",
         JSON.stringify(drives),
@@ -369,6 +387,7 @@ describe("admin.service", () => {
       const result = await getOffers();
 
       expect(result).toEqual(offers);
+
       expect(db.offer.findMany).toHaveBeenCalledWith({
         include: {
           student: {
@@ -405,6 +424,7 @@ describe("admin.service", () => {
           offerDate: "desc",
         },
       });
+
       expect(redis.set).toHaveBeenCalledWith(
         "admin:offers",
         JSON.stringify(offers),
@@ -420,6 +440,7 @@ describe("admin.service", () => {
 
       expect(result).toEqual([]);
       expect(db.offer.findMany).toHaveBeenCalled();
+
       expect(redis.set).toHaveBeenCalledWith("admin:offers", "[]", "EX", 300);
     });
   });
@@ -468,8 +489,14 @@ describe("admin.service", () => {
       const { jobIds: _jobIds, ...rest } = input;
 
       expect(db.placementDrive.create).toHaveBeenCalledWith({
-        data: { ...rest, jobs: { connect: [] } },
+        data: {
+          ...rest,
+          jobs: {
+            connect: [],
+          },
+        },
       });
+
       expect(redis.del).toHaveBeenCalledWith("admin:drives");
     });
   });
@@ -479,7 +506,9 @@ describe("admin.service", () => {
       vi.mocked(db.placementDrive.findUnique).mockResolvedValue(null);
 
       await expect(
-        updatePlacementDrive("unknown-drive", { title: "New" }),
+        updatePlacementDrive("unknown-drive", {
+          title: "New",
+        }),
       ).rejects.toThrow("Placement drive not found");
 
       expect(db.placementDrive.update).not.toHaveBeenCalled();
@@ -494,7 +523,9 @@ describe("admin.service", () => {
       vi.mocked(db.company.findUnique).mockResolvedValue(null);
 
       await expect(
-        updatePlacementDrive("drive-1", { companyId: "unknown-company" }),
+        updatePlacementDrive("drive-1", {
+          companyId: "unknown-company",
+        }),
       ).rejects.toThrow("Company not found");
 
       expect(db.placementDrive.update).not.toHaveBeenCalled();
@@ -506,7 +537,10 @@ describe("admin.service", () => {
         companyId: "company-1",
       } as never);
 
-      const updated = { id: "drive-1", title: "New Title" };
+      const updated = {
+        id: "drive-1",
+        title: "New Title",
+      };
 
       vi.mocked(db.placementDrive.update).mockResolvedValue(updated as never);
 
@@ -515,10 +549,16 @@ describe("admin.service", () => {
       });
 
       expect(result).toEqual(updated);
+
       expect(db.placementDrive.update).toHaveBeenCalledWith({
-        where: { id: "drive-1" },
-        data: { title: "New Title" },
+        where: {
+          id: "drive-1",
+        },
+        data: {
+          title: "New Title",
+        },
       });
+
       expect(redis.del).toHaveBeenCalledWith(
         "admin:drive:drive-1",
         "admin:drives",
@@ -548,10 +588,16 @@ describe("admin.service", () => {
 
       const result = await deletePlacementDrive("drive-1");
 
-      expect(result).toEqual({ id: "drive-1" });
-      expect(db.placementDrive.delete).toHaveBeenCalledWith({
-        where: { id: "drive-1" },
+      expect(result).toEqual({
+        id: "drive-1",
       });
+
+      expect(db.placementDrive.delete).toHaveBeenCalledWith({
+        where: {
+          id: "drive-1",
+        },
+      });
+
       expect(redis.del).toHaveBeenCalledWith(
         "admin:drive:drive-1",
         "admin:drives",

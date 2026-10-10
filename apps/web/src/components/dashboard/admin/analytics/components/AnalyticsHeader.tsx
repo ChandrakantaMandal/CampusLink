@@ -89,7 +89,8 @@ export function AnalyticsHeader({
             Placement Analytics &amp; Insights
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Synthesized intelligence across cohort placement performance, compensation benchmarks, and candidate profile evaluation.
+            Synthesized intelligence across cohort placement performance,
+            compensation benchmarks, and candidate profile evaluation.
           </p>
         </div>
 
@@ -101,7 +102,9 @@ export function AnalyticsHeader({
             className="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-2xs disabled:opacity-50"
             title={`Last refreshed: ${lastRefreshed.toLocaleTimeString()}`}
           >
-            <RotateCw className={`h-4 w-4 ${isLoading ? "animate-spin text-indigo-500" : ""}`} />
+            <RotateCw
+              className={`h-4 w-4 ${isLoading ? "animate-spin text-indigo-500" : ""}`}
+            />
             <span>{isLoading ? "Syncing..." : "Sync Datasets"}</span>
           </button>
 
@@ -136,7 +139,9 @@ export function AnalyticsHeader({
                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
               >
-                <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
+                <Icon
+                  className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-400 dark:text-slate-500"}`}
+                />
                 <span>{tab.label}</span>
                 <span
                   className={`ml-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${

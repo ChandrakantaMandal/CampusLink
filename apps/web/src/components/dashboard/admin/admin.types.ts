@@ -62,7 +62,13 @@ export interface PlacementDrive {
   rounds: string[];
   openings: number;
   applicantsCount: number;
-  status: "Open" | "Ongoing" | "Draft" | "Applications Closed" | "Completed" | "Cancelled";
+  status:
+    | "Open"
+    | "Ongoing"
+    | "Draft"
+    | "Applications Closed"
+    | "Completed"
+    | "Cancelled";
   tier: "Super Dream" | "Dream" | "Regular";
   jobIds?: string[];
   jobs?: { id: string; title: string }[];
@@ -77,7 +83,14 @@ export interface ApplicationItem {
   company: string;
   role: string;
   appliedDate: string;
-  status: "Applied" | "Shortlisted" | "Interview" | "Selected" | "Offer" | "Joined" | "Rejected";
+  status:
+    | "Applied"
+    | "Shortlisted"
+    | "Interview"
+    | "Selected"
+    | "Offer"
+    | "Joined"
+    | "Rejected";
   matchScore: number;
 }
 

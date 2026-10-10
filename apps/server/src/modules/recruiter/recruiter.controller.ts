@@ -116,7 +116,10 @@ export async function createRecruiterProfileController(
         errors: parsed.error.flatten(),
       });
     }
-    const profile = await createRecruiterProfile(authenticatedReq.user.id, parsed.data);
+    const profile = await createRecruiterProfile(
+      authenticatedReq.user.id,
+      parsed.data,
+    );
     return res.status(201).json({
       success: true,
       message: "Recruiter profile created successfully",
@@ -302,7 +305,11 @@ export async function updateInterviewController(
       });
     }
 
-    const interview = await updateInterview(authenticatedReq.user.id, id, parsed.data);
+    const interview = await updateInterview(
+      authenticatedReq.user.id,
+      id,
+      parsed.data,
+    );
 
     if (!interview) {
       return res.status(404).json({
@@ -329,9 +336,7 @@ export async function getShortlistedController(
   try {
     const authenticatedReq = req as AuthenticatedRequest;
 
-    const candidates = await getShortlistedCandidates(
-      authenticatedReq.user.id,
-    );
+    const candidates = await getShortlistedCandidates(authenticatedReq.user.id);
 
     return res.status(200).json({
       success: true,
@@ -342,13 +347,31 @@ export async function getShortlistedController(
   }
 }
 
-export async function sendBatchAssessmentInvitesController(req: Request, res: Response, next: NextFunction) {
+export async function sendBatchAssessmentInvitesController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
-    const parsed = z.object({ applicationIds: z.array(z.string().min(1)).min(1).max(100) }).safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, message: "Select at least one shortlisted candidate" });
+    const parsed = z
+      .object({ applicationIds: z.array(z.string().min(1)).min(1).max(100) })
+      .safeParse(req.body);
+    if (!parsed.success)
+      return res.status(400).json({
+        success: false,
+        message: "Select at least one shortlisted candidate",
+      });
     const authenticatedReq = req as AuthenticatedRequest;
-    const result = await sendBatchAssessmentInvites(authenticatedReq.user.id, parsed.data.applicationIds, ENV.CORS_ORIGIN);
-    return res.status(200).json({ success: true, message: `Sent ${result.sent} of ${result.total} assessment invitations`, data: result });
+    const result = await sendBatchAssessmentInvites(
+      authenticatedReq.user.id,
+      parsed.data.applicationIds,
+      ENV.CORS_ORIGIN,
+    );
+    return res.status(200).json({
+      success: true,
+      message: `Sent ${result.sent} of ${result.total} assessment invitations`,
+      data: result,
+    });
   } catch (error) {
     next(error);
   }
@@ -403,28 +426,55 @@ export async function createMyOfferController(
   }
 }
 
-export async function sendMyOfferController(req: Request, res: Response, next: NextFunction) {
+export async function sendMyOfferController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const authenticatedReq = req as AuthenticatedRequest;
     const { id } = req.params;
-    if (!id || Array.isArray(id)) return res.status(400).json({ success: false, message: "Invalid offer ID" });
+    if (!id || Array.isArray(id))
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid offer ID" });
     const offer = await sendMyOffer(authenticatedReq.user.id, id);
-    if (!offer) return res.status(404).json({ success: false, message: "Offer not found" });
-    return res.status(200).json({ success: true, message: "Offer letter sent to the candidate", data: offer });
+    if (!offer)
+      return res
+        .status(404)
+        .json({ success: false, message: "Offer not found" });
+    return res.status(200).json({
+      success: true,
+      message: "Offer letter sent to the candidate",
+      data: offer,
+    });
   } catch (error) {
     next(error);
   }
 }
 
-export async function downloadMyOfferPdfController(req: Request, res: Response, next: NextFunction) {
+export async function downloadMyOfferPdfController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const authenticatedReq = req as AuthenticatedRequest;
     const { id } = req.params;
-    if (!id || Array.isArray(id)) return res.status(400).json({ success: false, message: "Invalid offer ID" });
+    if (!id || Array.isArray(id))
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid offer ID" });
     const document = await getMyOfferPdf(authenticatedReq.user.id, id);
-    if (!document) return res.status(404).json({ success: false, message: "Offer not found" });
+    if (!document)
+      return res
+        .status(404)
+        .json({ success: false, message: "Offer not found" });
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${document.filename}"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${document.filename}"`,
+    );
     return res.status(200).send(document.pdf);
   } catch (error) {
     next(error);

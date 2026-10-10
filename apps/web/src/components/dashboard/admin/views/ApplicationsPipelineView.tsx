@@ -15,9 +15,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import type { ApplicationItem } from "../admin.types";
-import {
-  getAdminApplications,
-} from "@/lib/api/admin.api";
+import { getAdminApplications } from "@/lib/api/admin.api";
 import { toast } from "sonner";
 
 export default function ApplicationsPipelineView() {
@@ -54,8 +52,16 @@ export default function ApplicationsPipelineView() {
 
   const funnelStages = [
     { stage: "Applied", count: stageCount("Applied"), color: "bg-indigo-500" },
-    { stage: "Shortlisted", count: stageCount("Shortlisted"), color: "bg-blue-500" },
-    { stage: "Interview", count: stageCount("Interview"), color: "bg-purple-500" },
+    {
+      stage: "Shortlisted",
+      count: stageCount("Shortlisted"),
+      color: "bg-blue-500",
+    },
+    {
+      stage: "Interview",
+      count: stageCount("Interview"),
+      color: "bg-purple-500",
+    },
     { stage: "Selected", count: stageCount("Selected"), color: "bg-amber-500" },
     { stage: "Offer", count: stageCount("Offer"), color: "bg-emerald-500" },
     { stage: "Joined", count: stageCount("Joined"), color: "bg-teal-500" },
@@ -77,25 +83,32 @@ export default function ApplicationsPipelineView() {
       app.studentName.toLowerCase().includes(search.toLowerCase()) ||
       app.studentRoll.toLowerCase().includes(search.toLowerCase()) ||
       app.role.toLowerCase().includes(search.toLowerCase());
-    const matchesCompany = companyFilter === "All" || app.company === companyFilter;
+    const matchesCompany =
+      companyFilter === "All" || app.company === companyFilter;
     const matchesStatus = statusFilter === "All" || app.status === statusFilter;
     const matchesBranch = branchFilter === "All" || app.branch === branchFilter;
     return matchesSearch && matchesCompany && matchesStatus && matchesBranch;
   });
 
   const handleExportCSV = () => {
-    const headers = "Student Name,Roll No,Branch,CGPA,Company,Role,Applied Date,Status,AI Match\n";
+    const headers =
+      "Student Name,Roll No,Branch,CGPA,Company,Role,Applied Date,Status,AI Match\n";
     const rows = filteredApplications
       .map(
         (a) =>
-          `"${a.studentName}","${a.studentRoll}","${a.branch}",${a.cgpa},"${a.company}","${a.role}","${a.appliedDate}","${a.status}",${a.matchScore}%`
+          `"${a.studentName}","${a.studentRoll}","${a.branch}",${a.cgpa},"${a.company}","${a.role}","${a.appliedDate}","${a.status}",${a.matchScore}%`,
       )
       .join("\n");
-    const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([headers + rows], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `CampusLink_Applications_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute(
+      "download",
+      `CampusLink_Applications_${new Date().toISOString().split("T")[0]}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -112,7 +125,9 @@ export default function ApplicationsPipelineView() {
             Recruitment Applications Pipeline
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Monitor all {loading ? "…" : totalCount} student applications through shortlisting, online assessments, interviews, and offer rollouts.
+            Monitor all {loading ? "…" : totalCount} student applications
+            through shortlisting, online assessments, interviews, and offer
+            rollouts.
           </p>
         </div>
 
@@ -155,7 +170,9 @@ export default function ApplicationsPipelineView() {
               <div className="mt-2 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                 <div
                   className={`h-full rounded-full ${st.color}`}
-                  style={{ width: `${totalCount === 0 ? 0 : (st.count / totalCount) * 100}%` }}
+                  style={{
+                    width: `${totalCount === 0 ? 0 : (st.count / totalCount) * 100}%`,
+                  }}
                 />
               </div>
             </div>
@@ -182,9 +199,18 @@ export default function ApplicationsPipelineView() {
             onChange={(e) => setCompanyFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Companies</option>
+            <option
+              value="All"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              All Companies
+            </option>
             {companyOptions.slice(1).map((company) => (
-              <option key={company} value={company} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              <option
+                key={company}
+                value={company}
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+              >
                 {company}
               </option>
             ))}
@@ -195,9 +221,18 @@ export default function ApplicationsPipelineView() {
             onChange={(e) => setBranchFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Branches</option>
+            <option
+              value="All"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              All Branches
+            </option>
             {branchOptions.slice(1).map((branch) => (
-              <option key={branch} value={branch} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+              <option
+                key={branch}
+                value={branch}
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+              >
                 {branch}
               </option>
             ))}
@@ -208,13 +243,48 @@ export default function ApplicationsPipelineView() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-colors"
           >
-            <option value="All" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Stages</option>
-            <option value="Applied" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Applied</option>
-            <option value="Shortlisted" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Shortlisted</option>
-            <option value="Interview" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Interview</option>
-            <option value="Selected" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Selected</option>
-            <option value="Offer" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Offer</option>
-            <option value="Joined" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Joined</option>
+            <option
+              value="All"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              All Stages
+            </option>
+            <option
+              value="Applied"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Applied
+            </option>
+            <option
+              value="Shortlisted"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Shortlisted
+            </option>
+            <option
+              value="Interview"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Interview
+            </option>
+            <option
+              value="Selected"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Selected
+            </option>
+            <option
+              value="Offer"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Offer
+            </option>
+            <option
+              value="Joined"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Joined
+            </option>
           </select>
         </div>
       </div>
@@ -237,71 +307,79 @@ export default function ApplicationsPipelineView() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-10 text-center text-slate-400 font-semibold"
+                  >
                     Loading applications…
                   </td>
                 </tr>
               ) : filteredApplications.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-semibold">
+                  <td
+                    colSpan={7}
+                    className="px-5 py-10 text-center text-slate-400 font-semibold"
+                  >
                     No applications found.
                   </td>
                 </tr>
               ) : null}
               {!loading &&
                 filteredApplications.map((app) => (
-                <tr
-                  key={app.id}
-                  onClick={() => router.push(`/admin/applications/${app.id}` as any)}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
-                >
-                  <td className="px-5 py-3.5">
-                    <span className="font-bold text-slate-900 dark:text-white block">
-                      {app.studentName}
-                    </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      {app.studentRoll} &bull; {app.branch}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 font-bold text-indigo-600 dark:text-indigo-400">
-                    {app.company}
-                  </td>
-                  <td className="px-4 py-3.5 font-medium text-slate-800 dark:text-slate-200">
-                    {app.role}
-                  </td>
-                  <td className="px-4 py-3.5 font-black text-slate-900 dark:text-white">
-                    {app.cgpa}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" />
-                      {app.matchScore}%
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-[11px]">
-                    {app.appliedDate}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                        app.status === "Joined"
-                          ? "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400 border border-teal-200 dark:border-teal-800"
-                          : app.status === "Offer"
-                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
-                          : app.status === "Selected"
-                          ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
-                          : app.status === "Interview"
-                          ? "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-200 dark:border-purple-800"
-                          : app.status === "Shortlisted"
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
-                          : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                      }`}
-                    >
-                      {app.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+                  <tr
+                    key={app.id}
+                    onClick={() =>
+                      router.push(`/admin/applications/${app.id}` as any)
+                    }
+                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                  >
+                    <td className="px-5 py-3.5">
+                      <span className="font-bold text-slate-900 dark:text-white block">
+                        {app.studentName}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        {app.studentRoll} &bull; {app.branch}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 font-bold text-indigo-600 dark:text-indigo-400">
+                      {app.company}
+                    </td>
+                    <td className="px-4 py-3.5 font-medium text-slate-800 dark:text-slate-200">
+                      {app.role}
+                    </td>
+                    <td className="px-4 py-3.5 font-black text-slate-900 dark:text-white">
+                      {app.cgpa}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" />
+                        {app.matchScore}%
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400 text-[11px]">
+                      {app.appliedDate}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                          app.status === "Joined"
+                            ? "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400 border border-teal-200 dark:border-teal-800"
+                            : app.status === "Offer"
+                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                              : app.status === "Selected"
+                                ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                                : app.status === "Interview"
+                                  ? "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400 border border-purple-200 dark:border-purple-800"
+                                  : app.status === "Shortlisted"
+                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
+                                    : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        }`}
+                      >
+                        {app.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

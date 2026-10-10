@@ -186,43 +186,43 @@ CampusLink provides tailored experiences across three dedicated portals:
 
 ### 1. 🎓 Student Portal (`/student/*`)
 
-| Feature | Description |
-|---|---|
-| **Comprehensive Profile** | 13 structured sections: Personal details, 10th/12th/College education, Projects, Skills with proficiency level & experience years, Certifications, and Portfolio links (LeetCode, HackerRank, GitHub, LinkedIn). |
-| **Resume AI Analyzer** | Upload PDF resumes to ImageKit; PyMuPDF extracts text, and Gemini extracts validated skills, projects, strengths, weaknesses, and improvement steps with zero hallucination. |
-| **Placement Drives** | Browse active campus drives, view tier requirements (Tier 1, Tier 2, Tier 3), check real-time branch/CGPA eligibility, and register with 1 click. |
-| **Smart Job Matching** | Browse available positions with instant match percentages, matched skills tags, and detailed missing skill gap reports. |
-| **Application Pipeline** | Track application lifecycle across 10 distinct states: `APPLIED`, `UNDER_REVIEW`, `SHORTLISTED`, `ASSESSMENT`, `INTERVIEW`, `SELECTED`, `OFFER_EXTENDED`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`. |
-| **Interview Manager** | View scheduled technical and HR rounds, Google Meet / Zoom links, venue details, and track time conflicts across drives. |
-| **Offers & CTC Breakdown** | Review received offers with base salary, bonuses, role details, joining dates, and one-click offer acceptance. |
-| **Career Readiness Score** | Holistic readiness score (0-100) evaluating academics, technical skills, projects, and target role alignment. |
-| **AI Career Assistant** | Floating conversational chatbot answering placement queries, policy questions, and interview preparation tips. |
+| Feature                    | Description                                                                                                                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Comprehensive Profile**  | 13 structured sections: Personal details, 10th/12th/College education, Projects, Skills with proficiency level & experience years, Certifications, and Portfolio links (LeetCode, HackerRank, GitHub, LinkedIn). |
+| **Resume AI Analyzer**     | Upload PDF resumes to ImageKit; PyMuPDF extracts text, and Gemini extracts validated skills, projects, strengths, weaknesses, and improvement steps with zero hallucination.                                     |
+| **Placement Drives**       | Browse active campus drives, view tier requirements (Tier 1, Tier 2, Tier 3), check real-time branch/CGPA eligibility, and register with 1 click.                                                                |
+| **Smart Job Matching**     | Browse available positions with instant match percentages, matched skills tags, and detailed missing skill gap reports.                                                                                          |
+| **Application Pipeline**   | Track application lifecycle across 10 distinct states: `APPLIED`, `UNDER_REVIEW`, `SHORTLISTED`, `ASSESSMENT`, `INTERVIEW`, `SELECTED`, `OFFER_EXTENDED`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`.                   |
+| **Interview Manager**      | View scheduled technical and HR rounds, Google Meet / Zoom links, venue details, and track time conflicts across drives.                                                                                         |
+| **Offers & CTC Breakdown** | Review received offers with base salary, bonuses, role details, joining dates, and one-click offer acceptance.                                                                                                   |
+| **Career Readiness Score** | Holistic readiness score (0-100) evaluating academics, technical skills, projects, and target role alignment.                                                                                                    |
+| **AI Career Assistant**    | Floating conversational chatbot answering placement queries, policy questions, and interview preparation tips.                                                                                                   |
 
 ### 2. 🏢 Recruiter Portal (`/recruiter/*`)
 
-| Feature | Description |
-|---|---|
-| **Company Profile** | Manage company profile, industry classification, recruitment contact details, and upload branding logos to ImageKit. |
-| **Job Posting Management** | Create and publish job openings with multi-round interview pipelines, salary brackets, open openings, and strict eligibility thresholds (minimum CGPA, allowed backlogs, eligible degree/branches, graduation year). |
-| **Candidate Discovery** | Filter and search student directory by skills, CGPA, department, and view verified academic profiles. |
-| **Shortlisting & Pipeline** | Move applicants through recruitment stages, add interviewer notes, and manage candidate shortlists. |
-| **Assessment Invitations** | Send batch assessment invitations with cryptographically signed, time-limited token links delivered straight to student emails. |
-| **Interview Scheduling** | Schedule rounds (virtual, in-person, or hybrid), assign interview panels, record candidate feedback and ratings, and automatically detect scheduling conflicts. |
-| **Offer Letter Release** | Draft and dispatch formal job offers with CTC breakdowns, response deadlines, and track acceptance status in real time. |
-| **Analytics & Badges** | Real-time recruiter dashboard displaying active jobs, pending applications, scheduled interviews, and candidate acceptances. |
+| Feature                     | Description                                                                                                                                                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Company Profile**         | Manage company profile, industry classification, recruitment contact details, and upload branding logos to ImageKit.                                                                                                 |
+| **Job Posting Management**  | Create and publish job openings with multi-round interview pipelines, salary brackets, open openings, and strict eligibility thresholds (minimum CGPA, allowed backlogs, eligible degree/branches, graduation year). |
+| **Candidate Discovery**     | Filter and search student directory by skills, CGPA, department, and view verified academic profiles.                                                                                                                |
+| **Shortlisting & Pipeline** | Move applicants through recruitment stages, add interviewer notes, and manage candidate shortlists.                                                                                                                  |
+| **Assessment Invitations**  | Send batch assessment invitations with cryptographically signed, time-limited token links delivered straight to student emails.                                                                                      |
+| **Interview Scheduling**    | Schedule rounds (virtual, in-person, or hybrid), assign interview panels, record candidate feedback and ratings, and automatically detect scheduling conflicts.                                                      |
+| **Offer Letter Release**    | Draft and dispatch formal job offers with CTC breakdowns, response deadlines, and track acceptance status in real time.                                                                                              |
+| **Analytics & Badges**      | Real-time recruiter dashboard displaying active jobs, pending applications, scheduled interviews, and candidate acceptances.                                                                                         |
 
 ### 3. 🏛️ Admin / TPO (Training & Placement Officer) Portal (`/admin/*`)
 
-| Feature | Description |
-|---|---|
-| **Placement Command Center** | Macro metrics: Total students registered, placement percentage, average & highest CTC, active recruiters, and company visit schedules. |
-| **Student Directory & Verification** | Inspect student academic records, verify CGPA and backlog counts, approve or revoke verification badges. |
-| **Recruiter & Company Governance** | Review incoming company registrations, assign company tiers (Tier 1 / Tier 2 / Tier 3), and verify recruiter accounts. |
-| **Campus Drive Operations** | Schedule on-campus, virtual, or hybrid placement drives, configure date/time/venue, set eligible batches, and link jobs. |
-| **Interviews & Conflict Resolution** | Global schedule across all companies; detect overlapping interview slots for students and reallocate coordinators. |
+| Feature                                 | Description                                                                                                                                      |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Placement Command Center**            | Macro metrics: Total students registered, placement percentage, average & highest CTC, active recruiters, and company visit schedules.           |
+| **Student Directory & Verification**    | Inspect student academic records, verify CGPA and backlog counts, approve or revoke verification badges.                                         |
+| **Recruiter & Company Governance**      | Review incoming company registrations, assign company tiers (Tier 1 / Tier 2 / Tier 3), and verify recruiter accounts.                           |
+| **Campus Drive Operations**             | Schedule on-campus, virtual, or hybrid placement drives, configure date/time/venue, set eligible batches, and link jobs.                         |
+| **Interviews & Conflict Resolution**    | Global schedule across all companies; detect overlapping interview slots for students and reallocate coordinators.                               |
 | **Offer Approvals & Policy Compliance** | Audit released offers, verify compensation details, and enforce institutional placement policies (e.g., dual-offer rules, dream job exceptions). |
-| **Broadcast Notification System** | Send broadcast notifications and urgent announcements to all students or recruiters via the notification engine. |
-| **System Settings** | Configure institutional placement rules, registration deadlines, and system security parameters. |
+| **Broadcast Notification System**       | Send broadcast notifications and urgent announcements to all students or recruiters via the notification engine.                                 |
+| **System Settings**                     | Configure institutional placement rules, registration deadlines, and system security parameters.                                                 |
 
 ---
 
@@ -271,18 +271,18 @@ CampusLink deliberately avoids delegating hard placement logic to black-box LLMs
 
 CampusLink utilizes a **Prisma 7 multi-file schema** organized cleanly under `packages/db/prisma/schema/`:
 
-| Schema File | Core Models | Purpose |
-|---|---|---|
-| `auth.prisma` | `User`, `Session`, `Account`, `Verification` | Better Auth identity management with role support (`STUDENT`, `RECRUITER`, `ADMIN`). |
-| `user.prisma` | `StudentProfile`, `Skill`, `StudentSkill`, `Education`, `Project`, `Certification`, `StudentResume`, `ReadinessResult` | Complete student portfolio, academic records, and normalized skill associations. |
-| `company.prisma` | `Company`, `RecruiterProfile` | Company directories, tier categorization (`TIER_1`, `TIER_2`, `TIER_3`), and recruiter profiles. |
-| `job.prisma` | `Job`, `JobSkill`, `JobRound` | Job openings, requirements, CTC packages, status (`DRAFT`, `APPLICATIONS_OPEN`, `INTERVIEWING`, etc.), and hiring rounds. |
-| `drive.prisma` | `PlacementDrive`, `DriveRegistration` | Campus drives (In-person, Virtual, Hybrid), schedules, venues, and student registrations. |
-| `application.prisma` | `Application`, `MatchResult`, `Assessment`, `AssessmentResult` | Application workflow across 10 stages, AI match metrics, and assessment evaluations. |
-| `interview.prisma` | `Interview` | Technical and HR interview rounds, schedule timings, meeting URLs, ratings, feedback, and conflict flags. |
-| `offer.prisma` | `Offer` | Compensation packages (base salary, bonus, CTC), document verification, and joining status. |
-| `admin.prisma` | `AdminProfile`, `SystemSetting`, `AuditLog` | TPO credentials, global platform settings, and security audit logs. |
-| `notification.prisma` | `UserNotification`, `AdminNotification`, `RecruiterNotification` | Multi-priority notifications (`LOW`, `MEDIUM`, `HIGH`, `URGENT`) with read tracking. |
+| Schema File           | Core Models                                                                                                            | Purpose                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `auth.prisma`         | `User`, `Session`, `Account`, `Verification`                                                                           | Better Auth identity management with role support (`STUDENT`, `RECRUITER`, `ADMIN`).                                      |
+| `user.prisma`         | `StudentProfile`, `Skill`, `StudentSkill`, `Education`, `Project`, `Certification`, `StudentResume`, `ReadinessResult` | Complete student portfolio, academic records, and normalized skill associations.                                          |
+| `company.prisma`      | `Company`, `RecruiterProfile`                                                                                          | Company directories, tier categorization (`TIER_1`, `TIER_2`, `TIER_3`), and recruiter profiles.                          |
+| `job.prisma`          | `Job`, `JobSkill`, `JobRound`                                                                                          | Job openings, requirements, CTC packages, status (`DRAFT`, `APPLICATIONS_OPEN`, `INTERVIEWING`, etc.), and hiring rounds. |
+| `drive.prisma`        | `PlacementDrive`, `DriveRegistration`                                                                                  | Campus drives (In-person, Virtual, Hybrid), schedules, venues, and student registrations.                                 |
+| `application.prisma`  | `Application`, `MatchResult`, `Assessment`, `AssessmentResult`                                                         | Application workflow across 10 stages, AI match metrics, and assessment evaluations.                                      |
+| `interview.prisma`    | `Interview`                                                                                                            | Technical and HR interview rounds, schedule timings, meeting URLs, ratings, feedback, and conflict flags.                 |
+| `offer.prisma`        | `Offer`                                                                                                                | Compensation packages (base salary, bonus, CTC), document verification, and joining status.                               |
+| `admin.prisma`        | `AdminProfile`, `SystemSetting`, `AuditLog`                                                                            | TPO credentials, global platform settings, and security audit logs.                                                       |
+| `notification.prisma` | `UserNotification`, `AdminNotification`, `RecruiterNotification`                                                       | Multi-priority notifications (`LOW`, `MEDIUM`, `HIGH`, `URGENT`) with read tracking.                                      |
 
 ---
 
@@ -291,7 +291,9 @@ CampusLink utilizes a **Prisma 7 multi-file schema** organized cleanly under `pa
 The Express server (`apps/server`) exposes an extensive, role-guarded REST API on port `3000`:
 
 ### 🔐 Authentication (`/api/auth/*`)
+
 Handled natively via **Better Auth**:
+
 - `POST /api/auth/sign-up/email` — Email & password registration (triggers verification OTP email).
 - `POST /api/auth/verify-email-otp` — Verify 6-digit signup OTP.
 - `POST /api/auth/resend-verification-otp` — Resend verification OTP code.
@@ -303,6 +305,7 @@ Handled natively via **Better Auth**:
 - `POST /api/auth/sign-out` — Invalidate session and clear auth cookies.
 
 ### 🎓 Students (`/api/students`)
+
 - `GET /api/students/me` — Retrieve current student profile.
 - `PATCH /api/students/me` — Update student profile details.
 - `POST /api/students/me/resume` — Upload resume PDF (stored on ImageKit).
@@ -319,6 +322,7 @@ Handled natively via **Better Auth**:
 - `GET /api/students/:id` — View specific student (Recruiter & Admin only).
 
 ### 💼 Jobs (`/api/jobs`)
+
 - `GET /api/jobs` — Retrieve open job listings (with search and filters).
 - `GET /api/jobs/:id` — Retrieve specific job details.
 - `POST /api/jobs` — Create a new job posting (Recruiter & Admin).
@@ -329,6 +333,7 @@ Handled natively via **Better Auth**:
 - `POST /api/jobs/:id/skill-gap` — Compute skill gap for a specific job.
 
 ### 📝 Applications (`/api/applications`)
+
 - `POST /api/applications` — Submit application for a job (Student).
 - `GET /api/applications/my` — View student's applied jobs (Student).
 - `GET /api/applications` — View applications for company jobs (Recruiter).
@@ -336,6 +341,7 @@ Handled natively via **Better Auth**:
 - `PATCH /api/applications/:id/status` — Update application hiring stage (Recruiter).
 
 ### 🏢 Recruiters (`/api/recruiter`)
+
 - `GET /api/recruiter/profile` — Get recruiter profile & company details.
 - `PATCH /api/recruiter/profile` — Update recruiter profile.
 - `POST /api/recruiter/company/logo` — Upload company logo to ImageKit.
@@ -352,6 +358,7 @@ Handled natively via **Better Auth**:
 - `GET /api/recruiter/stats` — Dashboard counters and badge stats.
 
 ### 🏛️ Admin / TPO (`/api/admin`)
+
 - `GET /api/admin/dashboard` — Global placement metrics and KPIs.
 - `GET /api/admin/students` — List all students with academic details.
 - `PATCH /api/admin/students/:id/verify` — Verify/unverify student profile.
@@ -369,6 +376,7 @@ Handled natively via **Better Auth**:
 - `PUT /api/admin/settings` — Update campus placement settings.
 
 ### 🤖 AI Streaming & Chat (`/api/ai`)
+
 - `POST /api/ai/chat` — Streaming conversational AI chat via Vercel AI SDK & Gemini.
 
 ---
@@ -461,6 +469,7 @@ GEMINI_API_KEY=your_gemini_api_key
 
 > [!TIP]
 > After modifying any `.env.schema` files, regenerate environment types across the monorepo by running:
+>
 > ```bash
 > pnpm run env:generate
 > ```
@@ -489,7 +498,7 @@ pnpm run db:start
 pnpm run redis:start
 ```
 
-*(Alternatively, you can connect your existing local PostgreSQL and Redis instances by pointing the `DATABASE_URL` and `REDIS_URL` in `apps/server/.env`.)*
+_(Alternatively, you can connect your existing local PostgreSQL and Redis instances by pointing the `DATABASE_URL` and `REDIS_URL` in `apps/server/.env`.)_
 
 #### Step 3: Setup the Database
 
@@ -511,6 +520,7 @@ pnpm --filter @CampusLink/db exec tsx prisma/seed.ts
 In a new terminal:
 
 **Windows (PowerShell):**
+
 ```powershell
 cd apps/ai
 python -m venv venv
@@ -520,6 +530,7 @@ python -m uvicorn app.main:app --reload --port 8000
 ```
 
 **Linux / macOS:**
+
 ```bash
 cd apps/ai
 python3 -m venv venv
@@ -538,6 +549,7 @@ pnpm run dev
 ```
 
 Or run them individually:
+
 ```bash
 pnpm run dev:web     # Next.js on http://localhost:3001
 pnpm run dev:server  # Express API on http://localhost:3000
@@ -564,6 +576,7 @@ pnpm run docker:down
 ```
 
 The services will be available at:
+
 - **Frontend Web / PWA**: `http://localhost:3001`
 - **Express Backend API**: `http://localhost:3000`
 - **Python AI Microservice**: `http://localhost:8000`
@@ -576,14 +589,14 @@ The services will be available at:
 
 The `@CampusLink/db` package provides multiple scripts for maintaining the PostgreSQL database:
 
-| Command | Action |
-|---|---|
-| `pnpm run db:generate` | Generates the `@prisma/client` from the multi-file schema. |
-| `pnpm run db:push` | Pushes schema changes directly to the database without generating migration files. |
-| `pnpm run db:migrate` | Runs database migrations in development mode (`prisma migrate dev`). |
-| `pnpm run db:studio` | Opens **Prisma Studio** at `http://localhost:5555` to inspect and edit database records. |
-| `pnpm --filter @CampusLink/db exec tsx prisma/seed.ts` | Populates database with standard skills, Tier 1/2 companies, job postings, and placement drives. |
-| `pnpm --filter @CampusLink/db exec tsx prisma/setup-student.ts` | Populates complete academic profile, skills, and portfolio for a test student. |
+| Command                                                         | Action                                                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `pnpm run db:generate`                                          | Generates the `@prisma/client` from the multi-file schema.                                       |
+| `pnpm run db:push`                                              | Pushes schema changes directly to the database without generating migration files.               |
+| `pnpm run db:migrate`                                           | Runs database migrations in development mode (`prisma migrate dev`).                             |
+| `pnpm run db:studio`                                            | Opens **Prisma Studio** at `http://localhost:5555` to inspect and edit database records.         |
+| `pnpm --filter @CampusLink/db exec tsx prisma/seed.ts`          | Populates database with standard skills, Tier 1/2 companies, job postings, and placement drives. |
+| `pnpm --filter @CampusLink/db exec tsx prisma/setup-student.ts` | Populates complete academic profile, skills, and portfolio for a test student.                   |
 
 ---
 
@@ -651,6 +664,7 @@ Contributions are welcome! Please adhere to the following workflow:
    ```
 
 ### Commit Types:
+
 - `feat`: A new user-facing feature.
 - `fix`: A bug fix.
 - `docs`: Documentation updates.

@@ -23,7 +23,9 @@ import {
 } from "@/lib/api/admin.api";
 
 export default function AdminSettingsView() {
-  const [activeTab, setActiveTab] = useState<"account" | "campus" | "system" | "security">("account");
+  const [activeTab, setActiveTab] = useState<
+    "account" | "campus" | "system" | "security"
+  >("account");
   const [saving, setSaving] = useState(false);
 
   // Settings form states (seed defaults; replaced by server data on load)
@@ -121,7 +123,8 @@ export default function AdminSettingsView() {
           Campus Placement Control &amp; System Settings
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Configure institutional parameters, evaluation thresholds, corporate MoU guidelines, and access governance.
+          Configure institutional parameters, evaluation thresholds, corporate
+          MoU guidelines, and access governance.
         </p>
       </div>
 
@@ -154,23 +157,32 @@ export default function AdminSettingsView() {
 
       {/* Tab 1: Account */}
       {activeTab === "account" && (
-        <form onSubmit={(e) => handleSave("profile", e)} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
+        <form
+          onSubmit={(e) => handleSave("profile", e)}
+          className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs"
+        >
           <h3 className="text-sm font-black text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">
             Training &amp; Placement Officer Profile
           </h3>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Admin Officer Name</label>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Admin Officer Name
+              </label>
               <input
                 type="text"
                 value={profile.name}
-                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, name: e.target.value })
+                }
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Official Role</label>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Official Role
+              </label>
               <input
                 type="text"
                 value={profile.designation}
@@ -182,20 +194,28 @@ export default function AdminSettingsView() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Institutional Email</label>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Institutional Email
+              </label>
               <input
                 type="email"
                 value={profile.email}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, email: e.target.value })
+                }
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Direct Phone</label>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Direct Phone
+              </label>
               <input
                 type="text"
                 value={profile.phone}
-                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, phone: e.target.value })
+                }
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
@@ -214,48 +234,79 @@ export default function AdminSettingsView() {
 
       {/* Tab 2: Campus */}
       {activeTab === "campus" && (
-        <form onSubmit={(e) => handleSave("campus", e)} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
+        <form
+          onSubmit={(e) => handleSave("campus", e)}
+          className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs"
+        >
           <h3 className="text-sm font-black text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">
             College &amp; Academic Season Parameters
           </h3>
 
           <div>
-            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">College / Institution Name</label>
+            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              College / Institution Name
+            </label>
             <input
               type="text"
               value={campusConfig.collegeName}
-              onChange={(e) => setCampusConfig({ ...campusConfig, collegeName: e.target.value })}
+              onChange={(e) =>
+                setCampusConfig({
+                  ...campusConfig,
+                  collegeName: e.target.value,
+                })
+              }
               className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Current Academic Year</label>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Current Academic Year
+              </label>
               <input
                 type="text"
                 value={campusConfig.academicYear}
-                onChange={(e) => setCampusConfig({ ...campusConfig, academicYear: e.target.value })}
+                onChange={(e) =>
+                  setCampusConfig({
+                    ...campusConfig,
+                    academicYear: e.target.value,
+                  })
+                }
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Placement Season Identifier</label>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Placement Season Identifier
+              </label>
               <input
                 type="text"
                 value={campusConfig.placementSeason}
-                onChange={(e) => setCampusConfig({ ...campusConfig, placementSeason: e.target.value })}
+                onChange={(e) =>
+                  setCampusConfig({
+                    ...campusConfig,
+                    placementSeason: e.target.value,
+                  })
+                }
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Active Placement Departments</label>
+            <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Active Placement Departments
+            </label>
             <input
               type="text"
               value={campusConfig.activeDepartments}
-              onChange={(e) => setCampusConfig({ ...campusConfig, activeDepartments: e.target.value })}
+              onChange={(e) =>
+                setCampusConfig({
+                  ...campusConfig,
+                  activeDepartments: e.target.value,
+                })
+              }
               className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-2.5 text-slate-900 dark:text-white focus:outline-hidden"
             />
           </div>
@@ -273,7 +324,10 @@ export default function AdminSettingsView() {
 
       {/* Tab 3: System & AI Settings */}
       {activeTab === "system" && (
-        <form onSubmit={(e) => handleSave("system", e)} className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs">
+        <form
+          onSubmit={(e) => handleSave("system", e)}
+          className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 p-6 shadow-sm space-y-4 max-w-2xl text-xs"
+        >
           <h3 className="text-sm font-black text-slate-900 dark:text-white pb-2 border-b border-slate-100 dark:border-slate-800">
             Automated Rules &amp; AI Engine Configuration
           </h3>
@@ -281,44 +335,76 @@ export default function AdminSettingsView() {
           <div className="space-y-3">
             <label className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 cursor-pointer">
               <div>
-                <span className="font-bold text-slate-900 dark:text-white block">Deterministic CGPA &amp; Backlog Enforcement</span>
-                <span className="text-[11px] text-slate-500">Prevent students from applying if they fall below recruiter minimum requirements</span>
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  Deterministic CGPA &amp; Backlog Enforcement
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Prevent students from applying if they fall below recruiter
+                  minimum requirements
+                </span>
               </div>
               <input
                 type="checkbox"
                 checked={aiSettings.autoEligibilityFilter}
-                onChange={(e) => setAiSettings({ ...aiSettings, autoEligibilityFilter: e.target.checked })}
+                onChange={(e) =>
+                  setAiSettings({
+                    ...aiSettings,
+                    autoEligibilityFilter: e.target.checked,
+                  })
+                }
                 className="h-4 w-4 text-indigo-600 rounded"
               />
             </label>
 
             <label className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 cursor-pointer">
               <div>
-                <span className="font-bold text-slate-900 dark:text-white block">Automated Schedule Collision Detection</span>
-                <span className="text-[11px] text-slate-500">Alert administrators immediately when overlapping interview rounds are created</span>
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  Automated Schedule Collision Detection
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Alert administrators immediately when overlapping interview
+                  rounds are created
+                </span>
               </div>
               <input
                 type="checkbox"
                 checked={aiSettings.scheduleCollisionDetection}
-                onChange={(e) => setAiSettings({ ...aiSettings, scheduleCollisionDetection: e.target.checked })}
+                onChange={(e) =>
+                  setAiSettings({
+                    ...aiSettings,
+                    scheduleCollisionDetection: e.target.checked,
+                  })
+                }
                 className="h-4 w-4 text-indigo-600 rounded"
               />
             </label>
 
             <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 dark:text-white">AI Candidate Matching Sensitivity</span>
-                <span className="font-black text-indigo-600 dark:text-indigo-400">{aiSettings.aiMatchingThreshold}%</span>
+                <span className="font-bold text-slate-900 dark:text-white">
+                  AI Candidate Matching Sensitivity
+                </span>
+                <span className="font-black text-indigo-600 dark:text-indigo-400">
+                  {aiSettings.aiMatchingThreshold}%
+                </span>
               </div>
               <input
                 type="range"
                 min="50"
                 max="90"
                 value={aiSettings.aiMatchingThreshold}
-                onChange={(e) => setAiSettings({ ...aiSettings, aiMatchingThreshold: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setAiSettings({
+                    ...aiSettings,
+                    aiMatchingThreshold: parseInt(e.target.value),
+                  })
+                }
                 className="w-full accent-indigo-600 cursor-pointer"
               />
-              <span className="text-[10px] text-slate-400 block">Matches above this threshold appear as High Fit in the recruiter roster.</span>
+              <span className="text-[10px] text-slate-400 block">
+                Matches above this threshold appear as High Fit in the recruiter
+                roster.
+              </span>
             </div>
           </div>
 
@@ -343,8 +429,12 @@ export default function AdminSettingsView() {
           <div className="space-y-3">
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="font-bold text-slate-900 dark:text-white block">Two-Factor Authentication (2FA)</span>
-                <span className="text-[11px] text-slate-500">Require TOTP authenticator code on all administrative logins</span>
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  Two-Factor Authentication (2FA)
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Require TOTP authenticator code on all administrative logins
+                </span>
               </div>
               <span
                 className={`rounded-full text-[10px] font-bold px-2.5 py-0.5 border ${
@@ -359,8 +449,12 @@ export default function AdminSettingsView() {
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="font-bold text-slate-900 dark:text-white block">Active Administrative Sessions</span>
-                <span className="text-[11px] text-slate-500">Authenticated admin sessions currently open</span>
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  Active Administrative Sessions
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Authenticated admin sessions currently open
+                </span>
               </div>
               <span className="rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400 text-[10px] font-bold px-2.5 py-0.5 border border-indigo-200 dark:border-indigo-800">
                 {security.activeSessions}
@@ -369,8 +463,12 @@ export default function AdminSettingsView() {
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="font-bold text-slate-900 dark:text-white block">Better-Auth Session Encryption</span>
-                <span className="text-[11px] text-slate-500">Active session token rotation with secure HTTP-only cookies</span>
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  Better-Auth Session Encryption
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Active session token rotation with secure HTTP-only cookies
+                </span>
               </div>
               <span className="rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 border border-emerald-200 dark:border-emerald-800">
                 Protected

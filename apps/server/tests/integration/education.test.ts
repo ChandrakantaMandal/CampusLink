@@ -126,16 +126,14 @@ describe("Education Integration Tests", () => {
 
   describe("POST /api/education", () => {
     it("should create education", async () => {
-      const response = await request(app)
-        .post("/api/education")
-        .send({
-          institution: "ABC University",
-          degree: "B.Tech",
-          branch: "Computer Science",
-          startYear: 2022,
-          endYear: 2026,
-          cgpa: 8.5,
-        });
+      const response = await request(app).post("/api/education").send({
+        institution: "ABC University",
+        degree: "B.Tech",
+        branch: "Computer Science",
+        startYear: 2022,
+        endYear: 2026,
+        cgpa: 8.5,
+      });
 
       expect(response.status).toBe(201);
 
@@ -155,9 +153,7 @@ describe("Education Integration Tests", () => {
         },
       });
 
-      expect(
-        mocks.db.studentProfile.findUnique,
-      ).toHaveBeenCalledWith({
+      expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
         where: {
           userId: "user-1",
         },
@@ -182,11 +178,9 @@ describe("Education Integration Tests", () => {
     });
 
     it("should create education with only required data", async () => {
-      const response = await request(app)
-        .post("/api/education")
-        .send({
-          institution: "ABC University",
-        });
+      const response = await request(app).post("/api/education").send({
+        institution: "ABC University",
+      });
 
       expect(response.status).toBe(201);
 
@@ -205,19 +199,15 @@ describe("Education Integration Tests", () => {
     });
 
     it("should reject invalid education data", async () => {
-      const response = await request(app)
-        .post("/api/education")
-        .send({
-          institution: "A",
-          cgpa: 11,
-        });
+      const response = await request(app).post("/api/education").send({
+        institution: "A",
+        cgpa: 11,
+      });
 
       expect(response.status).toBe(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe(
-        "Invalid education data",
-      );
+      expect(response.body.message).toBe("Invalid education data");
 
       expect(mocks.db.education.create).not.toHaveBeenCalled();
     });
@@ -225,19 +215,15 @@ describe("Education Integration Tests", () => {
     it("should return an error when student profile does not exist", async () => {
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
 
-      const response = await request(app)
-        .post("/api/education")
-        .send({
-          institution: "ABC University",
-          degree: "B.Tech",
-        });
+      const response = await request(app).post("/api/education").send({
+        institution: "ABC University",
+        degree: "B.Tech",
+      });
 
       expect(response.status).toBe(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe(
-        "Student profile not found",
-      );
+      expect(response.body.message).toBe("Student profile not found");
 
       expect(mocks.db.education.create).not.toHaveBeenCalled();
     });
@@ -258,13 +244,9 @@ describe("Education Integration Tests", () => {
         },
       ];
 
-      mocks.db.education.findMany.mockResolvedValue(
-        education,
-      );
+      mocks.db.education.findMany.mockResolvedValue(education);
 
-      const response = await request(app).get(
-        "/api/education/my",
-      );
+      const response = await request(app).get("/api/education/my");
 
       expect(response.status).toBe(200);
 
@@ -273,9 +255,7 @@ describe("Education Integration Tests", () => {
         data: education,
       });
 
-      expect(
-        mocks.db.studentProfile.findUnique,
-      ).toHaveBeenCalledWith({
+      expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
         where: {
           userId: "user-1",
         },
@@ -300,13 +280,9 @@ describe("Education Integration Tests", () => {
         },
       ];
 
-      mocks.redis.get.mockResolvedValue(
-        JSON.stringify(education),
-      );
+      mocks.redis.get.mockResolvedValue(JSON.stringify(education));
 
-      const response = await request(app).get(
-        "/api/education/my",
-      );
+      const response = await request(app).get("/api/education/my");
 
       expect(response.status).toBe(200);
 
@@ -315,9 +291,7 @@ describe("Education Integration Tests", () => {
         data: education,
       });
 
-      expect(
-        mocks.db.education.findMany,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.findMany).not.toHaveBeenCalled();
 
       expect(mocks.redis.set).not.toHaveBeenCalled();
     });
@@ -325,15 +299,11 @@ describe("Education Integration Tests", () => {
     it("should return an error when student profile does not exist", async () => {
       mocks.db.studentProfile.findUnique.mockResolvedValue(null);
 
-      const response = await request(app).get(
-        "/api/education/my",
-      );
+      const response = await request(app).get("/api/education/my");
 
       expect(response.status).toBe(500);
 
-      expect(response.body.message).toBe(
-        "Student profile not found",
-      );
+      expect(response.body.message).toBe("Student profile not found");
     });
   });
 
@@ -396,13 +366,9 @@ describe("Education Integration Tests", () => {
       expect(response.status).toBe(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe(
-        "Invalid education data",
-      );
+      expect(response.body.message).toBe("Invalid education data");
 
-      expect(
-        mocks.db.education.update,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.update).not.toHaveBeenCalled();
     });
 
     it("should return an error when education does not exist", async () => {
@@ -416,13 +382,9 @@ describe("Education Integration Tests", () => {
 
       expect(response.status).toBe(500);
 
-      expect(response.body.message).toBe(
-        "Education record not found",
-      );
+      expect(response.body.message).toBe("Education record not found");
 
-      expect(
-        mocks.db.education.update,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.update).not.toHaveBeenCalled();
     });
 
     it("should reject updating another student's education", async () => {
@@ -443,9 +405,7 @@ describe("Education Integration Tests", () => {
         "You are not authorized to update this education record",
       );
 
-      expect(
-        mocks.db.education.update,
-      ).not.toHaveBeenCalled();
+      expect(mocks.db.education.update).not.toHaveBeenCalled();
     });
   });
 
@@ -453,9 +413,7 @@ describe("Education Integration Tests", () => {
     it("should allow a STUDENT to access education routes", async () => {
       mocks.db.education.findMany.mockResolvedValue([]);
 
-      const response = await request(app).get(
-        "/api/education/my",
-      );
+      const response = await request(app).get("/api/education/my");
 
       expect(response.status).toBe(200);
     });

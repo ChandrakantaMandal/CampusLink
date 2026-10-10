@@ -89,7 +89,10 @@ export const createRateLimiter = ({
       }
 
       const windowTtl = await redis.ttl(requestKey);
-      res.setHeader("Retry-After", String(windowTtl > 0 ? windowTtl : windowSeconds));
+      res.setHeader(
+        "Retry-After",
+        String(windowTtl > 0 ? windowTtl : windowSeconds),
+      );
 
       res.status(429).json({
         success: false,

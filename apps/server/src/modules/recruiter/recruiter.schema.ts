@@ -145,7 +145,9 @@ export const createMyOfferSchema = z.object({
 export type UpdateRecruiterProfileInput = z.infer<
   typeof updateRecruiterProfileSchema
 >;
-export type CreateRecruiterProfileInput = z.infer<typeof createRecruiterProfileSchema>;
+export type CreateRecruiterProfileInput = z.infer<
+  typeof createRecruiterProfileSchema
+>;
 
 export type CreateMyJobInput = z.infer<typeof createMyJobSchema>;
 

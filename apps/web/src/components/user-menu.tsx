@@ -21,7 +21,9 @@ export default function UserMenu() {
   if (session?.user) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline" className="rounded-xl" />}>
+        <DropdownMenuTrigger
+          render={<Button variant="outline" className="rounded-xl" />}
+        >
           {session.user.name}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-card">

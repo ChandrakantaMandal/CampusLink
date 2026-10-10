@@ -64,7 +64,9 @@ const RECRUITER_STAGES: { id: ApplicationStatusValue; name: string }[] = [
   { id: "OFFER_EXTENDED", name: "Offer" },
 ];
 
-function canonicalStage(status: ApplicationStatusValue): ApplicationStatusValue | null {
+function canonicalStage(
+  status: ApplicationStatusValue,
+): ApplicationStatusValue | null {
   switch (status) {
     case "APPLIED":
       return "APPLIED";
@@ -155,12 +157,18 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export default function ApplicationDetailView({ basePath }: { basePath: BasePath }) {
+export default function ApplicationDetailView({
+  basePath,
+}: {
+  basePath: BasePath;
+}) {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const applicationId = params.id;
 
-  const [application, setApplication] = useState<ApplicationDetailRaw | null>(null);
+  const [application, setApplication] = useState<ApplicationDetailRaw | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
@@ -204,7 +212,8 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
     }
   };
 
-  const backHref = basePath === "admin" ? "/admin/applications" : "/recruiter/applications";
+  const backHref =
+    basePath === "admin" ? "/admin/applications" : "/recruiter/applications";
 
   if (loading) {
     return (
@@ -264,7 +273,8 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             {student?.rollNo ? (
               <span className="font-mono">{student.rollNo} &bull; </span>
             ) : null}
-            {student?.branch ?? "—"} &bull; Applied on {dateOnly(application.appliedAt)}
+            {student?.branch ?? "—"} &bull; Applied on{" "}
+            {dateOnly(application.appliedAt)}
           </p>
         </div>
         <span
@@ -337,15 +347,30 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         <div className="lg:col-span-2 space-y-4">
-          <Section title="AI Match Analysis" icon={<Sparkles className="h-3.5 w-3.5 text-purple-500" />}>
+          <Section
+            title="AI Match Analysis"
+            icon={<Sparkles className="h-3.5 w-3.5 text-purple-500" />}
+          >
             {match ? (
               <div className="space-y-3">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
-                    { label: "Overall", value: normalizeScore(match.matchScore) },
-                    { label: "Skills", value: normalizeScore(match.skillMatchScore) },
-                    { label: "Projects", value: normalizeScore(match.projectScore) },
-                    { label: "Experience", value: normalizeScore(match.experienceScore) },
+                    {
+                      label: "Overall",
+                      value: normalizeScore(match.matchScore),
+                    },
+                    {
+                      label: "Skills",
+                      value: normalizeScore(match.skillMatchScore),
+                    },
+                    {
+                      label: "Projects",
+                      value: normalizeScore(match.projectScore),
+                    },
+                    {
+                      label: "Experience",
+                      value: normalizeScore(match.experienceScore),
+                    },
                   ].map((m) => (
                     <div
                       key={m.label}
@@ -396,11 +421,16 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
                 )}
               </div>
             ) : (
-              <p className="text-xs text-slate-400">No match result computed for this application.</p>
+              <p className="text-xs text-slate-400">
+                No match result computed for this application.
+              </p>
             )}
           </Section>
 
-          <Section title="Skills" icon={<Code2 className="h-3.5 w-3.5 text-blue-500" />}>
+          <Section
+            title="Skills"
+            icon={<Code2 className="h-3.5 w-3.5 text-blue-500" />}
+          >
             {student && student.skills.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {student.skills.map((s) => (
@@ -422,7 +452,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             )}
           </Section>
 
-          <Section title="Education" icon={<GraduationCap className="h-3.5 w-3.5 text-emerald-500" />}>
+          <Section
+            title="Education"
+            icon={<GraduationCap className="h-3.5 w-3.5 text-emerald-500" />}
+          >
             {student && student.education.length > 0 ? (
               <div className="space-y-3">
                 {student.education.map((ed) => (
@@ -442,7 +475,9 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
                     {(ed.cgpa != null || ed.percentage != null) && (
                       <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                         {ed.cgpa != null ? `CGPA: ${ed.cgpa}` : null}
-                        {ed.cgpa != null && ed.percentage != null ? " • " : null}
+                        {ed.cgpa != null && ed.percentage != null
+                          ? " • "
+                          : null}
                         {ed.percentage != null ? `${ed.percentage}%` : null}
                       </p>
                     )}
@@ -459,7 +494,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             )}
           </Section>
 
-          <Section title="Projects" icon={<Code2 className="h-3.5 w-3.5 text-amber-500" />}>
+          <Section
+            title="Projects"
+            icon={<Code2 className="h-3.5 w-3.5 text-amber-500" />}
+          >
             {student && student.projects.length > 0 ? (
               <div className="space-y-3">
                 {student.projects.map((project) => (
@@ -502,8 +540,13 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
                     {(project.startDate || project.endDate) && (
                       <p className="text-[10px] text-slate-400 flex items-center gap-1">
                         <CalendarDays className="h-3 w-3" />
-                        {project.startDate ? dateOnly(project.startDate) : "?"} —{" "}
-                        {project.endDate ? dateOnly(project.endDate) : "Present"}
+                        {project.startDate
+                          ? dateOnly(project.startDate)
+                          : "?"}{" "}
+                        —{" "}
+                        {project.endDate
+                          ? dateOnly(project.endDate)
+                          : "Present"}
                       </p>
                     )}
                     {project.skills.length > 0 && (
@@ -526,7 +569,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             )}
           </Section>
 
-          <Section title="Cover Letter" icon={<FileText className="h-3.5 w-3.5 text-slate-500" />}>
+          <Section
+            title="Cover Letter"
+            icon={<FileText className="h-3.5 w-3.5 text-slate-500" />}
+          >
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
               {application.coverLetter || "No cover letter provided."}
             </p>
@@ -534,7 +580,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
         </div>
 
         <div className="space-y-4">
-          <Section title="Job Details" icon={<Building2 className="h-3.5 w-3.5 text-indigo-500" />}>
+          <Section
+            title="Job Details"
+            icon={<Building2 className="h-3.5 w-3.5 text-indigo-500" />}
+          >
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-black text-slate-900 dark:text-white">
@@ -565,7 +614,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             </div>
           </Section>
 
-          <Section title="Student Profile" icon={<GraduationCap className="h-3.5 w-3.5 text-blue-500" />}>
+          <Section
+            title="Student Profile"
+            icon={<GraduationCap className="h-3.5 w-3.5 text-blue-500" />}
+          >
             {student ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -596,10 +648,16 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
                   <Field label="College" value={student.college ?? "—"} />
                   <Field label="Degree" value={student.degree ?? "—"} />
                   <Field label="Branch" value={student.branch ?? "—"} />
-                  <Field label="Graduation Year" value={student.graduationYear ?? "—"} />
+                  <Field
+                    label="Graduation Year"
+                    value={student.graduationYear ?? "—"}
+                  />
                   <Field label="Department" value={student.department ?? "—"} />
                   <Field label="Location" value={student.location ?? "—"} />
-                  <Field label="Target Role" value={student.targetRole ?? "—"} />
+                  <Field
+                    label="Target Role"
+                    value={student.targetRole ?? "—"}
+                  />
                 </div>
                 {student.bio && (
                   <div>
@@ -634,11 +692,16 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-slate-400">Student profile unavailable.</p>
+              <p className="text-xs text-slate-400">
+                Student profile unavailable.
+              </p>
             )}
           </Section>
 
-          <Section title="Resume" icon={<FileText className="h-3.5 w-3.5 text-rose-500" />}>
+          <Section
+            title="Resume"
+            icon={<FileText className="h-3.5 w-3.5 text-rose-500" />}
+          >
             {resumeHref ? (
               <a
                 href={resumeHref}
@@ -663,7 +726,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             )}
           </Section>
 
-          <Section title="Contact" icon={<Phone className="h-3.5 w-3.5 text-teal-500" />}>
+          <Section
+            title="Contact"
+            icon={<Phone className="h-3.5 w-3.5 text-teal-500" />}
+          >
             <div className="space-y-2">
               <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                 <Mail className="h-3.5 w-3.5 shrink-0" />
@@ -680,7 +746,10 @@ export default function ApplicationDetailView({ basePath }: { basePath: BasePath
             </div>
           </Section>
 
-          <Section title="Recruiter Notes" icon={<FileText className="h-3.5 w-3.5 text-slate-500" />}>
+          <Section
+            title="Recruiter Notes"
+            icon={<FileText className="h-3.5 w-3.5 text-slate-500" />}
+          >
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
               {application.notes || "No internal notes yet."}
             </p>

@@ -3,7 +3,8 @@ import ApplicationDetailView from "@/components/dashboard/applications/Applicati
 
 export const metadata: Metadata = {
   title: "Application Details — CAMPUSLINK Admin",
-  description: "Full application record: student profile, resume, skills, education, projects, AI match result, and job details.",
+  description:
+    "Full application record: student profile, resume, skills, education, projects, AI match result, and job details.",
 };
 
 export default function AdminApplicationDetailPage() {

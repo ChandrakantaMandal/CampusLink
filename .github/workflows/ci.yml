@@ -1,0 +1,100 @@
+name: CampusLink CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - dev
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: campuslink-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: CampusLink
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d CampusLink"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://postgres:password@localhost:5432/CampusLink?schema=public"
+      REDIS_URL: "redis://localhost:6379"
+
+      # CI-only URLs and test values
+      NEXT_PUBLIC_SERVER_URL: "http://localhost:3000"
+      BETTER_AUTH_SECRET: "ci-test-secret-at-least-32-characters-long"
+      BETTER_AUTH_URL: "http://localhost:3000"
+      CORS_ORIGIN: "http://localhost:3001"
+      SMTP_USER: "ci-test@example.com"
+      SMTP_PASSWORD: "ci-test-password"
+      EMAIL_FROM: "CampusLink CI <ci-test@example.com>"
+      GOOGLE_CLIENT_ID: "ci-test-client-id"
+      GOOGLE_CLIENT_SECRET: "ci-test-client-secret"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm run db:generate
+
+      - name: Apply database migrations
+        run: pnpm --filter @CampusLink/db exec prisma migrate deploy --schema ./prisma/schema
+
+      - name: Typecheck
+        run: pnpm run check-types
+
+      - name: Check formatting
+        run: pnpm exec prettier --check .
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build applications
+        run: pnpm run build

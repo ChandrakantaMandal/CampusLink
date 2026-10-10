@@ -19,19 +19,24 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
 import type { RecruiterNotification } from "./recruiter.types";
-import { getMyNotifications, getRecruiterProfile } from "@/lib/api/recruiter.api";
+import {
+  getMyNotifications,
+  getRecruiterProfile,
+} from "@/lib/api/recruiter.api";
 
 interface RecruiterHeaderProps {
   onToggleSidebar: () => void;
 }
 
 export default function RecruiterHeader({
-  onToggleSidebar
+  onToggleSidebar,
 }: RecruiterHeaderProps) {
   const router = useRouter();
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [recentNotifications, setRecentNotifications] = useState<RecruiterNotification[]>([]);
+  const [recentNotifications, setRecentNotifications] = useState<
+    RecruiterNotification[]
+  >([]);
   const [companyName, setCompanyName] = useState("TechCorp Innovations");
 
   useEffect(() => {
@@ -65,8 +70,6 @@ export default function RecruiterHeader({
 
       {/* Right: Quick CTA, Alerts, Notifications, Theme, Profile */}
       <div className="flex items-center gap-2.5 sm:gap-3.5">
-        
-
         {/* Company Verified Badge */}
         <div className="hidden lg:flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/60 dark:border-blue-900/40 dark:bg-blue-950/20 px-3 py-1.5">
           <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
@@ -98,7 +101,9 @@ export default function RecruiterHeader({
             <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recruitment Alerts</h3>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Recruitment Alerts
+                  </h3>
                   <span className="rounded-full bg-blue-100 dark:bg-blue-950 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
                     {unreadCount} unread
                   </span>
@@ -116,12 +121,16 @@ export default function RecruiterHeader({
                 {recentNotifications.map((notif) => (
                   <Link
                     key={notif.id}
-                    href={(notif.actionUrl as Route) || "/recruiter/notifications"}
+                    href={
+                      (notif.actionUrl as Route) || "/recruiter/notifications"
+                    }
                     onClick={() => setShowNotifMenu(false)}
                     className="block p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${notif.isRead ? "bg-slate-300" : notif.type === "conflict" ? "bg-amber-500 animate-pulse" : "bg-blue-500"}`} />
+                      <div
+                        className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${notif.isRead ? "bg-slate-300" : notif.type === "conflict" ? "bg-amber-500 animate-pulse" : "bg-blue-500"}`}
+                      />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-slate-900 dark:text-slate-100 line-clamp-1">
                           {notif.title}

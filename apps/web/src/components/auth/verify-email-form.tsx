@@ -148,13 +148,17 @@ export default function VerifyEmailForm() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h1 className="text-center text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Verify your email</h1>
+        <h1 className="text-center text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+          Verify your email
+        </h1>
 
         <p className="mt-3 text-center text-sm text-slate-500 dark:text-slate-400">
           Enter the verification code sent to
         </p>
 
-        <p className="mt-1 text-center font-medium text-indigo-600 dark:text-indigo-400">{email || "your email"}</p>
+        <p className="mt-1 text-center font-medium text-indigo-600 dark:text-indigo-400">
+          {email || "your email"}
+        </p>
 
         <div className="mt-8 space-y-4">
           {/* OTP Input */}
@@ -175,11 +179,15 @@ export default function VerifyEmailForm() {
           />
 
           {/* Error */}
-          {error && <p className="text-center text-sm text-rose-500">{error}</p>}
+          {error && (
+            <p className="text-center text-sm text-rose-500">{error}</p>
+          )}
 
           {/* Success */}
           {success && (
-            <p className="text-center text-sm text-emerald-600 dark:text-emerald-400">{success}</p>
+            <p className="text-center text-sm text-emerald-600 dark:text-emerald-400">
+              {success}
+            </p>
           )}
 
           {/* Verify */}

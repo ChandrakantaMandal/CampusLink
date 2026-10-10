@@ -10,12 +10,21 @@ import {
   MessageScrollerViewport,
 } from "@CampusLink/ui/components/message-scroller";
 import { DefaultChatTransport } from "ai";
-import React, { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 import { AIChatInput } from "@/components/ai/AIChatInput";
 import { AIEmptyState } from "@/components/ai/AIEmptyState";
 import { AIHeader } from "@/components/ai/AIHeader";
-import { AIMessageItem, AISubmittedLoader } from "@/components/ai/AIMessageItem";
+import {
+  AIMessageItem,
+  AISubmittedLoader,
+} from "@/components/ai/AIMessageItem";
 import { AISidebar } from "@/components/ai/AISidebar";
 import type { ChatHistoryItem } from "@/components/ai/ai-constants";
 import { ENV } from "../../../env";
@@ -95,18 +104,23 @@ export default function AIPage() {
       if (firstUserMsg?.parts) {
         const textPart = firstUserMsg.parts.find((p) => p.type === "text");
         if (textPart && "text" in textPart && textPart.text) {
-          title = textPart.text.slice(0, 45).trim() + (textPart.text.length > 45 ? "..." : "");
+          title =
+            textPart.text.slice(0, 45).trim() +
+            (textPart.text.length > 45 ? "..." : "");
         }
       }
 
-      const existingIndex = prev.findIndex((item) => item.id === currentSessionId);
+      const existingIndex = prev.findIndex(
+        (item) => item.id === currentSessionId,
+      );
       if (existingIndex >= 0) {
         const existing = prev[existingIndex];
         if (
           existing &&
           existing.title === title &&
           existing.messages?.length === messages.length &&
-          existing.messages?.[existing.messages.length - 1] === messages[messages.length - 1]
+          existing.messages?.[existing.messages.length - 1] ===
+            messages[messages.length - 1]
         ) {
           return prev;
         }
@@ -121,12 +135,14 @@ export default function AIPage() {
 
       const next =
         existingIndex >= 0
-          ? prev.map((item, idx) => (idx === existingIndex ? updatedItem : item))
+          ? prev.map((item, idx) =>
+              idx === existingIndex ? updatedItem : item,
+            )
           : [updatedItem, ...prev.slice(0, 29)];
 
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch { }
+      } catch {}
 
       return next;
     });
@@ -169,7 +185,7 @@ export default function AIPage() {
     setIsSidebarOpen(open);
     try {
       localStorage.setItem(SIDEBAR_STORAGE_KEY, String(open));
-    } catch { }
+    } catch {}
   };
 
   const handleClearHistory = (e: React.MouseEvent, id: string) => {
@@ -186,7 +202,7 @@ export default function AIPage() {
       const next = prev.filter((item) => item.id !== id);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch { }
+      } catch {}
       return next;
     });
   };
@@ -233,10 +249,11 @@ export default function AIPage() {
                 <MessageScrollerViewport className="size-full">
                   <MessageScrollerContent
                     aria-busy={isSending}
-                    className={`mx-auto flex flex-col gap-5 px-4 py-6 transition-all duration-200 ${isFullWidth
-                      ? "max-w-6xl xl:max-w-7xl 2xl:max-w-[94%]"
-                      : "max-w-4xl"
-                      }`}
+                    className={`mx-auto flex flex-col gap-5 px-4 py-6 transition-all duration-200 ${
+                      isFullWidth
+                        ? "max-w-6xl xl:max-w-7xl 2xl:max-w-[94%]"
+                        : "max-w-4xl"
+                    }`}
                   >
                     {messages.map((message, index) => (
                       <AIMessageItem

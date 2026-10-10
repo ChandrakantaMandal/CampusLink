@@ -26,15 +26,19 @@ export default function SaveButton({
             !isAuthenticated
               ? "bg-amber-500 animate-pulse"
               : hasChanges
-              ? "bg-amber-500 animate-pulse"
-              : "bg-emerald-500"
+                ? "bg-amber-500 animate-pulse"
+                : "bg-emerald-500"
           }`}
         />
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
             {!isAuthenticated
-              ? (hasChanges ? "Unsaved changes (Sign in required to save)" : "Guest Preview Mode • Sign in to save profile")
-              : (hasChanges ? "Unsaved changes on your profile" : "All profile changes saved")}
+              ? hasChanges
+                ? "Unsaved changes (Sign in required to save)"
+                : "Guest Preview Mode • Sign in to save profile"
+              : hasChanges
+                ? "Unsaved changes on your profile"
+                : "All profile changes saved"}
           </span>
           {!isAuthenticated && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-950/60 dark:text-amber-400 dark:border dark:border-amber-800/60 px-2 py-0.5 text-[10px] font-bold text-amber-700">

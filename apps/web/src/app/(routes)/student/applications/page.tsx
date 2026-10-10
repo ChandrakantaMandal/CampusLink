@@ -13,7 +13,9 @@ import { UserCheck } from "lucide-react";
 export default function StudentApplications() {
   const applications = useStudentApplications();
 
-  const items = applications.data ? toApplicationItems(applications.data) : null;
+  const items = applications.data
+    ? toApplicationItems(applications.data)
+    : null;
   const total = applications.data?.stats.total ?? items?.length ?? null;
 
   return (
@@ -30,13 +32,16 @@ export default function StudentApplications() {
             </h1>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Real-time status updates across all stages of your campus recruitment applications.
+            Real-time status updates across all stages of your campus
+            recruitment applications.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            {total !== null ? `${total} Total Submission${total === 1 ? "" : "s"}` : "—"}
+            {total !== null
+              ? `${total} Total Submission${total === 1 ? "" : "s"}`
+              : "—"}
           </span>
         </div>
       </div>

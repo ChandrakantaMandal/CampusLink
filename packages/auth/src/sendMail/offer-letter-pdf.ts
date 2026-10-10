@@ -21,13 +21,34 @@ function pdfSafe(value: string) {
 
 export function renderOfferLetterPdf(details: OfferLetterPdfDetails): Buffer {
   const commands: string[] = [];
-  const text = (value: string, x: number, y: number, size: number, font = "F1", color = "0.12 0.18 0.25") => {
-    commands.push(`BT /${font} ${size} Tf ${color} rg 1 0 0 1 ${x} ${y} Tm (${pdfSafe(value)}) Tj ET`);
+  const text = (
+    value: string,
+    x: number,
+    y: number,
+    size: number,
+    font = "F1",
+    color = "0.12 0.18 0.25",
+  ) => {
+    commands.push(
+      `BT /${font} ${size} Tf ${color} rg 1 0 0 1 ${x} ${y} Tm (${pdfSafe(value)}) Tj ET`,
+    );
   };
-  const line = (x1: number, y1: number, x2: number, y2: number, color = "0.86 0.90 0.93") => {
+  const line = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    color = "0.86 0.90 0.93",
+  ) => {
     commands.push(`${color} RG 0.7 w ${x1} ${y1} m ${x2} ${y2} l S`);
   };
-  const rect = (x: number, y: number, width: number, height: number, color: string) => {
+  const rect = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: string,
+  ) => {
     commands.push(`${color} rg ${x} ${y} ${width} ${height} re f`);
   };
   const wrap = (value: string, maxLength: number) => {
@@ -52,7 +73,14 @@ export function renderOfferLetterPdf(details: OfferLetterPdfDetails): Buffer {
   line(52, 744, 543, 744, "0.78 0.88 0.88");
   text("Offer of Employment", 52, 700, 27, "F2", "0.06 0.09 0.15");
   text(details.role, 52, 672, 14, "F2", "0.06 0.46 0.43");
-  text(new Date().toLocaleDateString("en-IN", { dateStyle: "long" }), 52, 638, 10, "F1", "0.39 0.45 0.52");
+  text(
+    new Date().toLocaleDateString("en-IN", { dateStyle: "long" }),
+    52,
+    638,
+    10,
+    "F1",
+    "0.39 0.45 0.52",
+  );
   text(`Dear ${details.candidateName},`, 52, 600, 12, "F2");
 
   const intro = `We are pleased to offer you the position of ${details.role} at ${details.companyName}. We were impressed by your application and look forward to the contribution you will make to our team.`;
@@ -84,17 +112,41 @@ export function renderOfferLetterPdf(details: OfferLetterPdfDetails): Buffer {
   let nextY = detailY - 10;
   text("NEXT STEPS", 52, nextY, 8, "F2", "0.06 0.46 0.43");
   nextY -= 18;
-  for (const paragraphLine of wrap("Please reply to the email that delivered this letter to confirm your acceptance or contact your recruiter with any questions about the offer.", 88)) {
+  for (const paragraphLine of wrap(
+    "Please reply to the email that delivered this letter to confirm your acceptance or contact your recruiter with any questions about the offer.",
+    88,
+  )) {
     text(paragraphLine, 52, nextY, 10, "F1", "0.28 0.34 0.41");
     nextY -= 15;
   }
 
   nextY -= 25;
-  text("We are excited about the possibility of working together.", 52, nextY, 10, "F1", "0.28 0.34 0.41");
+  text(
+    "We are excited about the possibility of working together.",
+    52,
+    nextY,
+    10,
+    "F1",
+    "0.28 0.34 0.41",
+  );
   nextY -= 34;
-  text(`${details.companyName} Recruiting Team`, 52, nextY, 10, "F2", "0.12 0.18 0.25");
+  text(
+    `${details.companyName} Recruiting Team`,
+    52,
+    nextY,
+    10,
+    "F2",
+    "0.12 0.18 0.25",
+  );
   line(52, 58, 543, 58, "0.86 0.90 0.93");
-  text(`Prepared for ${details.candidateName} | ${details.role} | ${details.companyName}`, 52, 42, 7, "F1", "0.58 0.63 0.69");
+  text(
+    `Prepared for ${details.candidateName} | ${details.role} | ${details.companyName}`,
+    52,
+    42,
+    7,
+    "F1",
+    "0.58 0.63 0.69",
+  );
 
   const stream = commands.join("\n");
   const objects = [
@@ -114,7 +166,8 @@ export function renderOfferLetterPdf(details: OfferLetterPdfDetails): Buffer {
   }
   const xrefOffset = Buffer.byteLength(document, "ascii");
   document += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  for (const offset of offsets.slice(1)) document += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  for (const offset of offsets.slice(1))
+    document += `${String(offset).padStart(10, "0")} 00000 n \n`;
   document += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
   return Buffer.from(document, "ascii");
 }

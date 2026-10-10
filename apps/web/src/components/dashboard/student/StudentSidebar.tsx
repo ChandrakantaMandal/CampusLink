@@ -22,7 +22,17 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { useStudentDashboard, useStudentReadiness, useStudentDrives, useStudentSkills, useStudentJobs, useStudentApplications, useStudentInterviews, useStudentOffers, useStudentNotifications } from "@/hooks/use-student";
+import {
+  useStudentDashboard,
+  useStudentReadiness,
+  useStudentDrives,
+  useStudentSkills,
+  useStudentJobs,
+  useStudentApplications,
+  useStudentInterviews,
+  useStudentOffers,
+  useStudentNotifications,
+} from "@/hooks/use-student";
 import { useStudentProfile } from "@/hooks/use-student";
 import ProfileFlyout from "./ProfileFlyout";
 import BrandLogo from "@/components/brand/BrandLogo";
@@ -32,13 +42,19 @@ interface StudentSidebarProps {
   onClose?: () => void;
 }
 
-function getInitials(firstName: string | null, lastName: string | null): string {
+function getInitials(
+  firstName: string | null,
+  lastName: string | null,
+): string {
   const first = firstName?.charAt(0).toUpperCase() ?? "";
   const last = lastName?.charAt(0).toUpperCase() ?? "";
   return first + last || "ST";
 }
 
-function getDisplayName(firstName: string | null, lastName: string | null): string {
+function getDisplayName(
+  firstName: string | null,
+  lastName: string | null,
+): string {
   if (firstName && lastName) return `${firstName} ${lastName}`;
   if (firstName) return firstName;
   return "Student Portal";
@@ -133,7 +149,9 @@ export default function StudentSidebar({
       id: "jobs",
       label: "Recommended Jobs",
       icon: Briefcase,
-      badge: stats ? String(stats.applications > 0 ? stats.applications : 0) : null,
+      badge: stats
+        ? String(stats.applications > 0 ? stats.applications : 0)
+        : null,
       href: "/student/jobs",
     },
     {
@@ -161,7 +179,10 @@ export default function StudentSidebar({
       id: "notifications",
       label: "Notifications",
       icon: Bell,
-      badge: stats && stats.unreadNotifications > 0 ? String(stats.unreadNotifications) : null,
+      badge:
+        stats && stats.unreadNotifications > 0
+          ? String(stats.unreadNotifications)
+          : null,
       href: "/student/notifications",
     },
     {
@@ -289,12 +310,22 @@ export default function StudentSidebar({
               >
                 <div className="flex min-w-0 items-center gap-2.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white">
-                    {profile.profile ? getInitials(profile.profile.firstName, profile.profile.lastName) : "ST"}
+                    {profile.profile
+                      ? getInitials(
+                          profile.profile.firstName,
+                          profile.profile.lastName,
+                        )
+                      : "ST"}
                   </div>
 
                   <div className="min-w-0">
                     <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
-                      {profile.profile ? getDisplayName(profile.profile.firstName, profile.profile.lastName) : "Student Portal"}
+                      {profile.profile
+                        ? getDisplayName(
+                            profile.profile.firstName,
+                            profile.profile.lastName,
+                          )
+                        : "Student Portal"}
                     </p>
 
                     <p className="truncate text-[10px] text-slate-500 dark:text-slate-400">
@@ -317,12 +348,16 @@ export default function StudentSidebar({
                   setIsProfileOpen((prev) => !prev);
                 }}
                 className={`p-2.5 rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer shrink-0 ${
-                  isProfileOpen ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800" : ""
+                  isProfileOpen
+                    ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
+                    : ""
                 }`}
                 title="Toggle profile menu"
                 aria-label="Toggle profile menu"
               >
-                <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${isProfileOpen ? "rotate-90 text-indigo-600 dark:text-indigo-400" : ""}`} />
+                <ChevronRight
+                  className={`h-4 w-4 transition-transform duration-200 ${isProfileOpen ? "rotate-90 text-indigo-600 dark:text-indigo-400" : ""}`}
+                />
               </button>
             </div>
 

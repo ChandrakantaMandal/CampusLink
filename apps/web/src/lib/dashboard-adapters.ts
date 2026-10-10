@@ -39,7 +39,12 @@ export interface DashboardNotification {
   read: boolean;
   actionLabel?: string;
   targetTab?: string;
-  actionType?: "hallTicket" | "offerLetter" | "interviewSlot" | "driveBrochure" | "aiModule";
+  actionType?:
+    | "hallTicket"
+    | "offerLetter"
+    | "interviewSlot"
+    | "driveBrochure"
+    | "aiModule";
 }
 
 // ---------- helpers ----------
@@ -104,7 +109,9 @@ export interface WelcomeBannerProps {
   upcomingDrivesCount: number;
 }
 
-export function toWelcomeBannerProps(data: StudentDashboardData): WelcomeBannerProps {
+export function toWelcomeBannerProps(
+  data: StudentDashboardData,
+): WelcomeBannerProps {
   return {
     studentName: data.student.firstName?.trim()
       ? `${data.student.firstName} ${data.student.lastName ?? ""}`.trim()
@@ -143,7 +150,9 @@ export interface ReadinessCardProps {
   };
 }
 
-export function toReadinessCardProps(data: StudentReadinessData): ReadinessCardProps {
+export function toReadinessCardProps(
+  data: StudentReadinessData,
+): ReadinessCardProps {
   const latest = data.latest;
   const scoreFields: Array<{ category: string; score: number | null }> = [
     { category: "Academic Profile", score: latest?.academicScore ?? null },
@@ -154,15 +163,17 @@ export function toReadinessCardProps(data: StudentReadinessData): ReadinessCardP
     { category: "Communication", score: latest?.communicationScore ?? null },
   ];
 
-  const dimensions: ReadinessDimension[] = scoreFields.map(({ category, score }) => {
-    const value = score ?? 0;
-    return {
-      category,
-      score: Math.round(value),
-      fullScore: 100,
-      status: readinessStatus(value),
-    };
-  });
+  const dimensions: ReadinessDimension[] = scoreFields.map(
+    ({ category, score }) => {
+      const value = score ?? 0;
+      return {
+        category,
+        score: Math.round(value),
+        fullScore: 100,
+        status: readinessStatus(value),
+      };
+    },
+  );
 
   const label = data.label ?? "Not Rated";
   return {
@@ -197,11 +208,14 @@ export function toSkillGaps(data: StudentSkillsData): SkillGapItem[] {
 
 // ---------- jobs ----------
 
-function buildEligibilityCriteria(job: StudentJobsData["jobs"][number]): string {
+function buildEligibilityCriteria(
+  job: StudentJobsData["jobs"][number],
+): string {
   const parts: string[] = [];
   if (job.minCGPA != null) parts.push(`CGPA >= ${job.minCGPA}`);
   if (job.maxBacklogs != null) parts.push(`Backlogs <= ${job.maxBacklogs}`);
-  if (job.allowedBranches.length > 0) parts.push(job.allowedBranches.join(", "));
+  if (job.allowedBranches.length > 0)
+    parts.push(job.allowedBranches.join(", "));
   if (job.graduationYear != null) parts.push(`Batch of ${job.graduationYear}`);
   return parts.length > 0 ? parts.join(" · ") : "Open to all eligible students";
 }
@@ -222,7 +236,9 @@ export function toRecommendedJobs(data: StudentJobsData): RecommendedJob[] {
     whyMatch: job.eligible
       ? `Your profile meets the eligibility criteria for ${job.title} at ${job.company.name}.`
       : `You currently do not meet all eligibility criteria for ${job.title} at ${job.company.name}.`,
-    driveDate: job.applicationDeadline ? formatDate(job.applicationDeadline) : "Open",
+    driveDate: job.applicationDeadline
+      ? formatDate(job.applicationDeadline)
+      : "Open",
     hasApplied: job.hasApplied,
   }));
 }
@@ -242,7 +258,8 @@ function toDriveBatchEligibility(drive: {
 }): string {
   if (drive.batchEligibility) return drive.batchEligibility;
   const parts: string[] = [];
-  if (drive.allowedBranches.length > 0) parts.push(drive.allowedBranches.join(", "));
+  if (drive.allowedBranches.length > 0)
+    parts.push(drive.allowedBranches.join(", "));
   if (drive.minCgpa != null) parts.push(`CGPA >= ${drive.minCgpa}`);
   return parts.length > 0 ? parts.join(" · ") : "All branches";
 }
@@ -256,7 +273,8 @@ export function toUpcomingDrives(data: StudentDrivesData): UpcomingDrive[] {
     time: registration.drive.driveTime ?? "TBD",
     venue: registration.drive.venue ?? "TBD",
     type: toDriveType(registration.drive.type),
-    status: registration.status === "SHORTLISTED" ? "Shortlisted" : "Registered",
+    status:
+      registration.status === "SHORTLISTED" ? "Shortlisted" : "Registered",
     batchEligibility: toDriveBatchEligibility(registration.drive),
   }));
 
@@ -301,7 +319,9 @@ export function toApplicationStatus(status: string): ApplicationStatus {
   }
 }
 
-export function nextStepForStatus(status: ApplicationStatus): string | undefined {
+export function nextStepForStatus(
+  status: ApplicationStatus,
+): string | undefined {
   switch (status) {
     case "Applied":
       return "Awaiting recruiter review";
@@ -324,7 +344,9 @@ export function nextStepForStatus(status: ApplicationStatus): string | undefined
   }
 }
 
-export function toApplicationItems(data: StudentApplicationsData): ApplicationItem[] {
+export function toApplicationItems(
+  data: StudentApplicationsData,
+): ApplicationItem[] {
   return data.applications.map((application: ApplicationData) => {
     const status = toApplicationStatus(application.status);
     const nextStep = nextStepForStatus(status);
@@ -354,7 +376,8 @@ function toConflictNotes(interview: StudentInterviewData): string | undefined {
   if (typeof details === "string" && details.trim().length > 0) return details;
   if (details && typeof details === "object" && "message" in details) {
     const message = (details as { message?: unknown }).message;
-    if (typeof message === "string" && message.trim().length > 0) return message;
+    if (typeof message === "string" && message.trim().length > 0)
+      return message;
   }
   return "Scheduling conflict detected with another interview or drive.";
 }
@@ -364,7 +387,9 @@ function toInterviewSlot(interview: StudentInterviewData): InterviewSlot {
   return {
     id: interview.id,
     company:
-      interview.job?.company.name ?? interview.drive?.company.name ?? "Campus Drive",
+      interview.job?.company.name ??
+      interview.drive?.company.name ??
+      "Campus Drive",
     role: interview.job?.title ?? interview.drive?.title ?? "Interview",
     date: formatDate(interview.scheduledDate),
     time: interview.startTime ?? "TBD",
@@ -402,14 +427,18 @@ export function toOfferDetails(data: StudentOffersData): OfferDetails[] {
     offerDate: formatDate(offer.offerDate),
     status: toOfferStatus(offer.status),
     documentsVerified: offer.documentsVerified,
-    joiningDate: offer.joiningDate ? formatDate(offer.joiningDate) : "To be confirmed",
+    joiningDate: offer.joiningDate
+      ? formatDate(offer.joiningDate)
+      : "To be confirmed",
     letterUrl: offer.offerLetterUrl ?? "#",
   }));
 }
 
 // ---------- notifications ----------
 
-function toNotificationCategory(type: string): DashboardNotification["category"] {
+function toNotificationCategory(
+  type: string,
+): DashboardNotification["category"] {
   switch (type) {
     case "DRIVE":
       return "Drive";
@@ -424,7 +453,9 @@ function toNotificationCategory(type: string): DashboardNotification["category"]
   }
 }
 
-function toNotificationUrgency(priority: string): DashboardNotification["urgency"] {
+function toNotificationUrgency(
+  priority: string,
+): DashboardNotification["urgency"] {
   if (priority === "URGENT") return "urgent";
   if (priority === "HIGH") return "important";
   return "normal";

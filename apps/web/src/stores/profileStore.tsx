@@ -75,8 +75,7 @@ const useProfileStore = create<ProfileState>()((set) => ({
   errors: {},
   setProfile: (value) =>
     set((s) => ({
-      profile:
-        typeof value === "function" ? value(s.profile) : value,
+      profile: typeof value === "function" ? value(s.profile) : value,
     })),
   setSavedSnapshot: (v) => set({ savedSnapshot: v }),
   setIsLoaded: (v) => set({ isLoaded: v }),
@@ -200,20 +199,32 @@ async function syncSkillsToServer(desiredSkills: string[]): Promise<void> {
   await Promise.all(tasks);
 }
 
-async function syncEducationToServer(desired: StudentProfileData["education"]): Promise<void> {
+async function syncEducationToServer(
+  desired: StudentProfileData["education"],
+): Promise<void> {
   const existing = await getMyEducationRecords();
   const unused = new Set(existing.map((row) => row.id));
   for (const item of desired) {
-    const match = existing.find((row) => unused.has(row.id) &&
-      row.institution.trim().toLowerCase() === item.institution.trim().toLowerCase() &&
-      (row.degree ?? "").trim().toLowerCase() === item.degree.trim().toLowerCase() &&
-      (row.branch ?? "").trim().toLowerCase() === item.branch.trim().toLowerCase());
-    const year = (value: string) => /^\d{4}$/.test(value) ? Number(value) : null;
+    const match = existing.find(
+      (row) =>
+        unused.has(row.id) &&
+        row.institution.trim().toLowerCase() ===
+          item.institution.trim().toLowerCase() &&
+        (row.degree ?? "").trim().toLowerCase() ===
+          item.degree.trim().toLowerCase() &&
+        (row.branch ?? "").trim().toLowerCase() ===
+          item.branch.trim().toLowerCase(),
+    );
+    const year = (value: string) =>
+      /^\d{4}$/.test(value) ? Number(value) : null;
     const grade = Number.parseFloat(item.cgpa);
     const data = {
-      institution: item.institution.trim(), degree: item.degree.trim() || null,
-      branch: item.branch.trim() || null, startYear: year(item.startYear),
-      endYear: year(item.endYear), cgpa: Number.isFinite(grade) && grade <= 10 ? grade : null,
+      institution: item.institution.trim(),
+      degree: item.degree.trim() || null,
+      branch: item.branch.trim() || null,
+      startYear: year(item.startYear),
+      endYear: year(item.endYear),
+      cgpa: Number.isFinite(grade) && grade <= 10 ? grade : null,
       percentage: null,
     };
     await saveEducationRecord(data, match?.id);
@@ -221,19 +232,28 @@ async function syncEducationToServer(desired: StudentProfileData["education"]): 
   }
 }
 
-async function syncProjectsToServer(desired: StudentProfileData["projects"] = []): Promise<StudentProfileData["projects"]> {
+async function syncProjectsToServer(
+  desired: StudentProfileData["projects"] = [],
+): Promise<StudentProfileData["projects"]> {
   const existing = await getMyProjectRecords();
   const remaining = new Map(existing.map((row) => [row.id, row]));
   const saved = [] as StudentProfileData["projects"];
   for (const project of desired) {
-    const match = remaining.get(project.id) ?? existing.find((row) =>
-      row.title.trim().toLowerCase() === project.title.trim().toLowerCase());
-    const result = await saveProjectRecord({
-      title: project.title.trim(),
-      description: project.description.trim(),
-      githubUrl: normalizeUrl(project.githubUrl),
-      liveUrl: normalizeUrl(project.liveUrl),
-    }, match?.id);
+    const match =
+      remaining.get(project.id) ??
+      existing.find(
+        (row) =>
+          row.title.trim().toLowerCase() === project.title.trim().toLowerCase(),
+      );
+    const result = await saveProjectRecord(
+      {
+        title: project.title.trim(),
+        description: project.description.trim(),
+        githubUrl: normalizeUrl(project.githubUrl),
+        liveUrl: normalizeUrl(project.liveUrl),
+      },
+      match?.id,
+    );
     if (match) remaining.delete(match.id);
     saved.push({ ...project, id: result.id });
   }
@@ -258,7 +278,8 @@ export function useProfile(): ProfileValue {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
   const userKey =
     session?.user?.id ||
     (session?.user?.email ? encodeURIComponent(session.user.email) : "guest");
@@ -294,7 +315,10 @@ export function useProfile(): ProfileValue {
         gender: profile.gender.trim() || undefined,
         college: primaryEducation?.institution.trim() || undefined,
         degree: primaryEducation?.degree.trim() || undefined,
-        branch: primaryEducation?.branch.trim() || profile.department.trim() || undefined,
+        branch:
+          primaryEducation?.branch.trim() ||
+          profile.department.trim() ||
+          undefined,
         department: profile.department.trim(),
         graduationYear: /^\d{4}$/.test(primaryEducation?.endYear ?? "")
           ? Number(primaryEducation?.endYear)
@@ -345,7 +369,16 @@ export function useProfile(): ProfileValue {
     } finally {
       setIsSaving(false);
     }
-  }, [session, profile, userKey, router, setIsSaving, setErrors, setSavedSnapshot, setIsEditing]);
+  }, [
+    session,
+    profile,
+    userKey,
+    router,
+    setIsSaving,
+    setErrors,
+    setSavedSnapshot,
+    setIsEditing,
+  ]);
 
   const completion = calculateProfileCompletion(profile);
 
@@ -371,7 +404,8 @@ export function useProfile(): ProfileValue {
 }
 
 export function ProfileSync({ children }: { children: React.ReactNode }) {
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
   const userKey =
     session?.user?.id ||
     (session?.user?.email ? encodeURIComponent(session.user.email) : "guest");
@@ -461,8 +495,7 @@ export function ProfileSync({ children }: { children: React.ReactNode }) {
             education,
             projects,
             email: session.user.email || local.email,
-            avatarUrl:
-              api.user?.image || session.user.image || local.avatarUrl,
+            avatarUrl: api.user?.image || session.user.image || local.avatarUrl,
           };
           hydrated = true;
           setProfile(merged);

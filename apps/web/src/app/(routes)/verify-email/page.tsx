@@ -13,9 +13,7 @@ export default function VerifyEmailPage() {
 function VerifyEmailLoading() {
   return (
     <div className="mx-auto mt-20 w-full max-w-md p-6">
-      <div className="text-center">
-        Loading verification...
-      </div>
+      <div className="text-center">Loading verification...</div>
     </div>
   );
 }

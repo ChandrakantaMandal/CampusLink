@@ -23,7 +23,9 @@ export default function CtaBanner() {
             </h2>
 
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Whether you are preparing for your dream engineering job, shortlisting talent for your tech company, or streamlining college drives, CAMPUSLINK delivers the intelligence you need.
+              Whether you are preparing for your dream engineering job,
+              shortlisting talent for your tech company, or streamlining college
+              drives, CAMPUSLINK delivers the intelligence you need.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-xs text-slate-400">

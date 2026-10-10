@@ -58,7 +58,9 @@ export function UpcomingDrivesCard({
         behavior: "smooth",
       });
       setActiveSlide((prev) =>
-        direction === "left" ? Math.max(0, prev - 1) : Math.min(drives.length - 1, prev + 1)
+        direction === "left"
+          ? Math.max(0, prev - 1)
+          : Math.min(drives.length - 1, prev + 1),
       );
     }
   };
@@ -78,7 +80,11 @@ export function UpcomingDrivesCard({
     if (sliderRef.current) {
       const step = getSlideStep();
       const newActive = Math.round(sliderRef.current.scrollLeft / step);
-      if (newActive !== activeSlide && newActive >= 0 && newActive < drives.length) {
+      if (
+        newActive !== activeSlide &&
+        newActive >= 0 &&
+        newActive < drives.length
+      ) {
         setActiveSlide(newActive);
       }
     }
@@ -97,8 +103,8 @@ export function UpcomingDrivesCard({
       await onRegistered?.();
     } catch (error) {
       const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Couldn't register for the drive";
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ?? "Couldn't register for the drive";
       toast.error("Couldn't register for the drive", { description: message });
     } finally {
       setPendingId(null);
@@ -135,7 +141,8 @@ export function UpcomingDrivesCard({
             No upcoming drives scheduled
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
-            Institutional recruitment drive schedules announced by the University TPO will appear here.
+            Institutional recruitment drive schedules announced by the
+            University TPO will appear here.
           </p>
         </div>
       </div>
@@ -209,15 +216,17 @@ export function UpcomingDrivesCard({
           }
         >
           {drives.map((drive) => {
-            const isRegistered = registeredIds[drive.id] || drive.status === "Registered";
+            const isRegistered =
+              registeredIds[drive.id] || drive.status === "Registered";
 
             return (
               <div
                 key={drive.id}
-                className={`group relative p-4.5 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-blue-400/60 dark:hover:border-blue-500/40 transition-all duration-200 hover:shadow-md overflow-hidden ${layout === "slidebar"
-                  ? "min-w-[310px] sm:min-w-[360px] md:min-w-[390px] max-w-[420px] shrink-0 snap-start flex flex-col justify-between"
-                  : "min-w-0"
-                  }`}
+                className={`group relative p-4.5 rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-blue-400/60 dark:hover:border-blue-500/40 transition-all duration-200 hover:shadow-md overflow-hidden ${
+                  layout === "slidebar"
+                    ? "min-w-[310px] sm:min-w-[360px] md:min-w-[390px] max-w-[420px] shrink-0 snap-start flex flex-col justify-between"
+                    : "min-w-0"
+                }`}
               >
                 <div className="flex items-start justify-between gap-2.5 mb-2.5 min-w-0">
                   <div className="flex items-start gap-2.5 min-w-0 flex-1">
@@ -256,12 +265,19 @@ export function UpcomingDrivesCard({
                 <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 mb-3 pt-2.5 border-t border-slate-200/50 dark:border-slate-800/60 min-w-0">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <Calendar className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    <span className="font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{drive.date}</span>
-                    <span className="mx-1 text-slate-300 dark:text-slate-600">•</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                      {drive.date}
+                    </span>
+                    <span className="mx-1 text-slate-300 dark:text-slate-600">
+                      •
+                    </span>
                     <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                     <span className="whitespace-nowrap">{drive.time}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 min-w-0" title={drive.venue}>
+                  <div
+                    className="flex items-center gap-1.5 min-w-0"
+                    title={drive.venue}
+                  >
                     <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                     <span className="truncate">{drive.venue}</span>
                   </div>
@@ -269,8 +285,12 @@ export function UpcomingDrivesCard({
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 min-w-0">
                   <div className="text-[11px] text-slate-500 dark:text-slate-400 min-w-0">
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">Eligibility:</span>{" "}
-                    <span className="break-words">{drive.batchEligibility}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
+                      Eligibility:
+                    </span>{" "}
+                    <span className="break-words">
+                      {drive.batchEligibility}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
@@ -308,10 +328,11 @@ export function UpcomingDrivesCard({
                 type="button"
                 onClick={() => scrollToSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${activeSlide === idx
-                  ? "w-6 h-2 bg-blue-600 dark:bg-blue-400"
-                  : "w-2 h-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
-                  }`}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  activeSlide === idx
+                    ? "w-6 h-2 bg-blue-600 dark:bg-blue-400"
+                    : "w-2 h-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
+                }`}
               />
             ))}
           </div>
@@ -330,7 +351,8 @@ export function UpcomingDrivesCard({
           </button>
         ) : (
           <span className="text-xs font-medium text-slate-500 dark:text-slate-400 inline-flex items-center gap-1">
-            Institutional recruitment drive schedule synchronized with University TPO
+            Institutional recruitment drive schedule synchronized with
+            University TPO
           </span>
         )}
       </div>

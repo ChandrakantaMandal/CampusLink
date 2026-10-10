@@ -7,7 +7,10 @@ import { ENV } from "../../env.server";
 import { invalidateApplicationCaches } from "../applications/application.service";
 import { invalidateInterviewCache } from "../admin/admin.service";
 import { invalidateJobCaches } from "../jobs/job.service";
-import { invalidateStudentInterviewCache, invalidateStudentOfferCache } from "../students/student.service";
+import {
+  invalidateStudentInterviewCache,
+  invalidateStudentOfferCache,
+} from "../students/student.service";
 
 import type {
   CreateInterviewInput,
@@ -167,7 +170,8 @@ function computeConflicts<T extends ConflictSource>(
     return {
       ...row,
       hasConflict: details !== undefined && details.length > 0,
-      conflictDetails: details && details.length > 0 ? details.join("; ") : null,
+      conflictDetails:
+        details && details.length > 0 ? details.join("; ") : null,
     };
   });
 }
@@ -378,8 +382,7 @@ export async function createMyJob(userId: string, data: CreateMyJobInput) {
 }
 
 export type DeleteJobResult =
-  | { ok: true }
-  | { ok: false; reason: "HAS_APPLICATIONS"; count: number };
+  { ok: true } | { ok: false; reason: "HAS_APPLICATIONS"; count: number };
 
 export async function deleteMyJob(
   userId: string,
@@ -499,7 +502,9 @@ export async function createInterview(
     applicationId = matchingApplication?.id;
   }
   if (!applicationId) {
-    throw new Error("A passed assessment is required before scheduling an interview");
+    throw new Error(
+      "A passed assessment is required before scheduling an interview",
+    );
   }
 
   const applicationForInterview = await db.application.findUnique({
@@ -519,12 +524,16 @@ export async function createInterview(
     where: {
       studentId: data.studentId,
       passed: true,
-      feedback: { contains: `\"applicationId\":\"${applicationForInterview.id}\"` },
+      feedback: {
+        contains: `\"applicationId\":\"${applicationForInterview.id}\"`,
+      },
     },
     select: { id: true },
   });
   if (!passedAssessment) {
-    throw new Error("Candidate must pass the assessment before scheduling an interview");
+    throw new Error(
+      "Candidate must pass the assessment before scheduling an interview",
+    );
   }
 
   jobId = applicationForInterview.jobId;
@@ -812,39 +821,65 @@ export async function getShortlistedCandidates(userId: string) {
     return [];
   }
 
-  return db.application.findMany({
-    where: {
-      status: { in: ["SHORTLISTED", "ASSESSMENT"] },
-      job: { companyId: recruiter.companyId },
-    },
-    include: {
-      job: { select: { id: true, title: true, location: true, ctc: true } },
-      student: {
-        include: {
-          user: {
-            select: { id: true, name: true, email: true, image: true },
-          },
-          assessments: {
-            where: { assessment: { description: { startsWith: "Assessment invitation " } } },
-            orderBy: { takenAt: "desc" },
-            select: { passed: true, percentage: true, takenAt: true, feedback: true },
+  return db.application
+    .findMany({
+      where: {
+        status: { in: ["SHORTLISTED", "ASSESSMENT"] },
+        job: { companyId: recruiter.companyId },
+      },
+      include: {
+        job: { select: { id: true, title: true, location: true, ctc: true } },
+        student: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true, image: true },
+            },
+            assessments: {
+              where: {
+                assessment: {
+                  description: { startsWith: "Assessment invitation " },
+                },
+              },
+              orderBy: { takenAt: "desc" },
+              select: {
+                passed: true,
+                percentage: true,
+                takenAt: true,
+                feedback: true,
+              },
+            },
           },
         },
+        matchResult: true,
       },
-      matchResult: true,
-    },
-    orderBy: { appliedAt: "desc" },
-  }).then((applications) => applications.map((application) => {
-    const result = application.student.assessments.find((assessment) => {
-      try {
-        return JSON.parse(assessment.feedback ?? "{}").applicationId === application.id;
-      } catch {
-        return false;
-      }
-    });
-    const { assessments: _assessments, ...student } = application.student;
-    return { ...application, student, assessmentOutcome: result ? { passed: result.passed, percentage: result.percentage, takenAt: result.takenAt } : null };
-  }));
+      orderBy: { appliedAt: "desc" },
+    })
+    .then((applications) =>
+      applications.map((application) => {
+        const result = application.student.assessments.find((assessment) => {
+          try {
+            return (
+              JSON.parse(assessment.feedback ?? "{}").applicationId ===
+              application.id
+            );
+          } catch {
+            return false;
+          }
+        });
+        const { assessments: _assessments, ...student } = application.student;
+        return {
+          ...application,
+          student,
+          assessmentOutcome: result
+            ? {
+                passed: result.passed,
+                percentage: result.percentage,
+                takenAt: result.takenAt,
+              }
+            : null,
+        };
+      }),
+    );
 }
 
 const offerInclude = {
@@ -977,21 +1012,51 @@ export async function sendMyOffer(userId: string, offerId: string) {
   const email = offer.student.user.email;
   if (!email) throw new Error("Candidate does not have an email address");
 
-  const candidateName = `${offer.student.firstName ?? ""} ${offer.student.lastName ?? ""}`.trim() || offer.student.user.name || "Candidate";
+  const candidateName =
+    `${offer.student.firstName ?? ""} ${offer.student.lastName ?? ""}`.trim() ||
+    offer.student.user.name ||
+    "Candidate";
   const companyName = offer.company.name;
-  const joiningDate = offer.joiningDate?.toLocaleDateString("en-IN", { dateStyle: "long" }) ?? "To be confirmed";
-  const baseSalary = offer.baseSalary == null ? "As specified in compensation details" : `₹${(offer.baseSalary / 100000).toFixed(1)} LPA`;
-  const variableBonus = offer.variableBonus == null ? "Not specified" : `₹${(offer.variableBonus / 100000).toFixed(1)} LPA`;
-  const pdf = renderOfferLetterPdf({ candidateName, companyName, role: offer.role, ctc: offer.ctc, baseSalary, variableBonus, joiningDate });
+  const joiningDate =
+    offer.joiningDate?.toLocaleDateString("en-IN", { dateStyle: "long" }) ??
+    "To be confirmed";
+  const baseSalary =
+    offer.baseSalary == null
+      ? "As specified in compensation details"
+      : `₹${(offer.baseSalary / 100000).toFixed(1)} LPA`;
+  const variableBonus =
+    offer.variableBonus == null
+      ? "Not specified"
+      : `₹${(offer.variableBonus / 100000).toFixed(1)} LPA`;
+  const pdf = renderOfferLetterPdf({
+    candidateName,
+    companyName,
+    role: offer.role,
+    ctc: offer.ctc,
+    baseSalary,
+    variableBonus,
+    joiningDate,
+  });
 
-  await createMailer(ENV).sendOfferLetter(email, candidateName, companyName, offer.role, offer.ctc, baseSalary, variableBonus, joiningDate, pdf);
-  const sentOffer = offer.status === "DRAFT"
-    ? await db.offer.update({
-      where: { id: offer.id },
-      data: { status: "SENT", offerDate: new Date() },
-      include: offerInclude,
-    })
-    : offer;
+  await createMailer(ENV).sendOfferLetter(
+    email,
+    candidateName,
+    companyName,
+    offer.role,
+    offer.ctc,
+    baseSalary,
+    variableBonus,
+    joiningDate,
+    pdf,
+  );
+  const sentOffer =
+    offer.status === "DRAFT"
+      ? await db.offer.update({
+          where: { id: offer.id },
+          data: { status: "SENT", offerDate: new Date() },
+          include: offerInclude,
+        })
+      : offer;
   await invalidateStudentOfferCache(offer.student.user.id);
   await db.recruiterNotification.create({
     data: {
@@ -1018,11 +1083,23 @@ export async function getMyOfferPdf(userId: string, offerId: string) {
   });
   if (!offer) return null;
 
-  const candidateName = `${offer.student.firstName ?? ""} ${offer.student.lastName ?? ""}`.trim() || offer.student.user.name || "Candidate";
-  const baseSalary = offer.baseSalary == null ? "As specified in compensation details" : `₹${(offer.baseSalary / 100000).toFixed(1)} LPA`;
-  const variableBonus = offer.variableBonus == null ? "Not specified" : `₹${(offer.variableBonus / 100000).toFixed(1)} LPA`;
-  const joiningDate = offer.joiningDate?.toLocaleDateString("en-IN", { dateStyle: "long" }) ?? "To be confirmed";
-  const filenamePart = (value: string) => value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
+  const candidateName =
+    `${offer.student.firstName ?? ""} ${offer.student.lastName ?? ""}`.trim() ||
+    offer.student.user.name ||
+    "Candidate";
+  const baseSalary =
+    offer.baseSalary == null
+      ? "As specified in compensation details"
+      : `₹${(offer.baseSalary / 100000).toFixed(1)} LPA`;
+  const variableBonus =
+    offer.variableBonus == null
+      ? "Not specified"
+      : `₹${(offer.variableBonus / 100000).toFixed(1)} LPA`;
+  const joiningDate =
+    offer.joiningDate?.toLocaleDateString("en-IN", { dateStyle: "long" }) ??
+    "To be confirmed";
+  const filenamePart = (value: string) =>
+    value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "");
 
   return {
     filename: `Offer-Letter-${filenamePart(offer.company.name)}-${filenamePart(candidateName)}-${filenamePart(offer.role)}.pdf`,
@@ -1141,10 +1218,7 @@ export async function getRecruiterStats(userId: string) {
     }),
     db.interview.findMany({
       where: {
-        OR: [
-          { recruiterId: recruiter.id },
-          { job: { companyId } },
-        ],
+        OR: [{ recruiterId: recruiter.id }, { job: { companyId } }],
       },
       select: {
         id: true,

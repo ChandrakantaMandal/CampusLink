@@ -66,10 +66,7 @@ export async function updateMyStudentProfile(
       });
     }
 
-    const student = await updateStudent(
-      authenticatedReq.user.id,
-      parsed.data,
-    );
+    const student = await updateStudent(authenticatedReq.user.id, parsed.data);
 
     return res.status(200).json({
       success: true,
@@ -99,8 +96,8 @@ export async function getMyReadiness(
     }
 
     const readiness = calculateReadiness(
-  student as Parameters<typeof calculateReadiness>[0],
-);
+      student as Parameters<typeof calculateReadiness>[0],
+    );
 
     return res.status(200).json({
       success: true,
@@ -144,9 +141,7 @@ export async function getStudent(
   }
 }
 
-function makeAggregateHandler(
-  fetcher: (userId: string) => Promise<unknown>,
-) {
+function makeAggregateHandler(fetcher: (userId: string) => Promise<unknown>) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authenticatedReq = req as AuthenticatedRequest;
@@ -176,9 +171,8 @@ export const getMyStudentReadiness = makeAggregateHandler(getStudentReadiness);
 
 export const getMyStudentDrives = makeAggregateHandler(getStudentDrives);
 
-export const getMyStudentInterviews = makeAggregateHandler(
-  getStudentInterviews,
-);
+export const getMyStudentInterviews =
+  makeAggregateHandler(getStudentInterviews);
 
 export const getMyStudentOffers = makeAggregateHandler(getStudentOffers);
 
@@ -302,7 +296,9 @@ export async function markMyStudentNotificationsReadAll(
 ) {
   try {
     const authenticatedReq = req as AuthenticatedRequest;
-    const count = await markAllStudentNotificationsRead(authenticatedReq.user.id);
+    const count = await markAllStudentNotificationsRead(
+      authenticatedReq.user.id,
+    );
 
     return res.status(200).json({
       success: true,

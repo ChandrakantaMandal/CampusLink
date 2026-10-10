@@ -3,18 +3,29 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { Route } from "next";
-import {
-  Briefcase,
-  FileText,
-  MessageSquare,
-  Lock,
-} from "lucide-react";
+import { Briefcase, FileText, MessageSquare, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 const profileSubPages = [
-  { id: "opportunities", label: "Opportunities", href: "/student/profile/opportunities", icon: Briefcase },
-  { id: "applications", label: "Applications", href: "/student/profile/applications", icon: FileText },
-  { id: "messages", label: "Messages", href: "/student/profile/messages", icon: MessageSquare, badge: "Soon" },
+  {
+    id: "opportunities",
+    label: "Opportunities",
+    href: "/student/profile/opportunities",
+    icon: Briefcase,
+  },
+  {
+    id: "applications",
+    label: "Applications",
+    href: "/student/profile/applications",
+    icon: FileText,
+  },
+  {
+    id: "messages",
+    label: "Messages",
+    href: "/student/profile/messages",
+    icon: MessageSquare,
+    badge: "Soon",
+  },
 ];
 
 export interface ProfileFlyoutProps {
@@ -41,7 +52,8 @@ export default function ProfileFlyout({
     if (!isAuthenticated) {
       e.preventDefault();
       toast.error("Sign in required", {
-        description: "Please sign in to access your student profile and applications.",
+        description:
+          "Please sign in to access your student profile and applications.",
       });
       router.push("/login?role=student" as Route);
       return;
@@ -67,44 +79,49 @@ export default function ProfileFlyout({
           )}
         </div>
 
-      {profileSubPages.map((page) => {
-        const Icon = page.icon;
-        const isActive = pathname === page.href || pathname.startsWith(`${page.href}/`);
+        {profileSubPages.map((page) => {
+          const Icon = page.icon;
+          const isActive =
+            pathname === page.href || pathname.startsWith(`${page.href}/`);
 
-        return (
-          <Link
-            key={page.id}
-            href={page.href as Route}
-            onClick={(e) => handleClick(e, page.href)}
-            className={`
+          return (
+            <Link
+              key={page.id}
+              href={page.href as Route}
+              onClick={(e) => handleClick(e, page.href)}
+              className={`
               flex items-center justify-between px-3 py-2 mx-1 rounded-lg text-sm font-medium transition-all duration-150
-              ${isActive
-                ? "bg-indigo-50 text-indigo-600 font-semibold dark:bg-[#6366F1]/15 dark:text-[#818CF8]"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white"
+              ${
+                isActive
+                  ? "bg-indigo-50 text-indigo-600 font-semibold dark:bg-[#6366F1]/15 dark:text-[#818CF8]"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white"
               }
             `}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <Icon
-                className={`h-4 w-4 shrink-0 ${isActive ? "text-indigo-600 dark:text-[#818CF8]" : "text-slate-400 dark:text-slate-500"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Icon
+                  className={`h-4 w-4 shrink-0 ${
+                    isActive
+                      ? "text-indigo-600 dark:text-[#818CF8]"
+                      : "text-slate-400 dark:text-slate-500"
                   }`}
-              />
-              <span className="truncate">{page.label}</span>
-            </div>
+                />
+                <span className="truncate">{page.label}</span>
+              </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
-              {page.badge && (
-                <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                  {page.badge}
-                </span>
-              )}
-              {!isAuthenticated && (
-                <Lock className="h-3 w-3 text-slate-400 dark:text-slate-500 shrink-0" />
-              )}
-            </div>
-          </Link>
-        );
-      })}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {page.badge && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    {page.badge}
+                  </span>
+                )}
+                {!isAuthenticated && (
+                  <Lock className="h-3 w-3 text-slate-400 dark:text-slate-500 shrink-0" />
+                )}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

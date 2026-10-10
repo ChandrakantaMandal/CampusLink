@@ -3,7 +3,8 @@ import StudentsManagementView from "@/components/dashboard/admin/views/StudentsM
 
 export const metadata: Metadata = {
   title: "Student Management — CAMPUSLINK Admin",
-  description: "Manage registered student profiles, verify documents, inspect CGPA eligibility, and track placement readiness.",
+  description:
+    "Manage registered student profiles, verify documents, inspect CGPA eligibility, and track placement readiness.",
 };
 
 export default function AdminStudentsPage() {

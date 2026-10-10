@@ -1,4 +1,13 @@
-import { BarChart3, Briefcase, Building2, Cpu, GraduationCap, ShieldCheck, Smartphone, TrendingUp } from "lucide-react";
+import {
+  BarChart3,
+  Briefcase,
+  Building2,
+  Cpu,
+  GraduationCap,
+  ShieldCheck,
+  Smartphone,
+  TrendingUp,
+} from "lucide-react";
 
 export const faqs = [
   {
@@ -128,131 +137,152 @@ export const features = [
 ];
 
 export const personas = {
-    students: {
-      label: "For Students",
-      icon: GraduationCap,
-      tagline: "Your AI-Powered Career Co-Pilot",
-      headline: "Know Your Placement Readiness Before Day One of Campus Drives",
-      description:
-        "Never wonder whether you qualify or what you need to improve. CAMPUSLINK continuously analyzes your profile, scores your resume against actual recruiter standards, and highlights exact skill gaps to bridge.",
-      benefits: [
-        "Instant Deterministic Eligibility: Pre-check your qualification for all company drives.",
-        "Real-Time Readiness Score: Combines academics, projects, certifications, and technical tests.",
-        "Targeted Skill-Gap Roadmaps: Know exactly what frameworks and concepts you need next.",
-        "1-Click Verified Applications: Apply instantly with verified student credentials.",
-      ],
-      stats: [
-        { label: "Profile Match Accuracy", value: "99.2%" },
-        { label: "Average Salary Boost", value: "+38%" },
-        { label: "Time Saved Applying", value: "12 hrs/wk" },
-      ],
-      ctaText: "",
-      ctaLink: "",
-      previewBadge: "Student Dashboard Preview",
-      mockItems: [
-        { title: "Resume ATS Score", value: "96 / 100", highlight: true },
-        { title: "Active Drive Invitations", value: "8 Companies", highlight: false },
-        { title: "Placement Cell Verification", value: "Verified ✅", highlight: false },
-      ],
-    },
-    recruiters: {
-      label: "For Recruiters & Companies",
-      icon: Briefcase,
-      tagline: "Zero-Noise Campus Hiring",
-      headline: "Source Pre-Vetted, 100% Eligible Campus Talent at 4x Speed",
-      description:
-        "Eliminate resume spam and unqualified applications. Set strict deterministic parameters for CGPA, branches, graduation year, and backlog limits, then let our matching engine surface genuine top performers.",
-      benefits: [
-        "Deterministic Criteria Filters: Zero hallucinations on CGPA, degree, and backlogs.",
-        "AI Semantic Skill Verification: Compare candidate project repositories & verified skills.",
-        "End-to-End Drive Scheduling: Coordinate test rounds, technical interviews, and rolling offers.",
-        "One-Click Shortlisting & Export: Seamless integration with enterprise HRMS & ATS.",
-      ],
-      stats: [
-        { label: "Candidate Screening Speed", value: "4.2x Faster" },
-        { label: "Offer Acceptance Rate", value: "91%" },
-        { label: "Unqualified Applications", value: "0%" },
-      ],
-      ctaText: "",
-      ctaLink: "",
-      previewBadge: "Recruiter Dashboard Preview",
-      mockItems: [
-        { title: "Matched Candidates", value: "142 Shortlisted", highlight: true },
-        { title: "Eligibility Pass Rate", value: "100% Verified", highlight: false },
-        { title: "Assessment Slotting", value: "Automated", highlight: false },
-      ],
-    },
-    tpo: {
-      label: "For Placement Cells & Universities",
-      icon: Building2,
-      tagline: "The Ultimate TPO Command Center",
-      headline: "Orchestrate Entire Campus Placement Seasons With Complete Control",
-      description:
-        "Replace chaotic spreadsheets and scattered WhatsApp messages. Centralize company registrations, student eligibility approvals, job slot schedules, and NIRF/NAAC compliant placement reporting in one real-time portal.",
-      benefits: [
-        "Live College-Wide Dashboard: Real-time visibility into branch-wise offers and CTCs.",
-        "Automated Eligibility Enforcement: Ensure university policies and company rules are respected.",
-        "Instant Drive Broadcasts: One-click circulars with automated email and OTP verification.",
-        "Regulatory & Audit Compliance: Generate complete NIRF, NBA, and NAAC placement reports.",
-      ],
-      stats: [
-        { label: "Placement Management Hours", value: "-75%" },
-        { label: "Offer Tracking Accuracy", value: "100%" },
-        { label: "Campus Drive Capacity", value: "+50 Drives" },
-      ],
-      ctaText: "",
-      ctaLink: "",
-      previewBadge: "Placement Officer Command Center",
-      mockItems: [
-        { title: "Total Placed Batch Rate", value: "94.6%", highlight: true },
-        { title: "Active On-Campus Drives", value: "24 Companies", highlight: false },
-        { title: "Highest Package Offered", value: "48.5 LPA", highlight: false },
-      ],
-    },
-  }as const;
+  students: {
+    label: "For Students",
+    icon: GraduationCap,
+    tagline: "Your AI-Powered Career Co-Pilot",
+    headline: "Know Your Placement Readiness Before Day One of Campus Drives",
+    description:
+      "Never wonder whether you qualify or what you need to improve. CAMPUSLINK continuously analyzes your profile, scores your resume against actual recruiter standards, and highlights exact skill gaps to bridge.",
+    benefits: [
+      "Instant Deterministic Eligibility: Pre-check your qualification for all company drives.",
+      "Real-Time Readiness Score: Combines academics, projects, certifications, and technical tests.",
+      "Targeted Skill-Gap Roadmaps: Know exactly what frameworks and concepts you need next.",
+      "1-Click Verified Applications: Apply instantly with verified student credentials.",
+    ],
+    stats: [
+      { label: "Profile Match Accuracy", value: "99.2%" },
+      { label: "Average Salary Boost", value: "+38%" },
+      { label: "Time Saved Applying", value: "12 hrs/wk" },
+    ],
+    ctaText: "",
+    ctaLink: "",
+    previewBadge: "Student Dashboard Preview",
+    mockItems: [
+      { title: "Resume ATS Score", value: "96 / 100", highlight: true },
+      {
+        title: "Active Drive Invitations",
+        value: "8 Companies",
+        highlight: false,
+      },
+      {
+        title: "Placement Cell Verification",
+        value: "Verified ✅",
+        highlight: false,
+      },
+    ],
+  },
+  recruiters: {
+    label: "For Recruiters & Companies",
+    icon: Briefcase,
+    tagline: "Zero-Noise Campus Hiring",
+    headline: "Source Pre-Vetted, 100% Eligible Campus Talent at 4x Speed",
+    description:
+      "Eliminate resume spam and unqualified applications. Set strict deterministic parameters for CGPA, branches, graduation year, and backlog limits, then let our matching engine surface genuine top performers.",
+    benefits: [
+      "Deterministic Criteria Filters: Zero hallucinations on CGPA, degree, and backlogs.",
+      "AI Semantic Skill Verification: Compare candidate project repositories & verified skills.",
+      "End-to-End Drive Scheduling: Coordinate test rounds, technical interviews, and rolling offers.",
+      "One-Click Shortlisting & Export: Seamless integration with enterprise HRMS & ATS.",
+    ],
+    stats: [
+      { label: "Candidate Screening Speed", value: "4.2x Faster" },
+      { label: "Offer Acceptance Rate", value: "91%" },
+      { label: "Unqualified Applications", value: "0%" },
+    ],
+    ctaText: "",
+    ctaLink: "",
+    previewBadge: "Recruiter Dashboard Preview",
+    mockItems: [
+      {
+        title: "Matched Candidates",
+        value: "142 Shortlisted",
+        highlight: true,
+      },
+      {
+        title: "Eligibility Pass Rate",
+        value: "100% Verified",
+        highlight: false,
+      },
+      { title: "Assessment Slotting", value: "Automated", highlight: false },
+    ],
+  },
+  tpo: {
+    label: "For Placement Cells & Universities",
+    icon: Building2,
+    tagline: "The Ultimate TPO Command Center",
+    headline:
+      "Orchestrate Entire Campus Placement Seasons With Complete Control",
+    description:
+      "Replace chaotic spreadsheets and scattered WhatsApp messages. Centralize company registrations, student eligibility approvals, job slot schedules, and NIRF/NAAC compliant placement reporting in one real-time portal.",
+    benefits: [
+      "Live College-Wide Dashboard: Real-time visibility into branch-wise offers and CTCs.",
+      "Automated Eligibility Enforcement: Ensure university policies and company rules are respected.",
+      "Instant Drive Broadcasts: One-click circulars with automated email and OTP verification.",
+      "Regulatory & Audit Compliance: Generate complete NIRF, NBA, and NAAC placement reports.",
+    ],
+    stats: [
+      { label: "Placement Management Hours", value: "-75%" },
+      { label: "Offer Tracking Accuracy", value: "100%" },
+      { label: "Campus Drive Capacity", value: "+50 Drives" },
+    ],
+    ctaText: "",
+    ctaLink: "",
+    previewBadge: "Placement Officer Command Center",
+    mockItems: [
+      { title: "Total Placed Batch Rate", value: "94.6%", highlight: true },
+      {
+        title: "Active On-Campus Drives",
+        value: "24 Companies",
+        highlight: false,
+      },
+      { title: "Highest Package Offered", value: "48.5 LPA", highlight: false },
+    ],
+  },
+} as const;
 
- export   const partners = [
-    "Google",
-    "Microsoft",
-    "Amazon",
-    "Oracle",
-    "Cisco",
-    "Infosys",
-    "TCS",
-    "Deloitte",
-    "Goldman Sachs",
-    "Atlassian",
-  ];
+export const partners = [
+  "Google",
+  "Microsoft",
+  "Amazon",
+  "Oracle",
+  "Cisco",
+  "Infosys",
+  "TCS",
+  "Deloitte",
+  "Goldman Sachs",
+  "Atlassian",
+];
 
- export  const testimonials = [
-      {
-        quote:
-          "CAMPUSLINK identified that my lack of Docker and Redis was the only gap holding back my resume from Tier-1 shortlists. I focused on those, boosted my readiness score to 96, and cracked an SDE role at Microsoft!",
-        name: "Ananya Sharma",
-        role: "Software Engineer @ Microsoft",
-        sub: "B.Tech CSE Graduate • Batch 2025",
-        avatar: "AS",
-        verified: "Placed via CAMPUSLINK",
-        rating: 5,
-      },
-      {
-        quote:
-          "Managing 2,800 engineering students across 65 on-campus drives used to mean endless spreadsheets and manual verification headaches. CAMPUSLINK automated eligibility cutoffs and made our placement season 4x smoother.",
-        name: "Dr. Rajesh K.",
-        role: "Head of Training & Placement",
-        sub: "Premier National Engineering College",
-        avatar: "RK",
-        verified: "TPO Partner",
-        rating: 5,
-      },
-      {
-        quote:
-          "Zero unqualified candidates reached our technical interview panel. The deterministic eligibility engine verified CGPA and backlogs beforehand, allowing us to focus only on top-tier engineering talent.",
-        name: "Priya Nair",
-        role: "Campus Talent Acquisition Lead",
-        sub: "Global FinTech Solutions",
-        avatar: "PN",
-        verified: "Hiring Partner",
-        rating: 5,
-      },
-    ];
+export const testimonials = [
+  {
+    quote:
+      "CAMPUSLINK identified that my lack of Docker and Redis was the only gap holding back my resume from Tier-1 shortlists. I focused on those, boosted my readiness score to 96, and cracked an SDE role at Microsoft!",
+    name: "Ananya Sharma",
+    role: "Software Engineer @ Microsoft",
+    sub: "B.Tech CSE Graduate • Batch 2025",
+    avatar: "AS",
+    verified: "Placed via CAMPUSLINK",
+    rating: 5,
+  },
+  {
+    quote:
+      "Managing 2,800 engineering students across 65 on-campus drives used to mean endless spreadsheets and manual verification headaches. CAMPUSLINK automated eligibility cutoffs and made our placement season 4x smoother.",
+    name: "Dr. Rajesh K.",
+    role: "Head of Training & Placement",
+    sub: "Premier National Engineering College",
+    avatar: "RK",
+    verified: "TPO Partner",
+    rating: 5,
+  },
+  {
+    quote:
+      "Zero unqualified candidates reached our technical interview panel. The deterministic eligibility engine verified CGPA and backlogs beforehand, allowing us to focus only on top-tier engineering talent.",
+    name: "Priya Nair",
+    role: "Campus Talent Acquisition Lead",
+    sub: "Global FinTech Solutions",
+    avatar: "PN",
+    verified: "Hiring Partner",
+    rating: 5,
+  },
+];

@@ -24,7 +24,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { type RecruiterCandidate } from "../recruiter.types";
-import { getApplications, updateApplicationStatus } from "@/lib/api/recruiter.api";
+import {
+  getApplications,
+  updateApplicationStatus,
+} from "@/lib/api/recruiter.api";
 import { toast } from "sonner";
 
 export default function RecruiterCandidatesView() {
@@ -33,7 +36,8 @@ export default function RecruiterCandidatesView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [branchFilter, setBranchFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [selectedCandidate, setSelectedCandidate] = useState<RecruiterCandidate | null>(null);
+  const [selectedCandidate, setSelectedCandidate] =
+    useState<RecruiterCandidate | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -64,15 +68,22 @@ export default function RecruiterCandidatesView() {
       cand.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cand.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cand.appliedJobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cand.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
+      cand.skills.some((s) =>
+        s.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
 
-    const matchesBranch = branchFilter === "ALL" || cand.branch === branchFilter;
-    const matchesStatus = statusFilter === "ALL" || cand.status === statusFilter;
+    const matchesBranch =
+      branchFilter === "ALL" || cand.branch === branchFilter;
+    const matchesStatus =
+      statusFilter === "ALL" || cand.status === statusFilter;
 
     return matchesSearch && matchesBranch && matchesStatus;
   });
 
-  const handleStatusChange = async (candId: string, newStatus: RecruiterCandidate["status"]) => {
+  const handleStatusChange = async (
+    candId: string,
+    newStatus: RecruiterCandidate["status"],
+  ) => {
     try {
       await updateApplicationStatus(candId, newStatus);
     } catch {
@@ -83,7 +94,7 @@ export default function RecruiterCandidatesView() {
     }
 
     setCandidates((prev) =>
-      prev.map((c) => (c.id === candId ? { ...c, status: newStatus } : c))
+      prev.map((c) => (c.id === candId ? { ...c, status: newStatus } : c)),
     );
     if (selectedCandidate && selectedCandidate.id === candId) {
       setSelectedCandidate({ ...selectedCandidate, status: newStatus });
@@ -103,12 +114,16 @@ export default function RecruiterCandidatesView() {
             Candidate Talent Directory
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Search, filter, and inspect campus candidates across all active job streams.
+            Search, filter, and inspect campus candidates across all active job
+            streams.
           </p>
         </div>
 
         <div className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2">
-          Total Candidates: <strong className="text-blue-600 dark:text-blue-400">{candidates.length}</strong>
+          Total Candidates:{" "}
+          <strong className="text-blue-600 dark:text-blue-400">
+            {candidates.length}
+          </strong>
         </div>
       </div>
 
@@ -134,10 +149,30 @@ export default function RecruiterCandidatesView() {
             onChange={(e) => setBranchFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           >
-            <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Branches</option>
-            <option value="CSE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">CSE</option>
-            <option value="IT" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">IT</option>
-            <option value="ECE" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">ECE</option>
+            <option
+              value="ALL"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              All Branches
+            </option>
+            <option
+              value="CSE"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              CSE
+            </option>
+            <option
+              value="IT"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              IT
+            </option>
+            <option
+              value="ECE"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              ECE
+            </option>
           </select>
 
           {/* Status Filter */}
@@ -146,13 +181,48 @@ export default function RecruiterCandidatesView() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
           >
-            <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">All Statuses</option>
-            <option value="Shortlisted" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Shortlisted</option>
-            <option value="Interview" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Interview</option>
-            <option value="Under Review" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Under Review</option>
-            <option value="Applied" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Applied</option>
-            <option value="Selected" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Selected</option>
-            <option value="Offer" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Offer</option>
+            <option
+              value="ALL"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              All Statuses
+            </option>
+            <option
+              value="Shortlisted"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Shortlisted
+            </option>
+            <option
+              value="Interview"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Interview
+            </option>
+            <option
+              value="Under Review"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Under Review
+            </option>
+            <option
+              value="Applied"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Applied
+            </option>
+            <option
+              value="Selected"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Selected
+            </option>
+            <option
+              value="Offer"
+              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+            >
+              Offer
+            </option>
           </select>
         </div>
       </div>
@@ -201,146 +271,170 @@ export default function RecruiterCandidatesView() {
               )}
               {!loading &&
                 filteredCandidates.map((cand) => (
-                <tr
-                  key={cand.id}
-                  className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
-                  tabIndex={0}
-                  role="link"
-                  onClick={() =>
-                    cand.studentId
-                      ? router.push(`/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route)
-                      : router.push(`/recruiter/applications/${cand.id}` as Route)
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      if (cand.studentId) {
-                        router.push(`/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route);
-                      } else {
-                        router.push(`/recruiter/applications/${cand.id}` as Route);
-                      }
+                  <tr
+                    key={cand.id}
+                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                    tabIndex={0}
+                    role="link"
+                    onClick={() =>
+                      cand.studentId
+                        ? router.push(
+                            `/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route,
+                          )
+                        : router.push(
+                            `/recruiter/applications/${cand.id}` as Route,
+                          )
                     }
-                  }}
-                >
-                  {/* Candidate Name & Avatar */}
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs shrink-0">
-                        <span>{cand.name.slice(0, 2).toUpperCase() || "?"}</span>
-                        {cand.avatarUrl && (
-                          <img
-                            src={cand.avatarUrl}
-                            alt={`${cand.name} profile`}
-                            className="absolute inset-0 h-full w-full object-cover"
-                            onError={(event) => { event.currentTarget.style.display = "none"; }}
-                          />
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        if (cand.studentId) {
+                          router.push(
+                            `/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route,
+                          );
+                        } else {
+                          router.push(
+                            `/recruiter/applications/${cand.id}` as Route,
+                          );
+                        }
+                      }
+                    }}
+                  >
+                    {/* Candidate Name & Avatar */}
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs shrink-0">
+                          <span>
+                            {cand.name.slice(0, 2).toUpperCase() || "?"}
+                          </span>
+                          {cand.avatarUrl && (
+                            <img
+                              src={cand.avatarUrl}
+                              alt={`${cand.name} profile`}
+                              className="absolute inset-0 h-full w-full object-cover"
+                              onError={(event) => {
+                                event.currentTarget.style.display = "none";
+                              }}
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                            {cand.name}
+                          </p>
+                          <p className="text-[11px] text-slate-400 truncate">
+                            {cand.email}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Branch & CGPA */}
+                    <td className="p-4">
+                      <div className="font-bold text-slate-800 dark:text-slate-200">
+                        {cand.branch} &bull; {cand.cgpa} CGPA
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {cand.backlogs === 0
+                          ? "0 Backlogs ✓"
+                          : `${cand.backlogs} Backlog`}
+                      </div>
+                    </td>
+
+                    {/* Skills */}
+                    <td className="p-4">
+                      <div className="flex flex-wrap gap-1 max-w-xs">
+                        {cand.skills.slice(0, 3).map((sk, i) => (
+                          <span
+                            key={i}
+                            className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] px-1.5 py-0.5 rounded font-medium"
+                          >
+                            {sk}
+                          </span>
+                        ))}
+                        {cand.skills.length > 3 && (
+                          <span className="text-[10px] text-slate-400 font-bold self-center">
+                            +{cand.skills.length - 3}
+                          </span>
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-slate-900 dark:text-white text-sm truncate">
-                          {cand.name}
-                        </p>
-                        <p className="text-[11px] text-slate-400 truncate">{cand.email}</p>
-                      </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* Branch & CGPA */}
-                  <td className="p-4">
-                    <div className="font-bold text-slate-800 dark:text-slate-200">
-                      {cand.branch} &bull; {cand.cgpa} CGPA
-                    </div>
-                    <div className="text-[10px] text-slate-400">
-                      {cand.backlogs === 0 ? "0 Backlogs ✓" : `${cand.backlogs} Backlog`}
-                    </div>
-                  </td>
+                    {/* Applied Job */}
+                    <td className="p-4">
+                      <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate max-w-xs">
+                        {cand.appliedJobTitle}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {cand.appliedDate}
+                      </p>
+                    </td>
 
-                  {/* Skills */}
-                  <td className="p-4">
-                    <div className="flex flex-wrap gap-1 max-w-xs">
-                      {cand.skills.slice(0, 3).map((sk, i) => (
-                        <span
-                          key={i}
-                          className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] px-1.5 py-0.5 rounded font-medium"
-                        >
-                          {sk}
-                        </span>
-                      ))}
-                      {cand.skills.length > 3 && (
-                        <span className="text-[10px] text-slate-400 font-bold self-center">
-                          +{cand.skills.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </td>
+                    {/* Match Score */}
+                    <td className="p-4">
+                      <span
+                        className={`inline-flex items-center gap-1 font-bold text-xs ${
+                          cand.matchScore >= 90
+                            ? "text-purple-600 dark:text-purple-400"
+                            : cand.matchScore >= 80
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        {cand.matchScoreAvailable ? `${cand.matchScore}%` : "—"}
+                      </span>
+                    </td>
 
-                  {/* Applied Job */}
-                  <td className="p-4">
-                    <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate max-w-xs">
-                      {cand.appliedJobTitle}
-                    </p>
-                    <p className="text-[10px] text-slate-400">{cand.appliedDate}</p>
-                  </td>
+                    {/* Readiness Score */}
+                    <td className="p-4">
+                      <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">
+                        {cand.readinessAvailable
+                          ? `${cand.readinessScore}%`
+                          : "—"}
+                      </span>
+                    </td>
 
-                  {/* Match Score */}
-                  <td className="p-4">
-                    <span
-                      className={`inline-flex items-center gap-1 font-bold text-xs ${
-                        cand.matchScore >= 90
-                          ? "text-purple-600 dark:text-purple-400"
-                          : cand.matchScore >= 80
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-amber-600 dark:text-amber-400"
-                      }`}
-                    >
-                      <Sparkles className="h-3 w-3" />
-                      {cand.matchScoreAvailable ? `${cand.matchScore}%` : "—"}
-                    </span>
-                  </td>
+                    {/* Status */}
+                    <td className="p-4">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          cand.status === "Shortlisted"
+                            ? "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300"
+                            : cand.status === "Interview"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                              : cand.status === "Offer"
+                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                : cand.status === "Selected"
+                                  ? "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300"
+                                  : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        }`}
+                      >
+                        {cand.status}
+                      </span>
+                    </td>
 
-                  {/* Readiness Score */}
-                  <td className="p-4">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">
-                      {cand.readinessAvailable ? `${cand.readinessScore}%` : "—"}
-                    </span>
-                  </td>
-
-                  {/* Status */}
-                  <td className="p-4">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        cand.status === "Shortlisted"
-                          ? "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300"
-                          : cand.status === "Interview"
-                          ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                          : cand.status === "Offer"
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                          : cand.status === "Selected"
-                          ? "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300"
-                          : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                      }`}
-                    >
-                      {cand.status}
-                    </span>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="p-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        cand.studentId
-                          ? router.push(`/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route)
-                          : router.push(`/recruiter/applications/${cand.id}` as Route)
-                      }
-                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-slate-50 hover:text-blue-700 dark:hover:bg-slate-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
-                    >
-                      <span>View Profile</span>
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    {/* Actions */}
+                    <td className="p-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          cand.studentId
+                            ? router.push(
+                                `/recruiter/candidates/${cand.studentId}?applicationId=${cand.id}` as Route,
+                              )
+                            : router.push(
+                                `/recruiter/applications/${cand.id}` as Route,
+                              )
+                        }
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-slate-50 hover:text-blue-700 dark:hover:bg-slate-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
+                      >
+                        <span>View Profile</span>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -354,13 +448,17 @@ export default function RecruiterCandidatesView() {
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-lg">
-                  <span>{selectedCandidate.name.slice(0, 2).toUpperCase() || "?"}</span>
+                  <span>
+                    {selectedCandidate.name.slice(0, 2).toUpperCase() || "?"}
+                  </span>
                   {selectedCandidate.avatarUrl && (
                     <img
                       src={selectedCandidate.avatarUrl}
                       alt={`${selectedCandidate.name} profile`}
                       className="absolute inset-0 h-full w-full object-cover"
-                      onError={(event) => { event.currentTarget.style.display = "none"; }}
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
                     />
                   )}
                 </div>
@@ -369,7 +467,9 @@ export default function RecruiterCandidatesView() {
                     {selectedCandidate.name}
                   </h2>
                   <p className="text-xs text-slate-500">
-                    {selectedCandidate.branch} &bull; {selectedCandidate.college} &bull; Batch {selectedCandidate.graduationYear}
+                    {selectedCandidate.branch} &bull;{" "}
+                    {selectedCandidate.college} &bull; Batch{" "}
+                    {selectedCandidate.graduationYear}
                   </p>
                 </div>
               </div>
@@ -386,29 +486,49 @@ export default function RecruiterCandidatesView() {
             {/* Quick Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">CGPA</span>
-                <p className="text-lg font-black text-slate-900 dark:text-white">{selectedCandidate.cgpa}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  CGPA
+                </span>
+                <p className="text-lg font-black text-slate-900 dark:text-white">
+                  {selectedCandidate.cgpa}
+                </p>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Active Backlogs</span>
-                <p className="text-lg font-black text-slate-900 dark:text-white">{selectedCandidate.backlogs}</p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  Active Backlogs
+                </span>
+                <p className="text-lg font-black text-slate-900 dark:text-white">
+                  {selectedCandidate.backlogs}
+                </p>
               </div>
 
               <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40">
-                <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 uppercase">AI Match</span>
-                <p className="text-lg font-black text-purple-600 dark:text-purple-400">{selectedCandidate.matchScoreAvailable ? `${selectedCandidate.matchScore}%` : "—"}</p>
+                <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 uppercase">
+                  AI Match
+                </span>
+                <p className="text-lg font-black text-purple-600 dark:text-purple-400">
+                  {selectedCandidate.matchScoreAvailable
+                    ? `${selectedCandidate.matchScore}%`
+                    : "—"}
+                </p>
               </div>
 
               <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40">
-                <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">Readiness</span>
-                <p className="text-lg font-black text-blue-600 dark:text-blue-400">{selectedCandidate.readinessScore}%</p>
+                <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">
+                  Readiness
+                </span>
+                <p className="text-lg font-black text-blue-600 dark:text-blue-400">
+                  {selectedCandidate.readinessScore}%
+                </p>
               </div>
             </div>
 
             {/* Skills & Verified Stack */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Verified Skills</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                Verified Skills
+              </h4>
               <div className="flex flex-wrap gap-1.5">
                 {selectedCandidate.skills.map((sk, i) => (
                   <span
@@ -457,7 +577,9 @@ export default function RecruiterCandidatesView() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleStatusChange(selectedCandidate.id, "Shortlisted")}
+                  onClick={() =>
+                    handleStatusChange(selectedCandidate.id, "Shortlisted")
+                  }
                   className="rounded-xl bg-purple-600 hover:bg-purple-500 px-4 py-2 text-xs font-bold text-white hover:shadow-md hover:shadow-purple-500/30 transition-all cursor-pointer"
                 >
                   Shortlist Candidate
@@ -465,7 +587,11 @@ export default function RecruiterCandidatesView() {
                 {selectedCandidate.studentId && (
                   <button
                     type="button"
-                    onClick={() => router.push(`/recruiter/candidates/${selectedCandidate.studentId}?applicationId=${selectedCandidate.id}` as Route)}
+                    onClick={() =>
+                      router.push(
+                        `/recruiter/candidates/${selectedCandidate.studentId}?applicationId=${selectedCandidate.id}` as Route,
+                      )
+                    }
                     className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -477,7 +603,9 @@ export default function RecruiterCandidatesView() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleStatusChange(selectedCandidate.id, "Rejected")}
+                  onClick={() =>
+                    handleStatusChange(selectedCandidate.id, "Rejected")
+                  }
                   className="rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 dark:text-rose-400 px-4 py-2 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Reject

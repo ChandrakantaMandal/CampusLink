@@ -153,7 +153,8 @@ export default function FloatingChatWidget({
   useEffect(() => {
     if (!isOpen || !chatContainerRef.current) return;
     if (isAutoScrollEnabledRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
 
@@ -312,13 +313,29 @@ export default function FloatingChatWidget({
                     if (typeof p === "string") {
                       extractedParts.push(p);
                     } else if (p && typeof p === "object") {
-                      if ("text" in p && typeof (p as any).text === "string" && (p as any).text) {
+                      if (
+                        "text" in p &&
+                        typeof (p as any).text === "string" &&
+                        (p as any).text
+                      ) {
                         extractedParts.push((p as any).text);
-                      } else if ("content" in p && typeof (p as any).content === "string" && (p as any).content) {
+                      } else if (
+                        "content" in p &&
+                        typeof (p as any).content === "string" &&
+                        (p as any).content
+                      ) {
                         extractedParts.push((p as any).content);
-                      } else if ("textDelta" in p && typeof (p as any).textDelta === "string" && (p as any).textDelta) {
+                      } else if (
+                        "textDelta" in p &&
+                        typeof (p as any).textDelta === "string" &&
+                        (p as any).textDelta
+                      ) {
                         extractedParts.push((p as any).textDelta);
-                      } else if ("delta" in p && typeof (p as any).delta === "string" && (p as any).delta) {
+                      } else if (
+                        "delta" in p &&
+                        typeof (p as any).delta === "string" &&
+                        (p as any).delta
+                      ) {
                         extractedParts.push((p as any).delta);
                       }
                     }
@@ -331,20 +348,24 @@ export default function FloatingChatWidget({
                     : "";
 
                 const fullText =
-                  extractedParts.length > 0 ? extractedParts.join("\n") : rawContent || "";
+                  extractedParts.length > 0
+                    ? extractedParts.join("\n")
+                    : rawContent || "";
 
                 return (
                   <div
                     key={message.id}
-                    className={`flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"
-                      }`}
+                    className={`flex items-start gap-2.5 ${
+                      isUser ? "flex-row-reverse" : "flex-row"
+                    }`}
                   >
                     {/* Avatar */}
                     <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-white shadow-2xs text-[10px] ${isUser
-                        ? "bg-slate-700 dark:bg-slate-600"
-                        : `bg-gradient-to-tr ${config.avatarGradient}`
-                        }`}
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-white shadow-2xs text-[10px] ${
+                        isUser
+                          ? "bg-slate-700 dark:bg-slate-600"
+                          : `bg-gradient-to-tr ${config.avatarGradient}`
+                      }`}
                     >
                       {isUser ? (
                         <User className="h-3.5 w-3.5" />
@@ -355,10 +376,11 @@ export default function FloatingChatWidget({
 
                     {/* Message Bubble */}
                     <div
-                      className={`max-w-[82%] rounded-2xl p-3 text-xs leading-relaxed ${isUser
-                        ? "rounded-tr-xs bg-indigo-600 text-white shadow-md shadow-indigo-600/15"
-                        : "rounded-tl-xs border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-2xs"
-                        }`}
+                      className={`max-w-[82%] rounded-2xl p-3 text-xs leading-relaxed ${
+                        isUser
+                          ? "rounded-tr-xs bg-indigo-600 text-white shadow-md shadow-indigo-600/15"
+                          : "rounded-tl-xs border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-2xs"
+                      }`}
                     >
                       {isUser ? (
                         <p className="whitespace-pre-wrap">{fullText}</p>
@@ -395,7 +417,9 @@ export default function FloatingChatWidget({
 
             {error && (
               <div className="mx-2 mb-2 p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/70 dark:bg-rose-950/40 text-[11px] text-rose-600 dark:text-rose-400 flex items-center justify-between gap-2">
-                <span className="truncate">AI service unavailable. Ensure server is active.</span>
+                <span className="truncate">
+                  AI service unavailable. Ensure server is active.
+                </span>
                 <button
                   type="button"
                   onClick={() => handleSend()}
@@ -476,8 +500,9 @@ export default function FloatingChatWidget({
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? "Close AI Chatbot" : "Open AI Chatbot"}
-          className={`relative group flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-gradient-to-tr ${config.avatarGradient} text-white shadow-xl shadow-indigo-600/35 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border border-white/20 dark:border-white/10 ${isOpen ? "rotate-90 shadow-purple-600/40" : ""
-            }`}
+          className={`relative group flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-gradient-to-tr ${config.avatarGradient} text-white shadow-xl shadow-indigo-600/35 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border border-white/20 dark:border-white/10 ${
+            isOpen ? "rotate-90 shadow-purple-600/40" : ""
+          }`}
         >
           {/* Subtle Outer Glow Wave */}
           <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 opacity-30 blur-md group-hover:opacity-60 transition-opacity animate-pulse pointer-events-none" />

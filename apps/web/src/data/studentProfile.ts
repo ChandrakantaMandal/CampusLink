@@ -60,7 +60,7 @@ export interface StudentProfileData {
 export function createEmptyStudentProfile(
   name = "",
   email = "",
-  avatarUrl = ""
+  avatarUrl = "",
 ): StudentProfileData {
   return {
     name,
@@ -155,7 +155,8 @@ export const sampleDemoProfile: StudentProfileData = {
   otherWebsite: "",
 };
 
-export const initialStudentProfile: StudentProfileData = createEmptyStudentProfile();
+export const initialStudentProfile: StudentProfileData =
+  createEmptyStudentProfile();
 
 export interface CompletionItem {
   id: string;
@@ -173,19 +174,97 @@ export function calculateProfileCompletion(profile: StudentProfileData): {
   missingSuggestions: string[];
 } {
   const items: CompletionItem[] = [
-    { id: "name", label: "Full Name", completed: Boolean(profile.name?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "email", label: "Email Address", completed: Boolean(profile.email?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "phone", label: "Phone Number", completed: Boolean(profile.phone?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "department", label: "Department", completed: Boolean(profile.department?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "year", label: "Academic Year", completed: Boolean(profile.year?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "cgpa", label: "Academic CGPA", completed: Boolean(profile.cgpa?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "bio", label: "Short Bio", completed: Boolean(profile.bio?.trim()), fieldKey: "personal", weight: 1 },
-    { id: "skills", label: "Technical Skills", completed: profile.skills.length > 0, fieldKey: "skills", weight: 1 },
-    { id: "education", label: "Education Details", completed: profile.education.length > 0, fieldKey: "education", weight: 1 },
-    { id: "certifications", label: "Certifications", completed: profile.certifications.length > 0, fieldKey: "certifications", weight: 1 },
-    { id: "resume", label: "Resume Upload", completed: Boolean(profile.resume), fieldKey: "resume", weight: 1 },
-    { id: "github", label: "GitHub Profile", completed: Boolean(profile.github?.trim()), fieldKey: "links", weight: 1 },
-    { id: "linkedin", label: "LinkedIn Profile", completed: Boolean(profile.linkedin?.trim()), fieldKey: "links", weight: 1 },
+    {
+      id: "name",
+      label: "Full Name",
+      completed: Boolean(profile.name?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "email",
+      label: "Email Address",
+      completed: Boolean(profile.email?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "phone",
+      label: "Phone Number",
+      completed: Boolean(profile.phone?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "department",
+      label: "Department",
+      completed: Boolean(profile.department?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "year",
+      label: "Academic Year",
+      completed: Boolean(profile.year?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "cgpa",
+      label: "Academic CGPA",
+      completed: Boolean(profile.cgpa?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "bio",
+      label: "Short Bio",
+      completed: Boolean(profile.bio?.trim()),
+      fieldKey: "personal",
+      weight: 1,
+    },
+    {
+      id: "skills",
+      label: "Technical Skills",
+      completed: profile.skills.length > 0,
+      fieldKey: "skills",
+      weight: 1,
+    },
+    {
+      id: "education",
+      label: "Education Details",
+      completed: profile.education.length > 0,
+      fieldKey: "education",
+      weight: 1,
+    },
+    {
+      id: "certifications",
+      label: "Certifications",
+      completed: profile.certifications.length > 0,
+      fieldKey: "certifications",
+      weight: 1,
+    },
+    {
+      id: "resume",
+      label: "Resume Upload",
+      completed: Boolean(profile.resume),
+      fieldKey: "resume",
+      weight: 1,
+    },
+    {
+      id: "github",
+      label: "GitHub Profile",
+      completed: Boolean(profile.github?.trim()),
+      fieldKey: "links",
+      weight: 1,
+    },
+    {
+      id: "linkedin",
+      label: "LinkedIn Profile",
+      completed: Boolean(profile.linkedin?.trim()),
+      fieldKey: "links",
+      weight: 1,
+    },
   ];
 
   const completedCount = items.filter((i) => i.completed).length;
