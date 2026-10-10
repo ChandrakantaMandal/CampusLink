@@ -4,6 +4,7 @@ import { calculateReadiness } from "./readiness.service";
 import type { UpdateStudentInput } from "./student.schema";
 
 const CACHE_TTL = 300;
+const VOLATILE_TTL = 60;
 
 async function getCache<T>(key: string): Promise<T | null> {
   const cached = await redis.get(key);
@@ -34,6 +35,10 @@ function studentCacheKey(studentId: string) {
   return `student:${studentId}`;
 }
 
+function aggregateCacheKey(userId: string, domain: string) {
+  return `student:${domain}:${userId}`;
+}
+
 function splitName(name: string) {
   const parts = name.trim().split(/\s+/);
 
@@ -43,6 +48,58 @@ function splitName(name: string) {
   };
 }
 
+function calculateStudentReadiness(student: {
+  cgpa?: number | null;
+  resumeText?: string | null;
+  skills?: Array<{
+    level: string | null;
+    years: number | null;
+    skill: {
+      name: string;
+    };
+  }> | null;
+  projects?: Array<{
+    title: string;
+    description: string | null;
+    githubUrl: string | null;
+    liveUrl: string | null;
+  }> | null;
+  assessments?: Array<{
+    percentage?: number | null;
+    passed?: boolean | null;
+  }> | null;
+  resumes?: Array<{
+    parsedText: string | null;
+    fileUrl: string;
+  }> | null;
+}) {
+  return calculateReadiness({
+    cgpa: student.cgpa ?? null,
+    resumeText: student.resumeText ?? null,
+    skills: (student.skills ?? []).map((item) => ({
+      level: item.level,
+      years: item.years,
+      skill: {
+        name: item.skill.name,
+      },
+    })),
+    projects: (student.projects ?? []).map((project) => ({
+      title: project.title,
+      description: project.description,
+      githubUrl: project.githubUrl,
+      liveUrl: project.liveUrl,
+    })),
+    assessments: (student.assessments ?? []).map((item) => ({
+      percentage: item.percentage ?? 0,
+      passed: item.passed ?? false,
+    })),
+    resumes: (student.resumes ?? []).map((resume) => ({
+      parsedText: resume.parsedText,
+      fileUrl: resume.fileUrl,
+    })),
+  });
+}
+
 export async function invalidateStudentCaches(
   userId?: string,
   studentId?: string,
@@ -50,16 +107,19 @@ export async function invalidateStudentCaches(
   const keys: string[] = [];
 
   if (userId) {
-    keys.push(studentUserCacheKey(userId));
+    keys.push(
+      studentUserCacheKey(userId),
+      aggregateCacheKey(userId, "readiness"),
+      aggregateCacheKey(userId, "dashboard"),
+      aggregateCacheKey(userId, "drives"),
+      aggregateCacheKey(userId, "interviews"),
+      aggregateCacheKey(userId, "offers"),
+      aggregateCacheKey(userId, "notifications"),
+    );
   }
 
   if (studentId) {
     keys.push(studentCacheKey(studentId));
-  }
-
-  // Invalidate readiness aggregate cache
-  if (userId) {
-    keys.push(`student:readiness:${userId}`);
   }
 
   if (keys.length > 0) {
@@ -69,18 +129,14 @@ export async function invalidateStudentCaches(
 
 export async function getStudentByUserId(userId: string) {
   const cacheKey = studentUserCacheKey(userId);
+  const cached = await getCache<Record<string, unknown>>(cacheKey);
 
-  const cached = await getCache(cacheKey);
-
-  if (cached) {
+  if (cached !== null) {
     return cached;
   }
 
   let student = await db.studentProfile.findUnique({
-    where: {
-      userId,
-    },
-
+    where: { userId },
     include: {
       user: {
         select: {
@@ -91,15 +147,12 @@ export async function getStudentByUserId(userId: string) {
           role: true,
         },
       },
-
       skills: {
         include: {
           skill: true,
         },
       },
-
       education: true,
-
       projects: {
         include: {
           skills: {
@@ -109,30 +162,25 @@ export async function getStudentByUserId(userId: string) {
           },
         },
       },
-
       assessments: true,
-
       resumes: true,
     },
   });
 
   if (!student) {
     const user = await db.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { id: userId },
     });
 
     if (!user) {
       return null;
     }
 
-    const createdStudent = await db.studentProfile.create({
+    student = await db.studentProfile.create({
       data: {
         userId,
         ...splitName(user.name),
       },
-
       include: {
         user: {
           select: {
@@ -143,15 +191,12 @@ export async function getStudentByUserId(userId: string) {
             role: true,
           },
         },
-
         skills: {
           include: {
             skill: true,
           },
         },
-
         education: true,
-
         projects: {
           include: {
             skills: {
@@ -161,30 +206,38 @@ export async function getStudentByUserId(userId: string) {
             },
           },
         },
-
         assessments: true,
-
         resumes: true,
       },
     });
-
-    student = createdStudent;
   }
 
-  await setCache(cacheKey, student);
-  await setCache(studentCacheKey(student.id), student);
+  // FIX: Include readiness fields in the user-ID lookup response.
+  const readiness = calculateStudentReadiness(student);
 
-  return student;
+  const enriched = {
+    ...student,
+    readinessScore: readiness.overallScore,
+    readinessBreakdown: readiness.breakdown,
+  };
+
+  // Cache the same enriched result under both lookup keys.
+  await setCache(cacheKey, enriched);
+  await setCache(studentCacheKey(student.id), enriched);
+
+  return enriched;
 }
 
 export async function getStudentById(id: string) {
   const cacheKey = studentCacheKey(id);
+  const cached = await getCache<Record<string, unknown>>(cacheKey);
+
+  if (cached !== null) {
+    return cached;
+  }
 
   const student = await db.studentProfile.findUnique({
-    where: {
-      id,
-    },
-
+    where: { id },
     include: {
       user: {
         select: {
@@ -195,15 +248,12 @@ export async function getStudentById(id: string) {
           role: true,
         },
       },
-
       skills: {
         include: {
           skill: true,
         },
       },
-
       education: true,
-
       projects: {
         include: {
           skills: {
@@ -213,26 +263,16 @@ export async function getStudentById(id: string) {
           },
         },
       },
-
       assessments: true,
-
       resumes: true,
     },
   });
 
-  if (!student) return null;
+  if (!student) {
+    return null;
+  }
 
-  const readiness = calculateReadiness({
-    cgpa: student.cgpa,
-    resumeText: student.resumeText,
-    skills: student.skills,
-    projects: student.projects,
-    assessments: student.assessments.map((item) => ({
-      percentage: item.percentage ?? 0,
-      passed: item.passed ?? false,
-    })),
-    resumes: student.resumes,
-  });
+  const readiness = calculateStudentReadiness(student);
 
   const enriched = {
     ...student,
@@ -248,16 +288,12 @@ export async function getStudentById(id: string) {
 
 export async function updateStudent(userId: string, data: UpdateStudentInput) {
   const existingStudent = await db.studentProfile.findUnique({
-    where: {
-      userId,
-    },
+    where: { userId },
   });
 
   if (!existingStudent) {
     const user = await db.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { id: userId },
     });
 
     if (!user) {
@@ -270,7 +306,6 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
         ...splitName(user.name),
         ...data,
       },
-
       include: {
         user: {
           select: {
@@ -281,15 +316,12 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
             role: true,
           },
         },
-
         skills: {
           include: {
             skill: true,
           },
         },
-
         education: true,
-
         projects: {
           include: {
             skills: {
@@ -299,9 +331,7 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
             },
           },
         },
-
         assessments: true,
-
         resumes: true,
       },
     });
@@ -312,12 +342,8 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
   }
 
   const student = await db.studentProfile.update({
-    where: {
-      userId,
-    },
-
+    where: { userId },
     data,
-
     include: {
       user: {
         select: {
@@ -334,12 +360,6 @@ export async function updateStudent(userId: string, data: UpdateStudentInput) {
   await invalidateStudentCaches(userId, existingStudent.id);
 
   return student;
-}
-
-const VOLATILE_TTL = 60;
-
-function aggregateCacheKey(userId: string, domain: string) {
-  return `student:${domain}:${userId}`;
 }
 
 export function invalidateStudentInterviewCache(userId: string) {
@@ -379,24 +399,18 @@ async function withAggregateCache<T>(
 type ResolvedStudent = {
   id: string;
   userId: string;
-
   firstName: string | null;
   lastName: string | null;
-
   college: string | null;
   department: string | null;
   branch: string | null;
   graduationYear: number | null;
-
   cgpa: number | null;
   backlogs: number;
-
   readinessScore: number | null;
   readinessLabel: string | null;
   resumeUrl: string | null;
-
   resumeText: string | null;
-
   skills: Array<{
     level: string | null;
     years: number | null;
@@ -404,24 +418,20 @@ type ResolvedStudent = {
       name: string;
     };
   }>;
-
   projects: Array<{
     title: string;
     description: string | null;
     githubUrl: string | null;
     liveUrl: string | null;
   }>;
-
   assessments: Array<{
     percentage: number;
     passed: boolean;
   }>;
-
   resumes: Array<{
     parsedText: string | null;
     fileUrl: string;
   }>;
-
   user?: {
     id: string;
     name: string | null;
@@ -541,7 +551,6 @@ export async function getStudentDashboard(userId: string) {
           where: { studentId: student.id },
           orderBy: { appliedAt: "desc" },
           take: 5,
-
           include: {
             job: {
               select: {
@@ -569,13 +578,8 @@ export async function getStudentDashboard(userId: string) {
               in: ["SCHEDULED", "RESCHEDULED"],
             },
           },
-
-          orderBy: {
-            scheduledDate: "asc",
-          },
-
+          orderBy: { scheduledDate: "asc" },
           take: 3,
-
           include: {
             job: {
               select: {
@@ -586,7 +590,6 @@ export async function getStudentDashboard(userId: string) {
                 },
               },
             },
-
             drive: {
               select: {
                 id: true,
@@ -619,22 +622,13 @@ export async function getStudentDashboard(userId: string) {
             userId,
             isRead: false,
           },
-
-          orderBy: {
-            createdAt: "desc",
-          },
-
+          orderBy: { createdAt: "desc" },
           take: 3,
         }),
 
         db.readinessResult.findFirst({
-          where: {
-            studentId: student.id,
-          },
-
-          orderBy: {
-            createdAt: "desc",
-          },
+          where: { studentId: student.id },
+          orderBy: { createdAt: "desc" },
         }),
       ]);
 
@@ -653,7 +647,6 @@ export async function getStudentDashboard(userId: string) {
           resumeUrl: student.resumeUrl,
           image: student.user?.image ?? null,
         },
-
         stats: {
           applications: totalApplications,
           interviews: totalInterviews,
@@ -663,7 +656,6 @@ export async function getStudentDashboard(userId: string) {
           readinessScore,
           readinessLabel: student.readinessLabel ?? null,
         },
-
         recentApplications,
         upcomingInterviews,
         recentNotifications,
@@ -683,52 +675,24 @@ export async function getStudentReadiness(userId: string) {
         return null;
       }
 
-      const readiness = calculateReadiness({
-        cgpa: student.cgpa,
-        resumeText: student.resumeText,
-        skills: student.skills,
-        projects: student.projects,
-        assessments: student.assessments.map((item) => ({
-          percentage: item.percentage,
-          passed: item.passed,
-        })),
-        resumes: student.resumes,
-      });
+      const readiness = calculateStudentReadiness(student);
 
       const [latest, history, recentAssessments] = await Promise.all([
         db.readinessResult.findFirst({
-          where: {
-            studentId: student.id,
-          },
-
-          orderBy: {
-            createdAt: "desc",
-          },
+          where: { studentId: student.id },
+          orderBy: { createdAt: "desc" },
         }),
 
         db.readinessResult.findMany({
-          where: {
-            studentId: student.id,
-          },
-
-          orderBy: {
-            createdAt: "desc",
-          },
-
+          where: { studentId: student.id },
+          orderBy: { createdAt: "desc" },
           take: 10,
         }),
 
         db.assessmentResult.findMany({
-          where: {
-            studentId: student.id,
-          },
-
-          orderBy: {
-            takenAt: "desc",
-          },
-
+          where: { studentId: student.id },
+          orderBy: { takenAt: "desc" },
           take: 5,
-
           include: {
             assessment: {
               select: {
@@ -741,16 +705,19 @@ export async function getStudentReadiness(userId: string) {
         }),
       ]);
 
+      const score =
+        latest?.overallScore ??
+        student.readinessScore ??
+        readiness.overallScore;
+
+      const label = student.readinessLabel ?? readiness.readinessLabel;
+
       return {
-        score: readiness.overallScore,
-        label: readiness.readinessLabel,
-
+        score,
+        label,
         breakdown: readiness.breakdown,
-
         weights: readiness.weights,
-
         explanation: readiness.explanation,
-
         latest,
         history,
         recentAssessments,
@@ -772,16 +739,9 @@ export async function getStudentDrives(userId: string) {
 
       const [registrations, openDrives] = await Promise.all([
         db.driveRegistration.findMany({
-          where: {
-            studentId: student.id,
-          },
-
-          orderBy: {
-            registeredAt: "desc",
-          },
-
+          where: { studentId: student.id },
+          orderBy: { registeredAt: "desc" },
           take: 50,
-
           include: {
             drive: {
               include: {
@@ -799,13 +759,8 @@ export async function getStudentDrives(userId: string) {
               in: ["OPEN", "ONGOING"],
             },
           },
-
-          orderBy: {
-            driveDate: "asc",
-          },
-
+          orderBy: { driveDate: "asc" },
           take: 20,
-
           include: {
             company: {
               select: companyCompactSelect,
@@ -821,7 +776,6 @@ export async function getStudentDrives(userId: string) {
       return {
         registered: registrations.map((registration) => ({
           ...registration,
-
           eligible: isEligibleForDrive(student, registration.drive),
         })),
 
@@ -830,7 +784,6 @@ export async function getStudentDrives(userId: string) {
           .map((drive) => ({
             ...drive,
             isRegistered: false,
-
             eligible: isEligibleForDrive(student, drive),
           })),
       };
@@ -850,16 +803,9 @@ export async function getStudentInterviews(userId: string) {
       }
 
       const interviews = await db.interview.findMany({
-        where: {
-          studentId: student.id,
-        },
-
-        orderBy: {
-          scheduledDate: "asc",
-        },
-
+        where: { studentId: student.id },
+        orderBy: { scheduledDate: "asc" },
         take: 50,
-
         include: {
           job: {
             select: {
@@ -870,7 +816,6 @@ export async function getStudentInterviews(userId: string) {
               },
             },
           },
-
           drive: {
             select: {
               id: true,
@@ -921,18 +866,12 @@ export async function getStudentOffers(userId: string) {
           studentId: student.id,
           status: { not: "DRAFT" },
         },
-
-        orderBy: {
-          offerDate: "desc",
-        },
-
+        orderBy: { offerDate: "desc" },
         take: 50,
-
         include: {
           company: {
             select: companyCompactSelect,
           },
-
           job: {
             select: {
               id: true,
@@ -944,13 +883,10 @@ export async function getStudentOffers(userId: string) {
 
       return {
         offers,
-
         stats: {
           total: offers.length,
-
           accepted: offers.filter((offer) => offer.status === "ACCEPTED")
             .length,
-
           pending: offers.filter(
             (offer) =>
               offer.status === "SENT" || offer.status === "PENDING_ACCEPTANCE",
@@ -986,9 +922,7 @@ export async function acceptStudentOffer(
   }
 
   const offer = await db.offer.findUnique({
-    where: {
-      id: offerId,
-    },
+    where: { id: offerId },
   });
 
   if (!offer || offer.studentId !== student.id) {
@@ -1015,19 +949,12 @@ export async function acceptStudentOffer(
   }
 
   const updated = await db.offer.update({
-    where: {
-      id: offer.id,
-    },
-
-    data: {
-      status: "ACCEPTED",
-    },
-
+    where: { id: offer.id },
+    data: { status: "ACCEPTED" },
     include: {
       company: {
         select: companyCompactSelect,
       },
-
       job: {
         select: {
           id: true,
@@ -1075,9 +1002,7 @@ export async function registerForDrive(
   }
 
   const drive = await db.placementDrive.findUnique({
-    where: {
-      id: driveId,
-    },
+    where: { id: driveId },
   });
 
   if (!drive) {
@@ -1128,7 +1053,6 @@ export async function registerForDrive(
       driveId: drive.id,
       studentId: student.id,
     },
-
     include: {
       drive: {
         include: {
@@ -1165,14 +1089,8 @@ export async function getStudentNotifications(userId: string) {
 
       const [notifications, unreadCount, total] = await Promise.all([
         db.userNotification.findMany({
-          where: {
-            userId,
-          },
-
-          orderBy: {
-            createdAt: "desc",
-          },
-
+          where: { userId },
+          orderBy: { createdAt: "desc" },
           take: 50,
         }),
 
@@ -1184,9 +1102,7 @@ export async function getStudentNotifications(userId: string) {
         }),
 
         db.userNotification.count({
-          where: {
-            userId,
-          },
+          where: { userId },
         }),
       ]);
 
@@ -1201,9 +1117,7 @@ export async function getStudentNotifications(userId: string) {
 
 export async function markStudentNotificationRead(userId: string, id: string) {
   const notification = await db.userNotification.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
   });
 
   if (!notification || notification.userId !== userId) {
@@ -1215,10 +1129,7 @@ export async function markStudentNotificationRead(userId: string, id: string) {
   }
 
   const updated = await db.userNotification.update({
-    where: {
-      id,
-    },
-
+    where: { id },
     data: {
       isRead: true,
       readAt: new Date(),
@@ -1236,7 +1147,6 @@ export async function markAllStudentNotificationsRead(userId: string) {
       userId,
       isRead: false,
     },
-
     data: {
       isRead: true,
       readAt: new Date(),

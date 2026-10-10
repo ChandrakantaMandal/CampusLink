@@ -36,11 +36,13 @@ function clamp(value: number, min = 0, max = 100): number {
    ========================================================= */
 
 function calculateTechnicalScore(student: StudentData): number {
-  if (student.skills.length === 0) {
+  const skills = student.skills ?? [];
+
+  if (skills.length === 0) {
     return 0;
   }
 
-  const skillPoints = student.skills.reduce((total, studentSkill) => {
+  const skillPoints = skills.reduce((total, studentSkill) => {
     let points = 5;
 
     const level = studentSkill.level?.toLowerCase() ?? "";
@@ -64,7 +66,7 @@ function calculateTechnicalScore(student: StudentData): number {
     return total + Math.min(points, 10);
   }, 0);
 
-  const maximumScore = student.skills.length * 10;
+  const maximumScore = skills.length * 10;
 
   return clamp((skillPoints / maximumScore) * 100);
 }
@@ -74,16 +76,18 @@ function calculateTechnicalScore(student: StudentData): number {
    ========================================================= */
 
 function calculateAssessmentScore(student: StudentData): number {
-  if (student.assessments.length === 0) {
+  const assessments = student.assessments ?? [];
+
+  if (assessments.length === 0) {
     return 0;
   }
 
-  const totalPercentage = student.assessments.reduce(
+  const totalPercentage = assessments.reduce(
     (total, assessment) => total + assessment.percentage,
     0,
   );
 
-  const averagePercentage = totalPercentage / student.assessments.length;
+  const averagePercentage = totalPercentage / assessments.length;
 
   return clamp(averagePercentage);
 }
@@ -93,31 +97,29 @@ function calculateAssessmentScore(student: StudentData): number {
    ========================================================= */
 
 function calculateProjectScore(student: StudentData): number {
-  if (student.projects.length === 0) {
+  const projects = student.projects ?? [];
+
+  if (projects.length === 0) {
     return 0;
   }
 
   let totalScore = 0;
 
-  for (const project of student.projects) {
+  for (const project of projects) {
     let projectScore = 0;
 
-    // Project title
     if (project.title?.trim()) {
       projectScore += 10;
     }
 
-    // Project description
     if (project.description?.trim()) {
       projectScore += 20;
     }
 
-    // GitHub repository
     if (project.githubUrl?.trim()) {
       projectScore += 35;
     }
 
-    // Live demo
     if (project.liveUrl?.trim()) {
       projectScore += 35;
     }
@@ -125,7 +127,7 @@ function calculateProjectScore(student: StudentData): number {
     totalScore += projectScore;
   }
 
-  const maximumScore = student.projects.length * 100;
+  const maximumScore = projects.length * 100;
 
   return clamp((totalScore / maximumScore) * 100);
 }

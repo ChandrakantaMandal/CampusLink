@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import express from "express";
+import express, { type ErrorRequestHandler } from "express";
 import request from "supertest";
 
 const mocks = vi.hoisted(() => ({
@@ -18,12 +18,15 @@ const mocks = vi.hoisted(() => ({
       findUnique: vi.fn(),
     },
   },
+
   redis: {
     get: vi.fn(),
     set: vi.fn(),
     del: vi.fn(),
   },
+
   imagekitUpload: vi.fn(),
+
   auth: {
     role: "STUDENT" as string,
   },
@@ -39,7 +42,11 @@ vi.mock("@CampusLink/redis", () => ({
 
 vi.mock("../../src/lib/imagekit", () => ({
   isImageKitConfigured: () => true,
-  getImageKit: () => ({ upload: mocks.imagekitUpload }),
+
+  getImageKit: () => ({
+    upload: mocks.imagekitUpload,
+  }),
+
   imageKitFolder: (...parts: string[]) =>
     ["campuslink", ...parts.filter(Boolean)].join("/"),
 }));
@@ -82,6 +89,7 @@ import {
   IMAGE_MAX_BYTES,
   RESUME_MAX_BYTES,
 } from "../../src/middleware/upload.middleware";
+
 import studentRouter from "../../src/modules/students/student.routes";
 import recruiterRouter from "../../src/modules/recruiter/recruiter.routes";
 
@@ -91,12 +99,14 @@ app.use(express.json());
 app.use("/api/students", studentRouter);
 app.use("/api/recruiter", recruiterRouter);
 
-app.use((error: Error, _req: any, res: any, _next: any) => {
+const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   return res.status(500).json({
     success: false,
     message: error.message,
   });
-});
+};
+
+app.use(errorHandler);
 
 const PDF_BYTES = Buffer.from(
   "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF",
@@ -114,12 +124,18 @@ beforeEach(() => {
 
   mocks.auth.role = "STUDENT";
 
-  mocks.imagekitUpload.mockResolvedValue({ url: UPLOAD_URL });
+  mocks.imagekitUpload.mockResolvedValue({
+    url: UPLOAD_URL,
+  });
 
-  mocks.db.studentProfile.findUnique.mockResolvedValue({ id: "student-1" });
+  mocks.db.studentProfile.findUnique.mockResolvedValue({
+    id: "student-1",
+  });
+
   mocks.db.studentProfile.update.mockResolvedValue({});
   mocks.db.user.update.mockResolvedValue({});
   mocks.db.company.update.mockResolvedValue({});
+
   mocks.db.recruiterProfile.findUnique.mockResolvedValue({
     id: "recruiter-1",
     companyId: "company-1",
@@ -136,15 +152,22 @@ describe("POST /api/students/me/resume", () => {
       });
 
     expect(response.status).toBe(200);
+
     expect(response.body).toEqual({
       success: true,
       message: "Resume uploaded successfully",
-      data: { resumeUrl: UPLOAD_URL },
+      data: {
+        resumeUrl: UPLOAD_URL,
+      },
     });
 
     expect(mocks.db.studentProfile.findUnique).toHaveBeenCalledWith({
-      where: { userId: "user-1" },
-      select: { id: true },
+      where: {
+        userId: "user-1",
+      },
+      select: {
+        id: true,
+      },
     });
 
     expect(mocks.imagekitUpload).toHaveBeenCalledWith({
@@ -155,12 +178,22 @@ describe("POST /api/students/me/resume", () => {
     });
 
     expect(mocks.db.studentProfile.update).toHaveBeenCalledWith({
-      where: { userId: "user-1" },
-      data: { resumeUrl: UPLOAD_URL },
+      where: {
+        userId: "user-1",
+      },
+      data: {
+        resumeUrl: UPLOAD_URL,
+      },
     });
 
     expect(mocks.redis.del).toHaveBeenCalledWith(
       "student:user:user-1",
+      "student:readiness:user-1",
+      "student:dashboard:user-1",
+      "student:drives:user-1",
+      "student:interviews:user-1",
+      "student:offers:user-1",
+      "student:notifications:user-1",
       "student:student-1",
     );
   });
@@ -174,6 +207,7 @@ describe("POST /api/students/me/resume", () => {
       });
 
     expect(response.status).toBe(200);
+
     expect(mocks.imagekitUpload).toHaveBeenCalledWith(
       expect.objectContaining({
         fileName: expect.stringMatching(/^resume-\d+-my_resume__final_\.pdf$/),
@@ -190,10 +224,12 @@ describe("POST /api/students/me/resume", () => {
       });
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message: "Invalid Resume file type. Allowed: application/pdf",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
   });
@@ -209,10 +245,12 @@ describe("POST /api/students/me/resume", () => {
       });
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message: "Resume file exceeds the maximum size of 5MB",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
   });
@@ -221,10 +259,12 @@ describe("POST /api/students/me/resume", () => {
     const response = await request(app).post("/api/students/me/resume");
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message: "No resume file uploaded",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
   });
@@ -240,10 +280,12 @@ describe("POST /api/students/me/resume", () => {
       });
 
     expect(response.status).toBe(500);
+
     expect(response.body).toEqual({
       success: false,
       message: "Student profile not found",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
   });
@@ -259,10 +301,12 @@ describe("POST /api/students/me/resume", () => {
       });
 
     expect(response.status).toBe(500);
+
     expect(response.body).toEqual({
       success: false,
       message: "ImageKit unavailable",
     });
+
     expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
     expect(mocks.redis.del).not.toHaveBeenCalled();
   });
@@ -278,10 +322,13 @@ describe("POST /api/students/me/photo", () => {
       });
 
     expect(response.status).toBe(200);
+
     expect(response.body).toEqual({
       success: true,
       message: "Photo uploaded successfully",
-      data: { image: UPLOAD_URL },
+      data: {
+        image: UPLOAD_URL,
+      },
     });
 
     expect(mocks.imagekitUpload).toHaveBeenCalledWith({
@@ -292,11 +339,23 @@ describe("POST /api/students/me/photo", () => {
     });
 
     expect(mocks.db.user.update).toHaveBeenCalledWith({
-      where: { id: "user-1" },
-      data: { image: UPLOAD_URL },
+      where: {
+        id: "user-1",
+      },
+      data: {
+        image: UPLOAD_URL,
+      },
     });
 
-    expect(mocks.redis.del).toHaveBeenCalledWith("student:user:user-1");
+    expect(mocks.redis.del).toHaveBeenCalledWith(
+      "student:user:user-1",
+      "student:readiness:user-1",
+      "student:dashboard:user-1",
+      "student:drives:user-1",
+      "student:interviews:user-1",
+      "student:offers:user-1",
+      "student:notifications:user-1",
+    );
   });
 
   it("should reject a non-image file with 400", async () => {
@@ -308,11 +367,13 @@ describe("POST /api/students/me/photo", () => {
       });
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message:
         "Invalid Image file type. Allowed: image/jpeg, image/jpg, image/png, image/webp",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.user.update).not.toHaveBeenCalled();
   });
@@ -328,10 +389,12 @@ describe("POST /api/students/me/photo", () => {
       });
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message: "Image file exceeds the maximum size of 2MB",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.user.update).not.toHaveBeenCalled();
   });
@@ -340,10 +403,12 @@ describe("POST /api/students/me/photo", () => {
     const response = await request(app).post("/api/students/me/photo");
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message: "No photo file uploaded",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.user.update).not.toHaveBeenCalled();
   });
@@ -359,10 +424,12 @@ describe("POST /api/students/me/photo", () => {
       });
 
     expect(response.status).toBe(500);
+
     expect(response.body).toEqual({
       success: false,
       message: "ImageKit unavailable",
     });
+
     expect(mocks.db.user.update).not.toHaveBeenCalled();
     expect(mocks.redis.del).not.toHaveBeenCalled();
   });
@@ -382,15 +449,23 @@ describe("POST /api/recruiter/company/logo", () => {
       });
 
     expect(response.status).toBe(200);
+
     expect(response.body).toEqual({
       success: true,
       message: "Company logo uploaded successfully",
-      data: { logoUrl: UPLOAD_URL },
+      data: {
+        logoUrl: UPLOAD_URL,
+      },
     });
 
     expect(mocks.db.recruiterProfile.findUnique).toHaveBeenCalledWith({
-      where: { userId: "user-1" },
-      select: { id: true, companyId: true },
+      where: {
+        userId: "user-1",
+      },
+      select: {
+        id: true,
+        companyId: true,
+      },
     });
 
     expect(mocks.imagekitUpload).toHaveBeenCalledWith({
@@ -401,8 +476,12 @@ describe("POST /api/recruiter/company/logo", () => {
     });
 
     expect(mocks.db.company.update).toHaveBeenCalledWith({
-      where: { id: "company-1" },
-      data: { logoUrl: UPLOAD_URL },
+      where: {
+        id: "company-1",
+      },
+      data: {
+        logoUrl: UPLOAD_URL,
+      },
     });
   });
 
@@ -417,10 +496,12 @@ describe("POST /api/recruiter/company/logo", () => {
       });
 
     expect(response.status).toBe(500);
+
     expect(response.body).toEqual({
       success: false,
       message: "Recruiter company not found",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.company.update).not.toHaveBeenCalled();
   });
@@ -429,10 +510,12 @@ describe("POST /api/recruiter/company/logo", () => {
     const response = await request(app).post("/api/recruiter/company/logo");
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message: "No logo file uploaded",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.company.update).not.toHaveBeenCalled();
   });
@@ -446,11 +529,13 @@ describe("POST /api/recruiter/company/logo", () => {
       });
 
     expect(response.status).toBe(400);
+
     expect(response.body).toEqual({
       success: false,
       message:
         "Invalid Image file type. Allowed: image/jpeg, image/jpg, image/png, image/webp",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.company.update).not.toHaveBeenCalled();
   });
@@ -466,10 +551,12 @@ describe("role enforcement", () => {
       });
 
     expect(response.status).toBe(403);
+
     expect(response.body).toEqual({
       success: false,
       message: "You do not have permission to access this resource",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
   });
 
@@ -484,10 +571,12 @@ describe("role enforcement", () => {
       });
 
     expect(response.status).toBe(403);
+
     expect(response.body).toEqual({
       success: false,
       message: "You do not have permission to access this resource",
     });
+
     expect(mocks.imagekitUpload).not.toHaveBeenCalled();
     expect(mocks.db.studentProfile.update).not.toHaveBeenCalled();
   });
