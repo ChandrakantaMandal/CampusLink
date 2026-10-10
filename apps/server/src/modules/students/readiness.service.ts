@@ -212,12 +212,20 @@ export function calculateReadiness(student: StudentData) {
 
   const resumeScore = calculateResumeScore(student);
 
+  const roundedBreakdown = {
+    technical: Math.round(technicalScore),
+    assessment: Math.round(assessmentScore),
+    projects: Math.round(projectScore),
+    academics: Math.round(academicScore),
+    resume: Math.round(resumeScore),
+  };
+
   const overallScore = Math.round(
-    technicalScore * 0.3 +
-      assessmentScore * 0.2 +
-      projectScore * 0.2 +
-      academicScore * 0.2 +
-      resumeScore * 0.1,
+    roundedBreakdown.technical * 0.3 +
+      roundedBreakdown.assessment * 0.2 +
+      roundedBreakdown.projects * 0.2 +
+      roundedBreakdown.academics * 0.2 +
+      roundedBreakdown.resume * 0.1,
   );
 
   let readinessLabel = "Needs Improvement";
@@ -235,17 +243,7 @@ export function calculateReadiness(student: StudentData) {
 
     readinessLabel,
 
-    breakdown: {
-      technical: Math.round(technicalScore),
-
-      assessment: Math.round(assessmentScore),
-
-      projects: Math.round(projectScore),
-
-      academics: Math.round(academicScore),
-
-      resume: Math.round(resumeScore),
-    },
+    breakdown: roundedBreakdown,
 
     weights: {
       technical: 30,

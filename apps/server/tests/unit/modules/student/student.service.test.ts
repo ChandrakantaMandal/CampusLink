@@ -706,7 +706,7 @@ describe("Student Aggregates Service", () => {
           offers: 2,
           drivesRegistered: 3,
           unreadNotifications: 5,
-          readinessScore: 72,
+          readinessScore: 85,
           readinessLabel: "GOOD",
         },
         recentApplications: [recentApplication],
@@ -776,7 +776,7 @@ describe("Student Aggregates Service", () => {
       const result = await getStudentReadiness("user-1");
 
       expect(result).toMatchObject({
-        score: 72,
+        score: 85,
         label: "GOOD",
         latest,
         history,
@@ -800,21 +800,17 @@ describe("Student Aggregates Service", () => {
       );
     });
 
-    it("should fall back to the stored readiness score when no result exists", async () => {
+    it("should use the live calculated score when no stored result exists", async () => {
       mocks.db.readinessResult.findFirst.mockResolvedValue(null);
       mocks.db.readinessResult.findMany.mockResolvedValue([]);
       mocks.db.assessmentResult.findMany.mockResolvedValue([]);
 
-      // Return the stored score instead of the shared mocked score of 85.
-      mocks.calculateReadiness.mockReturnValueOnce({
-        ...readinessResult,
-        overallScore: 65,
-        readinessLabel: "GOOD",
-      });
-
+      // student.readinessScore is 65 and readinessResult is empty — the
+      // live calculation (shared mock returns 85) must still drive score.
       const result = await getStudentReadiness("user-1");
 
-      expect(result?.score).toBe(65);
+      expect(result?.score).toBe(85);
+      expect(result?.label).toBe("GOOD");
       expect(result?.latest).toBeNull();
       expect(result?.history).toEqual([]);
     });

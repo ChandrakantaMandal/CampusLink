@@ -541,7 +541,6 @@ export async function getStudentDashboard(userId: string) {
         totalDrivesRegistered,
         unreadNotifications,
         recentNotifications,
-        latestReadiness,
       ] = await Promise.all([
         db.application.count({
           where: { studentId: student.id },
@@ -625,15 +624,10 @@ export async function getStudentDashboard(userId: string) {
           orderBy: { createdAt: "desc" },
           take: 3,
         }),
-
-        db.readinessResult.findFirst({
-          where: { studentId: student.id },
-          orderBy: { createdAt: "desc" },
-        }),
       ]);
 
-      const readinessScore =
-        latestReadiness?.overallScore ?? student.readinessScore ?? 0;
+      const liveReadiness = calculateStudentReadiness(student);
+      const readinessScore = liveReadiness.overallScore;
 
       return {
         student: {
@@ -654,7 +648,7 @@ export async function getStudentDashboard(userId: string) {
           drivesRegistered: totalDrivesRegistered,
           unreadNotifications,
           readinessScore,
-          readinessLabel: student.readinessLabel ?? null,
+          readinessLabel: liveReadiness.readinessLabel,
         },
         recentApplications,
         upcomingInterviews,
@@ -705,12 +699,12 @@ export async function getStudentReadiness(userId: string) {
         }),
       ]);
 
-      const score =
-        latest?.overallScore ??
-        student.readinessScore ??
-        readiness.overallScore;
+      // FIX: score/label must come from the same live calculation as the
+      // breakdown below — stale readinessResult/studentProfile values took
+      // precedence before, so the headline disagreed with the dimensions.
+      const score = readiness.overallScore;
 
-      const label = student.readinessLabel ?? readiness.readinessLabel;
+      const label = readiness.readinessLabel;
 
       return {
         score,

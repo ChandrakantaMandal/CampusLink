@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import WelcomeBanner from "@/components/dashboard/student/WelcomeBanner";
 import KeyStatistics from "@/components/dashboard/student/KeyStatistics";
@@ -22,6 +22,7 @@ import {
   useStudentOffers,
   useStudentDrives,
   useStudentDashboard,
+  useStudentReadiness,
   useStudentApplications,
   useStudentJobs,
   useStudentProfile,
@@ -36,32 +37,6 @@ import {
 
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
-const SERVER_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
-
-type ReadinessResponse = {
-  overallScore: number;
-  readinessLabel: string;
-
-  breakdown: {
-    technical: number;
-    assessment: number;
-    projects: number;
-    academics: number;
-    resume: number;
-  };
-
-  weights: {
-    technical: number;
-    assessment: number;
-    projects: number;
-    academics: number;
-    resume: number;
-  };
-
-  explanation: string;
-};
 
 function getStatus(score: number): ReadinessDimension["status"] {
   if (score >= 80) {
@@ -103,48 +78,24 @@ export default function StudentDashboard() {
     ? toInterviewSlots(interviewsQuery.data)
     : [];
 
-  // Readiness
-  const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
-
-  useEffect(() => {
-    async function fetchReadiness() {
-      try {
-        const response = await fetch(`${SERVER_URL}/api/students/readiness`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error(`Readiness API failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (!result.success || !result.data) {
-          throw new Error("Invalid readiness response");
-        }
-
-        setReadiness(result.data);
-      } catch (error) {
-        console.error("Failed to fetch readiness:", error);
-
-        toast.error("Unable to load live readiness score.");
-      }
-    }
-
-    fetchReadiness();
-  }, []);
+  // Readiness (same live endpoint as the readiness page / header / sidebar)
+  const readinessQuery = useStudentReadiness();
+  const readiness = readinessQuery.data;
 
   const readinessScore =
-    readiness?.overallScore ?? dashboardQuery.data?.stats.readinessScore ?? 0;
+    readiness?.score ?? dashboardQuery.data?.stats.readinessScore ?? 0;
 
+  // Fallback mirrors the server label tiers (85/70/50) so the label does not
+  // flip while the readiness aggregate is still loading.
   const readinessLabel =
-    readiness?.readinessLabel ??
-    (readinessScore >= 80
+    readiness?.label ??
+    (readinessScore >= 85
       ? "Tier-1 Ready"
-      : readinessScore >= 40
-        ? "Placement Track"
-        : "Building Profile");
+      : readinessScore >= 70
+        ? "Placement Ready"
+        : readinessScore >= 50
+          ? "Almost Ready"
+          : "Needs Improvement");
 
   const studentName =
     profileQuery.profile?.user?.name ||
@@ -175,22 +126,24 @@ export default function StudentDashboard() {
   const aiCoachRecommendation = {
     title: "AI Placement Coach Recommendation",
     highlight:
-      readinessScore >= 80
+      readinessScore >= 85
         ? "Tier-1 Competitive"
-        : readinessScore >= 40
+        : readinessScore >= 70
           ? "Placement Track"
-          : "Build Profile Foundation",
+          : readinessScore >= 50
+            ? "Almost Ready"
+            : "Build Profile Foundation",
     message:
       readiness?.explanation ||
-      (readinessScore >= 80
+      (readinessScore >= 85
         ? "Your profile is competitive for high-paying product company drives. Continue practicing mock interviews."
-        : readinessScore >= 40
+        : readinessScore >= 70
           ? "Complete mock technical assessments and verify project demos to achieve Tier-1 placement readiness."
           : "Add your technical skills, link live project repositories, and update academics to unlock AI job matching and company eligibility."),
     actionText:
-      readinessScore >= 80
+      readinessScore >= 85
         ? "Explore Drives"
-        : readinessScore >= 40
+        : readinessScore >= 70
           ? "Take Assessment"
           : "Complete Profile",
   };

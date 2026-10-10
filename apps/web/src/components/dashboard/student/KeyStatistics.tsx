@@ -44,11 +44,13 @@ export default function KeyStatistics({
       value: `${stats.readinessScore}%`,
       subtitle: stats.readinessLabel,
       trend:
-        stats.readinessScore >= 75
-          ? "Tier-1 Competitive"
-          : stats.readinessScore >= 40
-            ? "Placement Track"
-            : "Needs Improvement",
+        stats.readinessScore >= 85
+          ? "Tier-1 Ready"
+          : stats.readinessScore >= 70
+            ? "Placement Ready"
+            : stats.readinessScore >= 50
+              ? "Almost Ready"
+              : "Needs Improvement",
       trendPositive: stats.readinessScore >= 60,
       icon: TrendingUp,
       gradient: "from-indigo-500/10 to-indigo-500/5",
